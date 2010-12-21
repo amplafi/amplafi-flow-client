@@ -16,7 +16,7 @@
     <name>Amplafi Flow - Client and interfaces</name>
     <description>Flow core services (including data objects)</description>
     <scm>
-        <developerConnection>scm:svn:${svn-base}/${project.artifactId}/trunk</developerConnection>
+        <developerConnection>scm:git:${github-base}${project.artifactId}.git</developerConnection>
     </scm>    
 
     <dependencies>
