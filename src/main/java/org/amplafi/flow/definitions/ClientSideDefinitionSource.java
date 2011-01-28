@@ -11,9 +11,10 @@ import java.util.Map;
  */
 public class ClientSideDefinitionSource implements DefinitionSource<FlowDefinition> {
 
-	private URI amplafiServerUri;
-	ClientSideDefinitionSource(URI amplafiServerUri) {
-		this.amplafiServerUri = amplafiServerUri;
+	private URI flowServerUri;
+	
+	ClientSideDefinitionSource(URI flowServerUri) {
+		this.flowServerUri = flowServerUri;
 	}
 	public FlowDefinition getFlowDefinition(String flowTypeName) {
 		// TODO Auto-generated method stub
