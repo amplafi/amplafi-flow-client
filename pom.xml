@@ -22,25 +22,8 @@
     <dependencies>
         <dependency>
             <groupId>org.amplafi</groupId>
-            <artifactId>amplafi-sworddance</artifactId>
-            <version>${amplafi-sworddance-build}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.amplafi</groupId>
             <artifactId>amplafi-json</artifactId>
             <version>${amplafi-json-build}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
         </dependency>   
         <dependency>
             <groupId>org.easymock</groupId>
@@ -71,7 +54,7 @@
     </dependencies>
     <build>
         <defaultGoal>deploy</defaultGoal>
-        <plugins>
+        <!-- plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -80,12 +63,12 @@
                     <source>${android-java-build}</source>
                     <target>${android-java-build}</target>
                     <encoding>UTF-8</encoding>
-                    <!--
+                    <
                         for when javac crashes
                         <compilerArgument>-verbose</compilerArgument>
-                    -->
+                   >
                 </configuration>
             </plugin>
-        </plugins>
+        </plugins-->
     </build>
 </project>
