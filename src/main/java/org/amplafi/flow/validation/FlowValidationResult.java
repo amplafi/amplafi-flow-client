@@ -36,7 +36,7 @@ public interface FlowValidationResult {
      */
     FlowValidationResult addTracking(FlowValidationTracking... tracking);
     /**
-     * add a {@link org.amplafi.flow.validation.SimpleValidationTracking} if valid is false.
+     * add a {@link org.amplafi.flow.validation.ValidationTracking} if valid is false.
      * @param valid add if false
      * @param activityKey TODO
      * @param messageKey
