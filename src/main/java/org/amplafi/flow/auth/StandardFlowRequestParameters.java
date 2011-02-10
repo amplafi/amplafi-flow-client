@@ -8,6 +8,13 @@ package org.amplafi.flow.auth;
  */
 public enum StandardFlowRequestParameters {
 
-	flowClientUserId;	
+	flowClientUserId,
 	
+	flow,
+	
+	fsAdvanceTo,
+	
+	fsCompleteFlow,	
+	
+	flowState;
 }
