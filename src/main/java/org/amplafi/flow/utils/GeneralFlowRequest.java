@@ -65,10 +65,13 @@ public class GeneralFlowRequest {
      * @return JSONObject representation of all of the parameters that this flow has.
      */
     public static JSONObject getFlowDefinition(String requestUriString, String flow) {
+        String responseString = getFlowDefinitionString(requestUriString, flow);
+        return new JSONObject(responseString);
+    }
+    public static String getFlowDefinitionString(String requestUriString, String flow){
         URI requestUri = URI.create(requestUriString + "/flow/" + flow);
         GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(requestUri, fsRenderResult);
-        String responseString = generalFlowRequest.get();
-        return new JSONObject(responseString);
+        return generalFlowRequest.get();
     }
 
     public String get() {
