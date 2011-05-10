@@ -26,7 +26,8 @@ import static org.testng.Assert.*;
  * responses. One of the major items covered is sending bogus data to the different flow types to
  * see if that breaks the server. What should happen when sending in bogus data is a JSON string
  * with an error message pointing out which of the parameters were incorrectly passed, should be
- * displayed.
+ * displayed. <br>
+ * TODO: change the test so the dependent tests do not skip after a single instance fail.
  * 
  * @author Tyrinslys Valinlore
  */
