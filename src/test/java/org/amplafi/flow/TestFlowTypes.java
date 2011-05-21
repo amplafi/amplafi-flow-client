@@ -22,6 +22,9 @@ import static org.testng.Assert.*;
 /**
  * The development server needs to be running for this test class to work.<br>
  * <br>
+ * This test has been disabled by default, either run in eclipse or use the command <b>mvn
+ * -Dtest=TestFlowTypes test</b> <br>
+ * <br>
  * This test Class tests basic elements of interacting with the server using flows and JSON
  * responses. One of the major items covered is sending bogus data to the different flow types to
  * see if that breaks the server. What should happen when sending in bogus data is a JSON string
