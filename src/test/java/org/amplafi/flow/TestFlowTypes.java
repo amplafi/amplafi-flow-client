@@ -86,10 +86,15 @@ public class TestFlowTypes {
         return listOfFlowTypes;
     }
 
-    //got flow list each flow cached in flow
-    //get flow definition string
-    //test string
     @Test
+    public void testConductor() {
+        testFlowDefinition_resultString();
+        testFlowDefinition_resultJson();
+        testFlowDefinition_parameterRepeats();
+        testFlowParametersSetWithStrings_resultString();
+        testFlowParametersSetWithStrings_resultJson();
+    }
+
     public void testFlowDefinition_resultString() {
         String messageStart = "Returned FlowDefinition for " + flow + " ";
         flowDefinitionResult = GeneralFlowRequest.getFlowDefinitionString(requestUriString, flow);
@@ -97,9 +102,6 @@ public class TestFlowTypes {
         assertFalse(flowDefinitionResult.trim().equals(""), messageStart + "was an empty String");
     }
 
-    //make json
-    //test json
-    @Test(dependsOnMethods = { "testFlowDefinition_resultString" })
     public void testFlowDefinition_resultJson() {
         assertTrue(flowDefinitionResult.charAt(0) == '{', "Flow definition is not a JSONObject, definition result: " + flowDefinitionResult);
         try {
@@ -113,7 +115,6 @@ public class TestFlowTypes {
     /**
      * This test tests for repeating parameters in the flow definition.
      */
-    @Test(dependsOnMethods = { "testFlowDefinition_resultJson" })
     public void testFlowDefinition_parameterRepeats() {
         JSONArray<JSONObject> jsonParameters = flowDefinition.getJSONArray(jsonParamaterKey);
         Set<String> parameters = new HashSet<String>();
@@ -130,7 +131,6 @@ public class TestFlowTypes {
     /**
      * This test uses the definition to request a flow with all of the parameters set to strings.
      */
-    @Test(dependsOnMethods = { "testFlowDefinition_resultJson" })
     public void testFlowParametersSetWithStrings_resultString() {
         login();
         getParametersAllStringsResult();
@@ -185,7 +185,6 @@ public class TestFlowTypes {
      * Uses the result string, from flow parameters all set to strings, to build a json object and
      * test.
      */
-    @Test(dependsOnMethods = { "testFlowParametersSetWithStrings_resultString" })
     public void testFlowParametersSetWithStrings_resultJson() {
         try {
             //TO_PAT: Is a JSONObject allways returned?
