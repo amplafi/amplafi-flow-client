@@ -60,7 +60,7 @@
     </dependencies>
     <build>
         <defaultGoal>deploy</defaultGoal>
-        <!-- plugins>
+        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -75,7 +75,7 @@
                    >
                 </configuration>
             </plugin>
-        </plugins-->
+        </plugins>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
