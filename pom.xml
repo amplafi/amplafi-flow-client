@@ -69,10 +69,10 @@
                     <source>${android-java-build}</source>
                     <target>${android-java-build}</target>
                     <encoding>UTF-8</encoding>
-                    <
+                    <!--
                         for when javac crashes
                         <compilerArgument>-verbose</compilerArgument>
-                   >
+                   -->
                 </configuration>
             </plugin>
         </plugins>
