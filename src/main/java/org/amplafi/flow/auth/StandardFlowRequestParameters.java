@@ -16,7 +16,7 @@ package org.amplafi.flow.auth;
  */
 public enum StandardFlowRequestParameters {
 
-	flowClientUserId,
+	apiKey,
 
 	flow,
 
