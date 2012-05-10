@@ -13,6 +13,8 @@
  */
 package org.amplafi.flow.validation;
 
+import java.net.URI;
+
 /**
  * Tracks flow validation problems.
  */
@@ -33,4 +35,9 @@ public interface FlowValidationTracking {
      * @return message parameters which are used to format the message string to display to the user.
      */
     Object[] getMessageParameters();
+    
+    /**
+     * @return and uri client should be redirected to in order to obtain missing data.
+     */
+    URI getRedirectUri();
 }
