@@ -30,7 +30,7 @@
             <artifactId>easymockclassextension</artifactId>
             <scope>test</scope>
         </dependency>
-          
+  
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -56,6 +56,11 @@
         	<version>${amplafi-json-build}</version>
         	<type>jar</type>
         	<scope>compile</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.apache.commons</groupId>
+        	<artifactId>commons-lang3</artifactId>
+        	<version>3.1</version>
         </dependency>
     </dependencies>
     <build>

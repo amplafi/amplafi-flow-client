@@ -21,7 +21,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 public class GeneralFlowRequest {
-    private static final NameValuePair fsRenderResult = new BasicNameValuePair("fsRenderResult", "json/describe");
+    private static final NameValuePair fsRenderResult = new BasicNameValuePair("fsRenderResult", "json");
+    private static final NameValuePair describe = new BasicNameValuePair("describe",null);
+    
 
     private URI requestUri;
 
@@ -41,8 +43,7 @@ public class GeneralFlowRequest {
      */
     public GeneralFlowRequest(URI requestUri, Collection<NameValuePair> parameters) {
         this.requestUri = requestUri;
-        queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");
-
+        queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");       
     }
 
     /**
@@ -50,10 +51,8 @@ public class GeneralFlowRequest {
      *            and no path. For development this is usually http://localhost:8080
      * @return List strings representing flowtypes
      */
-    public static List<String> getListOfFlowTypes(String requestUriString) {
-        URI requestUri;
-        requestUri = URI.create(requestUriString + "/flow");
-        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(requestUri, fsRenderResult);
+    public  List<String> getListOfFlowTypes() {
+        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(this.requestUri, fsRenderResult,describe);
         String responseString = generalFlowRequest.get();
         return new JSONArray<String>(responseString).asList();
     }
@@ -73,13 +72,19 @@ public class GeneralFlowRequest {
         GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(requestUri, fsRenderResult);
         return generalFlowRequest.get();
     }
-
+    
+    public  List<String> getFuzzInputResponse(){        
+        String responseString = this.get();
+        return new JSONArray<String>(responseString).asList();
+    }
+    
+    
     public String get() {
         String output = null;
         try {
             HttpClient client = new DefaultHttpClient();
             HttpGet request = new HttpGet(requestUri + "?" + queryString);
-            HttpResponse response = client.execute(request);
+            HttpResponse response = client.execute(request);           
             output = convertInputStreamToString(response.getEntity().getContent());
         } catch (Exception e) {
             // Throw an exception here ?

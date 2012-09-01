@@ -75,7 +75,7 @@ public class TestFlowTypes {
     @DataProvider(name = "flows-list")
     public static Object[][] getListOfFlows() {
         //get list of flow types
-        List<String> flowList = GeneralFlowRequest.getListOfFlowTypes(requestUriString);
+        List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString + "/tutorial"+"/flow/"),renderAsJson)).getListOfFlowTypes();
         //drop the list into the Object[][] format
         Object[][] listOfFlowTypes = new Object[flowList.size()][];
         int index = 0;
