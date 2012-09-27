@@ -1,65 +1,103 @@
 package org.amplafi.flow.utils;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-
-
-
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * In lieu of an andriod client.
  * 
  * @author Tyrinslys Valinlore
  */
+
 public class CommandLineClient implements Runnable {
-    // full string to send a request to the server and receive a list of the different flow types.
-    //private static final String listFlowTypesUrl = "http://localhost:8080/flow?fsRenderResult=json/describe";
+	private final String requestUriString;
 
-    private  final String requestUriString = "http://localhost:8080";
-     URI init = URI.create(requestUriString + "/tutorial"+"/flow/");
-    private   NameValuePair flow;
-    private   URI requestUri;
-    
-    public static void main(String[] args) {
-    	CommandLineClient commandLineClient = new CommandLineClient();
-    	commandLineClient.run();
-    }
-    public void run() {
-    	FlowTestGenerator flowTestGenerator = new FlowTestGenerator(init);
-    	for(GeneralFlowRequest generalFlowRequest: flowTestGenerator) {
-    		if ( !test(generalFlowRequest) ) {
-    			flowTestGenerator.addToFailedGeneralFLowRequests(generalFlowRequest);
-    		}
-    	}
-    	//apache method.
-    	System.out.println(StringUtils.join(flowTestGenerator.getFailedGeneralFlowRequests(),"/n"));
-    }
-	private boolean test(GeneralFlowRequest generalFlowRequest) {
+	private final String apiKey;
+	
+	private final String flow;
+	
+	// command line switch used to specify which API key we want to use
+	private static final String API_KEY_CMD_SWITCH = "-key";
 		
-		return false;
-	}  }	/*	List<String> flowList = new ArrayList<String>();
-    	List<String> flowResponseList = new ArrayList<String>();
-    	NameValuePair begin = new BasicNameValuePair("flow",null);;
-		GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(init, begin);
-        //get list of flow types         	
-    	flowList =  generalFlowRequest.getListOfFlowTypes(init);
-       // Case 1: Get Responses with url containing only the flow type in the query part
-       for(String s : flowList){
-    	   flow = new BasicNameValuePair("flow",s);
-    	   requestUri = URI.create(requestUriString + "/tutorial"+"/flow/");
-    	   generalFlowRequest = new GeneralFlowRequest(requestUri, flow);    	   
-    	   flowResponseList = generalFlowRequest.getFuzzInputResponse();
-    	   for (String a : flowResponseList){
-    		   System.out.println(a);
-    	   }
-       }
-    }*/
+	// command line switch used to specify which flow we want to use
+	private static final String FLOW_CMD_SWITCH = "-flow";
+	
+	
+	public static void main(String[] args) {
+		Map<String, String> params = extractParams(args);
+		
+		if (params == null) {
+			System.err.println("Invalid input arguments, application will stop.");
+			System.exit(0);
+		}
+		
+		CommandLineClient client = new CommandLineClient(params);
+		client.run();		
+	}
+	
+	public CommandLineClient(Map<String, String> params) {
+		this.apiKey = params.get(API_KEY_CMD_SWITCH);
+		this.flow = params.get(FLOW_CMD_SWITCH);
+		
+		this.requestUriString = buildRequestUriString();
+	}
 
+	private String buildRequestUriString() {
+		return "http://sandbox.farreach.es:8080/c/"
+				+ apiKey + "/apiv1/" 
+				+ flow;
+	}
+
+	/**
+	 * Extract parameters from user's input. Every switch (-key, -flow...) has to be followed by a value.
+	 * @param args
+	 * @return
+	 */
+	private static Map<String, String> extractParams(String[] args) {
+		if (ArrayUtils.isEmpty(args)) {
+			return null;
+		}
+		
+		Map<String, String> params = new HashMap<String, String>();
+		
+		for (int i = 0; i < args.length; i++) {
+			if (API_KEY_CMD_SWITCH.equals(args[i])) {
+				if (i == args.length - 1) {
+					System.err.println("No API key specified");
+					params = null;
+					break;
+				}
+				
+				params.put(API_KEY_CMD_SWITCH, args[i+1]);
+				//skip parameter value, continue to next parameter name
+				i++;
+			} else if (FLOW_CMD_SWITCH.equals(args[i])) {
+				if (i == args.length - 1) {
+					System.err.println("No flow specified");
+					params = null;
+					break;
+				}
+				
+				params.put(FLOW_CMD_SWITCH, args[i+1]);
+				//skip parameter value, continue to next parameter name
+				i++;
+			} else {
+				System.err.println("Unknown switch");
+				params = null;
+				break;
+			}
+		}
+		
+		return params;
+	}
+
+	public void run() {
+		GeneralFlowRequest flowRequest = new GeneralFlowRequest(URI.create(requestUriString), Collections.EMPTY_LIST);
+		System.out.println(flowRequest.get());
+	}
+
+}
