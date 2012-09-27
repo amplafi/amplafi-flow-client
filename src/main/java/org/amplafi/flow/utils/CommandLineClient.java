@@ -28,6 +28,9 @@ public class CommandLineClient implements Runnable {
 	
 	
 	public static void main(String[] args) {
+//	    HACK TO_HARIS: doesn't looks like a convenient way to parse command line parameters can we use something like
+//	          http://commons.apache.org/cli/ ??
+//	     
 		Map<String, String> params = extractParams(args);
 		
 		if (params == null) {
@@ -40,6 +43,8 @@ public class CommandLineClient implements Runnable {
 	}
 	
 	public CommandLineClient(Map<String, String> params) {
+	    //HACK TO_HARIS: apiKey and flow got to be separate (mandatory) parameters to the constructor.
+	    //We need a cleaner interface to later reuse this class in other tasks.
 		this.apiKey = params.get(API_KEY_CMD_SWITCH);
 		this.flow = params.get(FLOW_CMD_SWITCH);
 		
@@ -47,12 +52,16 @@ public class CommandLineClient implements Runnable {
 	}
 
 	private String buildRequestUriString() {
+	    //HACK TO_HARIS: Why is server address hardcoded? 
 		return "http://sandbox.farreach.es:8080/c/"
 				+ apiKey + "/apiv1/" 
 				+ flow;
 	}
 
 	/**
+	 * HACK TO_HARIS: doesn't looks like a convenient way to parse command line parameters can we use something like
+	 *     http://commons.apache.org/cli/ ??
+	 * 
 	 * Extract parameters from user's input. Every switch (-key, -flow...) has to be followed by a value.
 	 * @param args
 	 * @return
@@ -65,6 +74,7 @@ public class CommandLineClient implements Runnable {
 		Map<String, String> params = new HashMap<String, String>();
 		
 		for (int i = 0; i < args.length; i++) {
+		    //
 			if (API_KEY_CMD_SWITCH.equals(args[i])) {
 				if (i == args.length - 1) {
 					System.err.println("No API key specified");
@@ -96,6 +106,7 @@ public class CommandLineClient implements Runnable {
 	}
 
 	public void run() {
+	    //HACK TO_HARIS: How to supply parameters to the flow call?
 		GeneralFlowRequest flowRequest = new GeneralFlowRequest(URI.create(requestUriString), Collections.EMPTY_LIST);
 		System.out.println(flowRequest.get());
 	}
