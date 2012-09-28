@@ -21,10 +21,11 @@ import org.apache.http.message.BasicNameValuePair;
  * b) parse command line options from a given array of String objects.
  * 
  *  API_KEY, FLOW, HOST, PORT, API_VERSION command line arguments are used to set samenamed options through command line, and get them through this class' API.
- *  
  *  E.g. if the value of API_KEY is "key" then you can set the API key option by following this example: -key ampcb_0cf02bdcd1218c9f5556b632640749a53946923cb26d0e90d2b9cf2300280497
- *  
  *  Then you can getOptionValue(API_KEY) to access this API key's value.
+ *  
+ *  Another example of using arguments with {@link CommandLineClient}:
+ *  -key ampcb_0cf02bdcd1218c9f5556b632640749a53946923cb26d0e90d2b9cf2300280497 -flow EnvelopeStatusesFlow -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -Dpostid=123
  * @author haris
  *
  */
@@ -66,6 +67,7 @@ public class CommandLineClientOptions {
 		
 		options.addOption(parameter);
 		
+		//TODO TO_HARIS Add help.
 		return options;
 	}
 
