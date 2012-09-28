@@ -11,21 +11,32 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.cli.ParseException;
 import org.apache.http.NameValuePair;
 
 /**
- * In lieu of an andriod client.
+ * A Java CL client used to query FarReaches services. For usage options, please refer to {@link CommandLineClientOptions}.
  * 
  * @author Tyrinslys Valinlore
+ * @author Haris Osmanagic
  */
 
 public class CommandLineClient implements Runnable {
-	private FarReachesServiceInfo serviceInfo;
 	private CommandLineClientOptions cmdOptions;
+	
+	private FarReachesServiceInfo serviceInfo;
 	private List<NameValuePair> queryParams = new ArrayList<NameValuePair>();
 	
 	public static void main(String[] args) {
-		CommandLineClientOptions cmdOptions = new CommandLineClientOptions(args);
+		CommandLineClientOptions cmdOptions = null;
+		
+		try {
+			cmdOptions = new CommandLineClientOptions(args);
+		} catch (ParseException e) {
+			System.err.println("Could not parse passed arguments, message:");
+			e.printStackTrace();
+			System.exit(1);
+		}
 
 		FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(
 				cmdOptions.getOptionValue(HOST),
@@ -36,8 +47,7 @@ public class CommandLineClient implements Runnable {
 		client.run();
 	}
 
-	// TO_HARIS Replace cmdOptions with a flow definition and params
-	// TO_HARIS Extract query params to the flow call
+	// TODO TO_HARIS Replace cmdOptions with a flow definition and params
 	// For now, parameters are required to be a ready-made query (i.e. in the form of ?param1=value1&param2=value2).
 	// Params should be a list of name-value pairs, 
 	// so that the caller of the constructor doesn't have to build the query himself
@@ -46,6 +56,7 @@ public class CommandLineClient implements Runnable {
 		
 		this.serviceInfo = serviceInfo;
 		this.cmdOptions = cmdOptions;
+		this.queryParams = cmdOptions.getOptionProperties(PARAMS);
 	}
 
 	private String buildRequestUriString() {
@@ -53,10 +64,6 @@ public class CommandLineClient implements Runnable {
 				+ cmdOptions.getOptionValue(API_KEY) 
 				+ "/" + serviceInfo.getApiVersion()  
 				+ "/" + cmdOptions.getOptionValue(FLOW); 
- 
-		if (cmdOptions.getOptionValue(PARAMS) != null) {
-			fullUri += "/" + cmdOptions.getOptionValue(PARAMS);
-		}
 		
 		return fullUri;
 	}
