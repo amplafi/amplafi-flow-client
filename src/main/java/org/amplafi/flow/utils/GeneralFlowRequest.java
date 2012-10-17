@@ -20,7 +20,7 @@ import org.apache.http.util.EntityUtils;
 public class GeneralFlowRequest {
     private static final NameValuePair fsRenderResult = new BasicNameValuePair("fsRenderResult", "json");
     private static final NameValuePair describe = new BasicNameValuePair("describe",null);
-    
+
 
     private URI requestUri;
 
@@ -40,12 +40,10 @@ public class GeneralFlowRequest {
      */
     public GeneralFlowRequest(URI requestUri, Collection<NameValuePair> parameters) {
         this.requestUri = requestUri;
-        queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");       
+        queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");
     }
 
     /**
-     * @param requestUriString This parameter is just the scheme and authority (with optional port)
-     *            and no path. For development this is usually http://localhost:8080
      * @return List strings representing flowtypes
      */
     public  List<String> getListOfFlowTypes() {
@@ -69,19 +67,19 @@ public class GeneralFlowRequest {
         GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(requestUri, fsRenderResult);
         return generalFlowRequest.get();
     }
-    
-    public  List<String> getFuzzInputResponse(){        
+
+    public  List<String> getFuzzInputResponse(){
         String responseString = this.get();
         return new JSONArray<String>(responseString).asList();
     }
-    
-    
+
+
     public String get() {
         String output = null;
         try {
             HttpClient client = new DefaultHttpClient();
             HttpGet request = new HttpGet(requestUri + "?" + queryString);
-            HttpResponse response = client.execute(request);           
+            HttpResponse response = client.execute(request);
             output = EntityUtils.toString(response.getEntity());
         } catch (Exception e) {
             // Throw an exception here ?
