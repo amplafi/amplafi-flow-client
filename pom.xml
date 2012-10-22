@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.amplafi</groupId>
 	<artifactId>amplafi-flow-client</artifactId>
-	<version>${flow-client.version}</version>
+	<version>${amplafi-flow-build}</version>
 	<parent>
 		<groupId>org.amplafi</groupId>
 		<artifactId>amplafi-opensource-parent</artifactId>
@@ -14,7 +14,7 @@
 	</parent>
 	<packaging>jar</packaging>
 	<name>Amplafi Flow - Client and interfaces</name>
-	<description>Flow core services (including data objects)</description>
+	<description>CLI client</description>
 	<scm>
 		<developerConnection>scm:git:${github-base}${project.artifactId}.git</developerConnection>
 	</scm>
