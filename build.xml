@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="amplafi-flow-client" default="run-client">
 	<property file="build.properties" />
-	
+
 	<dirname property="root-dir" file="." />
 	<property name="tools-dir" value="${root-dir}/amplafi-tools" />
 
 	<target name="run-client" description="Runs the CommandLineClient with options provided in build.properties.">
 		<ant dir="${tools-dir}" target="_exec">
-			<property name="_full-path-to-exec" value="java"/>
+			<property name="_full-path-to-exec" value="java" />
 			<property name="_arg-line" value="-jar ${root-dir}/amplafi-flow-client/target/amplafi-flow-client-${flow-client.version}-jar-with-dependencies.jar 
-				-host=${test.host} -port=${test.port} -apiv=${test.apiv} -flow=${test.flow} -key=${test.key} ${test.query.params}"/>
+				-host=http://${host} -port=${test.port} -apiv=${test.apiv} -flow=${test.flow} -key=${test.key} ${test.query.params}" />
 		</ant>
+	</target>
+
+	<target name="run-local">
+		<antcall target="run-client">
+			<param name="host" value="sandbox.farreach.es" />
+		</antcall>
+	</target>
+
+	<target name="run-remote">
+		<antcall target="run-client">
+			<param name="host" value="${test.host}" />
+		</antcall>
 	</target>
 </project>

@@ -7,10 +7,13 @@ import org.apache.http.NameValuePair;
 public class SimpleFlowRequest {
 	private String flowName;
 	private List<NameValuePair> parameters;
+	private boolean describe;
 
-	public SimpleFlowRequest(String flowName, List<NameValuePair> parameters) {
+	public SimpleFlowRequest(String flowName, boolean describe, List<NameValuePair> parameters) {
 		super();
+
 		this.flowName = flowName;
+		this.describe = describe;
 		this.parameters = parameters;
 	}
 
@@ -28,6 +31,14 @@ public class SimpleFlowRequest {
 
 	public void setParameters(List<NameValuePair> parameters) {
 		this.parameters = parameters;
+	}
+
+	public boolean isDescribe() {
+		return describe;
+	}
+
+	public void setDescribe(boolean describe) {
+		this.describe = describe;
 	}
 
 }

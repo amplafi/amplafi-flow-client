@@ -6,6 +6,7 @@ import static org.amplafi.flow.utils.CommandLineClientOptions.FLOW;
 import static org.amplafi.flow.utils.CommandLineClientOptions.HOST;
 import static org.amplafi.flow.utils.CommandLineClientOptions.PARAMS;
 import static org.amplafi.flow.utils.CommandLineClientOptions.PORT;
+import static org.amplafi.flow.utils.CommandLineClientOptions.DESCRIBE;
 
 import java.net.URI;
 
@@ -41,7 +42,8 @@ public class CommandLineClient implements Runnable {
 				cmdOptions.getOptionValue(PORT),
 				cmdOptions.getOptionValue(API_VERSION));
 		
-		SimpleFlowRequest flowRequestDescription = new SimpleFlowRequest(cmdOptions.getOptionValue(FLOW), cmdOptions.getOptionProperties(PARAMS));
+		SimpleFlowRequest flowRequestDescription = new SimpleFlowRequest(cmdOptions.getOptionValue(FLOW), 
+				cmdOptions.hasOption(DESCRIBE), cmdOptions.getOptionProperties(PARAMS));
 
 		CommandLineClient client = new CommandLineClient(apiKey, serviceInfo, flowRequestDescription);
 		client.run();
@@ -67,7 +69,15 @@ public class CommandLineClient implements Runnable {
 
 	public void run() {
 		GeneralFlowRequest flowRequest = new GeneralFlowRequest(URI.create(buildRequestUriString()), this.flowRequestDescription.getParameters());
-		System.out.println(flowRequest.get());
+		Object result = null;
+		
+		if (flowRequestDescription.isDescribe()) {
+			result = flowRequest.getListOfFlowTypes();
+		} else {
+			result = flowRequest.get();
+		}
+		
+		System.out.println(result);
 	}
 
 }
