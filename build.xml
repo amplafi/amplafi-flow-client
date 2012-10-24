@@ -1,43 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="amplafi-flow-client" default="run-local">
-	<property file="build.properties" />
-
 	<dirname property="root-dir" file="." />
-	<property name="tools-dir" value="${root-dir}/amplafi-tools" />
 
-    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${tools-dir}/ant-contrib-${ant-contrib-build}/ant-contrib-${ant-contrib-build}.jar" onerror="fail"/>
+	<property file="build.properties" />
+	<property name="tools-dir" value="${root-dir}/amplafi-tools" />
+	<property name="jar-descriptor-ref" value="jar-with-dependencies" />
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${tools-dir}/ant-contrib-${ant-contrib-build}/ant-contrib-${ant-contrib-build}.jar" onerror="fail"/>
 
 	<target name="run-client" description="Runs the CommandLineClient with options provided in build.properties.">
 		<ant dir="${tools-dir}" target="_exec">
 			<property name="_full-path-to-exec" value="java" />
-			<property name="_arg-line" value="-jar ${root-dir}/amplafi-flow-client/target/amplafi-flow-client-${flow-client.version}-jar-with-dependencies.jar 
-				-host=http://${host} -port=${test.port} -apiv=${test.apiv} -flow=${test.flow} -key=${test.key} ${test.query.params}" />
+			<property name="_arg-line" value="-jar ${root-dir}/amplafi-flow-client/target/amplafi-flow-client-${flow-client.version}-${jar-descriptor-ref}.jar 
+				-host=http://${host} -port=${port} -apiv=${apiv} -flow=${flow} -key=${key} ${query.params}" />
 		</ant>
 	</target>
 
-	<target name="run-local">
+	<target name="run-local" description="Run test setup prefixed with test (i.e. using test.port, test.apiv etc.). Send the request to local server installation.">
 		<antcall target="run-client">
 			<param name="host" value="sandbox.farreach.es" />
+			<param name="port" value="${test.port}" />
+			<param name="apiv" value="${test.apiv}" />
+			<param name="flow" value="${test.flow}" />
+			<param name="key" value="${test.key}" />
+			<param name="query.params" value="${test.query.params}" />
 		</antcall>
 	</target>
 
-	<target name="run-remote">
+	<target name="run-remote" description="Run test setup prefixed with test (i.e. using test.host, test.port etc.).">
 		<antcall target="run-client">
-			<param name="host" value="${test.host}" />
+			<antcall target="run-client">
+				<param name="host" value="${test.host}" />
+				<param name="port" value="${test.port}" />
+				<param name="apiv" value="${test.apiv}" />
+				<param name="flow" value="${test.flow}" />
+				<param name="key" value="${test.key}" />
+				<param name="query.params" value="${test.query.params}" />
+			</antcall>
 		</antcall>
 	</target>
-	
-	<target name="run-test">
-		<propertyselector property="test.setup.list"
-		                         delimiter=","
-		                         match="test\.setup\.([1-9]*)\..*"
-		                         select="\0"
-		                         casesensitive="false" />
-		
+
+	<!--
+		Run test setups as defined in build.properties. 
+		To create a test setup, create a set of properties for it, preceded by test.setup.<somenumber>, as in the examples in build.properties.
+	-->
+	<target name="run-tests" description="Run test setups as defined in build.properties.">
+		<propertyselector property="test.setup.list" delimiter="," match="test\.setup\.([1-9]*)" select="\0" casesensitive="false" distinct="true" />
+
 		<for list="${test.setup.list}" param="test.setup">
-		   <sequential>
-		    <echo message="@{test.setup} has the following value ${@{test.setup}}" />
-		   </sequential>
+			<sequential>
+				<antcall target="run-client">
+					<param name="host" value="${@{test.setup}.host}" />
+					<param name="port" value="${@{test.setup}.port}" />
+					<param name="apiv" value="${@{test.setup}.apiv}" />
+					<param name="flow" value="${@{test.setup}.flow}" />
+					<param name="key" value="${@{test.setup}.key}" />
+					<param name="query.params" value="${@{test.setup}.query.params}" />
+				</antcall>
+			</sequential>
 		</for>
 	</target>
 </project>
