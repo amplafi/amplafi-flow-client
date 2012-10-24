@@ -1,18 +1,22 @@
-package org.amplafi.flow.utils;
+package org.amplafi.flow.definitions;
 
 import java.util.List;
 
 import org.apache.http.NameValuePair;
 
 /**
- * TO_HARIS: This looks very similar to {@link SimpleFlowRequest}. What's the difference?
- * Please provide javadocs. Also it looks like you can use inheritance to eliminate
- * some code duplication.
- * 
+ * Describes a request to FarReaches service to execute or describe a flow.
+ *  
+ * @author Haris Osmanagic
+ *
  */
 public class FlowRequestDescription {
 	private String flowName;
+	
+	// a list of query parameters for this flow 
 	private List<NameValuePair> parameters;
+	
+	// if set to true, this instance is a request to describe a flow
 	private boolean describe;
 
 	public FlowRequestDescription(String flowName, boolean describe, List<NameValuePair> parameters) {

@@ -1,11 +1,10 @@
-package org.amplafi.flow.utils;
+package org.amplafi.flow.definitions;
 
 /**
  * A class which instances provide information about FarReaches service: host address, port used, and API version.
- * @author haris
+ * @author Haris Osmanagic
  *
  */
-// TODO TO_HARIS Find a better place for this class
 public class FarReachesServiceInfo {
 	private String host;
 	private String port;

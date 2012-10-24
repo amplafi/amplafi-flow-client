@@ -17,8 +17,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+
 /**
- * TO_HARIS: javadocs?
+ * A class providing common methods for querying FarReaches service using HTTP.
  *
  */
 public class GeneralFlowRequest {

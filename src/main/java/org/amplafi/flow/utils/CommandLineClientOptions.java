@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -71,7 +72,6 @@ public class CommandLineClientOptions {
 		
 		options.addOption(parameter);
 		
-		//TODO TO_HARIS Add help.
 		return options;
 	}
 
@@ -109,5 +109,10 @@ public class CommandLineClientOptions {
 
 	public boolean hasOption(String optionName) {
 		return cmd.hasOption(optionName);
+	}
+	
+	public void printHelp() {
+		HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp("ant", options);
 	}
 }

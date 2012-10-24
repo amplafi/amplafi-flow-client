@@ -11,6 +11,8 @@ import static org.amplafi.flow.utils.CommandLineClientOptions.PORT;
 
 import java.net.URI;
 
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
+import org.amplafi.flow.definitions.FlowRequestDescription;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONException;
 import org.amplafi.json.JSONObject;
@@ -98,6 +100,7 @@ public class CommandLineClient implements Runnable {
 		
 		if (doFormatOutput) {
 			output = result.toString(INDENTATION_LEVEL);
+			// output = result.toString();
 		} else {
 			output = result.toString();
 		}
