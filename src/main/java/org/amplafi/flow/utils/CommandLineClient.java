@@ -1,13 +1,6 @@
 package org.amplafi.flow.utils;
 
-import static org.amplafi.flow.utils.CommandLineClientOptions.API_KEY;
-import static org.amplafi.flow.utils.CommandLineClientOptions.API_VERSION;
-import static org.amplafi.flow.utils.CommandLineClientOptions.DESCRIBE;
-import static org.amplafi.flow.utils.CommandLineClientOptions.FLOW;
-import static org.amplafi.flow.utils.CommandLineClientOptions.FORMAT;
-import static org.amplafi.flow.utils.CommandLineClientOptions.HOST;
-import static org.amplafi.flow.utils.CommandLineClientOptions.PARAMS;
-import static org.amplafi.flow.utils.CommandLineClientOptions.PORT;
+import static org.amplafi.flow.utils.CommandLineClientOptions.*;
 
 import java.net.URI;
 
@@ -45,6 +38,12 @@ public class CommandLineClient implements Runnable {
 			System.err.println("Could not parse passed arguments, message:");
 			e.printStackTrace();
 			System.exit(1);
+		}
+		
+		if (cmdOptions.hasOption(HELP)) {
+			cmdOptions.printHelp();
+			
+			System.exit(0);
 		}
 
 		String apiKey = cmdOptions.getOptionValue(API_KEY);

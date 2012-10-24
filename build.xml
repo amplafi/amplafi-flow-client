@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="amplafi-flow-client" default="run-client">
+<project name="amplafi-flow-client" default="run-local">
 	<property file="build.properties" />
 
 	<dirname property="root-dir" file="." />
