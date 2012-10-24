@@ -69,7 +69,7 @@ public class CommandLineClientOptions {
 		OptionBuilder.withArgName("property=value");		
 		OptionBuilder.hasArgs(2);
 		OptionBuilder.withValueSeparator();
-		OptionBuilder.withDescription("use value for given property");
+		OptionBuilder.withDescription("Specify query parameter name and value.");
 		Option parameter = OptionBuilder.create(PARAMS);
 		
 		options.addOption(parameter);

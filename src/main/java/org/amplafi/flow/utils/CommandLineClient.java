@@ -96,14 +96,13 @@ public class CommandLineClient implements Runnable {
 
 	private String formatIfNeeded(JsonConstruct result) {
 		String output = null;
-		
+
 		if (doFormatOutput) {
-			// output = result.toString(INDENTATION_LEVEL);
-			output = result.toString();
+			output = result.toString(INDENTATION_LEVEL);
 		} else {
 			output = result.toString();
 		}
-		
+
 		return output;
 	}
 
