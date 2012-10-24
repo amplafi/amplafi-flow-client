@@ -12,7 +12,7 @@
 		<ant dir="${tools-dir}" target="_exec">
 			<property name="_full-path-to-exec" value="java" />
 			<property name="_arg-line" value="-jar ${root-dir}/amplafi-flow-client/target/amplafi-flow-client-${flow-client.version}-${jar-descriptor-ref}.jar 
-				-host=http://${host} -port=${port} -apiv=${apiv} -flow=${flow} -key=${key} ${query.params}" />
+				-host=http://${host} -port=${port} -apiv=${apiv} -flow=${flow} -key=${key} ${query.params} ${switches}" />
 		</ant>
 	</target>
 
@@ -24,6 +24,7 @@
 			<param name="flow" value="${test.flow}" />
 			<param name="key" value="${test.key}" />
 			<param name="query.params" value="${test.query.params}" />
+			<param name="switches" value="${test.switches}" />
 		</antcall>
 	</target>
 
@@ -36,6 +37,7 @@
 				<param name="flow" value="${test.flow}" />
 				<param name="key" value="${test.key}" />
 				<param name="query.params" value="${test.query.params}" />
+				<param name="switches" value="${test.switches}" />
 			</antcall>
 		</antcall>
 	</target>
@@ -56,6 +58,7 @@
 					<param name="flow" value="${@{test.setup}.flow}" />
 					<param name="key" value="${@{test.setup}.key}" />
 					<param name="query.params" value="${@{test.setup}.query.params}" />
+					<param name="switches" value="${@{test.setup}.switches}" />
 				</antcall>
 			</sequential>
 		</for>
