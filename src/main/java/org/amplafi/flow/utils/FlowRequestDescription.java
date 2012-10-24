@@ -4,6 +4,12 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 
+/**
+ * TO_HARIS: This looks very similar to {@link SimpleFlowRequest}. What's the difference?
+ * Please provide javadocs. Also it looks like you can use inheritance to eliminate
+ * some code duplication.
+ * 
+ */
 public class FlowRequestDescription {
 	private String flowName;
 	private List<NameValuePair> parameters;
