@@ -99,8 +99,8 @@ public class CommandLineClient implements Runnable {
 		String output = null;
 		
 		if (doFormatOutput) {
-			output = result.toString(INDENTATION_LEVEL);
-			// output = result.toString();
+			// output = result.toString(INDENTATION_LEVEL);
+			output = result.toString();
 		} else {
 			output = result.toString();
 		}
