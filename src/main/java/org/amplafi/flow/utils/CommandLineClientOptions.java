@@ -41,6 +41,7 @@ public class CommandLineClientOptions {
 	public static final String PORT = "port";
 	public static final String API_VERSION = "apiv";
 	public static final String DESCRIBE = "desc";
+	public static final String FORMAT = "format";
 	
 	// The options associated with this option are Java property style like options.
 	// e.g. passing this argument: -DpostId=123 to the CommandLineClient tool, will give you access to a property called postId, and its value (123). 
@@ -60,6 +61,7 @@ public class CommandLineClientOptions {
 		options.addOption(API_VERSION, true, "API version");
 		options.addOption(PORT, true, "Service port");
 		options.addOption(DESCRIBE, false, "If used with no flow specified, lists all flows. If used with a flow specified, returns a list of flow properties.");
+		options.addOption(FORMAT, false, "Switches JSON formatting on and off.");
 		
 		OptionBuilder.withArgName("property=value");		
 		OptionBuilder.hasArgs(2);

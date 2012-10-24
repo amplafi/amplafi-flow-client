@@ -5,6 +5,8 @@
 	<dirname property="root-dir" file="." />
 	<property name="tools-dir" value="${root-dir}/amplafi-tools" />
 
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${tools-dir}/ant-contrib-${ant-contrib-build}/ant-contrib-${ant-contrib-build}.jar" onerror="fail"/>
+
 	<target name="run-client" description="Runs the CommandLineClient with options provided in build.properties.">
 		<ant dir="${tools-dir}" target="_exec">
 			<property name="_full-path-to-exec" value="java" />
@@ -23,5 +25,19 @@
 		<antcall target="run-client">
 			<param name="host" value="${test.host}" />
 		</antcall>
+	</target>
+	
+	<target name="run-test">
+		<propertyselector property="test.setup.list"
+		                         delimiter=","
+		                         match="test\.setup\.([1-9]*)\..*"
+		                         select="\0"
+		                         casesensitive="false" />
+		
+		<for list="${test.setup.list}" param="test.setup">
+		   <sequential>
+		    <echo message="@{test.setup} has the following value ${@{test.setup}}" />
+		   </sequential>
+		</for>
 	</target>
 </project>

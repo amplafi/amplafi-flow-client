@@ -2,14 +2,19 @@ package org.amplafi.flow.utils;
 
 import static org.amplafi.flow.utils.CommandLineClientOptions.API_KEY;
 import static org.amplafi.flow.utils.CommandLineClientOptions.API_VERSION;
+import static org.amplafi.flow.utils.CommandLineClientOptions.DESCRIBE;
 import static org.amplafi.flow.utils.CommandLineClientOptions.FLOW;
+import static org.amplafi.flow.utils.CommandLineClientOptions.FORMAT;
 import static org.amplafi.flow.utils.CommandLineClientOptions.HOST;
 import static org.amplafi.flow.utils.CommandLineClientOptions.PARAMS;
 import static org.amplafi.flow.utils.CommandLineClientOptions.PORT;
-import static org.amplafi.flow.utils.CommandLineClientOptions.DESCRIBE;
 
 import java.net.URI;
 
+import org.amplafi.json.JSONArray;
+import org.amplafi.json.JSONException;
+import org.amplafi.json.JSONObject;
+import org.amplafi.json.JsonConstruct;
 import org.apache.commons.cli.ParseException;
 
 /**
@@ -20,9 +25,14 @@ import org.apache.commons.cli.ParseException;
  */
 
 public class CommandLineClient implements Runnable {
+	private static final int INDENTATION_LEVEL = 5;
+
 	private String apiKey;
+	
 	private FarReachesServiceInfo serviceInfo;
-	private SimpleFlowRequest flowRequestDescription;
+	private FlowRequestDescription flowRequestDescription;
+	
+	private boolean doFormatOutput;
 	
 	public static void main(String[] args) {
 		CommandLineClientOptions cmdOptions = null;
@@ -42,42 +52,69 @@ public class CommandLineClient implements Runnable {
 				cmdOptions.getOptionValue(PORT),
 				cmdOptions.getOptionValue(API_VERSION));
 		
-		SimpleFlowRequest flowRequestDescription = new SimpleFlowRequest(cmdOptions.getOptionValue(FLOW), 
+		FlowRequestDescription flowRequestDescription = new FlowRequestDescription(cmdOptions.getOptionValue(FLOW), 
 				cmdOptions.hasOption(DESCRIBE), cmdOptions.getOptionProperties(PARAMS));
 
-		CommandLineClient client = new CommandLineClient(apiKey, serviceInfo, flowRequestDescription);
+		CommandLineClient client = new CommandLineClient(apiKey, serviceInfo, flowRequestDescription, cmdOptions.hasOption(FORMAT));
 		client.run();
 	}
 
 	public CommandLineClient(String apiKey, FarReachesServiceInfo serviceInfo,
-			SimpleFlowRequest flowRequest) {
+			FlowRequestDescription flowRequest, boolean doFormatOutput) {
 		
 		this.apiKey = apiKey;
 		this.serviceInfo = serviceInfo;
 		this.flowRequestDescription = flowRequest;
+		this.doFormatOutput = doFormatOutput;
 	}
 
-	private String buildRequestUriString() {
-		String fullUri =  serviceInfo.getHost()  
-				+ ":" + serviceInfo.getPort() + "/c/"
+	private String buildBaseUriString() {
+		String fullUri =  this.serviceInfo.getHost()  
+				+ ":" + this.serviceInfo.getPort() + "/c/"
 				+ this.apiKey 
-				+ "/" + this.serviceInfo.getApiVersion()  
-				+ "/" + this.flowRequestDescription.getFlowName(); 
+				+ "/" + this.serviceInfo.getApiVersion(); 
 		
 		return fullUri;
 	}
-
+	
 	public void run() {
-		GeneralFlowRequest flowRequest = new GeneralFlowRequest(URI.create(buildRequestUriString()), this.flowRequestDescription.getParameters());
-		Object result = null;
-		
-		if (flowRequestDescription.isDescribe()) {
-			result = flowRequest.getListOfFlowTypes();
+		GeneralFlowRequest flowRequest = new GeneralFlowRequest(URI.create(buildBaseUriString()), this.flowRequestDescription.getFlowName(), this.flowRequestDescription.getParameters());;
+		JsonConstruct result = null;
+
+		if (flowRequestDescription.isDescribe() && flowRequestDescription.getFlowName() == null) {
+			result = flowRequest.listFlows();
+		} else if (flowRequestDescription.isDescribe() && flowRequestDescription.getFlowName() != null) {
+			result = flowRequest.describeFlow();
 		} else {
-			result = flowRequest.get();
+			result = toJsonConstruct(flowRequest.get());
+		}
+
+		String output = formatIfNeeded(result);
+		System.out.println(output);
+	}
+
+	private String formatIfNeeded(JsonConstruct result) {
+		String output = null;
+		
+		if (doFormatOutput) {
+			output = result.toString(INDENTATION_LEVEL);
+		} else {
+			output = result.toString();
 		}
 		
-		System.out.println(result);
+		return output;
+	}
+
+	private JsonConstruct toJsonConstruct(String string) {
+		JsonConstruct json = null;
+		
+		try {
+			json = new JSONObject(string);
+		} catch (JSONException e) {
+			json = new JSONArray<String>(string);
+		}
+		
+		return json;
 	}
 
 }

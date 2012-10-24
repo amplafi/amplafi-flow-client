@@ -21,36 +21,36 @@ public class GeneralFlowRequest {
     private static final NameValuePair fsRenderResult = new BasicNameValuePair("fsRenderResult", "json");
     private static final NameValuePair describe = new BasicNameValuePair("describe",null);
 
-
     private URI requestUri;
-
+    private String flowName;    
     private String queryString;
 
     /**
      * @param requestUri is expected to have everything accept the queryString
      * @param params
      */
-    public GeneralFlowRequest(URI requestUri, NameValuePair... params) {
-        this(requestUri, Arrays.asList(params));
+    public GeneralFlowRequest(URI requestUri, String flowName, NameValuePair... params) {
+        this(requestUri, flowName, Arrays.asList(params));
     }
 
     /**
      * @param requestUri is expected to have everything accept the queryString
      * @param parameters
      */
-    public GeneralFlowRequest(URI requestUri, Collection<NameValuePair> parameters) {
+    public GeneralFlowRequest(URI requestUri, String flowName, Collection<NameValuePair> parameters) {
         this.requestUri = requestUri;
+        this.flowName = flowName;
         queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");
     }
 
     /**
      * @return List strings representing flowtypes
      */
-    public  List<String> getListOfFlowTypes() {
-        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(this.requestUri, fsRenderResult,describe);
-        String responseString = generalFlowRequest.get();
-        return new JSONArray<String>(responseString).asList();
-    }
+	public JSONArray<String> listFlows() {
+		GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(this.requestUri, null, fsRenderResult, describe);
+		String responseString = generalFlowRequest.get();
+		return new JSONArray<String>(responseString);
+	}
 
     /**
      * @param requestUriString This parameter is just the scheme and authority (with optional port)
@@ -58,13 +58,14 @@ public class GeneralFlowRequest {
      * @param flow the flow name
      * @return JSONObject representation of all of the parameters that this flow has.
      */
-    public static JSONObject getFlowDefinition(String requestUriString, String flow) {
-        String responseString = getFlowDefinitionString(requestUriString, flow);
+    public JSONObject describeFlow() {
+        String responseString = describeFlowRaw();
         return new JSONObject(responseString);
     }
-    public static String getFlowDefinitionString(String requestUriString, String flow){
-        URI requestUri = URI.create(requestUriString + "/flow/" + flow);
-        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(requestUri, fsRenderResult);
+    
+    public String describeFlowRaw(){
+        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(requestUri, flowName, fsRenderResult, describe);
+        
         return generalFlowRequest.get();
     }
 
@@ -73,12 +74,12 @@ public class GeneralFlowRequest {
         return new JSONArray<String>(responseString).asList();
     }
 
-
     public String get() {
         String output = null;
         try {
             HttpClient client = new DefaultHttpClient();
-            HttpGet request = new HttpGet(requestUri + "?" + queryString);
+            
+            HttpGet request = new HttpGet(getFullUri() + "?" + queryString);
             HttpResponse response = client.execute(request);
             output = EntityUtils.toString(response.getEntity());
         } catch (Exception e) {
@@ -87,4 +88,8 @@ public class GeneralFlowRequest {
         }
         return output;
     }
+
+	private String getFullUri() {
+		return flowName != null ? (requestUri + "/" + flowName) : requestUri.toString();
+	}
 }

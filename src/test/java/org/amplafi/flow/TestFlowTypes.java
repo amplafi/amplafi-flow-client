@@ -75,7 +75,7 @@ public class TestFlowTypes {
     @DataProvider(name = "flows-list")
     public static Object[][] getListOfFlows() {
         //get list of flow types
-        List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString + "/tutorial"+"/flow/"),renderAsJson)).getListOfFlowTypes();
+        List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString), null)).listFlows().asList();
         //drop the list into the Object[][] format
         Object[][] listOfFlowTypes = new Object[flowList.size()][];
         int index = 0;
@@ -97,7 +97,7 @@ public class TestFlowTypes {
 
     public void testFlowDefinition_resultString() {
         String messageStart = "Returned FlowDefinition for " + flow + " ";
-        flowDefinitionResult = GeneralFlowRequest.getFlowDefinitionString(requestUriString, flow);
+        flowDefinitionResult = new GeneralFlowRequest(URI.create(requestUriString), flow).describeFlowRaw();
         assertNotNull(flowDefinitionResult);
         assertFalse(flowDefinitionResult.trim().equals(""), messageStart + "was an empty String");
     }
@@ -176,8 +176,8 @@ public class TestFlowTypes {
         //add the json response parameter
         parametersPopulatedWithBogusData.add(renderAsJson);
 
-        URI requestUri = URI.create(requestUriString + "/flow/" + flow);
-        GeneralFlowRequest request = new GeneralFlowRequest(requestUri, parametersPopulatedWithBogusData);
+        URI requestUri = URI.create(requestUriString);
+        GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flow, parametersPopulatedWithBogusData);
         jsonResultWhenAllParametersAreStringsResult = request.get();
     }
 
