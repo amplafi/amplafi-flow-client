@@ -8,6 +8,10 @@
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${tools-dir}/ant-contrib-${ant-contrib-build}/ant-contrib-${ant-contrib-build}.jar" onerror="fail"/>
 
+    <!-- TO_HARIS : what should I set test.switches to? -->
+    <!--      [echo] Executing java -jar /Users/patmoore/farreaches/amplafi-flow-client/target/amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar      -host=http://sandbox.farreach.es -port=8080 -apiv=apiv1 -flow=EnvelopeStatusesFlow -key=ampcb_d04ebc9378f32134a6d12532980a0adb36866f1baffc2acef8042e111d2aab0a  ${test.switches}
+     [exec] /bin/sh: ${test.switches}: bad substitution -->
+    <!-- give examples -->
 	<target name="run-client" description="Runs the CommandLineClient with options provided in build.properties.">
 		<ant dir="${tools-dir}" target="_exec">
 			<property name="_full-path-to-exec" value="java" />
