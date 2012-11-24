@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.amplafi</groupId>
 	<artifactId>amplafi-flow-client</artifactId>
-	<version>${amplafi-flow-build}</version>
+	<version>0.9.4-SNAPSHOT</version>
 	<parent>
 		<groupId>org.amplafi</groupId>
 		<artifactId>amplafi-opensource-parent</artifactId>
