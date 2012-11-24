@@ -55,12 +55,14 @@ However if no tests are run you should check for test exclusions in the pom.xml 
 Once we have identified that a flow is broken, it is no longer valuable to include it in the tests, except for the developer who is fixing it.
 So it is possible to configure the tests to ignore certain flows.
  
- ## Plan ##
+## Plan ##
 
+My goal is to split the test tool into 2 modules. A fuzz test generator and a fuzz test runner. The test generator would create tests in a simple human readable DSL and store them to the disk. interesting test cases that showed faults in the system or were simply considered valuable could be checked into git and bugs reported would be able to refer to the script that highlighted the error. Having a DSL would also allow us to clone scripts and modify them for specific boundary cases. 
 
-
+This work has not started yet.
  
- ## Suspected Errors ##
+## Suspected Errors ##
+    
 Flow  PermanentApiKey returns :
 (org.amplafi.flow.TestFlowTypesSandBox): Flow definition not valid JSON, JSON Error: Expected a ',' or '}' but was '{' at character 88 of {errorMessage: 'Failed to render flow state. Cause: A JSONObject text must begin with '{' but was 'b' at character 1 of bogusData'}
 
