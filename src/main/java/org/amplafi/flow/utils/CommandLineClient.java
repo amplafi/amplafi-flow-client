@@ -26,7 +26,7 @@ public class CommandLineClient implements Runnable {
 	
 	private FarReachesServiceInfo serviceInfo;
 	private FlowRequestDescription flowRequestDescription;
-	
+	private boolean isTutorial;
 	private boolean doFormatOutput;
 	
 	public static void main(String[] args) {
@@ -56,25 +56,34 @@ public class CommandLineClient implements Runnable {
 		FlowRequestDescription flowRequestDescription = new FlowRequestDescription(cmdOptions.getOptionValue(FLOW), 
 				cmdOptions.hasOption(DESCRIBE), cmdOptions.getOptionProperties(PARAMS));
 
-		CommandLineClient client = new CommandLineClient(apiKey, serviceInfo, flowRequestDescription, cmdOptions.hasOption(FORMAT));
+		CommandLineClient client = new CommandLineClient(apiKey, serviceInfo, flowRequestDescription, cmdOptions.hasOption(FORMAT), cmdOptions.hasOption(TUTORIAL));
 		client.run();
 	}
 
 	public CommandLineClient(String apiKey, FarReachesServiceInfo serviceInfo,
-			FlowRequestDescription flowRequest, boolean doFormatOutput) {
-		
+			FlowRequestDescription flowRequest, boolean doFormatOutput, boolean isTutorial) {
+		System.err.println("isTutorial " + isTutorial);
 		this.apiKey = apiKey;
 		this.serviceInfo = serviceInfo;
 		this.flowRequestDescription = flowRequest;
 		this.doFormatOutput = doFormatOutput;
+		this.isTutorial = isTutorial;
 	}
 
 	private String buildBaseUriString() {
-		String fullUri =  this.serviceInfo.getHost()  
-				+ ":" + this.serviceInfo.getPort() + "/c/"
-				+ this.apiKey 
-				+ "/" + this.serviceInfo.getApiVersion(); 
-		
+    	String fullUri;
+	    if (!this.isTutorial){
+	        fullUri =  this.serviceInfo.getHost()  
+				    + ":" + this.serviceInfo.getPort() + "/c/"
+				    + this.apiKey 
+				    + "/" + this.serviceInfo.getApiVersion(); 
+				    
+	    } else {
+	         fullUri =  this.serviceInfo.getHost()  + 
+	         ":" + this.serviceInfo.getPort() + 
+	         "/tutorial/flow";
+				    
+		}
 		return fullUri;
 	}
 	

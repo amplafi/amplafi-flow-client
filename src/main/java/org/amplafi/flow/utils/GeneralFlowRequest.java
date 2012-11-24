@@ -79,18 +79,24 @@ public class GeneralFlowRequest {
         return new JSONArray<String>(responseString).asList();
     }
 
+    /**
+      * This method actually send the http request represented by this object. 
+      * @return request response string. 
+      */
     public String get() {
         String output = null;
         try {
             HttpClient client = new DefaultHttpClient();
-            
-            HttpGet request = new HttpGet(getFullUri() + "?" + queryString);
+            String requestString = getFullUri() + "?" + queryString;
+            System.out.println("Request: " + requestString );        
+            HttpGet request = new HttpGet(requestString);
             HttpResponse response = client.execute(request);
             output = EntityUtils.toString(response.getEntity());
         } catch (Exception e) {
             // Throw an exception here ?
             e.printStackTrace();
         }
+
         return output;
     }
 

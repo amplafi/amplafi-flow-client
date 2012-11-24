@@ -35,6 +35,7 @@ import static org.testng.Assert.*;
  * @author Tyrinslys Valinlore
  */
 public class TestFlowTypes {
+
     private static final String requestUriString = "http://localhost:8080";
 
     private static final String jsonParamaterKey = "parameters";
@@ -56,8 +57,11 @@ public class TestFlowTypes {
     private String jsonResultWhenAllParametersAreStringsResult;
 
     private JSONObject jsonResultWhenAllParametersAreStrings;
+    
+    private static boolean DEBUG = true;
 
-    @Factory(dataProvider = "flows-list")
+
+   @Factory(dataProvider = "flows-list")
     public TestFlowTypes(String flow) {
         this.flow = flow;
     }
@@ -68,26 +72,35 @@ public class TestFlowTypes {
     }
 
     /**
-     * Provides a all flow names for testing
+     * Provides all flow names for testing
      * 
      * @return
      */
     @DataProvider(name = "flows-list")
-    public static Object[][] getListOfFlows() {
-        //get list of flow types
-        List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString), null)).listFlows().asList();
-        //drop the list into the Object[][] format
+    public Object[][] getListOfFlows() {
+ debug("@@@ List of flows " ); 
+        //get list of flow types, currently this returns null because no api key is set.
+       List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString), null)).listFlows().asList();
+        
+        debug("@@@ List of flows " + flowList);        
+        
+        // Drop the list into the Object[][] format which is standard for testNG data providers
+        // This provides an array of parameters for each test
         Object[][] listOfFlowTypes = new Object[flowList.size()][];
         int index = 0;
         for (String flow : flowList) {
             listOfFlowTypes[index] = new Object[] { flow };
             index++;
         }
+        
         return listOfFlowTypes;
     }
 
-    @Test
+    @Test()
     public void testConductor() {
+        debug("@@@ testConductor for flow " + flow);   
+        assertNotNull("flow should not be null" , flow);
+
         testFlowDefinition_resultString();
         testFlowDefinition_resultJson();
         testFlowDefinition_parameterRepeats();
@@ -95,7 +108,11 @@ public class TestFlowTypes {
         testFlowParametersSetWithStrings_resultJson();
     }
 
+    /**
+     * Verify that request return non-null non-empty string.
+     */
     public void testFlowDefinition_resultString() {
+		System.err.println("Sending request to " + requestUriString);
         String messageStart = "Returned FlowDefinition for " + flow + " ";
         flowDefinitionResult = new GeneralFlowRequest(URI.create(requestUriString), flow).describeFlowRaw();
         assertNotNull(flowDefinitionResult);
@@ -215,6 +232,12 @@ public class TestFlowTypes {
             bogusDataList.add(new BasicNameValuePair(parameterName, bogusData));
         }
         return bogusDataList;
+    }
+    
+    private static void debug(String msg){
+        if (DEBUG){
+            System.err.println(msg);
+        }
     }
 
 }
