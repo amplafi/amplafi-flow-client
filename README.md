@@ -55,6 +55,12 @@ However if no tests are run you should check for test exclusions in the pom.xml 
 
 Once we have identified that a flow is broken, it is no longer valuable to include it in the tests, except for the developer who is fixing it.
 So it is possible to configure the tests to ignore certain flows.
+
+Simply list them in comma separated form in the ignoreFlows system property which can be configured for tests in the pom.xml like this.
+
+         <systemPropertyVariables>
+					    <!-- List the flows that you want to ignore here  -->		                                     
+                         <ignoreFlows>PermanentApiKey,CategoriesList,GetWordpressPlugin,GetWordpressPluginInfo</ignoreFlows>
  
 ## Plan ##
 
