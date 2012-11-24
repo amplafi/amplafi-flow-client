@@ -25,9 +25,9 @@ target/amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar
 
 ### To call a flow ###
 
- java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -flow <flowname> -D<param_name>#<value> D<param_name>#<value> ...
+ java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -flow <flowname> -D<param_name>=<value> D<param_name>=<value> ...
  
- ## Running Tests ##
+## Running Tests ##
  
  Tests need to be run against a live instance of the farreaches API server.
  This can be run from the farreaches-wp-plugin project (see above) with the ant target server-run
@@ -52,6 +52,7 @@ However if no tests are run you should check for test exclusions in the pom.xml 
   </systemPropertyVariables>
 
 ## Ingored Flows ##
+
 Once we have identified that a flow is broken, it is no longer valuable to include it in the tests, except for the developer who is fixing it.
 So it is possible to configure the tests to ignore certain flows.
  
