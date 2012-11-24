@@ -1,28 +1,33 @@
-== Getting Started ==
+## Getting Started ##
+
 The amplafai flow client is a tool for sending http requests to a farreach.es API server.
 During development it is normal to use a local server running on port 8080 and to edit your hosts file so that sandbox.farreach.es is mapped to 127.0.0.1.
+
 To make any API calls you will need an API key. This will be generated the first time the wordpress plugin connects to the server. So you will need to install wordpress and the farreaches-wp-plugin to do this. 
 To do that should follow the instructions at https://github.com/farreaches/farreaches-wp-plugin
+
 When this is finished, the key that you need will be visible in the diagnostics screen for the plugin (It is a long hex string like this: ampcb_0cf02bdcd1218c9f5556b632640749a53946923cb26d0e90d2b9cf2300280497).
 
-== Running the client manually==
+## Running the client manually ##
+
 Run: mvn package
+
 This will create a jar file:
 target/amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar
 
-=== To list available flows ===
+### To list available flows ###
 
  java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -desc
 
-=== To describe a flow ===
+### To describe a flow ###
 
  java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -desc -flow <flowname>
 
-=== To call a flow ===
+### To call a flow ###
 
- java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -flow <flowname> -D<param_name>=<value> D<param_name>=<value> ...
+ java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -flow <flowname> -D<param_name>#<value> D<param_name>#<value> ...
  
- == Running Tests ==
+ ## Running Tests ##
  
  Tests need to be run against a live instance of the farreaches API server.
  This can be run from the farreaches-wp-plugin project (see above) with the ant target server-run
@@ -46,16 +51,16 @@ However if no tests are run you should check for test exclusions in the pom.xml 
          <port>8080</port>                         
   </systemPropertyVariables>
 
-== Ingored Flows ==
+## Ingored Flows ##
 Once we have identified that a flow is broken, it is no longer valuable to include it in the tests, except for the developer who is fixing it.
 So it is possible to configure the tests to ignore certain flows.
  
- == Plan ==
+ ## Plan ##
 
 
 
  
- == Suspected Errors ==
+ ## Suspected Errors ##
 Flow  PermanentApiKey returns :
 (org.amplafi.flow.TestFlowTypesSandBox): Flow definition not valid JSON, JSON Error: Expected a ',' or '}' but was '{' at character 88 of {errorMessage: 'Failed to render flow state. Cause: A JSONObject text must begin with '{' but was 'b' at character 1 of bogusData'}
 
@@ -67,7 +72,7 @@ Flow CategoriesList returns :
 
 
 Called with:
-http://sandbox.farreach.es:8080/c/ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e/apiv1/CategoriesList?configuration=bogusData&deleteCategories=bogusData&originalDeleteCategories=bogusData&defaultCategory=bogusData&fsRenderResult=json
+http://sandbox.farreach.es:8080/c/ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e/apiv1/CategoriesList?configuration#bogusData&deleteCategories#bogusData&originalDeleteCategories#bogusData&defaultCategory#bogusData&fsRenderResult#json
 
 Note valid API key used.
 
