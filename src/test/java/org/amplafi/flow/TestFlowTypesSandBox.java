@@ -132,6 +132,7 @@ public class TestFlowTypesSandBox {
             index++;
         }
         
+      //     return new Object[][]{new Object[]{"GetWordpressPlugin"},new Object[]{"GetWordpressPluginInfo"}};
         return listOfFlowTypes;
     }
 
@@ -192,44 +193,51 @@ public class TestFlowTypesSandBox {
              assertTrue( flowDefinition.has("flowTitle"),"flowTitle not found in flow description " );            
             
             // Two flows do not have activities, these are GetWordpressPlugin and GetWordpressPluginInfo
-            // QUESTION is this correct? and why don't these flows return anything. 
-            // TODO there will be an exception made for these 2 flows until this is sorted out.
+            
             // Other flows seem to have bugs. Having identified those bugs we need to ingore them so that we can move on and 
             // find new bugs.
-      
+     
             if (!ignoredFlows.contains(flow)){    
-                // Obtain the Activity list from the JSON data,            
-                JSONArray<JSONObject> activities = flowDefinition.getJSONArray(JSON_ACTIVITY_KEY);
-                assertFalse(activities.isEmpty(), "\"Activities\" array was empty.");    
-
-                // Loop over the activities in the flow definition and determine that each has a parameters attribute.
-                for (JSONObject activity : activities){
+                // Some flows have no activities and can be called 
+                if ( flowDefinition.has(JSON_ACTIVITY_KEY) ){
                 
-                        // certain activities in flows such as AuditManagement do not have parameters. 
-                        JSONArray<JSONObject> activityParameters = activity.getJSONArray(JSON_PARAMETER_KEY);
-                        if (!activityParameters.isEmpty()){
-                            // if an activity does have parameters, then we should check that each parameter definition
-                            //  has the correct attributes.
-                            for (JSONObject param : activityParameters){
-                                 assertTrue( param.has("name"),"name not found for parameter in activity " );
-                                 assertTrue(param.has("type"), "type not found for parameter in activity " );
-                                 assertTrue(param.has("req"), "req not found for parameter in activity " );
+                    // Obtain the Activity list from the JSON data,            
+                    JSONArray<JSONObject> activities = flowDefinition.getJSONArray(JSON_ACTIVITY_KEY);
+                    assertFalse(activities.isEmpty(), "\"Activities\" array was empty.");    
+
+                    // Loop over the activities in the flow definition and determine that each has a parameters attribute.
+                    for (JSONObject activity : activities){
+                    
+                            // certain activities in flows such as AuditManagement do not have parameters. 
+                            JSONArray<JSONObject> activityParameters = activity.getJSONArray(JSON_PARAMETER_KEY);
+                            if (!activityParameters.isEmpty()){
+                                // if an activity does have parameters, then we should check that each parameter definition
+                                //  has the correct attributes.
+                                for (JSONObject param : activityParameters){
+                                     assertTrue( param.has("name"),"name not found for parameter in activity " );
+                                     assertTrue(param.has("type"), "type not found for parameter in activity " );
+                                     assertTrue(param.has("req"), "req not found for parameter in activity " );
+                                }
+                                
+                                // Check that each there are no repeatedly defined parameters for this activity.
+                                testFlowDefinitionParameterRepeats(activityParameters);  
+                                
+                                // Now we call the flow current flow but with each of the parameters set to a string 
+                               String resultJSON = testFlowParametersSetWithStringsResultString(activity);    
+                                
+                                // Next validate the returned JSON data. 
+                               testFlowParametersSetWithStringsResultJson(resultJSON);
+                                
                             }
                             
-                            // Check that each there are no repeatedly defined parameters for this activity.
-                            testFlowDefinitionParameterRepeats(activityParameters);  
-                            
-                            // Now we call the flow current flow but with each of the parameters set to a string 
-                           String resultJSON = testFlowParametersSetWithStringsResultString(activity);    
-                            
-                            // Next validate the returned JSON data. 
-                           testFlowParametersSetWithStringsResultJson(resultJSON);
-                            
-                        }
-                        
 
+                    }   
+                } else {
+                     // flow has no activities or parameters so we can just call it directly
+                    URI requestUri = URI.create(requestUriString);
+                    GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flow);
+                    testFlowParametersSetWithStringsResultJson(request.get());
                 }
-
             }
             
         } catch (JSONException jsonException) {
@@ -321,28 +329,31 @@ public class TestFlowTypesSandBox {
      */
     public JSONObject testFlowParametersSetWithStringsResultJson(String jsonStr) {
         JSONObject jsonResult = null;
-        try {
         
+        // certain flows may download files, in this case the General flow request will return a specific code.
+        if (jsonStr != GeneralFlowRequest.APPLICATION_ZIP){
+            try {
+            
 
-            //TO_PAT: Is a JSONObject allways returned?
-            jsonResult = new JSONObject(jsonStr);
-        } catch (JSONException jsonException) {
+                //TO_PAT: Is a JSONObject allways returned?
+                jsonResult = new JSONObject(jsonStr);
+            } catch (JSONException jsonException) {
 
-            fail("Flow definition not valid JSON, JSON Error: " + jsonException.getMessage());
+                fail("Flow definition not valid JSON, JSON Error: " + jsonException.getMessage());
+            }
+
+            
+            // We would expect most flows to fail when random parameters are sent but this is not necessarily true. 
+            // So we determine is the flow has failed or not and then validate the response. 
+            
+             if ( jsonResult.has(JSON_GENERIC_ERROR_MESSAGE_KEY) ){
+                     assertFalse(jsonResult.getString(JSON_GENERIC_ERROR_MESSAGE_KEY).trim()
+                                            .equalsIgnoreCase(JSON_GENERIC_ERROR_MESSAGE),
+                                    "Generic Message, change this message to state the problem more specifically: " + jsonResult.toString());
+             
+             
+             }
         }
-
-        
-        // We would expect most flows to fail when random parameters are sent but this is not necessarily true. 
-        // So we determine is the flow has failed or not and then validate the response. 
-        
-         if ( jsonResult.has(JSON_GENERIC_ERROR_MESSAGE_KEY) ){
-                 assertFalse(jsonResult.getString(JSON_GENERIC_ERROR_MESSAGE_KEY).trim()
-                                        .equalsIgnoreCase(JSON_GENERIC_ERROR_MESSAGE),
-                                "Generic Message, change this message to state the problem more specifically: " + jsonResult.toString());
-         
-         
-         }
-          
         return jsonResult;
     }
 

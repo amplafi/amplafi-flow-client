@@ -11,11 +11,13 @@ import org.amplafi.json.JSONObject;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.Header;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import static org.apache.http.HttpStatus.*;
 
 
 /**
@@ -25,6 +27,8 @@ import org.apache.http.util.EntityUtils;
 public class GeneralFlowRequest {
     private static final NameValuePair fsRenderResult = new BasicNameValuePair("fsRenderResult", "json");
     private static final NameValuePair describe = new BasicNameValuePair("describe",null);
+    public static final String APPLICATION_ZIP = "application/zip";
+
 
     private URI requestUri;
     private String flowName;    
@@ -88,10 +92,20 @@ public class GeneralFlowRequest {
         try {
             HttpClient client = new DefaultHttpClient();
             String requestString = getFullUri() + "?" + queryString;
-            System.out.println("Request: " + requestString );        
+            
             HttpGet request = new HttpGet(requestString);
             HttpResponse response = client.execute(request);
-            output = EntityUtils.toString(response.getEntity());
+
+            Header contentTypeHeader = response.getFirstHeader("Content-Type");
+            if (contentTypeHeader != null && 
+                    contentTypeHeader.getValue() != null  && contentTypeHeader.getValue().equals(APPLICATION_ZIP)){
+                // calling classes should check for this.
+                output = APPLICATION_ZIP;
+            } else {
+                output = EntityUtils.toString(response.getEntity());
+            }
+            
+        
         } catch (Exception e) {
             // Throw an exception here ?
             e.printStackTrace();
