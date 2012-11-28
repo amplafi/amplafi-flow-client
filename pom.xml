@@ -131,8 +131,8 @@
                         <!-- TestFlowTypes is for an old version of the API which may be out of use -->
                         <exclude>**/TestFlowTypes.java</exclude>
                         <!-- TestFlowTypesSandBox should be enabled, it is only disabled while we make sure it works with the continuous integration 
-					    make sure it works with the  continuous integration server.    
-   					    <exclude>**/TestFlowTypesSandBox.java</exclude> --> 
+					    make sure it works with the  continuous integration server.    -->
+   					    <exclude>**/TestFlowTypesSandBox.java</exclude> 
                     </excludes>
 
                     <systemPropertyVariables>
