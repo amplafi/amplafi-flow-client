@@ -60,6 +60,7 @@ public class TestFlowTypesSandBox {
                                                                     " sandbox host not running or configured. \n" +
                                                                     " Please check these things first.\n" + 
                                                                     "***************************** \n";
+    private static final int MIN_ACCEPTED_FLOWS = 2;  
     
     private static final NameValuePair renderAsJson = new BasicNameValuePair("fsRenderResult", "json");
     private static final NameValuePair keyParam = new BasicNameValuePair("fsRenderResult", "json");
@@ -121,18 +122,25 @@ public class TestFlowTypesSandBox {
         //Get list of supported flow types from server.
         List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString), null, renderAsJson)).listFlows().asList();
 
-        debug("List of flows " + flowList);
+        Object[][] listOfFlowTypes = null;
+        // If the size of the flowlist is less than 2 then it implies an error has occured.
+        if (flowList.size() >= MIN_ACCEPTED_FLOWS){
 
-        // Drop the list into the Object[][] format which is standard for testNG data providers
-        // This provides an array of parameters for each test
-        Object[][] listOfFlowTypes = new Object[flowList.size()][];
-        int index = 0;
-        for (String flow : flowList) {
-            listOfFlowTypes[index] = new Object[] { flow };
-            index++;
-        }
+            debug("List of flows " + flowList);
+
+            // Drop the list into the Object[][] format which is standard for testNG data providers
+            // This provides an array of parameters for each test
+            listOfFlowTypes = new Object[flowList.size()][];
+            int index = 0;
+            for (String flow : flowList) {
+                listOfFlowTypes[index] = new Object[] { flow };
+                index++;
+            }
         
-      //     return new Object[][]{new Object[]{"GetWordpressPlugin"},new Object[]{"GetWordpressPluginInfo"}};
+        } else {
+            fail(CONFIG_ERROR_MSG, null );
+        }
+      
         return listOfFlowTypes;
     }
 
@@ -158,8 +166,7 @@ public class TestFlowTypesSandBox {
     }
 
     /**
-     * Verify that request return non-null non-empty string.
-     *
+     * Verify that request returns a non-null non-empty string.
      * @return The string containing the flow definition JSON data for the current flow.
      */
     public String testFlowDefinitionResultString() {
@@ -205,28 +212,28 @@ public class TestFlowTypesSandBox {
 
                     // Loop over the activities in the flow definition and determine that each has a parameters attribute.
                     for (JSONObject activity : activities){
-                    
-                            // certain activities in flows such as AuditManagement do not have parameters. 
-                            JSONArray<JSONObject> activityParameters = activity.getJSONArray(JSON_PARAMETER_KEY);
-                            if (!activityParameters.isEmpty()){
-                                // if an activity does have parameters, then we should check that each parameter definition
-                                //  has the correct attributes.
-                                for (JSONObject param : activityParameters){
-                                     assertTrue( param.has("name"),"name not found for parameter in activity " );
-                                     assertTrue(param.has("type"), "type not found for parameter in activity " );
-                                     assertTrue(param.has("req"), "req not found for parameter in activity " );
-                                }
-                                
-                                // Check that each there are no repeatedly defined parameters for this activity.
-                                testFlowDefinitionParameterRepeats(activityParameters);  
-                                
-                                // Now we call the flow current flow but with each of the parameters set to a string 
-                               String resultJSON = testFlowParametersSetWithStringsResultString(activity);    
-                                
-                                // Next validate the returned JSON data. 
-                               testFlowParametersSetWithStringsResultJson(resultJSON);
-                                
+                
+                        // certain activities in flows such as AuditManagement do not have parameters. 
+                        JSONArray<JSONObject> activityParameters = activity.getJSONArray(JSON_PARAMETER_KEY);
+                        if (!activityParameters.isEmpty()){
+                            // if an activity does have parameters, then we should check that each parameter definition
+                            //  has the correct attributes.
+                            for (JSONObject param : activityParameters){
+                                 assertTrue( param.has("name"),"name not found for parameter in activity " );
+                                 assertTrue(param.has("type"), "type not found for parameter in activity " );
+                                 assertTrue(param.has("req"), "req not found for parameter in activity " );
                             }
+                            
+                            // Check that each there are no repeatedly defined parameters for this activity.
+                            testFlowDefinitionParameterRepeats(activityParameters);  
+                            
+                            // Now we call the flow current flow but with each of the parameters set to a string 
+                           String resultJSON = testFlowParametersSetWithStringsResultString(activity);    
+                            
+                            // Next validate the returned JSON data. 
+                           testFlowParametersSetWithStringsResultJson(resultJSON);
+                            
+                        }
                             
                     }   
                 } else {
