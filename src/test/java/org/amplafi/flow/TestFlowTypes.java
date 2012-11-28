@@ -31,7 +31,7 @@ import static org.testng.Assert.*;
  * with an error message pointing out which of the parameters were incorrectly passed, should be
  * displayed. <br>
  * TODO: change the test so the dependent tests do not skip after a single instance fail.
- * 
+ *
  * @author Tyrinslys Valinlore
  */
 public class TestFlowTypes {
@@ -57,7 +57,7 @@ public class TestFlowTypes {
     private String jsonResultWhenAllParametersAreStringsResult;
 
     private JSONObject jsonResultWhenAllParametersAreStrings;
-    
+
     private static boolean DEBUG = true;
 
 
@@ -73,17 +73,17 @@ public class TestFlowTypes {
 
     /**
      * Provides all flow names for testing
-     * 
+     *
      * @return
      */
     @DataProvider(name = "flows-list")
     public Object[][] getListOfFlows() {
- debug("@@@ List of flows " ); 
+        debug("@@@ List of flows " );
         //get list of flow types, currently this returns null because no api key is set.
-       List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString), null)).listFlows().asList();
-        
-        debug("@@@ List of flows " + flowList);        
-        
+        List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString), null)).listFlows().asList();
+
+        debug("@@@ List of flows " + flowList);
+
         // Drop the list into the Object[][] format which is standard for testNG data providers
         // This provides an array of parameters for each test
         Object[][] listOfFlowTypes = new Object[flowList.size()][];
@@ -92,13 +92,13 @@ public class TestFlowTypes {
             listOfFlowTypes[index] = new Object[] { flow };
             index++;
         }
-        
+
         return listOfFlowTypes;
     }
 
     @Test()
     public void testConductor() {
-        debug("@@@ testConductor for flow " + flow);   
+        debug("@@@ testConductor for flow " + flow);
         assertNotNull("flow should not be null" , flow);
 
         testFlowDefinition_resultString();
@@ -233,7 +233,7 @@ public class TestFlowTypes {
         }
         return bogusDataList;
     }
-    
+
     private static void debug(String msg){
         if (DEBUG){
             System.err.println(msg);

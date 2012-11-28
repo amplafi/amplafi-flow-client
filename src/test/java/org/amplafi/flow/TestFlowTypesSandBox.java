@@ -40,9 +40,10 @@ import static org.testng.Assert.*;
 public class TestFlowTypesSandBox {
    
     /**
-      * These static variables are overridden in the static initializer below. 
-      */
-    private static String requestUriString = "http://localhost:8080";
+     * These static variables are overridden in the static initializer below.
+     */
+    private static String requestUriString;
+
     private static String apiKey = "dummyKey";
     
     private static final String JSON_ACTIVITY_KEY = "activities";
@@ -63,25 +64,24 @@ public class TestFlowTypesSandBox {
     private static final NameValuePair renderAsJson = new BasicNameValuePair("fsRenderResult", "json");
     private static final NameValuePair keyParam = new BasicNameValuePair("fsRenderResult", "json");
 
-    /** 
-      * The current flow for this test instance.
-      */
+    /**
+     * The current flow for this test instance.
+     */
     private String flow;
     
     private static boolean DEBUG = false;
 
     /**
-      * The following Set contains flows that seem broken or suspicious. 
-      * Having been identified and reported they are awaiting fixing and will be exempt from the test
-      * These values are set in the pom.xml in test configuration.
-      */
-     static Set<String> ignoredFlows = null;
-
+     * The following Set contains flows that seem broken or suspicious. Having been identified and
+     * reported they are awaiting fixing and will be exempt from the test These values are set in
+     * the pom.xml in test configuration.
+     */
+    static Set<String> ignoredFlows;
 
     /*
-      * Obtain the system properties for the test
-      * These may be set up in the pom.xml or passed in from the command line with -D options.
-      */
+     * Obtain the system properties for the test These may be set up in the pom.xml or passed in
+     * from the command line with -D options.
+     */
     static {
         apiKey = System.getProperty(API_PROPERTY_KEY,"");
         String host = System.getProperty(HOST_PROPERTY_KEY ,"sandbox.farreach.es");
@@ -97,10 +97,10 @@ public class TestFlowTypesSandBox {
     }
 
     /**
-      * This factory will be called repeatedly to generate test instances for each of the flows supported 
-      * by the server. 
-      */
-   @Factory(dataProvider = "flows-list")
+     * This factory will be called repeatedly to generate test instances for each of the flows
+     * supported by the server.
+     */
+    @Factory(dataProvider = "flows-list")
     public TestFlowTypesSandBox(String flow) {
         this.flow = flow;
     }
@@ -112,17 +112,17 @@ public class TestFlowTypesSandBox {
 
     /**
      * Provides all flow names for testing
-     * 
+     *
      * @return
      */
     @DataProvider(name = "flows-list")
     public Object[][] getListOfFlows() {
-      
+
         //Get list of supported flow types from server.
-       List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString), null, renderAsJson )).listFlows().asList();
-        
-        debug("List of flows " + flowList);        
-        
+        List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString), null, renderAsJson)).listFlows().asList();
+
+        debug("List of flows " + flowList);
+
         // Drop the list into the Object[][] format which is standard for testNG data providers
         // This provides an array of parameters for each test
         Object[][] listOfFlowTypes = new Object[flowList.size()][];
@@ -136,68 +136,66 @@ public class TestFlowTypesSandBox {
         return listOfFlowTypes;
     }
 
-    @Test()
     /**
-      * Through TestNG DataProvider magic, this test method will be called multiple times; once for each of the
-      * flows supoprted by the sandbox server. Each time this is called the "flow" member variable will be initialized with
-      * the current flow name.
-      */
+     * Through TestNG DataProvider magic, this test method will be called multiple times; once for each of the
+     * flows supoprted by the sandbox server. Each time this is called the "flow" member variable will be initialized with
+     * the current flow name.
+     */
+    @Test()
     public void testConductor() {
-        debug("@@@ testConductor for flow " + flow);   
-        assertNotNull("flow should not be null" , flow);
+        debug("@@@ testConductor for flow " + flow);
+        assertNotNull("flow should not be null", flow);
 
-         // 
-        // This method calls other methods directly parsing data as parameters instead of 
-        // via member variables. 
+        //
+        // This method calls other methods directly parsing data as parameters instead of
+        // via member variables.
         String flowDefinitionResult = testFlowDefinitionResultString();
-        
-        // This will validate each of the flow descriptions and then proceed to make calls to their starting 
-        // activities.
-        JSONObject flowDefinition  = testFlowDefinitionResultJson(flowDefinitionResult);
-      
-      
 
+        // This will validate each of the flow descriptions and then proceed to make calls to their starting
+        // activities.
+        JSONObject flowDefinition = testFlowDefinitionResultJson(flowDefinitionResult);
 
     }
 
     /**
      * Verify that request return non-null non-empty string.
-     *  @return The string containing the flow definition JSON data for the current flow.
+     *
+     * @return The string containing the flow definition JSON data for the current flow.
      */
     public String testFlowDefinitionResultString() {
-		debug("Sending request to " + requestUriString);
+        debug("Sending request to " + requestUriString);
         String messageStart = "Returned FlowDefinition for " + flow + " ";
         String flowDefinitionResult = null;
         try {
             flowDefinitionResult = new GeneralFlowRequest(URI.create(requestUriString), flow).describeFlowRaw();
-            assertNotNull(flowDefinitionResult,CONFIG_ERROR_MSG );
+            assertNotNull(flowDefinitionResult, CONFIG_ERROR_MSG);
             assertFalse(flowDefinitionResult.trim().equals(""), messageStart + "was an empty String");
         } catch (IllegalArgumentException iae) {
-            fail( "This Error can be caused by the API key not being set in the pom",iae);
+            fail("This Error can be caused by the API key not being set in the pom", iae);
         }
         return flowDefinitionResult;
     }
 
     /**
-      * Determine whether the returned data is valid JSON data and whether it contains a list of activities which contain parameters 
-      * for the flow. 
-      */
+     * Determine whether the returned data is valid JSON data and whether it contains a list of
+     * activities which contain parameters for the flow.
+     */
     private JSONObject testFlowDefinitionResultJson(String flowDefinitionResult) {
         debug("flowDefinitionResult = " + flowDefinitionResult);
         assertTrue(flowDefinitionResult.charAt(0) == '{', "Flow definition is not a JSONObject, definition result: " + flowDefinitionResult);
         JSONObject flowDefinition = null;
         try {
-            // parse the flow definition into a JSON 
+            // parse the flow definition into a JSON
             flowDefinition = new JSONObject(flowDefinitionResult);
-            
-             assertTrue( flowDefinition.has("flowTitle"),"flowTitle not found in flow description " );            
-            
+
+            assertTrue(flowDefinition.has("flowTitle"), "flowTitle not found in flow description ");
+
             // Two flows do not have activities, these are GetWordpressPlugin and GetWordpressPluginInfo
             
-            // Other flows seem to have bugs. Having identified those bugs we need to ingore them so that we can move on and 
+            // Other flows seem to have bugs. Having identified those bugs we need to ingore them so that we can move on and
             // find new bugs.
      
-            if (!ignoredFlows.contains(flow)){    
+            if (!ignoredFlows.contains(flow)) {
                 // Some flows have no activities and can be called 
                 if ( flowDefinition.has(JSON_ACTIVITY_KEY) ){
                 
@@ -230,7 +228,6 @@ public class TestFlowTypesSandBox {
                                 
                             }
                             
-
                     }   
                 } else {
                      // flow has no activities or parameters so we can just call it directly
@@ -239,7 +236,7 @@ public class TestFlowTypesSandBox {
                     testFlowParametersSetWithStringsResultJson(request.get());
                 }
             }
-            
+
         } catch (JSONException jsonException) {
             fail("Flow definition not valid JSON, JSON Error: " + jsonException.getMessage());
         }
@@ -274,7 +271,6 @@ public class TestFlowTypesSandBox {
         // Following method call creates a list of parameters with a fixed dummy string value 
         // It makes the request to the server and returns the response.
         String stringResult = getParametersAllStringsResult(activityDefinition);
-        
 
         String messageStart = "Returned response, when all parameters are set to strings, for " + flow + " ";
 
@@ -325,7 +321,8 @@ public class TestFlowTypesSandBox {
 
     /**
      * Validates a generic flow response
-     * @param jsonStr - the flow response raw data. 
+     *
+     * @param jsonStr - the flow response raw data.
      */
     public JSONObject testFlowParametersSetWithStringsResultJson(String jsonStr) {
         JSONObject jsonResult = null;
@@ -333,7 +330,6 @@ public class TestFlowTypesSandBox {
         // certain flows may download files, in this case the General flow request will return a specific code.
         if (jsonStr != GeneralFlowRequest.APPLICATION_ZIP){
             try {
-            
 
                 //TO_PAT: Is a JSONObject allways returned?
                 jsonResult = new JSONObject(jsonStr);
@@ -343,23 +339,21 @@ public class TestFlowTypesSandBox {
             }
 
             
-            // We would expect most flows to fail when random parameters are sent but this is not necessarily true. 
-            // So we determine is the flow has failed or not and then validate the response. 
-            
-             if ( jsonResult.has(JSON_GENERIC_ERROR_MESSAGE_KEY) ){
-                     assertFalse(jsonResult.getString(JSON_GENERIC_ERROR_MESSAGE_KEY).trim()
-                                            .equalsIgnoreCase(JSON_GENERIC_ERROR_MESSAGE),
-                                    "Generic Message, change this message to state the problem more specifically: " + jsonResult.toString());
-             
-             
+        // We would expect most flows to fail when random parameters are sent but this is not necessarily true.
+        // So we determine is the flow has failed or not and then validate the response.
+
+        if (jsonResult.has(JSON_GENERIC_ERROR_MESSAGE_KEY)) {
+            assertFalse(jsonResult.getString(JSON_GENERIC_ERROR_MESSAGE_KEY).trim().equalsIgnoreCase(JSON_GENERIC_ERROR_MESSAGE),
+                "Generic Message, change this message to state the problem more specifically: " + jsonResult.toString());
              }
         }
+
         return jsonResult;
     }
 
     /**
-      * @Returns a collection of parameter names in this activity.
-      */
+     * @Returns a collection of parameter names in this activity.
+     */
     private Collection<String> getAllParameterNames(JSONObject activityDefinition) {
         assertTrue(activityDefinition.has(JSON_PARAMETER_KEY), JSON_PARAMETER_KEY + " not found in JSONObject: " + activityDefinition.toString());
         JSONArray<JSONObject> parameters = activityDefinition.getJSONArray(JSON_PARAMETER_KEY);
