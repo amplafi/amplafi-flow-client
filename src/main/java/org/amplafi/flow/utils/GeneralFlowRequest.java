@@ -92,7 +92,7 @@ public class GeneralFlowRequest {
         try {
             HttpClient client = new DefaultHttpClient();
             String requestString = getFullUri() + "?" + queryString;
-            
+ System.out.println("REQUST " + requestString);           
             HttpGet request = new HttpGet(requestString);
             HttpResponse response = client.execute(request);
 
@@ -110,7 +110,7 @@ public class GeneralFlowRequest {
             // Throw an exception here ?
             e.printStackTrace();
         }
-
+System.out.println("RESPONSE " + output);           
         return output;
     }
 

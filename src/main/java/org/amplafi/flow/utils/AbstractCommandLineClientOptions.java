@@ -30,7 +30,10 @@ import org.apache.http.message.BasicNameValuePair;
  * @author haris
  *
  */
-public class CommandLineClientOptions extends AbstractCommandLineClientOptions {
+public abstract class AbstractCommandLineClientOptions {
+	// holds a list of all options available to CommandLineClient
+	protected Options options = initOptions();
+	protected CommandLine cmd;
 
 	// command line switch used to specify which API key we want to use
 	public static final String API_KEY = "key";
@@ -47,33 +50,51 @@ public class CommandLineClientOptions extends AbstractCommandLineClientOptions {
 	// e.g. passing this argument: -DpostId=123 to the CommandLineClient tool, will give you access to a property called postId, and its value (123). 
 	public static final String PARAMS = "D";
 
-	public CommandLineClientOptions(String[] args) throws ParseException {
-		super(args);
+	public AbstractCommandLineClientOptions(String[] args) throws ParseException {
+		CommandLineParser parser = new GnuParser();
+		cmd = parser.parse(options, args);
 	}
 
-	protected Options initOptions() {
-		Options options = new Options();
+	protected abstract Options initOptions();
 
-		options.addOption(API_KEY, true, "API key");
-		options.addOption(FLOW, true, "Flow name");
-		options.addOption(HOST, true, "Host address");
-		options.addOption(API_VERSION, true, "API version");			
-		options.addOption(PORT, true, "Service port");
-
-		options.addOption(DESCRIBE, false, "If used with no flow specified, lists all flows. If used with a flow specified, returns a list of flow properties.");
-		options.addOption(FORMAT, false, "Switches JSON formatting on and off.");
-		options.addOption(HELP, false, "Prints this message.");
-		options.addOption(TUTORIAL, false, "Use this to run against tutorial server without a key.");
-		
-		OptionBuilder.withArgName("property=value");		
-		OptionBuilder.hasArgs(2);
-		OptionBuilder.withValueSeparator();
-		OptionBuilder.withDescription("Specify query parameter name and value.");
-		Option parameter = OptionBuilder.create(PARAMS);
-		
-		options.addOption(parameter);
-		
-		return options;
+	public String getOptionValue(String optionName) {
+		return cmd.getOptionValue(optionName);
 	}
 
+	public List<NameValuePair> getOptionProperties(String string) {
+		return toNameValuePairList(cmd.getOptionProperties(string));
+	}
+
+	/**
+	 * Converts a Properties instances to a {@link List} of {@link NameValuePair} instances, if keys and values in the Properties instance are objects. Otherwise, throws an {@link IllegalArgumentException}. 
+	 * @param properties
+	 * @return
+	 */
+	// TODO TO_HARIS find a better place for toNameValuePairList method (can be reused and is not strictly bound to this class)
+	private List<NameValuePair> toNameValuePairList(Properties properties) {
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		
+		if (properties != null) {
+			for (Entry<Object, Object> entry: properties.entrySet()) {
+				if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
+					NameValuePair pair = new BasicNameValuePair(entry.getKey().toString(), entry.getValue().toString());
+					pairs.add(pair);
+				} else {
+					throw new IllegalArgumentException("properties instance does not map Strings to Strings, got: " + entry.getKey()
+							+ " => " + entry.getValue());
+				}
+			}
+		}
+		
+		return pairs;
+	}
+
+	public boolean hasOption(String optionName) {
+		return cmd.hasOption(optionName);
+	}
+	
+	public void printHelp() {
+		HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp("ant", options);
+	}
 }
