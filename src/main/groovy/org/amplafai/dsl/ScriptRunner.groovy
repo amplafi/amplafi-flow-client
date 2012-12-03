@@ -14,6 +14,7 @@ public class ScriptRunner {
 		this.requestUriString = requestUriString;
 	}
 	
+	private static boolean DEBUG = false;	
 
 	/**
 	 * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH
@@ -23,9 +24,9 @@ public class ScriptRunner {
 		List<String> list = findAllTestScripts();
 		
 		list.each { file ->
-		    println "Running Script ${file}" 
+
 		    loadAndRunOneScript(file)
-		    println "#########################################" 
+
 		}
 		
 		
@@ -88,7 +89,7 @@ public class ScriptRunner {
 	    binding.setVariable("requestUriString",requestUriString);
 		GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
 	
-		println("Running: ${script}");
+		debug("Running: ${script}");
 	
 		Object value = shell.evaluate(script);    
 		
@@ -97,5 +98,10 @@ public class ScriptRunner {
 	}
 	
 	
+	private static void debug(String msg){
+        if (DEBUG){
+            System.err.println(msg);
+        }
+    }
 	
 }

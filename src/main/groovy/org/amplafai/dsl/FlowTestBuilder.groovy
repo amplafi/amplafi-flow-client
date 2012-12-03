@@ -66,7 +66,7 @@ public class FlowTestBuilder {
  */
 public class FlowTestDSL{
 	
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	
 	private String requestUriString = null
 	public FlowTestDSL(String requestUriString){
@@ -85,7 +85,7 @@ public class FlowTestDSL{
      * @param paramsMap key value map of parameters to send.
      */
 	def request(def flowName, Map paramsMap ){
-		println("flowName ${flowName}");
+		debug("flowName ${flowName}");
 		
 		Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
 		
