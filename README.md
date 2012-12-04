@@ -61,12 +61,122 @@ Simply list them in comma separated form in the ignoreFlows system property whic
          <systemPropertyVariables>
 					    <!-- List the flows that you want to ignore here  -->		                                     
                          <ignoreFlows>PermanentApiKey,CategoriesList,GetWordpressPlugin,GetWordpressPluginInfo</ignoreFlows>
+
+
+## Testing DSL ###
+A testing Domain Specific Language (DSL) has been added to the project. This is designed to be a highly concise and efficient way to write a simple test script for the server.  Scripts may be written in any folder below src/test/resources/testscripts. Here is an example of what a script looks like:
+
+__________________________________________________________________________
+
+    request('HelloFlow',['param1':'dog','param2':'cat']); 
+    expect("""
+    {	"validationErrors":{
+         "flow-result":{
+            "flowValidationTracking":[
+               {
+                  "key":"MissingRequiredTracking",
+                  "parameters":[
+                     "HelloFlow"
+                  ]
+               },
+               {
+                  "key":"flow.definition-not-found",
+                  "parameters":[
+                  ]
+               }
+            ]
+         }
+      }
+    }
+    """);
+__________________________________________________________________________
+
+That is it!
+
+request() sends an http request immediately to the specified flow with the specified parameters. 
+
+expect() verifies the logical content of the last response. i.e. object comparison not just string comparison.
+
+Many flow responses have random elements. There is currently a method in the DSL checkReturnedValidJson() Which fails if the return is not valid JSON. 
+
+The scripts are technically just a snippet of Groovy, so any groovy code and almost any Java code can also be included if needed. For example you are welcome to import other classes and use them in your test script. Sticking to Java syntax is normally fine, but groovy offers some shortcuts; for example the three double quote delimiter (""") , used above, is a multi-line string which can be very convenient for containing formatted JSON data etc.
+
+
+## Test Generator ##
+A test generator class has been added. This is a command line tool that will interrogate the server for available flows and generate DSL tests according to specific strategies. You can run it like this.
+
+    java -DignoreFlows="PermanentApiKey,CategoriesList" -cp amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies org.amplafi.flow.utils.DSLTestGenerator  -key ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -strategy BogusString -out ./out/
+    
+Options are:
+
+     -apiv <arg>           API version
+     -D <property=value>   Specify query parameter name and value.
+     -flow <arg>           Flow name - If no know is specified tests will be generated for all flows.
+     -help                    Prints this message.
+    -host <arg>            Host address
+    -key <arg>             API key
+    -port <arg>             Service port
+    -strategy <arg>       One of [BogusString,] Others to follow soon .
+
+
+When tests are generated you should copy the ones you want to somewhere below src/test/resources/testscripts/** I put them in a sub folder called "gen" to distinguish them from ones I will create manually. These can be edited, checked in to git. etc.
+
+## Testing Strategies ##
+The concept of a testing strategy has been added. Testing strategies are subclasses of org.amplafi.flow.strategies.AbstractTestingStrategy. These classes define how the DSLTestGenerator will create the test scripts for each flow. In this way new approaches to testing can be created easily. For example the BogusStringTestingStrategy is very concise and just looks like this:
+
+    /**
+    * This strategy produces tests that simply send in bogus String data.
+    * @author paul
+    */
+    public class BogusStringDataStrategy extends AbstractTestingStrategy {
+     
+    private static final String NAME = "BogusStringData";
+    /**
+     * @return the name of this strategy
+     */
+     @Override
+     public String getName(){
+      return NAME;
+     }
+    @Override
+    public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
+      String bogusData = "bogusData";
+           List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
+           for (String parameterName : parameterNames) {
+               bogusDataList.add(new BasicNameValuePair(parameterName,bogusData));
+           }
+           return bogusDataList;
+    }
+     
+    @Override
+    public void addVerification(String typicalResponse){
+     writeToFileBuffer("checkReturnedValidJson()");
+    }
+    }
+New testing strategies must be registered in the TestingStrategiesEnum.java so they can be called from the command line.
+
+It is easy to create more strategies to test different forms of corrupt data and more intelligent tests.
+
+Test file names are generated with the name format <number><Strategy>_<FlowName>.groovy 
+
+e.g. 0062BogusStringData_BroadcastTopicMessageEndPoints.groovy
+
+5) A TestRunner has been added. This will run all tests under src/test/resources/testscripts/**
+
+This is run from a TestNG unit test called (TestDSLScriptsBatchRunner.java) that locates the test scripts in that path and returns them from a DataProvider. This allows each test to be run individually with separate test reports. Tests are run in name sort order which is why they are created with a numerical prefix. 
  
 ## Plan ##
 
-My goal is to split the test tool into 2 modules. A fuzz test generator and a fuzz test runner. The test generator would create tests in a simple human readable DSL and store them to the disk. interesting test cases that showed faults in the system or were simply considered valuable could be checked into git and bugs reported would be able to refer to the script that highlighted the error. Having a DSL would also allow us to clone scripts and modify them for specific boundary cases. 
+I plan to implement wildcards in the expect string so that unpredictable return fields can be tested gracefully.
 
-This work has not started yet.
+I also plan to implement the following testing strategies:
+
+CorruptParamsNameTestingStrategy,
+RandomMissingParamsTestingStrategy, 
+IncorrectEncodingTestingStrategy, 
+RandomDataTestingStrategy
+
+========================================================================================
  
 ## Suspected Errors ##
     
