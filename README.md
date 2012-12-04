@@ -10,46 +10,51 @@ When this is finished, the key that you need will be visible in the diagnostics 
 
 ## Running the client manually ##
 
-Run: mvn package
+Run: 
+
+    mvn package
 
 This will create a jar file:
 target/amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar
 
 ### To list available flows ###
 
- java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -desc
+     java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -desc
 
 ### To describe a flow ###
 
- java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -desc -flow <flowname>
+     java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -desc -flow <flowname>
 
 ### To call a flow ###
 
- java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -flow <flowname> -D<param_name>=<value> D<param_name>=<value> ...
+     java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -   apiv apiv1 -flow <flowname> -D<param_name>=<value> D<param_name>=<value> ...
  
 ## Running Tests ##
  
- Tests need to be run against a live instance of the farreaches API server.
- This can be run from the farreaches-wp-plugin project (see above) with the ant target server-run
+Tests need to be run against a live instance of the farreaches API server.
+This can be run from the farreaches-wp-plugin project (see above) with the ant target server-run
  
- To run tests simply run: 
- mvn test
+To run tests simply run: 
+ 
+    mvn test
  
 However if no tests are run you should check for test exclusions in the pom.xml under:
-<plugin>
-	<artifactId>maven-surefire-plugin</artifactId>
-	     <configuration>
-					<excludes>
- ...
+
+    <plugin>
+	    <artifactId>maven-surefire-plugin</artifactId>
+	         <configuration>
+					    <excludes>
+     ...
  
  
  To run the tests against the local sandbox server you will need to configure the sanbox details in the test configuration section of the pom.xml, here:
-   <systemPropertyVariables>
-		<!-- place your API key here -->		                    
-         <key>ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e</key>
-         <host>http://sandbox.farreach.es</host>
-         <port>8080</port>                         
-  </systemPropertyVariables>
+ 
+     <systemPropertyVariables>
+        <!-- place your API key here -->		                    
+        <key>ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e</key>
+        <host>http://sandbox.farreach.es</host>
+        <port>8080</port>                         
+     </systemPropertyVariables>
 
 ## Ingored Flows ##
 
@@ -58,9 +63,9 @@ So it is possible to configure the tests to ignore certain flows.
 
 Simply list them in comma separated form in the ignoreFlows system property which can be configured for tests in the pom.xml like this.
 
-         <systemPropertyVariables>
-					    <!-- List the flows that you want to ignore here  -->		                                     
-                         <ignoreFlows>PermanentApiKey,CategoriesList,GetWordpressPlugin,GetWordpressPluginInfo</ignoreFlows>
+    <systemPropertyVariables>
+        <!-- List the flows that you want to ignore here  -->		                                     
+        <ignoreFlows>PermanentApiKey,CategoriesList,GetWordpressPlugin,GetWordpressPluginInfo</ignoreFlows>
 
 
 ## Testing DSL ###
@@ -129,35 +134,35 @@ The concept of a testing strategy has been added. Testing strategies are subclas
     * @author paul
     */
     public class BogusStringDataStrategy extends AbstractTestingStrategy {
-     
-    private static final String NAME = "BogusStringData";
-    /**
-     * @return the name of this strategy
-     */
-     @Override
-     public String getName(){
-      return NAME;
-     }
-    @Override
-    public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
-      String bogusData = "bogusData";
-           List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
-           for (String parameterName : parameterNames) {
-               bogusDataList.add(new BasicNameValuePair(parameterName,bogusData));
-           }
-           return bogusDataList;
-    }
-     
-    @Override
-    public void addVerification(String typicalResponse){
-     writeToFileBuffer("checkReturnedValidJson()");
-    }
+         
+        private static final String NAME = "BogusStringData";
+        /**
+         * @return the name of this strategy
+         */
+         @Override
+         public String getName(){
+          return NAME;
+         }
+        @Override
+        public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
+          String bogusData = "bogusData";
+               List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
+               for (String parameterName : parameterNames) {
+                   bogusDataList.add(new BasicNameValuePair(parameterName,bogusData));
+               }
+               return bogusDataList;
+        }
+         
+        @Override
+        public void addVerification(String typicalResponse){
+         writeToFileBuffer("checkReturnedValidJson()");
+        }
     }
 New testing strategies must be registered in the TestingStrategiesEnum.java so they can be called from the command line.
 
 It is easy to create more strategies to test different forms of corrupt data and more intelligent tests.
 
-Test file names are generated with the name format <number><Strategy>_<FlowName>.groovy 
+Test file names are generated with the name format number_Strategy_FlowName.groovy 
 
 e.g. 0062BogusStringData_BroadcastTopicMessageEndPoints.groovy
 
