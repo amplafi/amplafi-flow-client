@@ -1,6 +1,6 @@
 ## Getting Started ##
 
-The amplafai flow client is a tool for sending http requests to a farreach.es API server.
+The amplafi flow client is a tool for sending http requests to a farreach.es API server.
 During development it is normal to use a local server running on port 8080 and to edit your hosts file so that sandbox.farreach.es is mapped to 127.0.0.1.
 
 To make any API calls you will need an API key. This will be generated the first time the wordpress plugin connects to the server. So you will need to install wordpress and the farreaches-wp-plugin to do this. 
@@ -51,7 +51,7 @@ However if no tests are run you should check for test exclusions in the pom.xml 
          <port>8080</port>                         
   </systemPropertyVariables>
 
-## Ingored Flows ##
+## Ignored Flows ##
 
 Once we have identified that a flow is broken, it is no longer valuable to include it in the tests, except for the developer who is fixing it.
 So it is possible to configure the tests to ignore certain flows.
