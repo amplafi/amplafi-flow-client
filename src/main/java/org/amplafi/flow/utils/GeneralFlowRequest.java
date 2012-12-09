@@ -91,7 +91,7 @@ public class GeneralFlowRequest {
         String output = null;
         try {
             HttpClient client = new DefaultHttpClient();
-            String requestString = getFullUri() + "?" + queryString;
+            String requestString = getRequestString();
 
             HttpGet request = new HttpGet(requestString);
             HttpResponse response = client.execute(request);
@@ -116,5 +116,9 @@ public class GeneralFlowRequest {
 
 	private String getFullUri() {
 		return flowName != null ? (requestUri + "/" + flowName) : requestUri.toString();
+	}
+	
+	public String getRequestString() {
+		return getFullUri() + "?" + queryString;
 	}
 }

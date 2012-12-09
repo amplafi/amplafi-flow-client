@@ -179,7 +179,7 @@ I also plan to implement the following testing strategies:
 CorruptParamsNameTestingStrategy,
 RandomMissingParamsTestingStrategy, 
 IncorrectEncodingTestingStrategy, 
-RandomDataTestingStrategy
+ge
 
 ========================================================================================
  
@@ -226,7 +226,85 @@ org.hibernate.TransientObjectException: object references an unsaved transient i
 	com.amplafi.web.servlet.PerformanceLoggingFilter.doFilter(PerformanceLoggingFilter.java:59)
  
  
+ 
+ ------------------------------------------
+ 
+ 0063BogusStringData_VerifyUrlOwnership.groovy
+ Fails with 
+  java.lang.AssertionError: Invalid JSON returned: {errorMessage: 'Failed to render flow state. Cause: A JSONObject text must begin with '{' but was 'b' at character 1 of bogusData'}
+	at org.testng.Assert.fail(Assert.java:94)
+ 
+ 
+ 
+ 
+ 
+ 
 ---------------------------------
 ### Finally ###
 
 Neither flows GetWordpressPlugin nor GetWordpressPluginInfo have any activities defined.
+
+
+
+
+## Errors found 2012 Dec 4  ##
+
+
+testLoadAndRunOneScript (/home/paul/Projects/Amplafai/development/flow-client/amplafi-flow-client/src/test/resources/testscripts/gen/0015BogusStringData_WelcomeFromEmail.groovy)
+"java.lang.AssertionError: Invalid JSON returned: {"flowState":{"fsComplete":true,"fsLookupKey":"WelcomeFromEmail_gvtdea5b","fsParameters":{"fsFlowTransitions":{},"configuration":"bogusData","topic":,"signupFlowName":"bogusData"}},"validationErrors":{"flow-result":{"flowValidationTracking":[{"key":"MissingRequiredTracking","parameters":["bogusData"]},{"key":"flow.definition-not-found","parameters":[]}]}}}
+
+
+testLoadAndRunOneScript (/home/paul/Projects/Amplafai/development/flow-client/amplafi-flow-client/src/test/resources/testscripts/gen/0003BogusStringData_EligibleExternalServiceInstancesFlow.groovy)
+
+ java.lang.AssertionError: Invalid JSON returned: [{"lookupKey":"enyvdczskdn7s82n","name":"Facebook","externalServiceDefinition":"facebook.com_1","properties":{},"handlesTokenCallback":true},{"lookupKey":"nbqaralggr6dmwpn","name":"Twitter","externalServiceDefinition":"twitter.com_1","properties":{},"handlesTokenCallback":true},{"lookupKey":"6699342clbtw6zgq","name":"Tumblr","externalServiceDefinition":"tumblr.com_1","properties":{},"handlesTokenCallback":true}]
+
+
+
+testLoadAndRunOneScript (/home/paul/Projects/Amplafai/development/flow-client/amplafi-flow-client/src/test/resources/testscripts/gen/0074BogusStringData_CreateAlert.groovy)
+
+ java.lang.AssertionError: Invalid JSON returned: {"flowState":{"fsComplete":true,"fsCurrentActivityByName":"topics","fsLookupKey":"CreateAlert_t525ysba","fsParameters":{"messageCalendarable":false,"basedOnMessagesList":false,"configuration":"bogusData","originalBroadcastEnvelopes":[],"broadcastEnvelopes":[],"originalMessageBody":"bogusData","selectedEnvelopes":[],"messageBody":"bogusData","messageHeadline":"bogusData","messageExcerpt":"bogusData","explicitMessageResources":"bogusData","embeddedMessageResources":[,"messageResources":[,"derivedUrlNotRequired":false,"downloadPublicUri":false,"publicUri":"bogusData"}},"validationErrors":{"flow-result":{"flowValidationTracking":[{"key":"MissingRequiredTracking","parameters":["user"]},{"key":"MissingRequiredTracking","parameters":["broadcastProvider"]}]}}}
+
+testLoadAndRunOneScript (/home/paul/Projects/Amplafai/development/flow-client/amplafi-flow-client/src/test/resources/testscripts/gen/0004BogusStringData_AccountLocationInformation.groovy)
+"java.lang.AssertionError: Invalid JSON returned: {"flowState":{"fsComplete":true,"fsCurrentActivityByName":"BroacastProviderLocations","fsLookupKey":"AccountLocationInformation_zlftuuv5","fsParameters":{"configuration":"bogusData","providerLocations":[}},"validationErrors":{"flow-result":{"flowValidationTracking":[{"key":"MissingRequiredTracking","parameters":["user"]},{"key":"MissingRequiredTracking","parameters":["broadcastProvider"]}]}}}
+
+
+testLoadAndRunOneScript (/home/paul/Projects/Amplafai/development/flow-client/amplafi-flow-client/src/test/resources/testscripts/gen/0052BogusStringData_IntroductoryFlow.groovy)
+"java.lang.AssertionError: Invalid JSON returned: {"flowState":{"fsComplete":true,"fsCurrentActivityByName":"selectLocation","fsLookupKey":"IntroductoryFlow_oso96b5z","fsParameters":{"basedOnMessagesList":false,"configuration":"bogusData","originalBroadcastEnvelopes":[],"broadcastEnvelopes":[],"originalMessageBody":"bogusData","selectedEnvelopes":[],"messageBody":"bogusData","messageHeadline":"bogusData","messageExcerpt":"bogusData","explicitMessageResources":"bogusData","embeddedMessageResources":[,"messageResources":[,"derivedUrlNotRequired":false,"downloadPublicUri":false,"publicUri":"bogusData"}},"validationErrors":{"flow-result":{"flowValidationTracking":[{"key":"MissingRequiredTracking","parameters":["user"]},{"key":"MissingRequiredTracking","parameters":["broadcastProvider"]}]}}}
+
+testLoadAndRunOneScript (/home/paul/Projects/Amplafai/development/flow-client/amplafi-flow-client/src/test/resources/testscripts/gen/0046BogusStringData_CreateEvent.groovy)
+"java.lang.AssertionError: Invalid JSON returned: {"flowState":{"fsComplete":true,"fsCurrentActivityByName":"topics","fsLookupKey":"CreateEvent_hr695wjj","fsParameters":{"messageCalendarable":true,"configuration":"bogusData","originalBroadcastEnvelopes":[],"broadcastEnvelopes":[],"originalMessageBody":"bogusData","selectedEnvelopes":[],"basedOnMessagesList":false,"messageBody":"bogusData","messageHeadline":"bogusData","messageExcerpt":"bogusData","explicitMessageResources":"bogusData","embeddedMessageResources":[,"messageResources":[,"derivedUrlNotRequired":false,"downloadPublicUri":false,"publicUri":"bogusData"}},"validationErrors":{"flow-result":{"flowValidationTracking":[{"key":"MissingRequiredTracking","parameters":["user"]},{"key":"MissingRequiredTracking","parameters":["broadcastProvider"]}]}}}
+
+testLoadAndRunOneScript (/home/paul/Projects/Amplafai/development/flow-client/amplafi-flow-client/src/test/resources/testscripts/gen/0005BogusStringData_EnterVerificationCode.groovy)
+
+ java.lang.AssertionError: Invalid JSON returned: <html><head><title>Apache Tomcat/7.0.30 - Error report</title><style><!--H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} H2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} H3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} B {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} P {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;}A {color : black;}A.name {color : black;}HR {color : #525D76;}--></style> </head><body><h1>HTTP Status 500 - </h1><HR size="1" noshade="noshade"><p><b>type</b> Status report</p><p><b>message</b> <u></u></p><p><b>description</b> <u>The server encountered an internal error that prevented it from fulfilling this request.</u></p><HR size="1" noshade="noshade"><h3>Apache Tomcat/7.0.30</h3></body></html>
+	at org.testng.Assert.fail(Assert.java:94)
+
+
+
+
+
+
+
+## Issues: ##
+
+amplafai -> amplafi (package names)
+convert log messages to log4j
+make stacks more beatiful
+
+test scenario (Deadline )
+	test client trigger reset apis keys method on server 
+	use sql to find new api key. 
+	
+Priority 1: given a key that represents Super user (Deadline before end Dec.)
+	admin is farrechs super user 
+	su (act as other user) 
+
+
+Finally, every time on server startup Identified (readonly) keys are created for the users associated with the amplafi account ( BroadcastProvider id =1 in the providers table ) 
+
+This means that:
+wireservice starts up
+test client queries amplafi database: SELECT LOOKUP_KEY FROM CALLBACKS where INACTIVE is null and LOGON_BROADCASTPROVIDER = 1 and LOGON_USER = 1;
+test client uses that key to make the SuApiKey to operate as any other user in the system
+This should be enough to enable you to work on the admin use of the client. This is priority #1. Having an admin client is of immediate high value.
+

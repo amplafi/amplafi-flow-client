@@ -79,6 +79,12 @@ public class DSLTestGenerator {
 			System.exit(0);
 		}
 
+		if (!cmdOptions.hasOption(STRATEGY)) {
+			cmdOptions.printHelp();
+			
+			System.exit(0);
+		}
+
 		String apiKey = cmdOptions.getOptionValue(API_KEY);
 		
 		String host = cmdOptions.getOptionValue(HOST);
@@ -86,6 +92,9 @@ public class DSLTestGenerator {
 		String apiversion = cmdOptions.getOptionValue(API_VERSION);
 		String strategyName = cmdOptions.getOptionValue(STRATEGY);
 		String outPath = cmdOptions.getOptionValue(OUTPATH);
+
+
+
 		
 		TestingStrategiesEnum strategy = Enum.valueOf(TestingStrategiesEnum.class,strategyName);
 		DSLTestGenerator gen = new DSLTestGenerator(strategy.getStrategy(),apiKey, host, port, apiversion, outPath);

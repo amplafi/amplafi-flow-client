@@ -70,9 +70,8 @@ public class ScriptRunner {
 		// into a call to FlowTestBuilder.build then the processed script is run 
 		// with the GroovyShell.
 	
-		
-		// In groovy """ is a multi-line string and ${var} can substitue values into 
-		// the string.
+
+		// Create a full script string with the file source in the middle.
 		def script = """
 			import org.amplafai.dsl.FlowTestBuilder;
 			def builder = new FlowTestBuilder(requestUriString);

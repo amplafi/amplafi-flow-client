@@ -68,23 +68,30 @@ public class FlowTestDSL{
 	
 	private static boolean DEBUG = false;
 	
+	/** This stores the base uri including the host,port,apikey */
 	private String requestUriString = null
-	public FlowTestDSL(String requestUriString){
-		this.requestUriString = requestUriString;
-	}
 	
+	/** This stores the last request to the server */
+	private String lastRequestString = null;
 	
 	/**
 	 * Contains the last response from the server.
 	 */
 	public String lastRequestResponse = null;
+	
+	
+	public FlowTestDSL(String requestUriString){
+		this.requestUriString = requestUriString;
+	}
+	
+	
 
     /**
      * Sends a request to the named flow with the specified parameters
      * @param flowName to call
      * @param paramsMap key value map of parameters to send.
      */
-	def request(def flowName, Map paramsMap ){
+	String request(String flowName, Map paramsMap ){
 		debug("flowName ${flowName}");
 		
 		Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
@@ -99,6 +106,7 @@ public class FlowTestDSL{
         
         debug(requestParams.toString());
         
+        lastRequestString = request.getRequestString();
         lastRequestResponse = request.get();
         
         debug(lastRequestResponse)
@@ -125,10 +133,11 @@ public class FlowTestDSL{
 		try {
 			JSONObject actual = new JSONObject(lastRequestResponse);
 		} catch (Exception e){
-			fail("Invalid JSON returned: " + lastRequestResponse);
+			fail("Invalid JSON. " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
 		}
 		
 	}
+	
 	
 	
 	private static void debug(String msg){
