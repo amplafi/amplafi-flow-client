@@ -123,7 +123,7 @@ public class FacebookClient {
 		fb.createTestUser("farreaches.test", "Farreaches Test User") ;
 		System.out.println("Access Token = " + accessToken);
 		//fb.postOnWall("yourUsername", "A post from facebook app") ;
-		String userInfo = fb.getUserInfo("tuan08", "name,username,email,gender,birthday") ;
+		String userInfo = fb.getUserInfo("100004849774316", "name,username,email,gender,birthday") ;
 		System.out.println("User Info: \n" + userInfo);
 		
 		userInfo = fb.getUserInfo("100004849774316", "name,username,email,gender,birthday") ;
