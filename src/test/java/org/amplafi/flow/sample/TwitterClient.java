@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import net.oauth.OAuthAccessor;
@@ -14,12 +14,9 @@ import net.oauth.OAuthServiceProvider;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 
 
 /**
@@ -75,8 +72,11 @@ public class TwitterClient {
 		System.out.println("\ncall postDirectMessage()");
 		System.out.println("------------------------------------------------------------");
 		
-		String url = "https://api.twitter.com/1/direct_messages/new.json";
-		String getUrl = url + "?screen_name=" + userName + "&text=" + URLEncoder.encode(mesg, "UTF-8") ;
+		String urlNoParams = "https://api.twitter.com/1/direct_messages/new.json";
+		String urlWithParams = urlNoParams + "?screen_name=" + userName + "&text=" + URLEncoder.encode(mesg, "UTF-8") ;
+		
+		//Question: Is there any way to set the params in the request body
+		String url = urlWithParams ;
 		
 		OAuthServiceProvider serviceProvider = new OAuthServiceProvider(null, null, null);
 		OAuthConsumer consumer = new OAuthConsumer(null, consumerKey, consumetSecret, serviceProvider);
@@ -86,11 +86,12 @@ public class TwitterClient {
 		accessor.tokenSecret = this.tokenSecret ;
 
 		HttpPost httpMethod = new HttpPost(url);
+		/*
 		ArrayList<NameValuePair>  params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("screen_name", userName));
 		params.add(new BasicNameValuePair("text", mesg));
 		httpMethod.setEntity(new UrlEncodedFormEntity(params));
-		
+		*/
 		/*
 		HttpPost httpMethod = new HttpPost(url);
 		String body = "{ \"screen_name\": \"SCREEN_NAME\", \"text\": \"TEXT\" }" ;
@@ -126,8 +127,12 @@ public class TwitterClient {
 		System.out.println("\ncall statusesUpdate()");
 		System.out.println("------------------------------------------------------------");
 		
-		String url = "https://api.twitter.com/1/statuses/update.json";
-		
+		String urlNoParams = "https://api.twitter.com/1/statuses/update.json";
+		String urlWithParams = urlNoParams + "?status=$MESSAGE&trim_user=true&include_entities=true" ;
+		urlWithParams = urlWithParams.replace("$MESSAGE", URLEncoder.encode(mesg, "UTF-8")) ;
+		//Question: Is there any way to set the params in the request body
+		String url = urlWithParams ;
+	
 		OAuthServiceProvider serviceProvider = 
 				new OAuthServiceProvider(
 						"https://api.twitter.com/oauth/request_token", 
@@ -140,11 +145,11 @@ public class TwitterClient {
 		accessor.tokenSecret = this.tokenSecret ;
 
 		HttpPost httpMethod = new HttpPost(url);
-		ArrayList<NameValuePair>  params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("trim_user", "true"));
-		params.add(new BasicNameValuePair("include_entities", "true"));
-		params.add(new BasicNameValuePair("text", URLEncoder.encode(mesg, "UTF-8")));
-		httpMethod.setEntity(new UrlEncodedFormEntity(params));
+		//ArrayList<NameValuePair>  params = new ArrayList<NameValuePair>();
+		//params.add(new BasicNameValuePair("trim_user", "true"));
+		//params.add(new BasicNameValuePair("include_entities", "true"));
+		//params.add(new BasicNameValuePair("status", URLEncoder.encode(mesg, "UTF-8")));
+		//httpMethod.setEntity(new UrlEncodedFormEntity(params));
 		
 		/*
 		HttpPost httpMethod = new HttpPost(url);
@@ -200,7 +205,7 @@ public class TwitterClient {
 		
 		TwitterClient client = new TwitterClient(consumerKey, consumerSecret, accessToken, tokenSecret) ;
 		client.getStatusesHomeTimeline() ;
-		client.statusesUpdate("app statuses update............") ;
-		client.postDirectMessage("tuan0875", "app direct message") ;
+		client.statusesUpdate("app statuses update at " + new Date()) ;
+		client.postDirectMessage("tuan0875", "app direct message at " + new Date()) ;
 	}
 }
