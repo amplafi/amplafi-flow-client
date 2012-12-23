@@ -169,7 +169,7 @@ public class TestFlowTypes {
      * "CreateAlert_fjd2s3b6"
      * ,"fsParameters":{"fsApiCall":false,"fsAutoComplete":false,"messageCalendarable"
      * :false,"broadcastMessageType"
-     * :"nrm","basedOnMessagesList":true,"callbackCodes":[],"selectedEnvelopes"
+     * :"nrm","callbackCodes":[],"selectedEnvelopes"
      * :[],"messageBody":"foo"}}}<br>
      * <br>
      * Why is this? Shouldn't I either get a redirect to log in or a json formatted error telling me

@@ -34,18 +34,18 @@ import static org.testng.Assert.*;
  * see if that breaks the server. What should happen when sending in bogus data is a JSON string
  * with an error message pointing out which of the parameters were incorrectly passed, should be
  * displayed. <br>
- * 
+ *
  * @author Paul Smout
  */
 public class TestFlowTypesSandBox {
-   
+
     /**
      * These static variables are overridden in the static initializer below.
      */
     private static String requestUriString;
 
     private static String apiKey = "dummyKey";
-    
+
     private static final String JSON_ACTIVITY_KEY = "activities";
     private static final String JSON_PARAMETER_KEY = "parameters";
     private static final String JSON_PARAMETER_NAME_KEY = "name";
@@ -53,23 +53,21 @@ public class TestFlowTypesSandBox {
     private static final String JSON_GENERIC_ERROR_MESSAGE = "Exception while running flowState";
     private static final String HOST_PROPERTY_KEY = "host";
     private static final String PORT_PROPERTY_KEY = "port";
-    private static final String API_PROPERTY_KEY = "key";    
-    private static final String CONFIG_ERROR_MSG = "\n***************************** \n" + 
+    private static final String API_PROPERTY_KEY = "key";
+    private static final String CONFIG_ERROR_MSG = "\n***************************** \n" +
                                                                     " This Error can be caused by the API key \n" +
                                                                     " not being set in the pom.xml, or the\n" +
                                                                     " sandbox host not running or configured. \n" +
-                                                                    " Please check these things first.\n" + 
+                                                                    " Please check these things first.\n" +
                                                                     "***************************** \n";
-    private static final int MIN_ACCEPTED_FLOWS = 2;  
-    
-    private static final NameValuePair renderAsJson = new BasicNameValuePair("fsRenderResult", "json");
-    private static final NameValuePair keyParam = new BasicNameValuePair("fsRenderResult", "json");
+    private static final int MIN_ACCEPTED_FLOWS = 2;
 
+    private static final NameValuePair renderAsJson = new BasicNameValuePair("fsRenderResult", "json");
     /**
      * The current flow for this test instance.
      */
     private String flow;
-    
+
     private static boolean DEBUG = false;
 
     /**
@@ -87,9 +85,9 @@ public class TestFlowTypesSandBox {
         apiKey = System.getProperty(API_PROPERTY_KEY,"");
         String host = System.getProperty(HOST_PROPERTY_KEY ,"sandbox.farreach.es");
         String port = System.getProperty(PORT_PROPERTY_KEY,"8080");
-        
-        requestUriString = host + ":" + port + "/c/" + apiKey   + "/apiv1"; 
-        
+
+        requestUriString = host + ":" + port + "/c/" + apiKey   + "/apiv1";
+
         String ignoredFlowsStr = System.getProperty("ignoreFlows","");
         String[] ignoredFlowsArr = ignoredFlowsStr.split(",");
         ignoredFlows = new HashSet<String>(Arrays.asList(ignoredFlowsArr));
@@ -136,11 +134,11 @@ public class TestFlowTypesSandBox {
                 listOfFlowTypes[index] = new Object[] { flow };
                 index++;
             }
-        
+
         } else {
             fail(CONFIG_ERROR_MSG, null );
         }
-      
+
         return listOfFlowTypes;
     }
 
@@ -198,22 +196,22 @@ public class TestFlowTypesSandBox {
             assertTrue(flowDefinition.has("flowTitle"), "flowTitle not found in flow description ");
 
             // Two flows do not have activities, these are GetWordpressPlugin and GetWordpressPluginInfo
-            
+
             // Other flows seem to have bugs. Having identified those bugs we need to ingore them so that we can move on and
             // find new bugs.
-     
+
             if (!ignoredFlows.contains(flow)) {
-                // Some flows have no activities and can be called 
+                // Some flows have no activities and can be called
                 if ( flowDefinition.has(JSON_ACTIVITY_KEY) ){
-                
-                    // Obtain the Activity list from the JSON data,            
+
+                    // Obtain the Activity list from the JSON data,
                     JSONArray<JSONObject> activities = flowDefinition.getJSONArray(JSON_ACTIVITY_KEY);
-                    assertFalse(activities.isEmpty(), "\"Activities\" array was empty.");    
+                    assertFalse(activities.isEmpty(), "\"Activities\" array was empty.");
 
                     // Loop over the activities in the flow definition and determine that each has a parameters attribute.
                     for (JSONObject activity : activities){
-                
-                        // certain activities in flows such as AuditManagement do not have parameters. 
+
+                        // certain activities in flows such as AuditManagement do not have parameters.
                         JSONArray<JSONObject> activityParameters = activity.getJSONArray(JSON_PARAMETER_KEY);
                         if (!activityParameters.isEmpty()){
                             // if an activity does have parameters, then we should check that each parameter definition
@@ -223,19 +221,19 @@ public class TestFlowTypesSandBox {
                                  assertTrue(param.has("type"), "type not found for parameter in activity " );
                                  assertTrue(param.has("req"), "req not found for parameter in activity " );
                             }
-                            
+
                             // Check that each there are no repeatedly defined parameters for this activity.
-                            testFlowDefinitionParameterRepeats(activityParameters);  
-                            
-                            // Now we call the flow current flow but with each of the parameters set to a string 
-                           String resultJSON = testFlowParametersSetWithStringsResultString(activity);    
-                            
-                            // Next validate the returned JSON data. 
+                            testFlowDefinitionParameterRepeats(activityParameters);
+
+                            // Now we call the flow current flow but with each of the parameters set to a string
+                           String resultJSON = testFlowParametersSetWithStringsResultString(activity);
+
+                            // Next validate the returned JSON data.
                            testFlowParametersSetWithStringsResultJson(resultJSON);
-                            
+
                         }
-                            
-                    }   
+
+                    }
                 } else {
                      // flow has no activities or parameters so we can just call it directly
                     URI requestUri = URI.create(requestUriString);
@@ -253,7 +251,7 @@ public class TestFlowTypesSandBox {
     }
 
     /**
-     * This utility method tests for repeating parameters in the flow's activity definition. 
+     * This utility method tests for repeating parameters in the flow's activity definition.
      * In other words it fails if a parameter is defined twice.
      */
     private void testFlowDefinitionParameterRepeats(JSONArray<JSONObject> jsonParameters) {
@@ -273,9 +271,9 @@ public class TestFlowTypesSandBox {
      * This test uses the definition to request a flow with all of the parameters set to strings.
      */
     public String testFlowParametersSetWithStringsResultString(JSONObject activityDefinition) {
-        login(); // does nothing and shouldn't be here in any case. 
-        
-        // Following method call creates a list of parameters with a fixed dummy string value 
+        login(); // does nothing and shouldn't be here in any case.
+
+        // Following method call creates a list of parameters with a fixed dummy string value
         // It makes the request to the server and returns the response.
         String stringResult = getParametersAllStringsResult(activityDefinition);
 
@@ -299,7 +297,7 @@ public class TestFlowTypesSandBox {
      * "CreateAlert_fjd2s3b6"
      * ,"fsParameters":{"fsApiCall":false,"fsAutoComplete":false,"messageCalendarable"
      * :false,"broadcastMessageType"
-     * :"nrm","basedOnMessagesList":true,"callbackCodes":[],"selectedEnvelopes"
+     * :"nrm","callbackCodes":[],"selectedEnvelopes"
      * :[],"messageBody":"foo"}}}<br>
      * <br>
      * Why is this? Shouldn't I either get a redirect to log in or a json formatted error telling me
@@ -333,7 +331,7 @@ public class TestFlowTypesSandBox {
      */
     public JSONObject testFlowParametersSetWithStringsResultJson(String jsonStr) {
         JSONObject jsonResult = null;
-        
+
         // certain flows may download files, in this case the General flow request will return a specific code.
         if (jsonStr != GeneralFlowRequest.APPLICATION_ZIP){
             try {
@@ -345,7 +343,7 @@ public class TestFlowTypesSandBox {
                 fail("Flow definition not valid JSON, JSON Error: " + jsonException.getMessage());
             }
 
-            
+
         // We would expect most flows to fail when random parameters are sent but this is not necessarily true.
         // So we determine is the flow has failed or not and then validate the response.
 
@@ -380,7 +378,7 @@ public class TestFlowTypesSandBox {
         }
         return bogusDataList;
     }
-    
+
     private static void debug(String msg){
         if (DEBUG){
             System.err.println(msg);
