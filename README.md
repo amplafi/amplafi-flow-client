@@ -12,23 +12,21 @@ Setting up the wire serve using just the plugin downloaded from farreach.es on w
 
 1. Edit your hosts file to contain the following:
 
-127.0.0.1    sandbox.farreach.es
-# the wordpress blog domain
-127.0.0.1    example.com
-
-
+    127.0.0.1    sandbox.farreach.es    
+    `#` The wordpress blog domain    
+    127.0.0.1    example.com
+  
 2. First we downloaded and installed Bitname Wordpress - Make a note of the bitname stack password
-
-
-3. Downloaded the plugin from farreach.es 
-
+  
+3. Downloaded the plugin from farreach.es
+  
 4. Unzip the plugin file and in the fareaches-wp.php file edit the API host and port to be the folowing:
 
-define('FARREACHES_API_HOST', 'sandbox.farreach.es');
-define('FARREACHES_API_PORT', '8080');
+    define('FARREACHES_API_HOST', 'sandbox.farreach.es');   
+    
+    define('FARREACHES_API_PORT', '8080');
 
 5. Install the plugin (following the instructions on farreach.es )
-
 
 6. In a folder <baseFolder> on our local machine checked out (git clone):
 		amplafi-flow-client
@@ -40,7 +38,6 @@ define('FARREACHES_API_PORT', '8080');
 7. in amplafi-tools we unzipped apache-maven-3.0.4-bin.zip
 	and in the resulting folder apache-maven-3.0.4-bin there is a sub folder  apache-maven-3.0.4 which we copied up a level to <baseFolder>/amplafi-tools
 
-
 Also note that our development PC already had a MySQL database installed for other projects and we decided to use that as the DB for the wireserver. 
 The result here was that we ended up with to mysql instances (a bitnami one for worpress and a default one)
 We ran the bitnami db on port 3308 and the default one 3306, see below
@@ -48,49 +45,46 @@ We ran the bitnami db on port 3308 and the default one 3306, see below
 8. In <baseFolder>/farreaches-wp-plugin we copied the build.local.properties.example to build.local.properties
 It ended up with the following contents (note fields you need to change are marke like this <your-field-here> ):
 
-#===============================================================================================================================
-# Remove quotes around path for Linux:
-wordpress-user user
-wordpress-password 123
-wordpress-dir="C:/xampp/htdocs/wordpress"
-wordpress-db=wordpress
-wordpress-dbuser=root
-wordpress-dbpassword=admin
-wordpress-dbhost=localhost:/tmp/mysql.sock
-# if above fails then try this:
-wordpress-dbhost=localhost:3306
-
-#For automated testing
-wordpress-test-db=wp_test
-wordpress-test-dbuser=wp_test_user
-wordpress-test-dbpassword=(enter your own value)
-wordpress-test-dbhost=localhost:/tmp/mysql.sock
-# if above fails then try this:
-#wordpress-test-dbhost=localhost:3306
-wordpress-test-domain=example.org
-wordpress-test-email=admin@example.org
-wordpress-test-title=Test_Blog
-wordpress-test-abspath=
-# make sure there are no trailing spaces!
-# changelog-init is a build.xml property, changelog-initial.sql is an sql file
-
-mysql-home=/C:/Program Files/MySQL/MySQL Server 5.0
-
-amplafi-mysql-username=root
-amplafi-mysql-password=admin
-farreaches-host=sandbox.farreach.es
-
-#Items below need changing
-farreaches-port=8080
-mysql-root-user=root
-mysql-root-password=admin
-
-amplafi-dropbox-folder=D:/Dropbox2/server-config
-
-#===============================================================================================================================
+    `#` Remove quotes around path for Linux:   
+    wordpress-user user   
+    wordpress-password 123  
+    wordpress-dir="C:/xampp/htdocs/wordpress"  
+    wordpress-db=wordpress  
+    wordpress-dbuser=root  
+    wordpress-dbpassword=admin  
+    wordpress-dbhost=localhost:/tmp/mysql.sock  
+    
+    `#` if above fails then try this:   
+    wordpress-dbhost=localhost:3306
+    
+    `#`For automated testing  
+    wordpress-test-db=wp_test  
+    wordpress-test-dbuser=wp_test_user  
+    wordpress-test-dbpassword=(enter your own value)  
+    wordpress-test-dbhost=localhost:/tmp/mysql.sock
+    
+    `#` if above fails then try this:  
+    `#`wordpress-test-dbhost=localhost:3306  
+    wordpress-test-domain=example.org  
+    wordpress-test-email=admin@example.org  
+    wordpress-test-title=Test_Blog  
+    wordpress-test-abspath=
+    
+    `#` make sure there are no trailing spaces!  
+    `#` changelog-init is a build.xml property, changelog-initial.sql is an sql file  
+    mysql-home=/C:/Program Files/MySQL/MySQL Server 5.0  
+    amplafi-mysql-username=root  
+    amplafi-mysql-password=admin  
+    farreaches-host=sandbox.farreach.es
+    
+    `#`Items below need changing  
+    farreaches-port=8080  
+    mysql-root-user=root  
+    mysql-root-password=admin  
+    amplafi-dropbox-folder=D:/Dropbox2/server-config
+    
 
 9. in <baseFolder>/farreaches-wp-plugin run: ant server-init
-
 
 10. in <baseFolder>/farreaches-wp-plugin run:  ant server-run
 
@@ -125,9 +119,7 @@ For eaxmple it may look like this:
                         <key> ... </key>
 						
 15. Next run: mvn test
-
-						
-
+				
 When this is finished, the key that you need will be visible in the diagnostics screen for the plugin (It is a long hex string like this: ampcb_0cf02bdcd1218c9f5556b632640749a53946923cb26d0e90d2b9cf2300280497).
 
 ## Running the client manually ##
