@@ -68,7 +68,7 @@ public class TestFlowTypesSandBox {
      */
     private String flow;
 
-    private static boolean DEBUG = false;
+    private static boolean DEBUG = true;
 
     /**
      * The following Set contains flows that seem broken or suspicious. Having been identified and

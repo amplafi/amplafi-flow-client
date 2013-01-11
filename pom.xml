@@ -4,13 +4,14 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>amplafi-flow-client</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>0.9.4-SNAPSHOT</version>	
     <parent>
         <groupId>org.amplafi</groupId>
         <artifactId>amplafi-opensource-parent</artifactId>
 		<version>1.0.4</version>
         <relativePath>../amplafi-opensource-parent/pom.xml</relativePath>
-    </parent>
+    </parent>	
+	
     <packaging>jar</packaging>
     <name>Amplafi Flow - Client and interfaces</name>
     <description>CLI client</description>
@@ -18,7 +19,13 @@
         <developerConnection>scm:git:${github-base}${project.artifactId}.git</developerConnection>
     </scm>
 
-    <dependencies>
+    <dependencies> 
+  
+  	    <dependency>
+    	  <groupId>org.codehaus.groovy</groupId>
+    	  <artifactId>groovy-all</artifactId>
+    	  <version>1.8.6</version>
+  	    </dependency>
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
@@ -35,7 +42,7 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>${testng-build}</version>
-            <scope>test</scope>
+           <!-- <scope>test</scope> -->
             <exclusions>
                 <!-- exclude again when surefire 2.7 -->
                 <!--exclusion> <groupId>junit</groupId> <artifactId>junit</artifactId> 
@@ -83,6 +90,22 @@
     <build>
         <defaultGoal>test</defaultGoal>
         <plugins>
+		    <plugin>
+			    <artifactId>maven-compiler-plugin</artifactId>
+			    <version>2.0.4</version>
+			    <configuration>
+			      <compilerId>groovy-eclipse-compiler</compilerId>
+			      <!-- set verbose to be true if you want lots of uninteresting messages -->
+			      <!-- <verbose>true</verbose> -->
+			    </configuration>
+			    <dependencies>
+			      <dependency>
+			        <groupId>org.codehaus.groovy</groupId>
+			        <artifactId>groovy-eclipse-compiler</artifactId>
+			        <version>2.7.0-01</version>
+			      </dependency>
+			    </dependencies>
+ 		    </plugin>        
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
@@ -135,13 +158,18 @@
                         <!-- TestFlowTypes is for an old version of the API which may be out of use -->
                         <exclude>**/TestFlowTypes.java</exclude>
                         <!-- TestFlowTypesSandBox should be enabled, it is only disabled while we make sure it works with the continuous integration 
-					    make sure it works with the  continuous integration server.    -->
-   					    <exclude>**/TestFlowTypesSandBox.java</exclude> 
+					    make sure it works with the  continuous integration server.   
+   					    <exclude>**/TestFlowTypesSandBox.java</exclude>  -->
+   					    <exclude>**/TestScriptRunner.java</exclude>
+						<!-- -->
+						<exclude>**/TestDSLScriptsBatchRunner.java</exclude>
+						<exclude>**/TestFlowTypesSandBox.java</exclude>
+						 
                     </excludes>
 
                     <systemPropertyVariables>
                         <!-- call mvn -Dkey=your_api_key ( looks like: ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e )  -->
-                        <key></key>
+                        <key>ampcb_4497cfdb0503811e85f7eaf63533a2bf9a0e8f68154dab6f060b4a0dd4688674</key>
                         <host>http://sandbox.farreach.es</host>
                         <port>8080</port>
 					    <!-- List the flows that you want to ignore here   -->		                                     
