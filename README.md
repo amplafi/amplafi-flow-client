@@ -6,46 +6,47 @@ During development it is normal to use a local server running on port 8080 and t
 To make any API calls you will need an API key. This will be generated the first time the wordpress plugin connects to the server. So you will need to install wordpress and the farreaches-wp-plugin to do this. 
 To do that should follow the instructions at https://github.com/farreaches/farreaches-wp-plugin
 
+## Run Server ##
+
 Goal is to create a basic server for the purpose of testing the flow-client
 
 Setting up the wire serve using just the plugin downloaded from farreach.es on windows
 
-1. Edit your hosts file to contain the following:
+1) Edit your hosts file to contain the following:
 
     127.0.0.1    sandbox.farreach.es    
-    `#` The wordpress blog domain    
+    # The wordpress blog domain    
     127.0.0.1    example.com
   
-2. First we downloaded and installed Bitname Wordpress - Make a note of the bitname stack password
+2) First we downloaded and installed Bitname Wordpress - Make a note of the bitname stack password
   
-3. Downloaded the plugin from farreach.es
+3) Downloaded the plugin from farreach.es
   
-4. Unzip the plugin file and in the fareaches-wp.php file edit the API host and port to be the folowing:
+4) Unzip the plugin file and in the fareaches-wp.php file edit the API host and port to be the folowing:
 
-    define('FARREACHES_API_HOST', 'sandbox.farreach.es');   
-    
+    define('FARREACHES_API_HOST', 'sandbox.farreach.es');       
     define('FARREACHES_API_PORT', '8080');
 
-5. Install the plugin (following the instructions on farreach.es )
+5) Install the plugin (following the instructions on farreach.es )
 
-6. In a folder <baseFolder> on our local machine checked out (git clone):
+6) In a folder <baseFolder> on our local machine checked out (git clone):
 		amplafi-flow-client
 		amplafi-opensource-parent
 		amplafi-json
 		farreaches-wp-plugin
 		amplafi-tools
 		
-7. in amplafi-tools we unzipped apache-maven-3.0.4-bin.zip
+7) in amplafi-tools we unzipped apache-maven-3.0.4-bin.zip
 	and in the resulting folder apache-maven-3.0.4-bin there is a sub folder  apache-maven-3.0.4 which we copied up a level to <baseFolder>/amplafi-tools
 
 Also note that our development PC already had a MySQL database installed for other projects and we decided to use that as the DB for the wireserver. 
 The result here was that we ended up with to mysql instances (a bitnami one for worpress and a default one)
 We ran the bitnami db on port 3308 and the default one 3306, see below
 
-8. In <baseFolder>/farreaches-wp-plugin we copied the build.local.properties.example to build.local.properties
+8) In <baseFolder>/farreaches-wp-plugin we copied the build.local.properties.example to build.local.properties
 It ended up with the following contents (note fields you need to change are marke like this <your-field-here> ):
 
-    `#` Remove quotes around path for Linux:   
+    # Remove quotes around path for Linux:   
     wordpress-user user   
     wordpress-password 123  
     wordpress-dir="C:/xampp/htdocs/wordpress"  
@@ -54,46 +55,46 @@ It ended up with the following contents (note fields you need to change are mark
     wordpress-dbpassword=admin  
     wordpress-dbhost=localhost:/tmp/mysql.sock  
     
-    `#` if above fails then try this:   
+    # if above fails then try this:   
     wordpress-dbhost=localhost:3306
     
-    `#`For automated testing  
+    #For automated testing  
     wordpress-test-db=wp_test  
     wordpress-test-dbuser=wp_test_user  
     wordpress-test-dbpassword=(enter your own value)  
     wordpress-test-dbhost=localhost:/tmp/mysql.sock
     
-    `#` if above fails then try this:  
-    `#`wordpress-test-dbhost=localhost:3306  
+    # if above fails then try this:  
+    #wordpress-test-dbhost=localhost:3306  
     wordpress-test-domain=example.org  
     wordpress-test-email=admin@example.org  
     wordpress-test-title=Test_Blog  
     wordpress-test-abspath=
     
-    `#` make sure there are no trailing spaces!  
-    `#` changelog-init is a build.xml property, changelog-initial.sql is an sql file  
+    # make sure there are no trailing spaces!  
+    # changelog-init is a build.xml property, changelog-initial.sql is an sql file  
     mysql-home=/C:/Program Files/MySQL/MySQL Server 5.0  
     amplafi-mysql-username=root  
     amplafi-mysql-password=admin  
     farreaches-host=sandbox.farreach.es
     
-    `#`Items below need changing  
+    #Items below need changing  
     farreaches-port=8080  
     mysql-root-user=root  
     mysql-root-password=admin  
     amplafi-dropbox-folder=D:/Dropbox2/server-config
     
 
-9. in <baseFolder>/farreaches-wp-plugin run: ant server-init
+9) in <baseFolder>/farreaches-wp-plugin run: ant server-init
 
-10. in <baseFolder>/farreaches-wp-plugin run:  ant server-run
+10) in <baseFolder>/farreaches-wp-plugin run:  ant server-run
 
-11. In wordpress admin dashboard activate the "Social Marketing Management Center" plugin
+11) In wordpress admin dashboard activate the "Social Marketing Management Center" plugin
 
-12. under the Farreach.es menu click "Activate Confirm"
+12) under the Farreach.es menu click "Activate Confirm"
 you should be able to see some activity in the wireserivce command line window. (from step 9)
 
-13 When activation is complete, then open the bitname phpmyadmin page at 
+13) When activation is complete, then open the bitname phpmyadmin page at 
 http://127.0.0.1/phpmyadmin
 enter username root
 password <the password youset in step 2.>
@@ -105,20 +106,20 @@ You will need this for connecting to the wire server with the client.
 For eaxmple it may look like this:
 "ampcb_4497cfdb0503811e85f7eaf63533a2bf9a0e8f68154dab6f060b4a0dd4688674"
 
-14. Take the key and set it into the amplafi-flow-client/pom.xml at
+14) Take the key and set it into the amplafi-flow-client/pom.xml at
 
-  <plugin>
-		<artifactId>maven-surefire-plugin</artifactId>
+    <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-...
-...        
+    ...
+    ...        
 		
                     <systemPropertyVariables>
-...
-...
+    ...
+    ...
                         <key> ... </key>
 						
-15. Next run: mvn test
+15) Next run: mvn test
 				
 When this is finished, the key that you need will be visible in the diagnostics screen for the plugin (It is a long hex string like this: ampcb_0cf02bdcd1218c9f5556b632640749a53946923cb26d0e90d2b9cf2300280497).
 
