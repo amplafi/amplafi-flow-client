@@ -5,13 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.amplafi</groupId>
     <artifactId>amplafi-flow-client</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>0.9.4-SNAPSHOT</version>	
     <parent>
         <groupId>org.amplafi</groupId>
         <artifactId>amplafi-opensource-parent</artifactId>
-		<version>1.0.2</version>
+		<version>1.0.4</version>
         <relativePath>../amplafi-opensource-parent/pom.xml</relativePath>
-    </parent>
+    </parent>	
+	
     <packaging>jar</packaging>
     <name>Amplafi Flow - Client and interfaces</name>
     <description>CLI client</description>
@@ -153,14 +154,18 @@
                         <!-- TestFlowTypes is for an old version of the API which may be out of use -->
                         <exclude>**/TestFlowTypes.java</exclude>
                         <!-- TestFlowTypesSandBox should be enabled, it is only disabled while we make sure it works with the continuous integration 
-					    make sure it works with the  continuous integration server.    -->
-   					    <exclude>**/TestFlowTypesSandBox.java</exclude> 
-   					    <exclude>**/TestScriptRunner.java</exclude> 
+					    make sure it works with the  continuous integration server.   
+   					    <exclude>**/TestFlowTypesSandBox.java</exclude>  -->
+   					    <exclude>**/TestScriptRunner.java</exclude>
+						<!-- -->
+						<exclude>**/TestDSLScriptsBatchRunner.java</exclude>
+						<exclude>**/TestFlowTypesSandBox.java</exclude>
+						 
                     </excludes>
 
                     <systemPropertyVariables>
                         <!-- call mvn -Dkey=your_api_key ( looks like: ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e )  -->
-                        <key></key>
+                        <key>ampcb_4497cfdb0503811e85f7eaf63533a2bf9a0e8f68154dab6f060b4a0dd4688674</key>
                         <host>http://sandbox.farreach.es</host>
                         <port>8080</port>
 					    <!-- List the flows that you want to ignore here   -->		                                     

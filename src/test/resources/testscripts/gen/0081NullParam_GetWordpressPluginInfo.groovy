@@ -1,0 +1,3 @@
+request("GetWordpressPluginInfo", [])
+
+checkReturnedValidJson()

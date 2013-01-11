@@ -23,7 +23,7 @@ import org.apache.http.message.BasicNameValuePair;
  */
 public enum TestingStrategiesEnum  {
 
-	BogusString(new BogusStringDataStrategy()), CorruptParams(new CorruptParamsNameTestingStrategy());
+	BogusString(new BogusStringDataStrategy()), CorruptParams(new CorruptParamsNameTestingStrategy()), NullParam(new NullParamStrategy());
 	
 	private AbstractTestingStrategy strategy;
 	

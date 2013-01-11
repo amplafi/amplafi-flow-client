@@ -1,0 +1,3 @@
+request("ActivateMessageEndPoint", ["configuration":"","messageEndPoint":"","messageEndPointList":"","messageEndPointUri":"","messageSourcePoint":"","messageSourcePointUri":"","messageSourcePointList":"","messageSourcePointUriMap":"","connectionGroup":"","connectionGroupList":"","internalSourcePoint":"","messageEndPointType":"","messageSourcePointType":"","externalServiceDefinitionsMap":"","externalServiceDefinition":"","externalServiceInstance":"","newExternalServiceInstance":"","defaultExternalServiceInstance":"","newExternalServiceInstanceLookupKey":"","useDefaultExternalServiceInstanceIfNeeded":"","externalCredential":"","derivedUrlNotRequired":"","downloadPublicUri":"","publicUri":"","fsRenderResult":"json"])
+
+checkReturnedValidJson()
