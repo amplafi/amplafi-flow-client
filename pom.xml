@@ -161,8 +161,9 @@
 					    make sure it works with the  continuous integration server.   
    					    <exclude>**/TestFlowTypesSandBox.java</exclude>  -->
    					    <exclude>**/TestScriptRunner.java</exclude>
-						<!-- -->
 						<exclude>**/TestDSLScriptsBatchRunner.java</exclude>
+						<!-- -->
+						
 						<exclude>**/TestFlowTypesSandBox.java</exclude>
 						 
                     </excludes>

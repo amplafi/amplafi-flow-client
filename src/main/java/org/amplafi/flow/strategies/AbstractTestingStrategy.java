@@ -111,7 +111,7 @@ public abstract class AbstractTestingStrategy {
 			
 			writeToFileBuffer("request(\"" + flow + "\", [" + parameters.toString() + "])\n");
 		 } else {
-			writeToFileBuffer("request(\"" + flow + "\", [])\n");
+			writeToFileBuffer("request(\"" + flow + "\", [:])\n");
 		 }
 		 
 	 }
