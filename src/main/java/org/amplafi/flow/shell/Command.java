@@ -25,7 +25,10 @@ public enum Command {
         }
     }),
     
-    LIST(new ListFlow());
+    LIST(new ListFlow()),
+    DESC(new DescFlow()),
+    FLOW(new ExecFlow()),
+    TUTORIAL(new TutorialFlow());
 
     private Action action;
 
