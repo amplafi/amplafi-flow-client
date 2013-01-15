@@ -1,3 +1,3 @@
-request("GetWordpressPluginInfo", [])
+request("GetWordpressPluginInfo", [:])
 
 checkReturnedValidJson()

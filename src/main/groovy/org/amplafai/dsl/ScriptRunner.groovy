@@ -50,12 +50,16 @@ public class ScriptRunner {
 	 * Loads and runs one script specified by the file parameter
 	 * @param filePath is the full path to the script.
 	 */
-	def loadAndRunOneScript(String filePath){  		
+	def loadAndRunOneScript(String filePath){
+		
 
 		def file = new File(filePath)
 		def script = file.getText();
 		
+
+		
 		def value = runScriptSource(script)
+		
 
 		return value
 	}
@@ -76,6 +80,8 @@ public class ScriptRunner {
 			import org.amplafai.dsl.FlowTestBuilder;
 			def builder = new FlowTestBuilder(requestUriString);
 			def source = {
+				def a=1;
+			
 				${sourceCode}
 			};
 			builder.build(source);
