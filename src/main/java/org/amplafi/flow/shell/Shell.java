@@ -13,20 +13,6 @@ import java.util.Scanner;
 import org.amplafi.flow.utils.CommandLineClientOptions;
 import org.apache.commons.cli.ParseException;
 
-//String formatString = "%1$4s %2$10s %3$10s%n";
-
-//console.printf(formatString, "Idx", "A", "B");
-//console.printf(formatString, "1", "10", "100");
-//console.printf(formatString, "2", "20", "200");
-//console.printf(formatString, "3", "30", "300");
-//console.printf(formatString, "4", "40", "400");
-//The output of this block of code would look something like this:
-//
-// Idx          A          B
-//   1         10        100
-//   2         20        200
-//   3         30        300
-//   4         40        400
 public class Shell {
     private static final String NO_CONSOLE = "Error: Console unavailable";
     private static final String GREETINGS = "Welcome to the System. Please login.%n";
@@ -44,7 +30,8 @@ public class Shell {
                     "-key", "ampcb_0db23c81875e3245a77cd617767a476f01d8214de9c6e00923d5357ea02dfae7",
                     "-host", "http://sandbox.farreach.es",
                     "-port", "8080",
-                    "-apiv", "apiv1",
+                    //"-apiv", "apiv1",
+                    "-apiv", "suv1",
                 };
             }
             CommandLineClientOptions cmdOptions = null;
