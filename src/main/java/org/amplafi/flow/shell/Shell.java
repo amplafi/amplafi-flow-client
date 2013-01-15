@@ -30,7 +30,8 @@ public class Shell {
                     "-key", "ampcb_0db23c81875e3245a77cd617767a476f01d8214de9c6e00923d5357ea02dfae7",
                     "-host", "http://sandbox.farreach.es",
                     "-port", "8080",
-                    "-apiv", "apiv1",
+                    //"-apiv", "apiv1",
+                    "-apiv", "suv1",
                 };
             }
             CommandLineClientOptions cmdOptions = null;
