@@ -61,6 +61,11 @@ public abstract class AbstractCommandLineClientOptions {
 		return cmd.getOptionValue(optionName);
 	}
 
+	public List<String> getRemainingOptions() {
+		return cmd.getArgList();
+	}
+
+
 	public List<NameValuePair> getOptionProperties(String string) {
 		return toNameValuePairList(cmd.getOptionProperties(string));
 	}
