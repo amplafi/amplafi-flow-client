@@ -8,18 +8,15 @@ import java.util.List;
 
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONObject;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.Header;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import static org.apache.http.HttpStatus.*;
-
-
 /**
  * A class providing common methods for querying FarReaches service using HTTP.
  *
