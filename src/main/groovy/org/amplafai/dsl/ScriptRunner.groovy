@@ -103,6 +103,8 @@ public class ScriptRunner {
         // Create a full script string with the file source in the middle.
         def script = """
 			import org.amplafai.dsl.FlowTestBuilder;
+			import org.amplafi.json.*;
+			
 			def builder = new FlowTestBuilder(${builderParams});
 			
 			def source = {

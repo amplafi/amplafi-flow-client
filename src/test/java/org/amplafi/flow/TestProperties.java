@@ -51,6 +51,7 @@ public class TestProperties {
     private static final String HOST_PROPERTY_KEY = "host";
     private static final String PORT_PROPERTY_KEY = "port";
     private static final String API_PROPERTY_KEY = "key";   
+	
 
     /*
      * Obtain the system properties for the test These may be set up in the pom.xml or passed in

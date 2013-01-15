@@ -42,12 +42,12 @@ public class TestScriptRunner {
 	}	
 	
 	@Test 
-	public void touchTest(){
+	public void touchTest() throws Exception{
 		
 		String script = "println('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFf'); \n " +
 					" request('HelloFlow',['cat':'dog','hippo':'pig']);" ;
 		
-		instance.runScriptSource(script);
+		instance.runScriptSource(script,"buildExe");
 	}
 	
 	@Test 

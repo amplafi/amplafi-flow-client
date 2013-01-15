@@ -89,10 +89,10 @@ public class FlowTestBuilder {
  */
 public class FlowTestDSL extends DescribeScriptDSL {
 
-	String host = null;
-	String port = null;
-	String apiVersion = null;
-	String key = null;
+	def host = null;
+	def port = null;
+	def apiVersion = null;
+	def key = null;
 
 
     private static boolean DEBUG = false;
@@ -126,6 +126,24 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
 
+	void setHost(String host){
+		this.host = host
+	}
+
+	void setPort(String port){
+		this.port = port
+	}
+
+	void setApiVersion(String apiVersion){
+		this.apiVersion = apiVersion
+	}
+
+	void setKey(String key){
+		this.key = key
+	}
+
+
+
     /**
      * Sends a request to the named flow with the specified parameters
      * @param flowName to call
@@ -146,7 +164,12 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
         debug(requestParams.toString());
 
-        lastRequestString = request.getRequestString();
+		lastRequestString = request.getRequestString();
+
+		println("");
+		println(" Sent Request: " + lastRequestString );
+		println("");
+		
         lastRequestResponse = request.get();
 
         debug(lastRequestResponse)
