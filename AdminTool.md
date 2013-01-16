@@ -115,4 +115,8 @@ setKey(String apiKey)                   - sets the key for all subsequent reques
 1. Document Command Line Options
 2. Document Access to command line parameters
 3. Remove un-needed parameters from AdminToolCommandLineOptions
+4. Add a -L option that will also list the script file location
+5. In the scripts error report change file path from absolute to relative. 
+6. Add -f <filename> option so that an adhoc script can be run without putting it in the scripts folder.
+7. Add ability for one script to call another. 
 
