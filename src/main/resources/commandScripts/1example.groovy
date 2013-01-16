@@ -1,5 +1,7 @@
 // This line must be the first line in the script
-description "example", "Just an example script"
+description "example", "Just an example script" 
+
+//,[["param1","most favorite animal"], ["param2","other most favorite animal"] ]
 
 // You can set certain globals in the script if you want. 
 // These will affect all susequent requests
@@ -9,6 +11,16 @@ description "example", "Just an example script"
 // setPort("90");
 // setApiVersion("apiv12");
 // setKey("newkey");
+
+if (params["param2"]){
+
+	println "------------"+ params["param2"]
+} 
+
+if (params["param1"]){
+	println "------------"+params["param1"]
+
+}
 
 
 // Make a request to the server 

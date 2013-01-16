@@ -6,6 +6,8 @@ import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONException;
 import org.amplafi.json.JSONObject;
 import static org.testng.Assert.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class defines a simple DSL for sending reqests to the amplafai wire server
@@ -58,6 +60,14 @@ public class FlowTestBuilder {
 
 	
     public FlowTestBuilder(String host, String port, String apiVersion, String key){
+        this.requestUriString = requestUriString;
+        this.host = host
+		this.port = port
+		this.apiVersion = apiVersion
+		this.key = key		
+    }
+    
+     public FlowTestBuilder(String host, String port, String apiVersion, String key, List<String> paramArray){
         this.requestUriString = requestUriString;
         this.host = host
 		this.port = port
