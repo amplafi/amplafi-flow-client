@@ -45,8 +45,9 @@ Scripts are placed in:
 Any script placed here will be loaded on startup.
 
 #### Example Script ####
-
+    // Java comments are ignored.
     // This line must be the first line in the script
+    
     description "example", "Just an example script"
 
     // You can set certain globals in the script if you want.
