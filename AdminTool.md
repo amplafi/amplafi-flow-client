@@ -46,7 +46,7 @@ Any script placed here will be loaded on startup.
 
 #### Example Script ####
     // Java comments are ignored.
-    // This line must be the first line in the script
+    // The description line must be the first line in the script.
     
     description "example", "Just an example script"
 
@@ -88,7 +88,7 @@ Any script placed here will be loaded on startup.
 
 ### DSL Function Reference ###
 
-description (String name, String description )       - Sets the description for the list command
+description (String name, String description )       - Sets the name of the script. This is how it is invoked so it cannot have spaces etc. Description also set for list command.
 
 request(String flowName, Map<String,String> params); - calls the flow with the parameter map, valuses may be JSON strings.
 
