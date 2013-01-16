@@ -236,7 +236,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     def checkReturnedValidJson(){
         try {
-            JSONObject actual = new JSONObject(lastRequestResponse);
+            getResponseData()
         } catch (Exception e){
            println("Invalid JSON Returned: " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
         }

@@ -54,7 +54,7 @@ public class ScriptRunner {
      * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH
      */
     def loadAndRunAllSrcipts(){
-
+		def list = []
 		def dir = new File(DEFAULT_SCRIPT_PATH)
 		dir.eachFileRecurse (FileType.FILES) { file ->
 			list << file.getCanonicalPath() 
