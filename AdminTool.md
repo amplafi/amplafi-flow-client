@@ -26,10 +26,15 @@ mvn  -Dmaven.test.skip=true package
 
 ### Command Line Options ###
 -l                    List Scripts
+
 -apiv <arg>           API version
+
 -host <arg>           Host address
+
 -key <arg>            API key
+
 -port <arg>           Service port
+
 -x                    Don't use cached server credentials
 
 ### Simple Usage ###
@@ -38,15 +43,15 @@ Running ./FAdmin.sh without parameters will display the usage.
 
 To list the currently available commands enter :
 
-./FAdmin.sh -l
+    ./FAdmin.sh -l
 
 To run one of the commands enter the command name :
 
-./FAdmin.sh example <param1Name>=<param1Value> <param2Name>=<param2Value> ...
+    ./FAdmin.sh example <param1Name>=<param1Value> <param2Name>=<param2Value> ...
 
 To reset host, port, api version and key :
 
-./FAdmin.sh -x
+    ./FAdmin.sh -x
 
 ### Scripting Reference ###
 
