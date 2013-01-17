@@ -65,7 +65,7 @@
             <artifactId>amplafi-json</artifactId>
             <version>${amplafi-json-build}</version>
             <type>jar</type>
-            <scope>compile</scope>
+            
         </dependency>
 
         <dependency>

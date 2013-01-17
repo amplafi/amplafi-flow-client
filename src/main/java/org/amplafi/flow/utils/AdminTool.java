@@ -13,6 +13,8 @@ import org.amplafai.dsl.ScriptRunner;
 import org.amplafai.dsl.ScriptDescription;
 import static org.amplafai.dsl.ScriptRunner.*;
 import  java.util.prefs.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class AdminTool{
@@ -83,8 +85,8 @@ public class AdminTool{
 			
 			
 			List<String> remainder =  cmdOptions.getRemainingOptions();
+			Map<String,String> parammap = getParamMap(remainder);
 			
-
 			try {
 				String host = getOption(cmdOptions,HOST);
 				String port = getOption(cmdOptions,PORT);
@@ -97,7 +99,7 @@ public class AdminTool{
 					String scriptName = remainder.get(0);
 					if (scriptLookup.containsKey(scriptName ) ){
 						ScriptDescription sd = scriptLookup.get(scriptName);
-						ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key);
+						ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap);
 		
 						runner2.loadAndRunOneScript( sd.getPath());
 	
@@ -113,6 +115,35 @@ public class AdminTool{
 
 		}
 		
+		
+	}
+	
+	private static String[] getParamArray(List<String> remainderList){
+		List<String> paramsList = remainderList;
+		paramsList.remove(0);
+		final int size =  paramsList.size();
+		String[] arr = (String[])paramsList.toArray(new String[size]);
+		
+			
+		return arr;
+		
+	}
+	
+	private static Map<String,String> getParamMap(List<String> remainderList){
+		Map<String,String> map =new HashMap<String, String>();
+
+		for(int i=1;i<remainderList.size();i++){
+			
+			if(remainderList.size()>i+1){		
+				map.put(remainderList.get(i),remainderList.get(i+1));
+			}
+			
+			i++;
+		
+		}
+
+			
+		return map;
 		
 	}
 

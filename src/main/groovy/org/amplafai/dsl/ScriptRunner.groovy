@@ -1,6 +1,10 @@
 package org.amplafai.dsl;
 import groovy.io.FileType;
 import org.amplafi.flow.utils.GeneralFlowRequest;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * This class contains various methods for loading and running FlowTestDSL scripts
@@ -12,6 +16,7 @@ public class ScriptRunner {
 	String port = null;
 	String apiVersion = null;
 	String key = null;
+	Map<String,String> paramsmap = null;
 
 	private static boolean DEBUG = false;	
 	
@@ -29,6 +34,17 @@ public class ScriptRunner {
 		this.port = port
 		this.apiVersion = apiVersion
 		this.key = key
+		
+    }
+    
+     public ScriptRunner(String host, String port, String apiVersion, String key, Map<String,String> paramsmap){
+
+        this.host = host
+		this.port = port
+		this.apiVersion = apiVersion
+		this.key = key
+		this.paramsmap = paramsmap
+		
     }
 
 
@@ -38,7 +54,7 @@ public class ScriptRunner {
      * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH
      */
     def loadAndRunAllSrcipts(){
-
+		def list = []
 		def dir = new File(DEFAULT_SCRIPT_PATH)
 		dir.eachFileRecurse (FileType.FILES) { file ->
 			list << file.getCanonicalPath() 
@@ -88,6 +104,7 @@ public class ScriptRunner {
      * @param sourceCode - the script source code.
      */
     def runScriptSource(String sourceCode, String builderCmd) throws NoDescriptionException, EarlyExitException{
+		
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuilder.build then the processed script is run
         // with the GroovyShell.
@@ -101,11 +118,18 @@ public class ScriptRunner {
 
 
         // Create a full script string with the file source in the middle.
+
         def script = """
 			import org.amplafai.dsl.FlowTestBuilder;
 			import org.amplafi.json.*;
+
+			def builder = null;
 			
-			def builder = new FlowTestBuilder(${builderParams});
+			//if(${paramsmap}!=null){
+			//	builder = new FlowTestBuilder(${builderParams},${paramsmap});
+			//}else{
+				builder = new FlowTestBuilder(${builderParams});
+			//}
 			
 			def source = {
                 ${sourceCode}
@@ -114,8 +138,10 @@ public class ScriptRunner {
             execScript();
             """;
 
-
-        Binding binding = new Binding();
+		
+		def bindingMap = ["params":paramsmap]
+		
+        Binding binding = new Binding(bindingMap);
         binding.setVariable("requestUriString",requestUriString);
         GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
 
