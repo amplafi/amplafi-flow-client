@@ -19,9 +19,9 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.AfterTest;
-import org.amplafai.dsl.ScriptRunner;
-import static org.amplafai.dsl.ScriptRunner.*;
-import org.amplafai.dsl.FlowTestBuilder;
+import org.amplafi.dsl.ScriptRunner;
+import static org.amplafi.dsl.ScriptRunner.*;
+import org.amplafi.dsl.FlowTestBuilder;
 import static org.testng.Assert.*;
 import org.amplafi.flow.TestProperties;
 

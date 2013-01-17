@@ -7,11 +7,11 @@ import java.io.*;
 import org.apache.commons.cli.ParseException;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import static org.amplafai.dsl.ScriptRunner.*;
+import static org.amplafi.dsl.ScriptRunner.*;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.*;
-import org.amplafai.dsl.ScriptRunner;
-import org.amplafai.dsl.ScriptDescription;
-import static org.amplafai.dsl.ScriptRunner.*;
+import org.amplafi.dsl.ScriptRunner;
+import org.amplafi.dsl.ScriptDescription;
+import static org.amplafi.dsl.ScriptRunner.*;
 import  java.util.prefs.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,7 +64,7 @@ public class AdminTool{
 		
 		if (cmdOptions.hasOption(LIST)){
 			for (ScriptDescription sd : goodScripts ){
-				System.out.println("     " + sd.getName() + "       - " + sd.getDescription());
+				System.out.println("     " + sd.getName() + "       - " + sd.getDescription() + "       - "+sd.getPath());
 			}
 			
 			

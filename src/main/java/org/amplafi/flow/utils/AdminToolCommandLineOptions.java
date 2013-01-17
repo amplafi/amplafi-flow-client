@@ -26,7 +26,7 @@ public class AdminToolCommandLineOptions extends CommandLineClientOptions {
 
 	// The options associated with this option are Java property style like options.
 	// e.g. passing this argument: -DpostId=123 to the CommandLineClient tool, will give you access to a property called postId, and its value (123). 
-	public static final String PARAMS = "D";
+	//public static final String PARAMS = "D";
 	
 	
 	public AdminToolCommandLineOptions(String[] args) throws ParseException {
@@ -34,10 +34,13 @@ public class AdminToolCommandLineOptions extends CommandLineClientOptions {
 	}
 
 	protected Options initOptions() {
-		Options options = super.initOptions();
-
-
+		//Options options = super.initOptions();
+		Options options = new Options();
 		options.addOption(LIST, false, "List Scripts");
+		options.addOption(API_KEY, true, "API key");
+		options.addOption(HOST, true, "Host address");
+		options.addOption(API_VERSION, true, "API version");			
+		options.addOption(PORT, true, "Service port");
 		options.addOption(NOCACHE, false, "Don't use cached server credentials");
 		
 				
@@ -45,9 +48,9 @@ public class AdminToolCommandLineOptions extends CommandLineClientOptions {
 		OptionBuilder.hasArgs(2);
 		OptionBuilder.withValueSeparator();
 		OptionBuilder.withDescription("Specify query .");
-		Option parameter = OptionBuilder.create(PARAMS);
+	//	Option parameter = OptionBuilder.create(PARAMS);
 		
-		options.addOption(parameter);
+	//	options.addOption(parameter);
 		
 		return options;
 	}

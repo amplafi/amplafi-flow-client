@@ -18,7 +18,7 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import static org.amplafai.dsl.ScriptRunner.*;
+import static org.amplafi.dsl.ScriptRunner.*;
 import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.*;
 import org.amplafi.flow.strategies.AbstractTestingStrategy;
 import org.amplafi.flow.strategies.TestingStrategiesEnum;

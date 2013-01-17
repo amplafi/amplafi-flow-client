@@ -12,16 +12,17 @@ description "example", "Just an example script"
 // setApiVersion("apiv12");
 // setKey("newkey");
 
-if (params["param2"]){
+if (params&&params["param2"]){
 
 	println "------------"+ params["param2"]
 } 
 
-if (params["param1"]){
+if (params&&params["param1"]){
 	println "------------"+params["param1"]
 
 }
 
+callScript("1example.groovy");
 
 // Make a request to the server 
 request("EligibleExternalServiceInstancesFlow", ["eligibleExternalServiceInstanceMap":"bogusData","eligibleExternalServiceInstances":"bogusData","fsRenderResult":"json"]);
