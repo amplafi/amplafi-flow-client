@@ -24,17 +24,29 @@ DSL offers pretty print and other commands.
 
 mvn  -Dmaven.test.skip=true package
 
+### Command Line Options ###
+-l                    List Scripts
+-apiv <arg>           API version
+-host <arg>           Host address
+-key <arg>            API key
+-port <arg>           Service port
+-x                    Don't use cached server credentials
+
 ### Simple Usage ###
 
 Running ./FAdmin.sh without parameters will display the usage.
 
-To list the currently available commands enter:
+To list the currently available commands enter :
 
 ./FAdmin.sh -l
 
-To run one of the commands enter the command name.
+To run one of the commands enter the command name :
 
-./FAdmin.sh example
+./FAdmin.sh example <param1Name>=<param1Value> <param2Name>=<param2Value> ...
+
+To reset host, port, api version and key :
+
+./FAdmin.sh -x
 
 ### Scripting Reference ###
 
@@ -58,6 +70,18 @@ Any script placed here will be loaded on startup.
     // setPort("90");
     // setApiVersion("apiv12");
     // setKey("newkey");
+
+
+	//Access to command line parameters
+	if (params&&params["param2"]){
+
+		println "------------"+ params["param2"]
+	} 
+
+	if (params&&params["param1"]){
+		println "------------"+params["param1"]
+
+	}
 
 
     // Make a request to the server
@@ -114,9 +138,9 @@ setKey(String apiKey)                   - sets the key for all subsequent reques
 
 1. Document Command Line Options
 2. Document Access to command line parameters
-3. Remove un-needed parameters from AdminToolCommandLineOptions
+3. Remove un-needed parameters from AdminToolCommandLineOptions 
 4. Add a -L option that will also list the script file location
-5. In the scripts error report change file path from absolute to relative. 
+5. In the scripts error report change file path from absolute to relative
 6. Add -f <filename> option so that an adhoc script can be run without putting it in the scripts folder.
 7. Add ability for one script to call another. 
 
