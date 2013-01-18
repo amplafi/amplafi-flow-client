@@ -13,18 +13,12 @@
  */
 package org.amplafi.flow.strategies;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Formatter;
-import java.util.List;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.NameValuePair;
-import org.amplafi.json.JSONObject;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+
 import org.amplafi.flow.TestProperties;
+import org.amplafi.json.JSONObject;
+import org.apache.http.NameValuePair;
 
 /**
  * Abstract Super class for all testing strategies. 
