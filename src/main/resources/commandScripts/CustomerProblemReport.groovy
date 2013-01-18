@@ -16,6 +16,7 @@ if (params && params["verbose"]) {
     verbose = params["verbose"] ;
 }
 
+//TO_TUAN wtf? Why defult to this email?
 def customerEmail = "tuan08@gmail.com"
 if (params && params["customerEmail"]) {
     customerEmail = params["customerEmail"] ;
