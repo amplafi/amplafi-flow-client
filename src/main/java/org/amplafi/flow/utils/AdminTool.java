@@ -116,8 +116,11 @@ public class AdminTool{
 		List<String> remainder =  cmdOptions.getRemainingOptions();
 			
 			try {
+			    //TO_PAUL, TO_TUAN: provide default of apiv1.farreach.es
 				String host = getOption(cmdOptions,HOST);
+				//TO_PAUL, TO_TUAN: default needed
 				String port = getOption(cmdOptions,PORT);
+				//TO_PAUL, TO_TUAN: default needed
 				String apiVersion = getOption(cmdOptions,API_VERSION);
 				String key = getOption(cmdOptions,API_KEY);
 				if(filePath == null){
@@ -163,7 +166,8 @@ public class AdminTool{
 	
 
 	private static String getOption(AdminToolCommandLineOptions cmdOptions, String key) throws IOException{
-		
+		//TO_PAUL,TO_TUAN: Why store command line options into user preferences? 
+	    //That's very confusing and I haven't see a single command line too that does this.
 		Preferences prefs = Preferences.userNodeForPackage(AdminTool.class);		
 		String value = null;
 		if (cmdOptions.hasOption(key)) {
