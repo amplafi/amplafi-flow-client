@@ -214,6 +214,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     def callScript(String scriptPath){
         System.out.println(">>>>>>>>>>>>scriptPath = "+scriptPath)
+		
+		 def exe = ScriptRunner.createClosure(scriptPath)
+		 exe.delegate = this
+		 exe();
+		
+		
+		
     }
 
 	def getResponseData(){

@@ -131,6 +131,11 @@ public class AdminTool{
 					remainder.remove(0);
 				}
 				Map<String,String> parammap = getParamMap(remainder);
+				System.out.println("in AdminTool host = "+host);
+				System.out.println("in AdminTool port = "+port);
+				System.out.println("in AdminTool apiVersion = "+apiVersion);
+				System.out.println("in AdminTool key = "+key);
+				System.out.println("in AdminTool parammap = "+parammap);
 				ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap);		
 				runner2.loadAndRunOneScript(filePath);
 				

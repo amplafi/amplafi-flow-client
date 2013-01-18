@@ -66,17 +66,12 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
 	
 	public void printHelp() {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(getPrinter(), options);
+		formatter.printHelp(getPrinter(formatter), options);
 	}
 	
-	private String getPrinter(){
-		Properties props=System.getProperties();
-		String osName = props.getProperty("os.name");
-		String newline = "\n";
-		if(osName.contains("Windows")){
-			newline = "\n\r";
-			
-		}
+	private String getPrinter(HelpFormatter formatter){
+
+		String newline = formatter.getNewLine();
 		return newline+"FAdmin -l : To list the currently available commands"+newline
 				+"FAdmin -x : To reset host, port, api version and key"+newline
 				+"FAdmin example <param1Name>=<param1Value> <param2Name>=<param2Value> ... : To run one of the commands enter the command name";

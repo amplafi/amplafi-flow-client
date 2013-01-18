@@ -22,7 +22,7 @@ if (params&&params["param1"]){
 
 }
 
-callScript("1example.groovy");
+//callScript("1example.groovy");
 
 // Make a request to the server 
 request("EligibleExternalServiceInstancesFlow", ["eligibleExternalServiceInstanceMap":"bogusData","eligibleExternalServiceInstances":"bogusData","fsRenderResult":"json"]);

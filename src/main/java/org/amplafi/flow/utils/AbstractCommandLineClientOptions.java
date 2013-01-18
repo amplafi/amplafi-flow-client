@@ -90,7 +90,7 @@ public abstract class AbstractCommandLineClientOptions {
 				}
 			}
 		}
-		
+
 		return pairs;
 	}
 

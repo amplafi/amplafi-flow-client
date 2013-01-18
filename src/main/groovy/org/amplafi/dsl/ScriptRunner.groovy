@@ -29,7 +29,6 @@ public class ScriptRunner {
     public ScriptRunner(String requestUriString){
         this.requestUriString = requestUriString;
     }
-	
 
     public ScriptRunner(String host, String port, String apiVersion, String key){
         this.host = host
@@ -121,21 +120,63 @@ public class ScriptRunner {
 
         // Create a full script string with the file source in the middle.
 
-        def script = """
+//        def script = """
+//			import org.amplafi.dsl.FlowTestBuilder;
+//			import org.amplafi.json.*;
+//
+////			def builder = null;
+//			
+////			builder = new FlowTestBuilder(${builderParams});
+//			
+//			
+//			def source = {
+//                ${sourceCode}
+//            };
+////           def execScript = builder.${builderCmd}(source);
+////           execScript();
+//			return source
+//            """;
+//
+//		
+//		def bindingMap = ["params":paramsmap]
+//		
+//        Binding binding = new Binding(bindingMap);
+//        binding.setVariable("requestUriString",requestUriString);
+//        GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
+//
+//		def lineNo = 1;
+//        script.split("\n").each{ line -> 
+//			debug("${lineNo}>${line}")
+//			lineNo++;
+//		}
+//
+//		println("host = "+host)
+//		println("port = "+port)
+//		println("apiVersion = "+apiVersion)
+//		println("key = "+key)
+//		Object closure = shell.evaluate(script);
+		Object closure = getClosure(sourceCode)
+		def builder = new FlowTestBuilder(host,port,apiVersion,key);
+	    def execScript = builder.buildExe(closure);
+		if(host&&port&&apiVersion&&key){
+        execScript();
+		}
+
+        return closure;
+
+    }
+	
+	def getClosure(String sourceCode){
+		def script = """
 			import org.amplafi.dsl.FlowTestBuilder;
 			import org.amplafi.json.*;
-
-			def builder = null;
-			def currentScript = null;
-			
-			builder = new FlowTestBuilder(${builderParams});
 			
 			
 			def source = {
                 ${sourceCode}
             };
-            def execScript = builder.${builderCmd}(source);
-            execScript();
+
+			return source
             """;
 
 		
@@ -144,7 +185,6 @@ public class ScriptRunner {
         Binding binding = new Binding(bindingMap);
         binding.setVariable("requestUriString",requestUriString);
         GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
-		//shell.setProperty("currentScript",this);
 
 		def lineNo = 1;
         script.split("\n").each{ line -> 
@@ -152,13 +192,20 @@ public class ScriptRunner {
 			lineNo++;
 		}
 
-        Object value = shell.evaluate(script);
-
-        return value;
-
-    }
+		println("host = "+host)
+		println("port = "+port)
+		println("apiVersion = "+apiVersion)
+		println("key = "+key)
+		Object closure = shell.evaluate(script);
+		
+		return closure;
+	}
 	
-	
+	private static String createClosure(String filePath){
+		def file = new File(filePath)
+        def sourceCode = file.getText();
+		getClosure(sourceCode);
+	}
 	
 	
 
@@ -186,7 +233,7 @@ public class ScriptRunner {
      * @param filePath is the full path to the script.
      */
     def describeOneScript(String filePath){
-		//getRelativePath(filePath)
+		String relativePath = getRelativePath(filePath)
         def file = new File(filePath)
         def script = file.getText();
 		def value =  null
@@ -199,7 +246,7 @@ public class ScriptRunner {
 			value = eee.desc
 			value.path = filePath
 		} catch (NoDescriptionException nde){
-			value = new ScriptDescription(hasErrors:true, errorMesg:"No Description Defined", path:filePath);
+			value = new ScriptDescription(hasErrors:true, errorMesg:"No Description Defined", path:relativePath);
 		}
 
         return value
@@ -210,13 +257,13 @@ public class ScriptRunner {
      * @param filePath is the full path to the script.
      */
 	def getRelativePath(String filePath){
-		println("**********************currentPath = "+System.getProperty("user.dir"));
+		def relativePath = filePath;
 		def currentPath = System.getProperty("user.dir")
-		def relativePath = filePath.substring(currentPath.length()) 
+		if(filePath.contains(currentPath)){
+			relativePath = filePath.substring(currentPath.length()) 
+		}
 		
-		println("relativePath = "+relativePath)
 		
-		return relativePath
 	}
 
 
