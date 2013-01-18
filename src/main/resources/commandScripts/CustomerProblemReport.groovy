@@ -1,10 +1,10 @@
 // This line must be the first line in the script
 
-description "CustomerProblemReport", "This tool is used to report and identify the customer problem"
+description "CustomerProblemReport", "Params: customerEmail=<customer_email> This tool is used to report and identify the customer problem"
 
-// You can set certain globals in the script if you want. 
+// You can set certain globals in the script if you want.
 // These will affect all susequent requests
-// Don't normally do this though. As the default ones are good. 
+// Don't normally do this though. As the default ones are good.
 
 // setHost("www.google.com");
 // setPort("90");
@@ -14,7 +14,12 @@ description "CustomerProblemReport", "This tool is used to report and identify t
 //def customerEmail = "admin@amplafi.com" ;
 def customerEmail = "tuan08@gmail.com"
 
+if (params&&params["customerEmail"]){
+    customerEmail = params["customerEmail"]
+}
+
 println "Find the api key for the customer " + customerEmail ;
+
 setApiVersion("suv1");
 request("SuApiKeyFlow", ["fsRenderResult":"json", "email": customerEmail, "reasonForAccess": "Inspect the customer problem"]);
 def data = getResponseData();
