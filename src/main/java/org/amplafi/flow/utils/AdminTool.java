@@ -23,7 +23,7 @@ public class AdminTool{
 
 
 	public static void main(String[] args){
-		System.out.println("AdminTool");
+
 		AdminToolCommandLineOptions cmdOptions = null;
 		try {
 			cmdOptions = new AdminToolCommandLineOptions(args);
@@ -42,7 +42,8 @@ public class AdminTool{
 		
 		
 		String list = cmdOptions.getOptionValue(LIST);
-				ScriptRunner runner  = new ScriptRunner("");
+		
+		ScriptRunner runner  = new ScriptRunner("");
 
 		List<ScriptDescription>  descs = runner.describeScriptsInFolder(COMMAND_SCRIPT_PATH);
 		
@@ -79,39 +80,21 @@ public class AdminTool{
 			}		
 	
 			
-		} else{
-			
-			
-			
-			
-			List<String> remainder =  cmdOptions.getRemainingOptions();
-			Map<String,String> parammap = getParamMap(remainder);
-			
+		} else if(cmdOptions.hasOption(FILE_PATH)){
 			try {
-				String host = getOption(cmdOptions,HOST);
-				String port = getOption(cmdOptions,PORT);
-				String apiVersion = getOption(cmdOptions,API_VERSION);
-				String key = getOption(cmdOptions,API_KEY);
-			
+
+				String filePath = getOption(cmdOptions,FILE_PATH);
 				
-				
-				if (remainder.size() > 0){
-					String scriptName = remainder.get(0);
-					if (scriptLookup.containsKey(scriptName ) ){
-						ScriptDescription sd = scriptLookup.get(scriptName);
-						ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap);
-		
-						runner2.loadAndRunOneScript( sd.getPath());
-	
-					} else {
-						System.out.println("Errror: Script " + scriptName + " Not Found");
-					}
-				}
-			
-			
+				runScript(filePath,scriptLookup,cmdOptions);
 			} catch (IOException ioe){
 					System.err.println("Error : " + ioe);  
 			}
+			
+				
+				
+		} else{
+
+				runScript(null,scriptLookup,cmdOptions);
 
 		}
 		
@@ -129,10 +112,41 @@ public class AdminTool{
 		
 	}
 	
+	private static void runScript(String filePath,HashMap<String,ScriptDescription> scriptLookup,AdminToolCommandLineOptions cmdOptions){
+		List<String> remainder =  cmdOptions.getRemainingOptions();
+			
+			try {
+				String host = getOption(cmdOptions,HOST);
+				String port = getOption(cmdOptions,PORT);
+				String apiVersion = getOption(cmdOptions,API_VERSION);
+				String key = getOption(cmdOptions,API_KEY);
+				if(filePath == null){
+					if (remainder.size() > 0){
+						String scriptName = remainder.get(0);
+						if (scriptLookup.containsKey(scriptName ) ){
+							ScriptDescription sd = scriptLookup.get(scriptName);
+							filePath = sd.getPath();
+						}
+					}
+					remainder.remove(0);
+				}
+				Map<String,String> parammap = getParamMap(remainder);
+				ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap);		
+				runner2.loadAndRunOneScript(filePath);
+				
+
+			
+			
+			} catch (IOException ioe){
+					System.err.println("Error : " + ioe);  
+			}
+
+	}
+	
 	private static Map<String,String> getParamMap(List<String> remainderList){
 		Map<String,String> map =new HashMap<String, String>();
 
-		for(int i=1;i<remainderList.size();i++){
+		for(int i=0;i<remainderList.size();i++){
 			
 			if(remainderList.size()>i+1){		
 				map.put(remainderList.get(i),remainderList.get(i+1));
@@ -146,6 +160,7 @@ public class AdminTool{
 		return map;
 		
 	}
+	
 
 	private static String getOption(AdminToolCommandLineOptions cmdOptions, String key) throws IOException{
 		

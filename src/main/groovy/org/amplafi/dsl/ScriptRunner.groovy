@@ -29,6 +29,7 @@ public class ScriptRunner {
     public ScriptRunner(String requestUriString){
         this.requestUriString = requestUriString;
     }
+	
 
     public ScriptRunner(String host, String port, String apiVersion, String key){
         this.host = host
@@ -125,6 +126,7 @@ public class ScriptRunner {
 			import org.amplafi.json.*;
 
 			def builder = null;
+			def currentScript = null;
 			
 			builder = new FlowTestBuilder(${builderParams});
 			
@@ -142,6 +144,7 @@ public class ScriptRunner {
         Binding binding = new Binding(bindingMap);
         binding.setVariable("requestUriString",requestUriString);
         GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
+		//shell.setProperty("currentScript",this);
 
 		def lineNo = 1;
         script.split("\n").each{ line -> 
@@ -212,6 +215,8 @@ public class ScriptRunner {
 		def relativePath = filePath.substring(currentPath.length()) 
 		
 		println("relativePath = "+relativePath)
+		
+		return relativePath
 	}
 
 
