@@ -15,13 +15,20 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import java.util.Properties;  
 
 
-public class AdminToolCommandLineOptions extends CommandLineClientOptions {
+public class AdminToolCommandLineOptions extends AbstractCommandLineClientOptions {
 
 	// command line switch used to specify which API key we want to use
+	public static final String API_KEY = "key";
+	public static final String FLOW = "flow";
+	public static final String HOST = "host";
+	public static final String PORT = "port";
+	public static final String API_VERSION = "apiv";
 	public static final String LIST = "l";
 	public static final String NOCACHE = "x";
+	public static final String FILE_PATH = "f";
 	
 
 	// The options associated with this option are Java property style like options.
@@ -42,6 +49,8 @@ public class AdminToolCommandLineOptions extends CommandLineClientOptions {
 		options.addOption(API_VERSION, true, "API version");			
 		options.addOption(PORT, true, "Service port");
 		options.addOption(NOCACHE, false, "Don't use cached server credentials");
+		options.addOption(LIST, false, "List Scripts");
+		options.addOption(FILE_PATH, true, "script File Path");
 		
 				
 		OptionBuilder.withArgName("property=value");		
@@ -53,6 +62,24 @@ public class AdminToolCommandLineOptions extends CommandLineClientOptions {
 	//	options.addOption(parameter);
 		
 		return options;
+	}
+	
+	public void printHelp() {
+		HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp(getPrinter(), options);
+	}
+	
+	private String getPrinter(){
+		Properties props=System.getProperties();
+		String osName = props.getProperty("os.name");
+		String newline = "\n";
+		if(osName.contains("Windows")){
+			newline = "\n\r";
+			
+		}
+		return newline+"FAdmin -l : To list the currently available commands"+newline
+				+"FAdmin -x : To reset host, port, api version and key"+newline
+				+"FAdmin example <param1Name>=<param1Value> <param2Name>=<param2Value> ... : To run one of the commands enter the command name";
 	}
 
 }
