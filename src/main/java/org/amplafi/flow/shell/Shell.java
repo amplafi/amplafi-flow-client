@@ -27,7 +27,7 @@ public class Shell {
         if (console != null) {
             if(args == null || args.length < 4) {
                 args = new String[] {
-                    "-key", "ampcb_0db23c81875e3245a77cd617767a476f01d8214de9c6e00923d5357ea02dfae7",
+                    "-key", "ampcb_6b5cd601a089d5f1738a847da62592129d4be1f3b06e045da997124c87c929ee",
                     "-host", "http://sandbox.farreach.es",
                     "-port", "8080",
                     //"-apiv", "apiv1",
