@@ -41,8 +41,8 @@ if(apiKey == null) {
 println "Create a temporary api key for the user " + customerEmail + ": " + apiKey ;
 
 setApiVersion("suv1");
-def httpStatusList = "[0, 400, 401]" ;
-request("ApiRequestAuditEntriesFlow", ["fsRenderResult":"json", "email": customerEmail, "httpStatusList": httpStatusList]);
+def httpStatusCodeList = "[0, 400, 401]" ;
+request("ApiRequestAuditEntriesFlow", ["fsRenderResult":"json", "email": customerEmail, "httpStatusCodeList": httpStatusCodeList]);
 if(verbose) {
     prettyPrintResponse();
 } else {
