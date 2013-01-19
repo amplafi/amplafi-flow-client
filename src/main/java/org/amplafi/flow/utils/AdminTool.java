@@ -3,6 +3,7 @@ package org.amplafi.flow.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.io.*;  
 import org.apache.commons.cli.ParseException;
 import org.apache.http.NameValuePair;
@@ -16,14 +17,35 @@ import  java.util.prefs.*;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * Command line interface for running scripts to communicate with the Farreach.es
+ * wire server.
+ * 
+ * Please read AdminTool.md for more details
+ */
 public class AdminTool{
 
+	/** Standard location for admin scritps */
 	public static final String COMMAND_SCRIPT_PATH = "src/main/resources/commandScripts";
 
+	public static final String CONFIG_FILE_NAME = "fareaches.fadmin.properties";
 
+
+	public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
+	public static final String DEFAULT_PORT = "80";
+	public static final String DEFAULT_API_VERSION = "apiv1";
+	
+	
+
+	public static Properties configProperties = null;
+
+
+	/**
+	 * Main entry point for tool 
+	 */
 	public static void main(String[] args){
 
+		// Process command line options.
 		AdminToolCommandLineOptions cmdOptions = null;
 		try {
 			cmdOptions = new AdminToolCommandLineOptions(args);
@@ -33,18 +55,19 @@ public class AdminTool{
 			System.exit(1);
 		}
 		
+		// Print help if -h option was specified. 
 		if (cmdOptions.hasOption(HELP) || args.length == 0) {
 			cmdOptions.printHelp();
 			
 			System.exit(0);
 		}
 
-		
-		
+	
 		String list = cmdOptions.getOptionValue(LIST);
 		
+		// Obtain a list of script descriptions from the script runner
+		// this will also check for basic script compilation errors or lack of description lines in script.
 		ScriptRunner runner  = new ScriptRunner("");
-
 		List<ScriptDescription>  descs = runner.describeScriptsInFolder(COMMAND_SCRIPT_PATH);
 		
 		
@@ -52,6 +75,7 @@ public class AdminTool{
 		List<ScriptDescription> goodScripts = new ArrayList<ScriptDescription>();
 		HashMap<String,ScriptDescription> scriptLookup = new HashMap<String,ScriptDescription>();
 		
+		// Determine which scripts are good to run and which have errors. 
 		for (ScriptDescription sd : descs ){
 			if (!sd.getHasErrors()){
 				goodScripts.add(sd);
@@ -64,11 +88,16 @@ public class AdminTool{
 
 		
 		if (cmdOptions.hasOption(LIST)){
+			// If user has asked for a list of commands then list the good scripts with their 
+			// descriptions. 
+			
 			for (ScriptDescription sd : goodScripts ){
-				System.out.println("     " + sd.getName() + "       - " + sd.getDescription() + "       - "+sd.getPath());
+				System.out.println("     " + sd.getName() + "       - " + sd.getDescription() + "       - ");
 			}
 			
 			
+			
+			// List scripts that have errors if there are any
 			if (haveErrors.size() > 0){
 				System.out.println("The following scripts have errors: ");			
 			}
@@ -81,16 +110,12 @@ public class AdminTool{
 	
 			
 		} else if(cmdOptions.hasOption(FILE_PATH)){
-			try {
-
-				String filePath = getOption(cmdOptions,FILE_PATH);
-				
-				runScript(filePath,scriptLookup,cmdOptions);
-			} catch (IOException ioe){
-					System.err.println("Error : " + ioe);  
-			}
+			// run an ad-hoc script from a file
+			String filePath = cmdOptions.getOptionValue(FILE_PATH);
 			
-				
+			runScript(filePath,scriptLookup,cmdOptions);
+	
+			
 				
 		} else{
 
@@ -98,9 +123,15 @@ public class AdminTool{
 
 		}
 		
+		// If the config properties were loaded, save them here. 
+		saveProperties();
 		
 	}
 	
+	/**
+	 * @param remainderList - remaininf parameters of command line. 
+	 * @return remaining parameters to be passed to the script. 
+	 */
 	private static String[] getParamArray(List<String> remainderList){
 		List<String> paramsList = remainderList;
 		paramsList.remove(0);
@@ -112,17 +143,19 @@ public class AdminTool{
 		
 	}
 	
+	/**
+	 *  Runs the named script.
+	 */
 	private static void runScript(String filePath,HashMap<String,ScriptDescription> scriptLookup,AdminToolCommandLineOptions cmdOptions){
 		List<String> remainder =  cmdOptions.getRemainingOptions();
 			
 			try {
-			    //TO_PAUL, TO_TUAN: provide default of apiv1.farreach.es
-				String host = getOption(cmdOptions,HOST);
-				//TO_PAUL, TO_TUAN: default needed
-				String port = getOption(cmdOptions,PORT);
-				//TO_PAUL, TO_TUAN: default needed
-				String apiVersion = getOption(cmdOptions,API_VERSION);
-				String key = getOption(cmdOptions,API_KEY);
+				String host = getOption(cmdOptions,HOST,DEFAULT_HOST);
+
+				String port = getOption(cmdOptions,PORT,DEFAULT_PORT);
+
+				String apiVersion = getOption(cmdOptions,API_VERSION,DEFAULT_API_VERSION);
+				String key = getOption(cmdOptions,API_KEY,"");
 				if(filePath == null){
 					if (remainder.size() > 0){
 						String scriptName = remainder.get(0);
@@ -146,6 +179,7 @@ public class AdminTool{
 
 	}
 	
+	
 	private static Map<String,String> getParamMap(List<String> remainderList){
 		Map<String,String> map =new HashMap<String, String>();
 
@@ -165,10 +199,9 @@ public class AdminTool{
 	}
 	
 
-	private static String getOption(AdminToolCommandLineOptions cmdOptions, String key) throws IOException{
-		//TO_PAUL,TO_TUAN: Why store command line options into user preferences? 
-	    //That's very confusing and I haven't see a single command line too that does this.
-		Preferences prefs = Preferences.userNodeForPackage(AdminTool.class);		
+	private static String getOption(AdminToolCommandLineOptions cmdOptions, String key, String defaultVal) throws IOException{
+		Properties props = getProperties();		
+		
 		String value = null;
 		if (cmdOptions.hasOption(key)) {
 			// if option passed in on commandline then use that
@@ -176,30 +209,78 @@ public class AdminTool{
 			
 
 		} else {
-			// if option is in registry then use that
+			// if option is in properties then use that
 
-			String prefValue = prefs.get(key, "");
+			String prefValue = props.getProperty(key, "");
 		
 			if (cmdOptions.hasOption(NOCACHE) || prefValue.equals("")){
 				// prompt the user for the option
 	
-				System.out.println("Please, Enter : " + key);  
+				System.out.print("Please, Enter : " + key + " ( Enter defaults to: "+ defaultVal +") " );  
+				System.out.println();  
 				BufferedReader consoleIn =  new BufferedReader(new InputStreamReader(System.in));  
 				value = consoleIn.readLine(); 	
+				
+				if ("".equals(value)){
+					value = defaultVal;
+				}
+			
 			
 			} else {
 				return prefValue;
 			}
 		}
 	
-	
-		// save to registry
-		prefs.put(key, value);
+		props.setProperty(key,value);
 	
 		return value;
 	
 	}
 
+	
+	/**
+	 *  Gets the configuration properties, loading it if hasn't been loaded
+	 *  @return configuaration properties. 
+	 */
+	private static Properties getProperties(){
+		if (configProperties == null){
+			
+			configProperties = new Properties();
+
+			try {
+				//load a properties file
+				configProperties.load(new FileInputStream(CONFIG_FILE_NAME));
+ 
+			} catch (IOException ex) {
+				System.err.println("Error loading file " + CONFIG_FILE_NAME );
+			}
+		}
+
+		return configProperties;
+		
+	}
+
+
+	/**
+	 *  Saves the configuration properties, loading it if hasn't been loaded
+	 */
+	private static void saveProperties(){
+		if (configProperties != null){
+			
+		
+			
+			try {
+				//load a properties file
+				configProperties.store(new FileOutputStream(CONFIG_FILE_NAME),"Farreach.es Admin tool properties");
+ 
+			} catch (IOException ex) {
+				System.err.println("Error saving file " + CONFIG_FILE_NAME );
+			}
+			
+		}
+		
+	}
+	
 
 	private ScriptRunner runner = null;
 
