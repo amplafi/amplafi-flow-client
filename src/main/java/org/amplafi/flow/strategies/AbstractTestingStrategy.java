@@ -50,8 +50,8 @@ public abstract class AbstractTestingStrategy {
 	 
 	 /**
 	  * Initializes a new test script
-	  * @param the current flow name
-	  * @param the current activity - unused
+	  * @param flow -the current flow name
+	  * @param activity - the current activity - unused
 	  */
 	 public void newTest(String flow, String activity){
 		 testFileContents = new StringBuffer();

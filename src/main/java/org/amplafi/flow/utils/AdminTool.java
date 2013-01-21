@@ -3,6 +3,8 @@ package org.amplafi.flow.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Properties;
 import java.io.*;  
 import org.apache.commons.cli.ParseException;
@@ -44,6 +46,10 @@ public class AdminTool{
 	 * Main entry point for tool 
 	 */
 	public static void main(String[] args){
+
+for (String arg : args){
+	System.err.println("arg: " + arg );
+}
 
 		// Process command line options.
 		AdminToolCommandLineOptions cmdOptions = null;
@@ -148,7 +154,7 @@ public class AdminTool{
 	 */
 	private static void runScript(String filePath,HashMap<String,ScriptDescription> scriptLookup,AdminToolCommandLineOptions cmdOptions){
 		List<String> remainder =  cmdOptions.getRemainingOptions();
-			
+System.err.println("runScript Filepath  " + filePath);
 			try {
 				String host = getOption(cmdOptions,HOST,DEFAULT_HOST);
 
@@ -163,13 +169,22 @@ public class AdminTool{
 							ScriptDescription sd = scriptLookup.get(scriptName);
 							filePath = sd.getPath();
 						}
+						remainder.remove(0);						
 					}
-					remainder.remove(0);
+
 				}
-				Map<String,String> parammap = getParamMap(remainder);
-				ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap);		
-				runner2.loadAndRunOneScript(filePath);
 				
+				if (filePath != null){
+					
+					Map<String,String> parammap = getParamMap(remainder);
+
+					ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap);		
+					
+					
+					runner2.loadAndRunOneScript(filePath);
+				} else {
+					System.err.println("No script to run or not found.");
+				}
 
 			
 			
@@ -183,13 +198,29 @@ public class AdminTool{
 	private static Map<String,String> getParamMap(List<String> remainderList){
 		Map<String,String> map =new HashMap<String, String>();
 
+		// On linux options like param1=cat comes through as a single param
+		// On windows they come through as 2 params. 
+		
+		// To match options like param1=cat
+		String patternStr = "(\\w+)=(\\S+)";
+
+		Pattern p = Pattern.compile(patternStr);
+
 		for(int i=0;i<remainderList.size();i++){
-			
-			if(remainderList.size()>i+1){		
-				map.put(remainderList.get(i),remainderList.get(i+1));
+
+			Matcher matcher = p.matcher(remainderList.get(i));
+			if (matcher.matches()){
+
+				// 	then we are looking at param1=cat as a single param
+				map.put(matcher.group(1),matcher.group(2));
+				
+			} else {
+				if(remainderList.size()>i+1){		
+
+					map.put(remainderList.get(i),remainderList.get(i+1));
+				}
+				i++;
 			}
-			
-			i++;
 		
 		}
 
@@ -266,9 +297,7 @@ public class AdminTool{
 	 */
 	private static void saveProperties(){
 		if (configProperties != null){
-			
-		
-			
+				
 			try {
 				//load a properties file
 				configProperties.store(new FileOutputStream(CONFIG_FILE_NAME),"Farreach.es Admin tool properties");

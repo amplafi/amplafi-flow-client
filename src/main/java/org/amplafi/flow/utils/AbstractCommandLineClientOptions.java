@@ -73,7 +73,7 @@ public abstract class AbstractCommandLineClientOptions {
 	/**
 	 * Converts a Properties instances to a {@link List} of {@link NameValuePair} instances, if keys and values in the Properties instance are objects. Otherwise, throws an {@link IllegalArgumentException}. 
 	 * @param properties
-	 * @return
+	 * @return list of NameValuePairs for use in apache http client request.
 	 */
 	// TODO TO_HARIS find a better place for toNameValuePairList method (can be reused and is not strictly bound to this class)
 	private List<NameValuePair> toNameValuePairList(Properties properties) {
