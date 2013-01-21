@@ -11,11 +11,15 @@ description "CustomerProblemReport", "Params: customerEmail=<customer_email> Thi
 // setApiVersion("apiv12");
 // setKey("newkey");
 
-//def customerEmail = "admin@amplafi.com" ;
-def customerEmail = "tuan08@gmail.com"
+def verbose = false ; 
+if (params && params["verbose"]) {
+    verbose = params["verbose"] ;
+}
 
-if (params&&params["customerEmail"]){
-    customerEmail = params["customerEmail"]
+//TO_TUAN wtf? Why defult to this email?
+def customerEmail = "tuan08@gmail.com"
+if (params && params["customerEmail"]) {
+    customerEmail = params["customerEmail"] ;
 }
 
 println "Find the api key for the customer " + customerEmail ;
@@ -29,13 +33,31 @@ if(data instanceof JSONArray && data.length() == 1) {
   apiKey = data.getString(0) ;
 }
 
-println "API Key for the customer " + customerEmail + ": "+ apiKey ;
-
 if(apiKey == null) {
-  System.exit(0) ;
+    println "An error when creating a temporary api key for the user " + customerEmail ;
+    prettyPrintResponse();
+    System.exit(0) ;
 }
 
+println "Create a temporary api key for the user " + customerEmail + ": " + apiKey ;
+
 setApiVersion("suv1");
-def httpStatus = "[400]" ;
-request("ApiRequestAuditEntriesFlow", ["fsRenderResult":"json", "filterBy": "email", "email": customerEmail, "httpStatus": httpStatus]);
-prettyPrintResponse();
+def httpStatusCodeList = "[0, 400, 401]" ;
+request("ApiRequestAuditEntriesFlow", ["fsRenderResult":"json", "email": customerEmail, "httpStatusCodeList": httpStatusCodeList]);
+if(verbose) {
+    prettyPrintResponse();
+} else {
+    def entries = getResponseData();
+    if(entries instanceof JSONArray) {
+        println sprintf('%1$3s %2$10s %3$30s %4$30s', '#', 'Http Status', 'Path', 'Message') ;
+        for(int i = 0; i < entries.length(); i++) {
+            def entry = entries.get(i) ;
+            def path = entry.getStringByPath("request.parameters.requestPathArray") ;
+            def responseHttpStatus = entry.getStringByPath("response.code") ;
+            def message = entry.getStringByPath("message") ;
+            println sprintf('%1$3s %2$10s %3$30s %4$30s', i + 1, responseHttpStatus, path, message) ;
+        }
+    } else {
+        prettyPrintResponse();
+    }
+}

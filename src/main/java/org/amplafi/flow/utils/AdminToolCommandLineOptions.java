@@ -49,8 +49,8 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
 		options.addOption(API_VERSION, true, "API version");			
 		options.addOption(PORT, true, "Service port");
 		options.addOption(NOCACHE, false, "Don't use cached server credentials");
-		options.addOption(LIST, false, "List Scripts");
-		options.addOption(FILE_PATH, true, "script File Path");
+		options.addOption(LIST, false, "List In-built Scripts");
+		options.addOption(FILE_PATH, true, "Ad-hoc script File Path");
 		
 				
 		OptionBuilder.withArgName("property=value");		
@@ -74,7 +74,7 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
 		String newline = formatter.getNewLine();
 		return newline+"FAdmin -l : To list the currently available commands"+newline
 				+"FAdmin -x : To reset host, port, api version and key"+newline
-				+"FAdmin example <param1Name>=<param1Value> <param2Name>=<param2Value> ... : To run one of the commands enter the command name";
+				+"            FAdmin example <param1Name>=<param1Value> <param2Name>=<param2Value> ... : To run one of the commands enter the command name";
 	}
 
 }
