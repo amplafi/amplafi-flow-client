@@ -52,19 +52,21 @@ public class FlowTestBuilder {
 	String host = null;
 	String port = null;
 	String apiVersion = null;
-	String key = null;	
+	String key = null;
+	ScriptRunner runner  = null;
 	
 	public FlowTestBuilder(String requestUriString){
         this.requestUriString = requestUriString;
     }
 
 	
-    public FlowTestBuilder(String host, String port, String apiVersion, String key){
+    public FlowTestBuilder(String host, String port, String apiVersion, String key, ScriptRunner runner){
         this.requestUriString = requestUriString;
         this.host = host
 		this.port = port
 		this.apiVersion = apiVersion
-		this.key = key		
+		this.key = key
+		this.runner = runner
     }
     
      public FlowTestBuilder(String host, String port, String apiVersion, String key, List<String> paramArray){
@@ -79,9 +81,9 @@ public class FlowTestBuilder {
     public buildExe(Closure c){
 	
 		if (requestUriString != null){
-			c.delegate = new FlowTestDSL(requestUriString)
+			c.delegate = new FlowTestDSL(requestUriString, runner)
 		} else {
-			c.delegate = new FlowTestDSL(host, port, apiVersion, key)
+			c.delegate = new FlowTestDSL(host, port, apiVersion, key, runner)
 		}
         return c;
     }
@@ -103,7 +105,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
 	def port = null;
 	def apiVersion = null;
 	def key = null;
-
+	ScriptRunner runner  = null;
 
     private static boolean DEBUG = false;
 
@@ -119,16 +121,18 @@ public class FlowTestDSL extends DescribeScriptDSL {
     public String lastRequestResponse = null;
 
 
-    public FlowTestDSL(String requestString ){
+    public FlowTestDSL(String requestString, ScriptRunner runner){
 		this.requestUriString = requestString;
+		this.runner = runner
     }
 
 
-    public FlowTestDSL(String host, String port, String apiVersion, String key){
+    public FlowTestDSL(String host, String port, String apiVersion, String key, ScriptRunner runner){
         this.host = host
 		this.port = port
 		this.apiVersion = apiVersion
 		this.key = key
+		this.runner = runner
     }
 
 
@@ -212,12 +216,14 @@ public class FlowTestDSL extends DescribeScriptDSL {
 	/**
      * Call a script
      */
-    def callScript(String scriptPath){
-        System.out.println(">>>>>>>>>>>>scriptPath = "+scriptPath)
+    def callScript(String scriptName){
 		
-		 def exe = ScriptRunner.createClosure(scriptPath)
-		 exe.delegate = this
-		 exe();
+		 //def exe = ScriptRunner.createClosure(scriptPath)
+		 def exe = runner.createClosure(scriptName)
+		 if(exe){
+			exe.delegate = this
+			exe();
+		 }
 		
 		
 		

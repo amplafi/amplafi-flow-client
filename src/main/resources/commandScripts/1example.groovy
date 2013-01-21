@@ -22,10 +22,13 @@ if (params&&params["param1"]){
 
 }
 
-//callScript("1example.groovy");
+//callScript("D:\\amplafi-flow-client\\amplafi-flow-client\\src\\main\\resources\\commandScripts\\2example.groovy");
+//callScript("example2",["param1":"cat","param2":"dog"]);
+callScript("example5");
 
 // Make a request to the server 
 request("EligibleExternalServiceInstancesFlow", ["eligibleExternalServiceInstanceMap":"bogusData","eligibleExternalServiceInstances":"bogusData","fsRenderResult":"json"]);
+
 
 
 // Pretty Print The Response

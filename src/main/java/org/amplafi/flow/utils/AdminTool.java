@@ -3,6 +3,8 @@ package org.amplafi.flow.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Properties;
 import java.io.*;  
 import org.apache.commons.cli.ParseException;
@@ -45,6 +47,10 @@ public class AdminTool{
 	 */
 	public static void main(String[] args){
 
+for (String arg : args){
+	System.err.println("arg: " + arg );
+}
+
 		// Process command line options.
 		AdminToolCommandLineOptions cmdOptions = null;
 		try {
@@ -68,43 +74,43 @@ public class AdminTool{
 		// Obtain a list of script descriptions from the script runner
 		// this will also check for basic script compilation errors or lack of description lines in script.
 		ScriptRunner runner  = new ScriptRunner("");
-		List<ScriptDescription>  descs = runner.describeScriptsInFolder(COMMAND_SCRIPT_PATH);
+		HashMap<String,ScriptDescription>  scriptLookup = runner.processScriptsInFolder(COMMAND_SCRIPT_PATH); //change
 		
+// MOVE TO SCRIPT RUNNER 		
+		//List<ScriptDescription> haveErrors = new ArrayList<ScriptDescription>();
+		//List<ScriptDescription> goodScripts = new ArrayList<ScriptDescription>();
+		//HashMap<String,ScriptDescription> scriptLookup = new HashMap<String,ScriptDescription>();
+		//
+		//// Determine which scripts are good to run and which have errors. 
+		//for (ScriptDescription sd : descs ){
+		//	if (!sd.getHasErrors()){
+		//		goodScripts.add(sd);
+		//		scriptLookup.put(sd.getName(),sd);
+		//	} else {
+		//		haveErrors.add(sd);
+		//	}
+		//}
 		
-		List<ScriptDescription> haveErrors = new ArrayList<ScriptDescription>();
-		List<ScriptDescription> goodScripts = new ArrayList<ScriptDescription>();
-		HashMap<String,ScriptDescription> scriptLookup = new HashMap<String,ScriptDescription>();
-		
-		// Determine which scripts are good to run and which have errors. 
-		for (ScriptDescription sd : descs ){
-			if (!sd.getHasErrors()){
-				goodScripts.add(sd);
-				scriptLookup.put(sd.getName(),sd);
-			} else {
-				haveErrors.add(sd);
-			}
-		}
-		
-
+// END MOVE TO SCRIPT RUNNER 		
 		
 		if (cmdOptions.hasOption(LIST)){
 			// If user has asked for a list of commands then list the good scripts with their 
 			// descriptions. 
 			
-			for (ScriptDescription sd : goodScripts ){
-				System.out.println("     " + sd.getName() + "       - " + sd.getDescription() + "       - ");
+			for (ScriptDescription sd : runner.getGoodScripts() ){ // change
+				System.out.println("     " + sd.getName() + "       - " + sd.getDescription());
 			}
 			
 			
 			
 			// List scripts that have errors if there are any
-			if (haveErrors.size() > 0){
+			if (runner.getScriptsWithErrors().size() > 0){  // change
 				System.out.println("The following scripts have errors: ");			
 			}
 			
-			for (ScriptDescription sd : haveErrors ){
+			for (ScriptDescription sd : runner.getScriptsWithErrors() ){ // change
 				
-				System.out.println("  " + sd.getPath() + "       - " + sd.getErrorMesg());
+				System.out.println("  " + getRelativePath(sd.getPath()) + "       - " + sd.getErrorMesg());
 				
 			}		
 	
@@ -128,27 +134,29 @@ public class AdminTool{
 		
 	}
 	
-	/**
-	 * @param remainderList - remaininf parameters of command line. 
-	 * @return remaining parameters to be passed to the script. 
-	 */
-	private static String[] getParamArray(List<String> remainderList){
-		List<String> paramsList = remainderList;
-		paramsList.remove(0);
-		final int size =  paramsList.size();
-		String[] arr = (String[])paramsList.toArray(new String[size]);
+	 /**
+     * get the relative path by the absolute path
+     * @param filePath is the full path to the script.
+     */
+	private static String getRelativePath(String filePath){
+		String relativePath = filePath;
+		String currentPath = System.getProperty("user.dir");
+		if(filePath.contains(currentPath)){
+			relativePath = filePath.substring(currentPath.length());
+		}
 		
-			
-		return arr;
-		
+		return relativePath;
 	}
+	
+
 	
 	/**
 	 *  Runs the named script.
 	 */
 	private static void runScript(String filePath,HashMap<String,ScriptDescription> scriptLookup,AdminToolCommandLineOptions cmdOptions){
+
 		List<String> remainder =  cmdOptions.getRemainingOptions();
-			
+
 			try {
 				String host = getOption(cmdOptions,HOST,DEFAULT_HOST);
 
@@ -163,18 +171,28 @@ public class AdminTool{
 							ScriptDescription sd = scriptLookup.get(scriptName);
 							filePath = sd.getPath();
 						}
+						remainder.remove(0);						
 					}
-					remainder.remove(0);
+
 				}
 				Map<String,String> parammap = getParamMap(remainder);
-				System.out.println("in AdminTool host = "+host);
-				System.out.println("in AdminTool port = "+port);
-				System.out.println("in AdminTool apiVersion = "+apiVersion);
-				System.out.println("in AdminTool key = "+key);
-				System.out.println("in AdminTool parammap = "+parammap);
-				ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap);		
-				runner2.loadAndRunOneScript(filePath);
+
+				ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap);
+				runner2.processScriptsInFolder(COMMAND_SCRIPT_PATH);
+
+
 				
+				if (filePath != null){
+					
+				//	Map<String,String> parammap = getParamMap(remainder);
+
+				//	ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap);		
+					
+					
+					runner2.loadAndRunOneScript(filePath);
+				} else {
+					System.err.println("No script to run or not found.");
+				}
 
 			
 			
@@ -188,13 +206,29 @@ public class AdminTool{
 	private static Map<String,String> getParamMap(List<String> remainderList){
 		Map<String,String> map =new HashMap<String, String>();
 
+		// On linux options like param1=cat comes through as a single param
+		// On windows they come through as 2 params. 
+		
+		// To match options like param1=cat
+		String patternStr = "(\\w+)=(\\S+)";
+
+		Pattern p = Pattern.compile(patternStr);
+
 		for(int i=0;i<remainderList.size();i++){
-			
-			if(remainderList.size()>i+1){		
-				map.put(remainderList.get(i),remainderList.get(i+1));
+
+			Matcher matcher = p.matcher(remainderList.get(i));
+			if (matcher.matches()){
+
+				// 	then we are looking at param1=cat as a single param
+				map.put(matcher.group(1),matcher.group(2));
+				
+			} else {
+				if(remainderList.size()>i+1){		
+
+					map.put(remainderList.get(i),remainderList.get(i+1));
+				}
+				i++;
 			}
-			
-			i++;
 		
 		}
 
@@ -271,9 +305,7 @@ public class AdminTool{
 	 */
 	private static void saveProperties(){
 		if (configProperties != null){
-			
-		
-			
+				
 			try {
 				//load a properties file
 				configProperties.store(new FileOutputStream(CONFIG_FILE_NAME),"Farreach.es Admin tool properties");
@@ -295,12 +327,12 @@ public class AdminTool{
 	}
 
 
-	public List<ScriptDescription> listScripts(){
-	
-		runner  = new ScriptRunner("");
-		return runner.describeScriptsInFolder(COMMAND_SCRIPT_PATH);
-
-	}
+//	public List<ScriptDescription> listScripts(){
+//	
+//		runner  = new ScriptRunner("");
+//		return runner.describeScriptsInFolder(COMMAND_SCRIPT_PATH);
+//
+//	}
 
 
 	public void runScript(String filePath){

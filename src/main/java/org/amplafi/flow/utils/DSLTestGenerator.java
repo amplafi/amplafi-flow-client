@@ -173,7 +173,7 @@ public class DSLTestGenerator {
     /**
      * Provides all flow names for testing
      *
-     * @return
+     * @return the names of all the flows supported by this server api
      */
     public List<String> getListOfFlows() throws GenerationException{
 

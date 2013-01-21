@@ -59,9 +59,6 @@ public class GeneralFlowRequest {
 	}
 
     /**
-     * @param requestUriString This parameter is just the scheme and authority (with optional port)
-     *            and no path. For development this is usually http://localhost:8080
-     * @param flow the flow name
      * @return JSONObject representation of all of the parameters that this flow has.
      */
     public JSONObject describeFlow() {

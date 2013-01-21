@@ -17,7 +17,10 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import java.util.Properties;  
 
-
+/**
+ * Command line options parser for the Admin tool
+ * 
+ */
 public class AdminToolCommandLineOptions extends AbstractCommandLineClientOptions {
 
 	// command line switch used to specify which API key we want to use
@@ -31,35 +34,32 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
 	public static final String FILE_PATH = "f";
 	
 
-	// The options associated with this option are Java property style like options.
-	// e.g. passing this argument: -DpostId=123 to the CommandLineClient tool, will give you access to a property called postId, and its value (123). 
-	//public static final String PARAMS = "D";
-	
-	
+	/**
+	 * Constructor see AdminTool.md document for parameter string formats.
+	 */
 	public AdminToolCommandLineOptions(String[] args) throws ParseException {
 		super(args);
 	}
 
+	/**
+	 * Initialise the options. 
+	 */
 	protected Options initOptions() {
 		//Options options = super.initOptions();
 		Options options = new Options();
-		options.addOption(LIST, false, "List Scripts");
+		options.addOption(LIST, false, "List In-built Scripts");
 		options.addOption(API_KEY, true, "API key");
 		options.addOption(HOST, true, "Host address");
 		options.addOption(API_VERSION, true, "API version");			
 		options.addOption(PORT, true, "Service port");
 		options.addOption(NOCACHE, false, "Don't use cached server credentials");
-		options.addOption(LIST, false, "List In-built Scripts");
 		options.addOption(FILE_PATH, true, "Ad-hoc script File Path");
 		
 				
-		OptionBuilder.withArgName("property=value");		
-		OptionBuilder.hasArgs(2);
-		OptionBuilder.withValueSeparator();
-		OptionBuilder.withDescription("Specify query .");
-	//	Option parameter = OptionBuilder.create(PARAMS);
-		
-	//	options.addOption(parameter);
+		/*options.addOption(OptionBuilder.withArgName("property=value").
+				hasArgs(2).
+					withValueSeparator().
+						withDescription("Specify query .").create("D"));*/
 		
 		return options;
 	}

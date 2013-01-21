@@ -17,6 +17,9 @@ public class ScriptRunner {
 	String port = null;
 	String apiVersion = null;
 	String key = null;
+	List<ScriptDescription> haveErrors = new ArrayList<ScriptDescription>();
+	List<ScriptDescription> goodScripts = new ArrayList<ScriptDescription>();
+	HashMap<String,ScriptDescription> scriptLookup = null;
 	Map<String,String> paramsmap = null;
 
 	private static boolean DEBUG = false;	
@@ -91,6 +94,7 @@ public class ScriptRunner {
      */
     def loadAndRunOneScript(String filePath){
 
+		
         def file = new File(filePath)
         def script = file.getText();
 
@@ -99,15 +103,11 @@ public class ScriptRunner {
         return value
     }
 
-    /**
-     * Runs the source code for a FlowTest DSL script. Look at the Javadoc for
-     * the FlowTestBuilder to see a description of the script syntax that is accepted.
-     * @param sourceCode - the script source code.
-     */
+
     def runScriptSource(String sourceCode, String builderCmd) throws NoDescriptionException, EarlyExitException{
 		
         // The script code must be pre-processed to add the contents of the file
-        // into a call to FlowTestBuilder.build then the processed script is run
+        // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
 		def builderParams = "";
 
@@ -118,55 +118,27 @@ public class ScriptRunner {
 		}
 
 
-        // Create a full script string with the file source in the middle.
-
-//        def script = """
-//			import org.amplafi.dsl.FlowTestBuilder;
-//			import org.amplafi.json.*;
-//
-////			def builder = null;
-//			
-////			builder = new FlowTestBuilder(${builderParams});
-//			
-//			
-//			def source = {
-//                ${sourceCode}
-//            };
-////           def execScript = builder.${builderCmd}(source);
-////           execScript();
-//			return source
-//            """;
-//
-//		
-//		def bindingMap = ["params":paramsmap]
-//		
-//        Binding binding = new Binding(bindingMap);
-//        binding.setVariable("requestUriString",requestUriString);
-//        GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
-//
-//		def lineNo = 1;
-//        script.split("\n").each{ line -> 
-//			debug("${lineNo}>${line}")
-//			lineNo++;
-//		}
-//
-//		println("host = "+host)
-//		println("port = "+port)
-//		println("apiVersion = "+apiVersion)
-//		println("key = "+key)
-//		Object closure = shell.evaluate(script);
 		Object closure = getClosure(sourceCode)
-		def builder = new FlowTestBuilder(host,port,apiVersion,key);
-	    def execScript = builder.buildExe(closure);
-		if(host&&port&&apiVersion&&key){
-        execScript();
+		def builder = new FlowTestBuilder(host,port,apiVersion,key,this);
+		if(builderCmd == "buildDesc"){
+			
+			def execScript = builder.buildDesc(closure);
+			execScript();
+		}else{
+			
+			def execScript = builder.buildExe(closure);
+			execScript();
 		}
+
 
         return closure;
 
     }
+
+
 	
 	def getClosure(String sourceCode){
+	
 		def script = """
 			import org.amplafi.dsl.FlowTestBuilder;
 			import org.amplafi.json.*;
@@ -180,7 +152,7 @@ public class ScriptRunner {
             """;
 
 		
-		def bindingMap = ["params":paramsmap]
+		def bindingMap = ["params":paramsmap];
 		
         Binding binding = new Binding(bindingMap);
         binding.setVariable("requestUriString",requestUriString);
@@ -192,24 +164,42 @@ public class ScriptRunner {
 			lineNo++;
 		}
 
-		println("host = "+host)
-		println("port = "+port)
-		println("apiVersion = "+apiVersion)
-		println("key = "+key)
 		Object closure = shell.evaluate(script);
 		
 		return closure;
 	}
 	
-	private static String createClosure(String filePath){
-		def file = new File(filePath)
-        def sourceCode = file.getText();
-		getClosure(sourceCode);
+	public def createClosure(String scriptName){
+		def filePath = getScriptPath(scriptName)
+		if(filePath){
+			def file = new File(filePath)
+			def sourceCode = file.getText();
+			def closure = getClosure(sourceCode);
+			return closure;
+		}else{
+			println("Script "+ scriptName + " does not exsit" );
+			return null;
+		}
+		
+		
 	}
 	
+	def getScriptPath(String scriptName){
+		
+		def filePath = null;
+		for(ScriptDescription sd : goodScripts){
+			
+			if(sd.getName() == scriptName){
+				filePath = sd.getPath()
+			}
+		}
+		return filePath;
+		
+	}
 	
 
-	public List<ScriptDescription> describeScriptsInFolder(String path){
+	//public List<ScriptDescription> describeScriptsInFolder(String path){
+	public HashMap<String,ScriptDescription> processScriptsInFolder(String path){
 		List<ScriptDescription> ret = [];
 
 
@@ -223,7 +213,19 @@ public class ScriptRunner {
 			}
 		}
 		
-		return ret;
+		scriptLookup = new HashMap<String,ScriptDescription>();
+		
+		// Determine which scripts are good to run and which have errors. 
+		for (ScriptDescription sd : ret ){
+			if (!sd.getHasErrors()){
+				goodScripts.add(sd);
+				scriptLookup.put(sd.getName(),sd);
+			} else {
+				haveErrors.add(sd);
+			}
+		}
+		
+		return scriptLookup;
 	
 	}
 
@@ -233,20 +235,21 @@ public class ScriptRunner {
      * @param filePath is the full path to the script.
      */
     def describeOneScript(String filePath){
-		String relativePath = getRelativePath(filePath)
+		
+		//String relativePath = getRelativePath(filePath)
         def file = new File(filePath)
         def script = file.getText();
 		def value =  null
 		
 		try {
-
+		
 			value = runScriptSource(script,"buildDesc")
 		} catch (EarlyExitException eee){
 
 			value = eee.desc
 			value.path = filePath
 		} catch (NoDescriptionException nde){
-			value = new ScriptDescription(hasErrors:true, errorMesg:"No Description Defined", path:relativePath);
+			value = new ScriptDescription(hasErrors:true, errorMesg:"No Description Defined", path:filePath);
 		}
 
         return value
@@ -266,6 +269,16 @@ public class ScriptRunner {
 		
 	}
 
+
+
+	public List<ScriptDescription> getGoodScripts(){
+		return goodScripts;
+	}
+
+	public List<ScriptDescription> getScriptsWithErrors(){
+		return haveErrors;
+	}
+	
 
     private static void debug(String msg){
         if (DEBUG){
