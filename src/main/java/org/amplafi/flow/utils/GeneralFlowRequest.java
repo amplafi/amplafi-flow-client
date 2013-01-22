@@ -52,11 +52,11 @@ public class GeneralFlowRequest {
     /**
      * @return List strings representing flowtypes
      */
-	public JSONArray<String> listFlows() {
-		GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(this.requestUri, null, fsRenderResult, describe);
-		String responseString = generalFlowRequest.get();
-		return new JSONArray<String>(responseString);
-	}
+    public JSONArray<String> listFlows() {
+        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(this.requestUri, null, fsRenderResult, describe);
+        String responseString = generalFlowRequest.get();
+        return new JSONArray<String>(responseString);
+    }
 
     /**
      * @return JSONObject representation of all of the parameters that this flow has.
@@ -108,11 +108,11 @@ public class GeneralFlowRequest {
         return output;
     }
 
-	private String getFullUri() {
-		return flowName != null ? (requestUri + "/" + flowName) : requestUri.toString();
-	}
-	
-	public String getRequestString() {
-		return getFullUri() + "?" + queryString;
-	}
+    private String getFullUri() {
+        return flowName != null ? (requestUri + "/" + flowName) : requestUri.toString();
+    }
+    
+    public String getRequestString() {
+        return getFullUri() + "?" + queryString;
+    }
 }

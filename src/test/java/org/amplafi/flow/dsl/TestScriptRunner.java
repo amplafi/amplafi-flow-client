@@ -28,45 +28,45 @@ import static org.testng.Assert.*;
  * This is a test for the TestScriptRunner itself, not the wire server
  */
 public class TestScriptRunner {
-	
-	private ScriptRunner instance = null;
-	
-	@BeforeTest
-	public void setup(){
-		instance = new ScriptRunner("http://sandbox.farreach.es:8080/c/ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e/apiv1/");
-	}
-	
-	@AfterTest
-	public void tearDown(){
-		instance = null;
-	}	
-	
-	@Test 
-	public void touchTest() throws Exception{
-		
-		String script = "println('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFf'); \n " +
-					" request('HelloFlow',['cat':'dog','hippo':'pig']);" ;
-		
-		instance.runScriptSource(script,"buildExe");
-	}
-	
-	@Test 
-	public void testLoadAndRunOneScript(){
-		
-		instance.loadAndRunOneScript(DEFAULT_SCRIPT_PATH + "/1example.groovy");
-		
-		
-	}
+    
+    private ScriptRunner instance = null;
+    
+    @BeforeTest
+    public void setup(){
+        instance = new ScriptRunner("http://sandbox.farreach.es:8080/c/ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e/apiv1/");
+    }
+    
+    @AfterTest
+    public void tearDown(){
+        instance = null;
+    }	
+    
+    @Test 
+    public void touchTest() throws Exception{
+        
+        String script = "println('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFf'); \n " +
+                    " request('HelloFlow',['cat':'dog','hippo':'pig']);" ;
+        
+        instance.runScriptSource(script,"buildExe");
+    }
+    
+    @Test 
+    public void testLoadAndRunOneScript(){
+        
+        instance.loadAndRunOneScript(DEFAULT_SCRIPT_PATH + "/1example.groovy");
+        
+        
+    }
 
-	@Test 
-	public void testLoadAndRunAllSrcipts(){
-		
-		instance.loadAndRunAllSrcipts();
-		
-		
-	}	
-	
-	
-	
+    @Test 
+    public void testLoadAndRunAllSrcipts(){
+        
+        instance.loadAndRunAllSrcipts();
+        
+        
+    }	
+    
+    
+    
 
 }

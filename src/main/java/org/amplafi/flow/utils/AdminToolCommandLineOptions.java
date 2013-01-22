@@ -23,58 +23,63 @@ import java.util.Properties;
  */
 public class AdminToolCommandLineOptions extends AbstractCommandLineClientOptions {
 
-	// command line switch used to specify which API key we want to use
-	public static final String API_KEY = "key";
-	public static final String FLOW = "flow";
-	public static final String HOST = "host";
-	public static final String PORT = "port";
-	public static final String API_VERSION = "apiv";
-	public static final String LIST = "l";
-	public static final String NOCACHE = "x";
-	public static final String FILE_PATH = "f";
-	
+    // command line switch used to specify which API key we want to use
+    public static final String API_KEY = "key";
+    public static final String FLOW = "flow";
+    public static final String HOST = "host";
+    public static final String PORT = "port";
+    public static final String API_VERSION = "apiv";
+    public static final String LIST = "l";
+    public static final String LISTDETAILED = "L";
+    public static final String NOCACHE = "x";
+    public static final String FILE_PATH = "f";
+    public static final String VERBOSE = "verbose";
+    
 
-	/**
-	 * Constructor see AdminTool.md document for parameter string formats.
-	 */
-	public AdminToolCommandLineOptions(String[] args) throws ParseException {
-		super(args);
-	}
+    /**
+     * Constructor see AdminTool.md document for parameter string formats.
+     */
+    public AdminToolCommandLineOptions(String[] args) throws ParseException {
+        super(args);
+    }
 
-	/**
-	 * Initialise the options. 
-	 */
-	protected Options initOptions() {
-		//Options options = super.initOptions();
-		Options options = new Options();
-		options.addOption(LIST, false, "List In-built Scripts");
-		options.addOption(API_KEY, true, "API key");
-		options.addOption(HOST, true, "Host address");
-		options.addOption(API_VERSION, true, "API version");			
-		options.addOption(PORT, true, "Service port");
-		options.addOption(NOCACHE, false, "Don't use cached server credentials");
-		options.addOption(FILE_PATH, true, "Ad-hoc script File Path");
-		
-				
-		/*options.addOption(OptionBuilder.withArgName("property=value").
-				hasArgs(2).
-					withValueSeparator().
-						withDescription("Specify query .").create("D"));*/
-		
-		return options;
-	}
-	
-	public void printHelp() {
-		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(getPrinter(formatter), options);
-	}
-	
-	private String getPrinter(HelpFormatter formatter){
+    /**
+     * Initialise the options. 
+     */
+    protected Options initOptions() {
+        //Options options = super.initOptions();
+        Options options = new Options();
+        options.addOption(LIST, false, "List In-built Scripts");
+        options.addOption(LISTDETAILED, false, "List In-built Scripts and show all scripts path");
+        options.addOption(API_KEY, true, "API key");
+        options.addOption(HOST, true, "Host address");
+        options.addOption(API_VERSION, true, "API version");			
+        options.addOption(PORT, true, "Service port");
+        options.addOption(NOCACHE, false, "Don't use cached server credentials");
+        options.addOption(FILE_PATH, true, "Ad-hoc script File Path");
+        options.addOption(VERBOSE, false, "print request url");
+        
+                
+        /*options.addOption(OptionBuilder.withArgName("property=value").
+                hasArgs(2).
+                    withValueSeparator().
+                        withDescription("Specify query .").create("D"));*/
+        
+        return options;
+    }
+    
+    public void printHelp() {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp(getPrinter(formatter), options);
+    }
+    
+    private String getPrinter(HelpFormatter formatter){
 
-		String newline = formatter.getNewLine();
-		return newline+"FAdmin -l : To list the currently available commands"+newline
-				+"FAdmin -x : To reset host, port, api version and key"+newline
-				+"            FAdmin example <param1Name>=<param1Value> <param2Name>=<param2Value> ... : To run one of the commands enter the command name";
-	}
+        String newline = formatter.getNewLine();
+        return newline+"FAdmin -l : To list In-built Scripts"+newline
+                +"FAdmin -L : To list In-built Scripts and show all scripts path"+newline
+                +"FAdmin -x : To reset host, port, api version and key"+newline
+                +"            FAdmin example <param1Name>=<param1Value> <param2Name>=<param2Value> ... : To run one of the commands enter the command name";
+    }
 
 }

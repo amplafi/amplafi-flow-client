@@ -25,33 +25,33 @@ import org.apache.http.NameValuePair;
  * @author paul
  */
 public class CorruptParamsNameTestingStrategy extends AbstractTestingStrategy {
-	
-	private static final String NAME = "CorruptParamsNames";
-	/**
-	 * @return the name of this strategy 
-	 */
-	 @Override
-	 public String getName(){
-		 return NAME;
-	 }
+    
+    private static final String NAME = "CorruptParamsNames";
+    /**
+     * @return the name of this strategy 
+     */
+     @Override
+     public String getName(){
+         return NAME;
+     }
 
-	@Override
-	public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
-		// These elements may cause illegal JSON tokens
-		String[] corruptParamElements = new String[]{" ", ".", "%", "{" };
+    @Override
+    public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
+        // These elements may cause illegal JSON tokens
+        String[] corruptParamElements = new String[]{" ", ".", "%", "{" };
         List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
         int idx = 0;
         for (String parameterName : parameterNames) {
-			String badToken = "bad" + corruptParamElements[idx] + "token";
+            String badToken = "bad" + corruptParamElements[idx] + "token";
             bogusDataList.add(new BasicNameValuePair(badToken,"bogusData"));
             idx = (idx + 1) % corruptParamElements.length;
         }
         return bogusDataList;
-	}
-	
-	@Override
-	public void addVerification(String typicalResponse){
-		writeToFileBuffer("checkReturnedValidJson()");
-	}
+    }
+    
+    @Override
+    public void addVerification(String typicalResponse){
+        writeToFileBuffer("checkReturnedValidJson()");
+    }
 
 }

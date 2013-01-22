@@ -7,8 +7,8 @@ import org.amplafi.json.JSONObject;
  * 
  */
  public class JSONValidator {
-		static exclusions = ["class","count"];
+        static exclusions = ["class","count"];
 
-	
-	 
+    
+     
 }

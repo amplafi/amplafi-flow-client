@@ -6,38 +6,38 @@ package org.amplafi.flow.definitions;
  *
  */
 public class FarReachesServiceInfo {
-	private String host;
-	private String port;
-	private String apiVersion;
+    private String host;
+    private String port;
+    private String apiVersion;
 
-	public FarReachesServiceInfo(String host, String port, String apiVersion) {
-		super();
-		this.host = host;
-		this.port = port;
-		this.apiVersion = apiVersion;
-	}
+    public FarReachesServiceInfo(String host, String port, String apiVersion) {
+        super();
+        this.host = host;
+        this.port = port;
+        this.apiVersion = apiVersion;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-	public String getPort() {
-		return port;
-	}
+    public String getPort() {
+        return port;
+    }
 
-	public void setPort(String port) {
-		this.port = port;
-	}
+    public void setPort(String port) {
+        this.port = port;
+    }
 
-	public String getApiVersion() {
-		return apiVersion;
-	}
+    public String getApiVersion() {
+        return apiVersion;
+    }
 
-	public void setApiVersion(String apiVersion) {
-		this.apiVersion = apiVersion;
-	}
+    public void setApiVersion(String apiVersion) {
+        this.apiVersion = apiVersion;
+    }
 }

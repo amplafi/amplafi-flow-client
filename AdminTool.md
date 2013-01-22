@@ -44,6 +44,10 @@ Running ./FAdmin.sh without parameters will display the usage.
 To list the currently available commands enter :
 
     ./FAdmin.sh -l
+	
+To list In-built Scripts and show all scripts path :
+
+	./FAdmin.sh -L
 
 To run one of the commands enter the command name :
 

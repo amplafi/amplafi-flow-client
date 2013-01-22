@@ -49,42 +49,47 @@ import java.util.Map;
 public class FlowTestBuilder {
 
     private String requestUriString = null
-	String host = null;
-	String port = null;
-	String apiVersion = null;
-	String key = null;
-	ScriptRunner runner  = null;
-	
-	public FlowTestBuilder(String requestUriString){
+    String host = null;
+    String port = null;
+    String apiVersion = null;
+    String key = null;
+    ScriptRunner runner  = null;
+    boolean verbose = false;
+    
+    public FlowTestBuilder(String requestUriString, ScriptRunner runner, boolean verbose){
         this.requestUriString = requestUriString;
+        this.runner = runner
+        this.map = map;
+        this.verbose = verbose;
     }
 
-	
-    public FlowTestBuilder(String host, String port, String apiVersion, String key, ScriptRunner runner){
+    
+    public FlowTestBuilder(String host, String port, String apiVersion, String key, ScriptRunner runner, boolean verbose){
         this.requestUriString = requestUriString;
         this.host = host
-		this.port = port
-		this.apiVersion = apiVersion
-		this.key = key
-		this.runner = runner
+        this.port = port
+        this.apiVersion = apiVersion
+        this.key = key
+        this.runner = runner
+        this.verbose = verbose;
     }
     
      public FlowTestBuilder(String host, String port, String apiVersion, String key, List<String> paramArray){
         this.requestUriString = requestUriString;
         this.host = host
-		this.port = port
-		this.apiVersion = apiVersion
-		this.key = key		
+        this.port = port
+        this.apiVersion = apiVersion
+        this.key = key		
     }
 
 
     public buildExe(Closure c){
-	
-		if (requestUriString != null){
-			c.delegate = new FlowTestDSL(requestUriString, runner)
-		} else {
-			c.delegate = new FlowTestDSL(host, port, apiVersion, key, runner)
-		}
+    
+        if (requestUriString != null){
+            c.delegate = new FlowTestDSL(requestUriString, runner, verbose)
+        } else {
+            c.delegate = new FlowTestDSL(host, port, apiVersion, key, runner, verbose)
+        }
         return c;
     }
 
@@ -101,11 +106,12 @@ public class FlowTestBuilder {
  */
 public class FlowTestDSL extends DescribeScriptDSL {
 
-	def host = null;
-	def port = null;
-	def apiVersion = null;
-	def key = null;
-	ScriptRunner runner  = null;
+    def host = null;
+    def port = null;
+    def apiVersion = null;
+    def key = null;
+    ScriptRunner runner  = null;
+    boolean verbose = false;
 
     private static boolean DEBUG = false;
 
@@ -121,18 +127,20 @@ public class FlowTestDSL extends DescribeScriptDSL {
     public String lastRequestResponse = null;
 
 
-    public FlowTestDSL(String requestString, ScriptRunner runner){
-		this.requestUriString = requestString;
-		this.runner = runner
+    public FlowTestDSL(String requestString, ScriptRunner runner, boolean verbose){
+        this.requestUriString = requestString;
+        this.runner = runner
+        this.verbose = verbose;
     }
 
 
-    public FlowTestDSL(String host, String port, String apiVersion, String key, ScriptRunner runner){
+    public FlowTestDSL(String host, String port, String apiVersion, String key, ScriptRunner runner, boolean verbose){
         this.host = host
-		this.port = port
-		this.apiVersion = apiVersion
-		this.key = key
-		this.runner = runner
+        this.port = port
+        this.apiVersion = apiVersion
+        this.key = key
+        this.runner = runner
+        this.verbose = verbose;
     }
 
 
@@ -140,21 +148,21 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
 
-	void setHost(String host){
-		this.host = host
-	}
+    void setHost(String host){
+        this.host = host
+    }
 
-	void setPort(String port){
-		this.port = port
-	}
+    void setPort(String port){
+        this.port = port
+    }
 
-	void setApiVersion(String apiVersion){
-		this.apiVersion = apiVersion
-	}
+    void setApiVersion(String apiVersion){
+        this.apiVersion = apiVersion
+    }
 
-	void setKey(String key){
-		this.key = key
-	}
+    void setKey(String key){
+        this.key = key
+    }
 
 
 
@@ -163,7 +171,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param flowName to call
      * @param paramsMap key value map of parameters to send.
      */
-    String request(String flowName, Map paramsMap ){
+    String request(String flowName, Map paramsMap){
+
         debug("flowName ${flowName}");
 
         Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
@@ -174,16 +183,19 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
 
         URI requestUri = URI.create(getRequestString());
+
         GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flowName, requestParams);
 
         debug(requestParams.toString());
 
-		lastRequestString = request.getRequestString();
+        lastRequestString = request.getRequestString();
 
-		println("");
-		println(" Sent Request: " + lastRequestString );
-		println("");
-		
+        if(verbose){
+            println("");
+            println(" Sent Request: " + lastRequestString );
+            println("");
+        }
+        
         lastRequestResponse = request.get();
 
         debug(lastRequestResponse)
@@ -204,51 +216,51 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
 
-	/**
-	 * Pretty Prints Last Response
-	 */
-	def prettyPrintResponse(){
-
-		println(getResponseData().toString(4));
-	
-	}
-
-	/**
-     * Call a script
+    /**
+     * Pretty Prints Last Response
      */
-    def callScript(String scriptName){
-		
-		 //def exe = ScriptRunner.createClosure(scriptPath)
-		 def exe = runner.createClosure(scriptName)
-		 if(exe){
-			exe.delegate = this
-			exe();
-		 }
-		
-		
-		
+    def prettyPrintResponse(){
+
+        println(getResponseData().toString(4));
+    
     }
 
-	def getResponseData(){
-		def data = null;
+    /**
+     * Call a script
+     */
+    def callScript(String scriptName, Map callparamsmap){
+
+         //def exe = ScriptRunner.createClosure(scriptPath)
+         def exe = runner.createClosure(scriptName,callparamsmap)
+         if(exe){
+            exe.delegate = this
+            exe();
+         }
+        
+        
+        
+    }
+
+    def getResponseData(){
+        def data = null;
  
-	    try {
-			// first assume it is a normal object 
+        try {
+            // first assume it is a normal object 
             data = new JSONObject(lastRequestResponse);
 
         } catch (Exception e){
-			try {
-				// then see if it is an array
-				data = new JSONArray(lastRequestResponse);
+            try {
+                // then see if it is an array
+                data = new JSONArray(lastRequestResponse);
 
-			} catch (Exception e2){
-				fail("Invalid JSON. " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
-			}
+            } catch (Exception e2){
+                fail("Invalid JSON. " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
+            }
         }
-		
-		return data;
-	
-	}
+        
+        return data;
+    
+    }
 
     /**
      * @param expectedJSONData
@@ -262,13 +274,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     }
 
-	private String getRequestString(){
-		if (requestUriString != null){
-			return requestUriString;
-		} else {
-			return this.host + ":" + this.port + "/c/" + this.key   + "/" + this.apiVersion; 
-		}
-	}
+    private String getRequestString(){
+        if (requestUriString != null){
+            return requestUriString;
+        } else {
+            return this.host + ":" + this.port + "/c/" + this.key   + "/" + this.apiVersion; 
+        }
+    }
 
 
     private static void debug(String msg){
@@ -276,7 +288,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
             System.err.println(msg);
         }
     }
-	
+    
 }
 
 /**
@@ -320,7 +332,7 @@ public class DescribeScriptDSL {
      * @param flowName to call
      * @param paramsMap key value map of parameters to send.
      */
-    String request(String flowName, Map paramsMap ){
+    String request(String flowName, Map paramsMap){
         throw new NoDescriptionException();
     }
 
@@ -348,7 +360,7 @@ public class DescribeScriptDSL {
         throw new NoDescriptionException();
     }
 
-	/**
+    /**
      * Call a script
      */
     def callScript(String scriptPath){

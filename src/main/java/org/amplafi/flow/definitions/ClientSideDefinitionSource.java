@@ -11,24 +11,24 @@ import java.util.Map;
  */
 public class ClientSideDefinitionSource implements DefinitionSource<FlowDefinition> {
 
-	private URI flowServerUri;
-	
-	ClientSideDefinitionSource(URI flowServerUri) {
-		this.flowServerUri = flowServerUri;
-	}
-	public FlowDefinition getFlowDefinition(String flowTypeName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    private URI flowServerUri;
+    
+    ClientSideDefinitionSource(URI flowServerUri) {
+        this.flowServerUri = flowServerUri;
+    }
+    public FlowDefinition getFlowDefinition(String flowTypeName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public Map<String, FlowDefinition> getFlowDefinitions() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map<String, FlowDefinition> getFlowDefinitions() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public boolean isFlowDefined(String flowTypeName) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public boolean isFlowDefined(String flowTypeName) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }
