@@ -29,12 +29,12 @@ import org.amplafi.flow.TestProperties;
  * This is a test for the TestScriptRunner itself, not the wire server
  */
 public class TestDSLScriptsBatchRunner {
-	
-	private ScriptRunner runner = null;
-	
-	private String currentScriptName = "";
-	
-	/**
+    
+    private ScriptRunner runner = null;
+    
+    private String currentScriptName = "";
+    
+    /**
      * This factory will be called repeatedly to generate test instances for each of the flows
      * supported by the server.
      */
@@ -46,55 +46,55 @@ public class TestDSLScriptsBatchRunner {
     public String toString() {
         return currentScriptName;
     }
-	
-	
-	/**
+    
+    
+    /**
      * Provides all script names for testing
      *
      * @return
      */
     @DataProvider(name = "scripts-list")
     public Object[][] getListOfTestScripts() {
-		ScriptRunner runner  = new ScriptRunner(TestProperties.requestUriString);
+        ScriptRunner runner  = new ScriptRunner(TestProperties.requestUriString);
 
         //Get list of supported flow types from server.
         List<String> scriptList = runner.findAllTestScripts();
 System.err.println("" + scriptList);
-		Object[][] arrayOfScripts = null;
-		if (scriptList.size() > 0){
-			// Drop the list into the Object[][] format which is standard for testNG data providers
-			// This provides an array of parameters for each test
-			arrayOfScripts = new Object[scriptList.size()][];
-			int index = 0;
-			for (String script : scriptList) {
-				arrayOfScripts[index] = new Object[] { script };
-				index++;
-			}
-		} else {
-		   fail("No Test scripts found");
-		}
+        Object[][] arrayOfScripts = null;
+        if (scriptList.size() > 0){
+            // Drop the list into the Object[][] format which is standard for testNG data providers
+            // This provides an array of parameters for each test
+            arrayOfScripts = new Object[scriptList.size()][];
+            int index = 0;
+            for (String script : scriptList) {
+                arrayOfScripts[index] = new Object[] { script };
+                index++;
+            }
+        } else {
+           fail("No Test scripts found");
+        }
         return arrayOfScripts;
     }
-	
-	@BeforeTest
-	public void setup(){
-		
-	}
-	
-	@AfterTest
-	public void tearDown(){
-		
-	}	
-	
-	/**
-	 * This test will be run once for each of the scripts in the src/test/resources/testscripts folder
-	 */
-	@Test(dataProvider = "scripts-list")
-	public void testLoadAndRunOneScript(String script){
-		currentScriptName = script;
-		runner.loadAndRunOneScript(script);	
-	}
+    
+    @BeforeTest
+    public void setup(){
+        
+    }
+    
+    @AfterTest
+    public void tearDown(){
+        
+    }	
+    
+    /**
+     * This test will be run once for each of the scripts in the src/test/resources/testscripts folder
+     */
+    @Test(dataProvider = "scripts-list")
+    public void testLoadAndRunOneScript(String script){
+        currentScriptName = script;
+        runner.loadAndRunOneScript(script);	
+    }
 
-	
+    
 
 }

@@ -169,7 +169,7 @@
 
                     <systemPropertyVariables>
                         <!-- call mvn -Dkey=your_api_key ( looks like: ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e )  -->
-                        <key>ampcb_d9e957ad8902e39f356158abb4f9a423bc0cf7fd8f84bf7fac39bcfe708ed867</key>
+                        <key>ampcb_4497cfdb0503811e85f7eaf63533a2bf9a0e8f68154dab6f060b4a0dd4688674</key>
                         <host>http://sandbox.farreach.es</host>
                         <port>8080</port>
 					    <!-- List the flows that you want to ignore here   -->		                                     

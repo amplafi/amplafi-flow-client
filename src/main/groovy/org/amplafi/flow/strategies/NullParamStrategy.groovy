@@ -25,29 +25,29 @@ import org.apache.http.NameValuePair;
  * @author paul
  */
 public class NullParamStrategy extends AbstractTestingStrategy {
-	
-	private static final String NAME = "NullParam";
-	/**
-	 * @return the name of this strategy 
-	 */
-	 @Override
-	 public String getName(){
-		 return NAME;
-	 }
+    
+    private static final String NAME = "NullParam";
+    /**
+     * @return the name of this strategy 
+     */
+     @Override
+     public String getName(){
+         return NAME;
+     }
 
-	@Override
-	public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
-		String nullParame = "";
-		List<NameValuePair> nullParameList = new ArrayList<NameValuePair>();
-		for (String ParameterName : parameterNames) {
-			nullParameList.add(new BasicNameValuePair(ParameterName,nullParame));
-		}
-		return nullParameList;
-	}
-	
-	@Override
-	public void addVerification(String typicalResponse){
-		writeToFileBuffer("checkReturnedValidJson()");
-	}
+    @Override
+    public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
+        String nullParame = "";
+        List<NameValuePair> nullParameList = new ArrayList<NameValuePair>();
+        for (String ParameterName : parameterNames) {
+            nullParameList.add(new BasicNameValuePair(ParameterName,nullParame));
+        }
+        return nullParameList;
+    }
+    
+    @Override
+    public void addVerification(String typicalResponse){
+        writeToFileBuffer("checkReturnedValidJson()");
+    }
 
 }

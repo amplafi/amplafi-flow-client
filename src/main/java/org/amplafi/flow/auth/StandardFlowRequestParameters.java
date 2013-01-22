@@ -16,13 +16,13 @@ package org.amplafi.flow.auth;
  */
 public enum StandardFlowRequestParameters {
 
-	apiKey,
+    apiKey,
 
-	flow,
+    flow,
 
-	fsAdvanceTo,
+    fsAdvanceTo,
 
-	fsCompleteFlow,
+    fsCompleteFlow,
 
-	flowState;
+    flowState;
 }

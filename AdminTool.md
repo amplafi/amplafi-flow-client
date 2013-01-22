@@ -44,6 +44,10 @@ Running ./FAdmin.sh without parameters will display the usage.
 To list the currently available commands enter :
 
     ./FAdmin.sh -l
+	
+To list In-built Scripts and show all scripts path :
+
+	./FAdmin.sh -L
 
 To run one of the commands enter the command name :
 
@@ -143,9 +147,9 @@ setKey(String apiKey)                   - sets the key for all subsequent reques
 
 1. Document Command Line Options
 2. Document Access to command line parameters
-3. Remove un-needed parameters from AdminToolCommandLineOptions 
+3. Remove un-needed parameters from AdminToolCommandLineOptions (order)
 4. Add a -L option that will also list the script file location
-5. In the scripts error report change file path from absolute to relative
+5. In the scripts error report change file path from absolute to relative(If script is not under the project file)
 6. Add -f <filename> option so that an adhoc script can be run without putting it in the scripts folder.
 7. Add ability for one script to call another. 
 

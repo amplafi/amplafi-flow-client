@@ -21,47 +21,47 @@ import org.apache.commons.cli.ParseException;
  */
 public class CommandLineClientOptions extends AbstractCommandLineClientOptions {
 
-	// command line switch used to specify which API key we want to use
-	public static final String API_KEY = "key";
-	public static final String FLOW = "flow";
-	public static final String HOST = "host";
-	public static final String PORT = "port";
-	public static final String API_VERSION = "apiv";
-	public static final String DESCRIBE = "desc";
-	public static final String FORMAT = "format";
-	public static final String HELP = "help";
-	public static final String TUTORIAL = "tutorial";
+    // command line switch used to specify which API key we want to use
+    public static final String API_KEY = "key";
+    public static final String FLOW = "flow";
+    public static final String HOST = "host";
+    public static final String PORT = "port";
+    public static final String API_VERSION = "apiv";
+    public static final String DESCRIBE = "desc";
+    public static final String FORMAT = "format";
+    public static final String HELP = "help";
+    public static final String TUTORIAL = "tutorial";
 
-	// The options associated with this option are Java property style like options.
-	// e.g. passing this argument: -DpostId=123 to the CommandLineClient tool, will give you access to a property called postId, and its value (123). 
-	public static final String PARAMS = "D";
+    // The options associated with this option are Java property style like options.
+    // e.g. passing this argument: -DpostId=123 to the CommandLineClient tool, will give you access to a property called postId, and its value (123). 
+    public static final String PARAMS = "D";
 
-	public CommandLineClientOptions(String[] args) throws ParseException {
-		super(args);
-	}
+    public CommandLineClientOptions(String[] args) throws ParseException {
+        super(args);
+    }
 
-	protected Options initOptions() {
-		Options options = new Options();
+    protected Options initOptions() {
+        Options options = new Options();
 
-		options.addOption(API_KEY, true, "API key");
-		options.addOption(FLOW, true, "Flow name");
-		options.addOption(HOST, true, "Host address");
-		options.addOption(API_VERSION, true, "API version");			
-		options.addOption(PORT, true, "Service port");
+        options.addOption(API_KEY, true, "API key");
+        options.addOption(FLOW, true, "Flow name");
+        options.addOption(HOST, true, "Host address");
+        options.addOption(API_VERSION, true, "API version");			
+        options.addOption(PORT, true, "Service port");
 
-		options.addOption(DESCRIBE, false, "If used with no flow specified, lists all flows. If used with a flow specified, returns a list of flow properties.");
-		options.addOption(FORMAT, false, "Switches JSON formatting on and off.");
-		options.addOption(HELP, false, "Prints this message.");
-		options.addOption(TUTORIAL, false, "Use this to run against tutorial server without a key.");
-		
-		OptionBuilder.withArgName("property=value");		
-		OptionBuilder.hasArgs(2);
-		OptionBuilder.withValueSeparator();
-		OptionBuilder.withDescription("Specify query parameter name and value.");
-		Option parameter = OptionBuilder.create(PARAMS);
-		
-		options.addOption(parameter);
-		
-		return options;
-	}
+        options.addOption(DESCRIBE, false, "If used with no flow specified, lists all flows. If used with a flow specified, returns a list of flow properties.");
+        options.addOption(FORMAT, false, "Switches JSON formatting on and off.");
+        options.addOption(HELP, false, "Prints this message.");
+        options.addOption(TUTORIAL, false, "Use this to run against tutorial server without a key.");
+        
+        OptionBuilder.withArgName("property=value");		
+        OptionBuilder.hasArgs(2);
+        OptionBuilder.withValueSeparator();
+        OptionBuilder.withDescription("Specify query parameter name and value.");
+        Option parameter = OptionBuilder.create(PARAMS);
+        
+        options.addOption(parameter);
+        
+        return options;
+    }
 }

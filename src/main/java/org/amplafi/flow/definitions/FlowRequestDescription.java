@@ -11,44 +11,44 @@ import org.apache.http.NameValuePair;
  *
  */
 public class FlowRequestDescription {
-	private String flowName;
-	
-	// a list of query parameters for this flow 
-	private List<NameValuePair> parameters;
-	
-	// if set to true, this instance is a request to describe a flow
-	private boolean describe;
+    private String flowName;
+    
+    // a list of query parameters for this flow 
+    private List<NameValuePair> parameters;
+    
+    // if set to true, this instance is a request to describe a flow
+    private boolean describe;
 
-	public FlowRequestDescription(String flowName, boolean describe, List<NameValuePair> parameters) {
-		super();
+    public FlowRequestDescription(String flowName, boolean describe, List<NameValuePair> parameters) {
+        super();
 
-		this.flowName = flowName;
-		this.describe = describe;
-		this.parameters = parameters;
-	}
+        this.flowName = flowName;
+        this.describe = describe;
+        this.parameters = parameters;
+    }
 
-	public String getFlowName() {
-		return flowName;
-	}
+    public String getFlowName() {
+        return flowName;
+    }
 
-	public void setFlowName(String flowName) {
-		this.flowName = flowName;
-	}
+    public void setFlowName(String flowName) {
+        this.flowName = flowName;
+    }
 
-	public List<NameValuePair> getParameters() {
-		return parameters;
-	}
+    public List<NameValuePair> getParameters() {
+        return parameters;
+    }
 
-	public void setParameters(List<NameValuePair> parameters) {
-		this.parameters = parameters;
-	}
+    public void setParameters(List<NameValuePair> parameters) {
+        this.parameters = parameters;
+    }
 
-	public boolean isDescribe() {
-		return describe;
-	}
+    public boolean isDescribe() {
+        return describe;
+    }
 
-	public void setDescribe(boolean describe) {
-		this.describe = describe;
-	}
+    public void setDescribe(boolean describe) {
+        this.describe = describe;
+    }
 
 }

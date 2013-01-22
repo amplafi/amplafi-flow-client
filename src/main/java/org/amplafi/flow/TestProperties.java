@@ -15,9 +15,9 @@ public class TestProperties {
      */
     public static String requestUriString;
     
-	/**
-	 * The api key for the wire server.
-	 */
+    /**
+     * The api key for the wire server.
+     */
     public static String apiKey = "dummyKey";    
     
     /**
