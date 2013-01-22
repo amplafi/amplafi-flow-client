@@ -1,0 +1,19 @@
+println ********************************************************************
+println Set Api Version
+println ********************************************************************
+set --apiv=apiv1
+
+println ********************************************************************
+println EligibleExternalServiceInstancesFlow
+println ********************************************************************
+flow --name=EligibleExternalServiceInstancesFlow
+
+println ********************************************************************
+println AvailableCategoriesFlow
+println ********************************************************************
+flow --name=AvailableCategoriesFlow
+
+println ********************************************************************
+println MessageEndPointListFlow 
+println ********************************************************************
+flow --name=MessageEndPointListFlow --messageEndPointCompleteList=true
