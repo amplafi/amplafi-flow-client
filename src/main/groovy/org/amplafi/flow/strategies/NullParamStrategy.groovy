@@ -31,9 +31,9 @@ public class NullParamStrategy extends AbstractTestingStrategy {
      * @return the name of this strategy 
      */
      @Override
-     public String getName(){
-         return NAME;
-     }
+    public String getName(){
+        return NAME;
+    }
 
     @Override
     public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
