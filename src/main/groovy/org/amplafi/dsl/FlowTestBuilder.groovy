@@ -48,52 +48,52 @@ import java.util.Map;
  */
 public class FlowTestBuilder {
 
-    private String requestUriString = null
-    String host = null;
-    String port = null;
-    String apiVersion = null;
-    String key = null;
-    ScriptRunner runner  = null;
-    boolean verbose = false;
+    private String requestUriString;
+    private String host;
+    private String port;
+    private String apiVersion;
+    private String key;
+    private ScriptRunner runner;
+    private boolean verbose = false;
     
     public FlowTestBuilder(String requestUriString, ScriptRunner runner, boolean verbose){
         this.requestUriString = requestUriString;
-        this.runner = runner
+        this.runner = runner;
         this.verbose = verbose;
     }
 
     
     public FlowTestBuilder(String host, String port, String apiVersion, String key, ScriptRunner runner, boolean verbose){
         this.requestUriString = requestUriString;
-        this.host = host
-        this.port = port
-        this.apiVersion = apiVersion
-        this.key = key
-        this.runner = runner
+        this.host = host;
+        this.port = port;
+        this.apiVersion = apiVersion;
+        this.key = key;
+        this.runner = runner;
         this.verbose = verbose;
     }
     
      public FlowTestBuilder(String host, String port, String apiVersion, String key, List<String> paramArray){
         this.requestUriString = requestUriString;
-        this.host = host
-        this.port = port
-        this.apiVersion = apiVersion
-        this.key = key		
+        this.host = host;
+        this.port = port;
+        this.apiVersion = apiVersion;
+        this.key = key;
     }
 
 
     public buildExe(Closure c){
     
         if (requestUriString != null){
-            c.delegate = new FlowTestDSL(requestUriString, runner, verbose)
+            c.delegate = new FlowTestDSL(requestUriString, runner, verbose);
         } else {
-            c.delegate = new FlowTestDSL(host, port, apiVersion, key, runner, verbose)
+            c.delegate = new FlowTestDSL(host, port, apiVersion, key, runner, verbose);
         }
         return c;
     }
 
     public buildDesc(Closure c){
-        c.delegate = new DescribeScriptDSL()
+        c.delegate = new DescribeScriptDSL();
         return c;
     }
 
@@ -105,17 +105,16 @@ public class FlowTestBuilder {
  */
 public class FlowTestDSL extends DescribeScriptDSL {
 
-    def host = null;
-    def port = null;
-    def apiVersion = null;
-    def key = null;
-    ScriptRunner runner  = null;
-    boolean verbose = false;
-
-    private static boolean DEBUG = false;
+    def host;
+    def port;
+    def apiVersion;
+    def key;
+    def ScriptRunner runner;
+    def boolean verbose;
+    private static boolean DEBUG;
 
     /** This stores the base uri including the host,port,apikey */
-    private String requestUriString = null
+    private String requestUriString = null;
 
     /** This stores the last request to the server */
     private String lastRequestString = null;
@@ -128,55 +127,53 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     public FlowTestDSL(String requestString, ScriptRunner runner, boolean verbose){
         this.requestUriString = requestString;
-        this.runner = runner
+        this.runner = runner;
         this.verbose = verbose;
     }
-
 
     public FlowTestDSL(String host, String port, String apiVersion, String key, ScriptRunner runner, boolean verbose){
-        this.host = host
-        this.port = port
-        this.apiVersion = apiVersion
-        this.key = key
-        this.runner = runner
+        this.host = host;
+        this.port = port;
+        this.apiVersion = apiVersion;
+        this.key = key;
+        this.runner = runner;
         this.verbose = verbose;
     }
-
 
     public void description (String name, String description){
     }
 
 
     void setHost(String host){
-        this.host = host
+        this.host = host;
     }
 
     void setPort(String port){
-        this.port = port
+        this.port = port;
     }
 
     void setApiVersion(String apiVersion){
-        this.apiVersion = apiVersion
+        this.apiVersion = apiVersion;
     }
 
     void setKey(String key){
-        this.key = key
+        this.key = key;
     }
 
     String getHost(){
-        return host
+        return host;
     }
 
     String getPort(){
-        return port
+        return port;
     }
 
     String getApiVersion(){
-        return apiVersion
+        return apiVersion;
     }
 
     String getKey(){
-        return key
+        return key;
     }
 
     /**
@@ -210,8 +207,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
         
         lastRequestResponse = request.get();
-
-        debug(lastRequestResponse)
+        debug(lastRequestResponse);
         return lastRequestResponse;
     }
 
@@ -228,7 +224,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     }
 
-
     /**
      * Pretty Prints Last Response
      */
@@ -243,15 +238,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     def callScript(String scriptName, Map callparamsmap){
 
-         //def exe = ScriptRunner.createClosure(scriptPath)
-         def exe = runner.createClosure(scriptName,callparamsmap)
+         //def exe = ScriptRunner.createClosure(scriptPath);
+         def exe = runner.createClosure(scriptName,callparamsmap);
          if(exe){
-            exe.delegate = this
+            exe.delegate = this;
             exe();
          }
-        
-        
-        
+  
     }
 
     def getResponseData(){
@@ -280,7 +273,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     def checkReturnedValidJson(){
         try {
-            getResponseData()
+            getResponseData();
         } catch (Exception e){
            println("Invalid JSON Returned: " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
         }
@@ -309,14 +302,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
  */
 public class DescribeScriptDSL {
 
-    public  String name = null;
-    public  String description = null;
-
-    private static boolean DEBUG = false;
-
+    def String name = null;
+    def String description = null;
+    private static final boolean DEBUG = false;
     /** This stores the base uri including the host,port,apikey */
-    private String requestUriString = null
-
+    private String requestUriString = null;
     /** This stores the last request to the server */
     private String lastRequestString = null;
 
@@ -324,7 +314,6 @@ public class DescribeScriptDSL {
      * Contains the last response from the server.
      */
     public String lastRequestResponse = null;
-
 
     public DescribeScriptDSL(){
 
@@ -334,7 +323,6 @@ public class DescribeScriptDSL {
     public void description (String name, String description){
         this.name = name;
         this.description = description;
-
         // This pevents the other commands in the script fom being executed.
         throw new EarlyExitException(new ScriptDescription(name:name , description:description ));
 

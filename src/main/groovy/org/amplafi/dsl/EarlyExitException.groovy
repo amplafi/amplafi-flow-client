@@ -7,7 +7,7 @@ import org.amplafi.flow.utils.GeneralFlowRequest;
  */
 public class EarlyExitException extends RuntimeException {
 
-    ScriptDescription desc = null
+    ScriptDescription desc;
     public EarlyExitException (ScriptDescription desc){
         this.desc = desc;
     }

@@ -12,19 +12,17 @@ import java.lang.*;
  */
 public class ScriptRunner {
     
-    private String requestUriString = null;
-    String host = null;
-    String port = null;
-    String apiVersion = null;
-    String key = null;
-    List<ScriptDescription> haveErrors = new ArrayList<ScriptDescription>();
-    List<ScriptDescription> goodScripts = new ArrayList<ScriptDescription>();
-    HashMap<String,ScriptDescription> scriptLookup = null;
-    Map<String,String> paramsmap = null;
-    boolean verbose = false;
-
-    private static boolean DEBUG = false;	
-    
+    private String requestUriString;
+    private String host;
+    private String port;
+    private String apiVersion;
+    private String key;
+    private List<ScriptDescription> haveErrors = new ArrayList<ScriptDescription>();
+    private List<ScriptDescription> goodScripts = new ArrayList<ScriptDescription>();
+    private Map<String,ScriptDescription> scriptLookup;
+    private Map<String,String> paramsmap;
+    private boolean verbose = false;
+    private static final boolean DEBUG = false;	    
 
     // default path for test scripts
     public static final String DEFAULT_SCRIPT_PATH = "src/test/resources/testscripts";
@@ -35,21 +33,20 @@ public class ScriptRunner {
     }
 
     public ScriptRunner(String host, String port, String apiVersion, String key){
-        this.host = host
-        this.port = port
-        this.apiVersion = apiVersion
-        this.key = key
+        this.host = host;
+        this.port = port;
+        this.apiVersion = apiVersion;
+        this.key = key;
         
     }
     
      public ScriptRunner(String host, String port, String apiVersion, String key, Map<String,String> paramsmap, boolean verbose){
-
-        this.host = host
-        this.port = port
-        this.apiVersion = apiVersion
-        this.key = key
-        this.paramsmap = paramsmap
-        this.verbose = verbose
+        this.host = host;
+        this.port = port;
+        this.apiVersion = apiVersion;
+        this.key = key;
+        this.paramsmap = paramsmap;
+        this.verbose = verbose;
     }
 
 
@@ -59,10 +56,10 @@ public class ScriptRunner {
      * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH
      */
     def loadAndRunAllSrcipts(){
-        def list = []
-        def dir = new File(DEFAULT_SCRIPT_PATH)
+        def list = [];
+        def dir = new File(DEFAULT_SCRIPT_PATH);
         dir.eachFileRecurse (FileType.FILES) { file ->
-            list << file.getCanonicalPath() 
+            list << file.getCanonicalPath() ;
         }
         return list.sort();
     }
@@ -72,18 +69,18 @@ public class ScriptRunner {
      * This method runs all of the script in the DEFAULT_SCRIPT_PATH
      */
     public List<String> findAllTestScripts(){
-        findAllScripts(DEFAULT_SCRIPT_PATH)
+        findAllScripts(DEFAULT_SCRIPT_PATH);
     }
 
     /**
      * This method runs all of the script in the DEFAULT_SCRIPT_PATH
      */
     public List<String> findAllScripts(def path){
-        def list = []
+        def list = [];
 
-        def dir = new File(path)
+        def dir = new File(path);
         dir.eachFileRecurse (FileType.FILES) { file ->
-            list << file.getCanonicalPath()
+            list << file.getCanonicalPath();
         }
         return list.sort();
     }
@@ -94,26 +91,20 @@ public class ScriptRunner {
      * @param filePath is the full path to the script.
      */
     def loadAndRunOneScript(String filePath){
-
         
-        def file = new File(filePath)
-
+        def file = new File(filePath);
         def script = file.getText();
+        def value = runScriptSource(script,"buildExe");
 
-        def value = runScriptSource(script,"buildExe")
-
-        return value
+        return value;
     }
 
 
-    def runScriptSource(String sourceCode, String builderCmd) throws NoDescriptionException, EarlyExitException{
-        
+    def runScriptSource(String sourceCode, String builderCmd) throws NoDescriptionException, EarlyExitException{        
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
-
-
-        Object closure = getClosure(sourceCode,paramsmap)
+        Object closure = getClosure(sourceCode,paramsmap);
         def builder = null;
         if(requestUriString && requestUriString!=""){
             builder = new FlowTestBuilder(requestUriString,this,verbose);
@@ -121,16 +112,13 @@ public class ScriptRunner {
             builder = new FlowTestBuilder(host,port,apiVersion,key,this,verbose);
         }
         
-        if(builderCmd == "buildDesc"){
-            
+        if(builderCmd == "buildDesc"){            
             def execScript = builder.buildDesc(closure);
             execScript();
-        }else{
-            
+        }else{           
             def execScript = builder.buildExe(closure);
             execScript();
         }
-
 
         return closure;
 
@@ -138,18 +126,14 @@ public class ScriptRunner {
 
 
     
-    def getClosure(String sourceCode, Map paramsmap){
-        
-        StringBuffer scriptSb = new StringBuffer()
-        
-        scriptSb.append(getImportLines(sourceCode))
-        String valibleScript = getValibleScript(sourceCode)
-        
+    def getClosure(String sourceCode, Map<String,String> paramsmap){       
+        StringBuffer scriptSb = new StringBuffer();      
+        scriptSb.append(getImportLines(sourceCode));
+        String valibleScript = getValibleScript(sourceCode);        
         def scriptStr = """
             import org.amplafi.dsl.FlowTestBuilder;
             import org.amplafi.json.*;
-            
-            
+        
             def source = {
                 ${valibleScript}
             };
@@ -157,33 +141,27 @@ public class ScriptRunner {
             return source
             """;
         
-        scriptSb.append(scriptStr)
-        
-        def script = scriptSb.toString()
-
-        
-        def bindingMap = ["params":paramsmap];
-        
+        scriptSb.append(scriptStr);        
+        def script = scriptSb.toString();       
+        def bindingMap = ["params":paramsmap];        
         Binding binding = new Binding(bindingMap);
         binding.setVariable("requestUriString",requestUriString);
         GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
-
         def lineNo = 1;
         script.split("\n").each{ line -> 
-            debug("${lineNo}>${line}")
+            debug("${lineNo}>${line}");
             lineNo++;
         }
 
         Object closure = shell.evaluate(script);
         
-        
         return closure;
     }
     
     public def createClosure(String scriptName,Map callparamsmap){
-        def filePath = getScriptPath(scriptName)
+        def filePath = getScriptPath(scriptName);
         if(filePath){
-            def file = new File(filePath)
+            def file = new File(filePath);
             def sourceCode = file.getText();
             def closure = getClosure(sourceCode,callparamsmap);
             return closure;
@@ -198,9 +176,9 @@ public class ScriptRunner {
     def getScriptPath(String scriptName){
         def filePath = null;
         if(scriptLookup){
-            ScriptDescription sd = scriptLookup.get(scriptName)
+            ScriptDescription sd = scriptLookup.get(scriptName);
             if(sd){
-                filePath = sd.getPath()
+                filePath = sd.getPath();
             }
         }
         return filePath;
@@ -208,15 +186,15 @@ public class ScriptRunner {
     }
     
 
-    public HashMap<String,ScriptDescription> processScriptsInFolder(String path){
+    public Map<String,ScriptDescription> processScriptsInFolder(String path){
         List<ScriptDescription> ret = [];
 
 
-        List<String> scriptPaths = findAllScripts(path)
+        List<String> scriptPaths = findAllScripts(path);
         
         scriptPaths.each{ spath ->
 
-            def desc = describeOneScript(spath)
+            def desc = describeOneScript(spath);
             if (desc != null){
                 ret << desc;
             }
@@ -245,23 +223,23 @@ public class ScriptRunner {
      */
     def describeOneScript(String filePath){
         
-        def file = new File(filePath)
+        def file = new File(filePath);
         def script = file.getText();
         
-        def value =  null
+        def value =  null;
         
         try {
         
-            value = runScriptSource(script,"buildDesc")
+            value = runScriptSource(script,"buildDesc");
         } catch (EarlyExitException eee){
 
-            value = eee.desc
-            value.path = filePath
+            value = eee.desc;
+            value.path = filePath;
         } catch (NoDescriptionException nde){
             value = new ScriptDescription(hasErrors:true, errorMesg:"No Description Defined", path:filePath);
         }
 
-        return value
+        return value;
     }
     
      /**
@@ -270,12 +248,11 @@ public class ScriptRunner {
      */
     def getRelativePath(String filePath){
         def relativePath = filePath;
-        def currentPath = System.getProperty("user.dir")
+        def currentPath = System.getProperty("user.dir");
         if(filePath.contains(currentPath)){
-            relativePath = filePath.substring(currentPath.length()) 
+            relativePath = filePath.substring(currentPath.length()); 
         }
-        
-        
+    
     }
     
 
@@ -285,31 +262,31 @@ public class ScriptRunner {
         
         source.eachLine{ line ->
         
-            def regex = /^\s*?import (.*)$/
+            def regex = /^\s*?import (.*)$/;
             if (!(line =~ regex)){
-                sb << line + System.getProperty("line.separator")
+                sb << line + System.getProperty("line.separator");
             }
         } 
 
-        return sb.toString()
+        return sb.toString();
     }
     
     def getImportLines(String source){
         def ret = new StringBuffer();
         source.eachLine{ line ->
         
-            def regex = /^\s*?import (.*)$/
+            def regex = /^\s*?import (.*)$/;
             if (line =~ regex ){
 
-                def matcher = ( line =~ regex )
+                def matcher = ( line =~ regex );
                 def importClass = matcher[0][1];
-                ret << "import ${importClass} \n"
+                ret << "import ${importClass} \n";
             
             }
         
         }
     
-        return ret.toString()
+        return ret.toString();
     }
     
 
