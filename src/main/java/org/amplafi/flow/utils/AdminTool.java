@@ -1,28 +1,21 @@
 package org.amplafi.flow.utils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Properties;
-import java.io.*;  
+import java.io.*;
 import org.apache.commons.cli.ParseException;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import static org.amplafi.dsl.ScriptRunner.*;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.*;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.dsl.ScriptDescription;
-import static org.amplafi.dsl.ScriptRunner.*;
-import  java.util.prefs.*;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Command line interface for running scripts to communicate with the Farreach.es
  * wire server.
- * 
+ *
  * Please read AdminTool.md for more details
  */
 public class AdminTool{
@@ -32,12 +25,12 @@ public class AdminTool{
     public static final String CONFIG_FILE_NAME = "fareaches.fadmin.properties";
     public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
     public static final String DEFAULT_PORT = "80";
-    public static final String DEFAULT_API_VERSION = "apiv1";   
+    public static final String DEFAULT_API_VERSION = "apiv1";
     public static Properties configProperties;
 
 
     /**
-     * Main entry point for tool 
+     * Main entry point for tool
      */
     public static void main(String[] args){
 
