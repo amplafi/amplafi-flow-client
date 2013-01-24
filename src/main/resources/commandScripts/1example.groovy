@@ -12,6 +12,11 @@ description "example", "Just an example script"
 // setApiVersion("apiv12");
 // setKey("newkey");
 
+import javax.net.*
+
+
+ Socket socket = SocketFactory.getDefault() .createSocket();
+
 
 if (params&&params["param2"]){
 

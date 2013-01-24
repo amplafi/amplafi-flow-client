@@ -97,6 +97,7 @@ public class ScriptRunner {
 
         
         def file = new File(filePath)
+
         def script = file.getText();
 
         def value = runScriptSource(script,"buildExe")
@@ -138,18 +139,27 @@ public class ScriptRunner {
 
     
     def getClosure(String sourceCode, Map paramsmap){
-    
-        def script = """
+        
+        StringBuffer scriptSb = new StringBuffer()
+        
+        scriptSb.append(getImportLines(sourceCode))
+        String valibleScript = getValibleScript(sourceCode)
+        
+        def scriptStr = """
             import org.amplafi.dsl.FlowTestBuilder;
             import org.amplafi.json.*;
             
             
             def source = {
-                ${sourceCode}
+                ${valibleScript}
             };
 
             return source
             """;
+        
+        scriptSb.append(scriptStr)
+        
+        def script = scriptSb.toString()
 
         
         def bindingMap = ["params":paramsmap];
@@ -166,6 +176,7 @@ public class ScriptRunner {
 
         Object closure = shell.evaluate(script);
         
+        
         return closure;
     }
     
@@ -181,7 +192,7 @@ public class ScriptRunner {
             return null;
         }
         
-        
+
     }
     
     def getScriptPath(String scriptName){
@@ -234,9 +245,9 @@ public class ScriptRunner {
      */
     def describeOneScript(String filePath){
         
-        //String relativePath = getRelativePath(filePath)
         def file = new File(filePath)
         def script = file.getText();
+        
         def value =  null
         
         try {
@@ -266,8 +277,41 @@ public class ScriptRunner {
         
         
     }
+    
 
+    def getValibleScript(String source){
+        
+        StringBuffer sb = new StringBuffer();
+        
+        source.eachLine{ line ->
+        
+            def regex = /^\s*?import (.*)$/
+            if (!(line =~ regex)){
+                sb << line + System.getProperty("line.separator")
+            }
+        } 
 
+        return sb.toString()
+    }
+    
+    def getImportLines(String source){
+        def ret = new StringBuffer();
+        source.eachLine{ line ->
+        
+            def regex = /^\s*?import (.*)$/
+            if (line =~ regex ){
+
+                def matcher = ( line =~ regex )
+                def importClass = matcher[0][1];
+                ret << "import ${importClass} \n"
+            
+            }
+        
+        }
+    
+        return ret.toString()
+    }
+    
 
     public List<ScriptDescription> getGoodScripts(){
         return goodScripts;

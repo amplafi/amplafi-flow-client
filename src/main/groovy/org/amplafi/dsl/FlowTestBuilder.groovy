@@ -59,7 +59,6 @@ public class FlowTestBuilder {
     public FlowTestBuilder(String requestUriString, ScriptRunner runner, boolean verbose){
         this.requestUriString = requestUriString;
         this.runner = runner
-        this.map = map;
         this.verbose = verbose;
     }
 
@@ -164,7 +163,21 @@ public class FlowTestDSL extends DescribeScriptDSL {
         this.key = key
     }
 
+    String getHost(){
+        return host
+    }
 
+    String getPort(){
+        return port
+    }
+
+    String getApiVersion(){
+        return apiVersion
+    }
+
+    String getKey(){
+        return key
+    }
 
     /**
      * Sends a request to the named flow with the specified parameters
