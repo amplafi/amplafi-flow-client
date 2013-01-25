@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.lang.*;
-
+import org.codehaus.groovy.control.MultipleCompilationErrorsException
 /**
  * This class contains various methods for loading and running FlowTestDSL scripts
  * @author Paul
@@ -18,32 +18,32 @@ public class ScriptRunner {
     private String port;
     private String apiVersion;
     private String key;
-	
-	/**
-	 * List of scripts that had errors. 
-	 */
+    
+    /**
+     * List of scripts that had errors. 
+     */
     private List<ScriptDescription> haveErrors = new ArrayList<ScriptDescription>();
-	/**
-	 * List of the scripts that passed initial processing
-	 */
+    /**
+     * List of the scripts that passed initial processing
+     */
     private List<ScriptDescription> goodScripts = new ArrayList<ScriptDescription>();
-	/**
-	 * Description of all scripts known to this runner. 
-	 */
+    /**
+     * Description of all scripts known to this runner. 
+     */
     private Map<String,ScriptDescription> scriptLookup;
-	/**
-	 * Map of param name to param value that will be passed to the scripts.   
-	 */
+    /**
+     * Map of param name to param value that will be passed to the scripts.   
+     */
     private Map<String,String> paramsmap;
-	
-	/**
-	 * Allow verbose output
-	 */
+    
+    /**
+     * Allow verbose output
+     */
     private boolean verbose = false;
-	
+    
     private static final boolean DEBUG = false;
-	private static final IMPORT_REGEX = /^\s*?import (.*)$/;
-	private static final NL = System.getProperty("line.separator");
+    private static final IMPORT_REGEX = /^\s*?import (.*)$/;
+    private static final NL = System.getProperty("line.separator");
 
     /**
      *  Default path for test scripts
@@ -140,15 +140,15 @@ public class ScriptRunner {
         return value;
     }
 
-	/**
-	 * 
-	 * @param sourceCode
-	 * @param execOrDescibe - If true then execute the source code as a command script if false run 
-	 *                         the code as a description DSL to obtain its description  
-	 * @return The groovy closure (Why?) 
-	 * @throws NoDescriptionException - Thrown if the description DSL does not find a description directive
-	 * @throws EarlyExitException - thrown to prevent the description dsl from running any commands. 
-	 */
+    /**
+     * Runs or describes a script from source code
+     * @param sourceCode
+     * @param execOrDescibe - If true then execute the source code as a command script if false run 
+     *                         the code as a description DSL to obtain its description  
+     * @return The groovy closure (Why?) 
+     * @throws NoDescriptionException - Thrown if the description DSL does not find a description directive
+     * @throws EarlyExitException - thrown to prevent the description dsl from running any commands. 
+     */
     def runScriptSource(String sourceCode, boolean execOrDescribe) throws NoDescriptionException, EarlyExitException{        
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuil der.build then the processed script is run
@@ -170,7 +170,7 @@ public class ScriptRunner {
         }
         return closure;
     }
-	
+    
     /**
      * Takes the source code string and wraps in into a valid groovy script that when run will return a closure
      * that can be either configured to describe itself or to run as a sequence of commands.  
@@ -182,18 +182,13 @@ public class ScriptRunner {
         StringBuffer scriptSb = new StringBuffer();      
         
         // Extract the import statements from the input source code and re-add them 
-		// to the top of the groovy program.
+        // to the top of the groovy program.
         scriptSb.append(getImportLines(sourceCode));
-        String valibleScript = getValidClosureCode(sourceCode);        
-        def scriptStr = """
-            import org.amplafi.dsl.FlowTestBuilder;
-            import org.amplafi.json.*;
-            def source = {
-                ${valibleScript}
-            };
-            return source
-            """;
-        
+        String valibleScript = getValidClosureCode(sourceCode);
+		
+		// All the imports are prepended to the first line of the user script so error messages
+		// have the correct line number in them
+        def scriptStr = """import org.amplafi.dsl.FlowTestBuilder;import org.amplafi.json.*;def source = { ${valibleScript} }; return source """;
         scriptSb.append(scriptStr);
         def script = scriptSb.toString();
         def bindingMap = ["params":paramsmap];
@@ -224,18 +219,18 @@ public class ScriptRunner {
             def closure = getClosure(sourceCode,callParamsMap);
             return closure;
         }else{
-            println("Script "+ scriptName + " does not exsit" );
+            println("Script ${scriptName} does not exist" );
             return null;
         }
 
     }
     
-	/**
-	 * Obtain the script file path from the short name in the script description directive.
-	 * This should be called after processScriptsInFolder(...) or it will return null. 
-	 * @param scriptName
-	 * @return file path string
-	 */
+    /**
+     * Obtain the script file path from the short name in the script description directive.
+     * This should be called after processScriptsInFolder(...) or it will return null. 
+     * @param scriptName
+     * @return file path string
+     */
     def getScriptPath(String scriptName){
         def filePath = null;
         if(scriptLookup){
@@ -245,7 +240,6 @@ public class ScriptRunner {
             }
         }
         return filePath;
-        
     }
     
     /**
@@ -279,7 +273,7 @@ public class ScriptRunner {
     }
 
     /**
-     * describes one script specified by the file parameter
+     * Describes one script specified by the file parameter
      * @param filePath is the full path to the script.
      */
     public ScriptDescription describeOneScript(String filePath){
@@ -295,10 +289,10 @@ public class ScriptRunner {
             value.path = filePath;
         } catch (NoDescriptionException nde){
             value = new ScriptDescription(hasErrors:true, errorMesg:"No Description Defined", path:filePath);
-        } catch (Exception e){
-			value = new ScriptDescription(hasErrors:true, errorMesg:"Compilation Errors + ${e.getMessage()}", path:filePath);
+        } catch (MultipleCompilationErrorsException mceee){
+            value = new ScriptDescription(hasErrors:true, errorMesg:"Compilation Errors + ${mceee.getMessage()}", path:filePath);
+            mceee.printStackTrace();
         }
-
         return value;
     }
     
@@ -312,7 +306,6 @@ public class ScriptRunner {
         if(filePath.contains(currentPath)){
             relativePath = filePath.substring(currentPath.length()); 
         }
-    
     }
     
     /**
@@ -323,7 +316,7 @@ public class ScriptRunner {
     def getValidClosureCode(String source){
         StringBuffer sb = new StringBuffer();
         source.eachLine{ line ->
-			// return ever line that isn't an import
+            // return ever line that isn't an import
             if (!(line =~ IMPORT_REGEX)){
                 sb << "${line}${NL}"
             }
@@ -340,13 +333,11 @@ public class ScriptRunner {
     private String getImportLines(String source){
         def ret = new StringBuffer();
         source.eachLine{ line ->
-        
             if (line =~ IMPORT_REGEX ){
                 def matcher = ( line =~ IMPORT_REGEX );
                 def importClass = matcher[0][1];
-                ret << "import ${importClass}${NL}";
+                ret << "import ${importClass};${NL}";
             }
-        
         }
         return ret.toString();
     }
@@ -371,7 +362,7 @@ public class ScriptRunner {
      * Utility method for debugging code. 
      * @param msg - message to print
      */
-    private static final void debug(String msg){
+    private final void debug(String msg){
         if (DEBUG){
             System.err.println(msg);
         }

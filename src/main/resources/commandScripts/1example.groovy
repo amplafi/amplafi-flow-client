@@ -12,14 +12,14 @@ description "example", "Just an example script"
 // setApiVersion("apiv12");
 // setKey("newkey");
 
-import javax.net.*
+// Example Import
+import javax.net.*;
 
 
- Socket socket = SocketFactory.getDefault() .createSocket();
-
+// proof it works
+Socket socket = SocketFactory.getDefault() .createSocket();
 
 if (params&&params["param2"]){
-
     println "param2 : "+ params["param2"]
 } 
 
@@ -27,8 +27,6 @@ if (params&&params["param1"]){
     println "param1 : "+params["param1"]
 
 }
-
-
 
 // Make a request to the server 
 request("EligibleExternalServiceInstancesFlow", ["eligibleExternalServiceInstanceMap":"bogusData","eligibleExternalServiceInstances":"bogusData","fsRenderResult":"json"] );
