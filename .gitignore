@@ -4,5 +4,6 @@
 /.classpath
 /.project
 /test-output
+/bin-groovy
 
 /pom.xml.versionsBackup

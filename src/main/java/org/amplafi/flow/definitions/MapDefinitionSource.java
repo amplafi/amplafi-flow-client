@@ -17,9 +17,9 @@ import java.util.Map;
 
 /**
  * Simple Flow {@link DefinitionSource}
+ *
  * @author patmoore
  * @param <F>
- *
  */
 public class MapDefinitionSource<F extends FlowDefinition> implements DefinitionSource<F> {
     private Map<String, F> flowDefinitions;
@@ -27,19 +27,20 @@ public class MapDefinitionSource<F extends FlowDefinition> implements Definition
     public MapDefinitionSource() {
 
     }
+
     /**
      * @param flowDefinitions
      */
     public MapDefinitionSource(Map<String, F> flowDefinitions) {
         this.flowDefinitions = flowDefinitions;
     }
+
     /**
      * @see org.amplafi.flow.definitions.DefinitionSource#getFlowDefinition(java.lang.String)
      */
     public F getFlowDefinition(String flowTypeName) {
         return this.flowDefinitions != null? this.flowDefinitions.get(flowTypeName):null;
     }
-
 
     /**
      * @see org.amplafi.flow.definitions.DefinitionSource#isFlowDefined(java.lang.String)
@@ -48,14 +49,12 @@ public class MapDefinitionSource<F extends FlowDefinition> implements Definition
         return this.flowDefinitions != null?  this.flowDefinitions.containsKey(flowTypeName): false;
     }
 
-
     /**
      * @param flowDefinitions the flowDefinitions to set
      */
     public void setFlowDefinitions(Map<String, F> flowDefinitions) {
         this.flowDefinitions = flowDefinitions;
     }
-
 
     /**
      * @return the flowDefinitions
