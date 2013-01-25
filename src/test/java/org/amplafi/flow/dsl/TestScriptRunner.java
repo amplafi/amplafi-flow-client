@@ -33,7 +33,7 @@ public class TestScriptRunner {
     
     @BeforeTest
     public void setup(){
-        instance = new ScriptRunner("http://sandbox.farreach.es:8080/c/ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e/apiv1/");
+        instance = new ScriptRunner(TestProperties.requestUriString);
     }
     
     @AfterTest
