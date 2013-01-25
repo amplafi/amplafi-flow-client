@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.AfterTest;
 import org.amplafi.dsl.ScriptRunner;
+import org.amplafi.flow.TestProperties;
 import static org.amplafi.dsl.ScriptRunner.*;
 import org.amplafi.dsl.FlowTestBuilder;
 import static org.testng.Assert.*;
