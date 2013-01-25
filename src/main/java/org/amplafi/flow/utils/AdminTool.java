@@ -28,7 +28,6 @@ public class AdminTool{
     public static final String DEFAULT_API_VERSION = "apiv1";
     public static Properties configProperties;
 
-
     /**
      * Main entry point for tool
      */
@@ -110,16 +109,14 @@ public class AdminTool{
      *  Runs the named script.
      */
     private static void runScript(String filePath,Map<String,ScriptDescription> scriptLookup,AdminToolCommandLineOptions cmdOptions){
-
         List<String> remainder =  cmdOptions.getRemainingOptions();
 
             try {
                 String host = getOption(cmdOptions,HOST,DEFAULT_HOST);
-
                 String port = getOption(cmdOptions,PORT,DEFAULT_PORT);
-
                 String apiVersion = getOption(cmdOptions,API_VERSION,DEFAULT_API_VERSION);
                 String key = getOption(cmdOptions,API_KEY,"");
+                
                 if(filePath == null){
                     if (remainder.size() > 0){
                         String scriptName = remainder.get(0);
@@ -153,7 +150,6 @@ public class AdminTool{
 
     }
     
-    
     private static Map<String,String> getParamMap(List<String> remainderList){
         Map<String,String> map =new HashMap<String, String>();
         // On linux options like param1=cat comes through as a single param
@@ -174,10 +170,9 @@ public class AdminTool{
                 i++;
             }
         }
-        return map;        
+        return map;
     }
-    
-
+   
     private static String getOption(AdminToolCommandLineOptions cmdOptions, String key, String defaultVal) throws IOException{
         Properties props = getProperties();		        
         String value = null;
@@ -203,7 +198,6 @@ public class AdminTool{
         return value;    
     }
 
-    
     /**
      *  Gets the configuration properties, loading it if hasn't been loaded
      *  @return configuaration properties. 
@@ -221,7 +215,6 @@ public class AdminTool{
         return configProperties;        
     }
 
-
     /**
      *  Saves the configuration properties, loading it if hasn't been loaded
      */
@@ -235,7 +228,6 @@ public class AdminTool{
             }            
         }        
     }
-    
 
     private ScriptRunner runner = null;
 
@@ -244,11 +236,8 @@ public class AdminTool{
     }
 
     public void runScript(String filePath){
-    runner  = new ScriptRunner("");
+    	runner  = new ScriptRunner("");
         runner.loadAndRunOneScript(filePath);
-
     }	
-    
-
 
 }
