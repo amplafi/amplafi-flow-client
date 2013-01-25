@@ -1,92 +1,91 @@
 package org.amplafi.flow.shell;
 
-import static org.amplafi.flow.utils.CommandLineClientOptions.API_KEY;
-import static org.amplafi.flow.utils.CommandLineClientOptions.API_VERSION;
-import static org.amplafi.flow.utils.CommandLineClientOptions.HELP;
-import static org.amplafi.flow.utils.CommandLineClientOptions.HOST;
-import static org.amplafi.flow.utils.CommandLineClientOptions.PORT;
-
+import java.io.BufferedReader;
 import java.io.Console;
+import java.io.FileReader;
 import java.util.Date;
-import java.util.Scanner;
-
-import org.amplafi.flow.utils.CommandLineClientOptions;
-import org.apache.commons.cli.ParseException;
 
 public class Shell {
     private static final String NO_CONSOLE = "Error: Console unavailable";
-    private static final String GREETINGS = "Welcome to the System. Please login.%n";
+    private static final String HELP_INFO = 
+        "\n" +
+        "This shell is used to help the administrator access and manage\n" +
+        "the farreaches wireservice\n" +
+        "Params: \n" +
+        "  -Dfarreaches.api.key=<key>      The user api key. This parameter is mandatory\n" +
+        "  -Dfarreaches.host=<key>         The wireservice host, the default value is http://sandbox.farreach.es\n" +
+        "  -Dfarreaches.port=<port>        The wireservice port, the default value is 8080\n" +
+        "  -Dfarreaches.apiv=<apiv1, suv1> The wireservice api version, the default value is apiv1\n" +
+        "  -Dfarreaches.script=<file>      The script to run\n" +
+        "\n";
     
     private static final String UNKNOWN_COMMAND = "Unknown command [%1$s]%n";
 
     private static final String TIME_FORMAT = "%1$tH:%1$tM:%1$tS";
     private static final String PROMPT = TIME_FORMAT + " $ ";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Console console = System.console();
         if (console != null) {
-            if(args == null || args.length < 4) {
-                args = new String[] {
-                    "-key", "ampcb_6b5cd601a089d5f1738a847da62592129d4be1f3b06e045da997124c87c929ee",
-                    "-host", "http://sandbox.farreach.es",
-                    "-port", "8080",
-                    //"-apiv", "apiv1",
-                    "-apiv", "suv1",
-                };
+            String apiKey = System.getProperty("farreaches.api.key");
+            String host = System.getProperty("farreaches.host", "http://sandbox.farreach.es") ;
+            String port =  System.getProperty("farreaches.port", "8080") ;
+            String apiVersion = System.getProperty("farreaches.apiv", "apiv1") ;
+            String scriptFile = System.getProperty("farreaches.script") ;
+            console.printf(HELP_INFO);
+            if(apiKey == null) {
+                System.exit(0) ;
             }
-            CommandLineClientOptions cmdOptions = null;
-
-            try {
-                cmdOptions = new CommandLineClientOptions(args);
-            } catch (ParseException e) {
-                System.err.println("Could not parse passed arguments, message:");
-                e.printStackTrace();
-                System.exit(1);
-            }
-
-            if (cmdOptions.hasOption(HELP)) {
-                cmdOptions.printHelp();
-
-                System.exit(0);
-            }
-
-            String apiKey = cmdOptions.getOptionValue(API_KEY);
-            String host = cmdOptions.getOptionValue(HOST) ;
-            String port = cmdOptions.getOptionValue(PORT) ;
-            String apiVersion = cmdOptions.getOptionValue(API_VERSION) ;
-
             ShellContext context = new ShellContext() ;
             context.setApiKey(apiKey) ;
             context.setHost(host) ;
             context.setPort(port) ;
             context.setApiVersion(apiVersion) ;
-            console.printf(GREETINGS);
-            execCommandLoop(console, context);
+            if(scriptFile != null) {
+                execScript(console, context, scriptFile);
+            } else {
+                execCommandLoop(console, context);
+            }
         } else {
             throw new RuntimeException(NO_CONSOLE);
         }
     }
-
+    
     private static void execCommandLoop(final Console console, ShellContext context) {
         while (true) {
             String commandLine = console.readLine(PROMPT, new Date());
-            Scanner scanner = new Scanner(commandLine);
+            execCommandLine(console, context, commandLine) ;
+        }
+    }
 
-            if (scanner.hasNext()) {
-                final String commandName = scanner.next().toUpperCase();
+    private static void execScript(final Console console, ShellContext context, String scriptFile) throws Exception {
+        BufferedReader reader = new BufferedReader(new FileReader(scriptFile)) ;
+        String commandLine = null ;
+        while((commandLine = reader.readLine()) != null) {
+            execCommandLine(console, context, commandLine) ;
+        }
+    }
 
-                try {
-                    final Command cmd = Enum.valueOf(Command.class, commandName);
-                    String param = scanner.hasNext() ? scanner.next() : null;
-                    cmd.exec(console, context, new String[]{ param }) ;
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace() ;
-                    console.printf(UNKNOWN_COMMAND, commandName);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            scanner.close();
+    private static void execCommandLine(final Console console, ShellContext context, String commandLine) {
+        commandLine = commandLine.trim() ;
+        if(commandLine.length() == 0) {
+            return ;
+        }
+        int firstSpaceIndex = commandLine.indexOf(' ') ;
+        if(firstSpaceIndex < 0) {
+            firstSpaceIndex = commandLine.length() ;
+        }
+        String commandName = commandLine.substring(0, firstSpaceIndex) ;
+        commandName = commandName.toUpperCase() ;
+        String args = commandLine.substring(firstSpaceIndex) ;
+        try {
+            final Command cmd = Enum.valueOf(Command.class, commandName);
+            cmd.exec(console, context, args) ;
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace() ;
+            console.printf(UNKNOWN_COMMAND, commandName);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -1,5 +1,22 @@
 // This line must be the first line in the script
 
+//PROBLEMS:
+//1. ApiRequestAuditEntriesFlow produce a very large log, especially if the 
+//   maxReturn parameter is large and the flow is run multiple time.
+//2. When user create a post and he does not leave the post screen. The event bus
+//   request continuously to the wireservice and produce a lot of EnvelopeStatuses log.
+//3. Need to be able to filter the ApiRequesAuditEntry by the flow type and fsAltFinished ?
+//4. Need to add filter by user , http status , method , external entity status for 
+//   ExternalApiMethodCallAuditEntry
+//5. If user do not select the configured category , no call is made to the wireservice and no log.
+//6. Do we need the user information such user roles ?
+//7. Need to log the exception and exception type in ApiRequestAuditEntry
+//8. Need a more flexible way to query the log with different parameters.
+//9. “Farreach.es is broken.” - current state of customer’s account ? Which flow return this information
+//10. Should we include the user email in the log to run stattistical analysis for the overall report. 
+//    Security problem
+//  Basically, we need a more flexible log query and categorized log to produce a good report
+ 
 description "CustomerProblemReport", "Params: userEmail=<userEmail> This tool is used to report and identify the customer problem" ;
 
 def printTaskInfo = { 
@@ -36,6 +53,143 @@ def printTabular = {
     }
 }
 
+def createTmpKey = { 
+    userEmail ->
+    printTaskInfo "Create the temporaty api key for the customer " + userEmail ;
+    setApiVersion("suv1");
+    request("SuApiKeyFlow", ["fsRenderResult":"json", "email": userEmail, "reasonForAccess": "Inspect the customer problem"]);
+    def data = getResponseData();
+    
+    def userTmpApiKey = null ;
+    if(data instanceof JSONArray && data.length() == 1) {
+      userTmpApiKey = data.getString(0) ;
+    } else {
+        println "An error when creating a temporary api key for the user " + userEmail ;
+        prettyPrintResponse();
+    }
+    println "Temporary Key: " + userTmpApiKey ;
+    return userTmpApiKey ;
+}
+
+def printAvailableExternalServices = { 
+    apiKey ->
+    setApiVersion("apiv1");
+    setKey(apiKey);
+    
+    printTaskInfo "Available External Services(Social Services)"
+    request("EligibleExternalServiceInstancesFlow", ["fsRenderResult":"json"]);
+    if(getResponseData() instanceof JSONArray) {
+        def entries = getResponseData();
+        String tabularTmpl = '%1$3s %2$20s' ;
+        def headers =  ['#', 'Ext Service'] ;
+        def keyPaths = [     'name'] ;
+        printTabular(entries, tabularTmpl, headers, keyPaths)
+    } else {
+        prettyPrintResponse();
+    }
+}
+
+def printAvailableCategories = { 
+    apiKey ->
+    setApiVersion("apiv1");
+    setKey(apiKey);
+    printTaskInfo "Avaliable Categories"
+    request("AvailableCategoriesFlow", ["fsRenderResult":"json"]);
+    
+    if(getResponseData() instanceof JSONArray) {
+        def entries = getResponseData();
+        String tabularTmpl = '%1$3s%2$20s%3$20s' ;
+        def headers =  ['#', 'Topic Id', 'Name'] ;
+        def keyPaths = ['entityId', 'name'] ;
+        printTabular(entries, tabularTmpl, headers, keyPaths)
+    } else {
+        prettyPrintResponse();
+    }
+}
+
+def printUserRoles = { 
+    apiKey ->
+    setApiVersion("suv1");
+    setKey(apiKey);
+    
+    printTaskInfo "User Role And Configuration Information"
+    //request("UserRoleInfoFlow", ["fsRenderResult":"json", "email": userEmail]);
+    println "TODO: Find an existing or implement an user information flow provider"
+    //prettyPrintResponse();
+}
+
+def printMessageEndPoints = { 
+    apiKey ->
+    setApiVersion("apiv1");
+    setKey(apiKey);
+    
+    printTaskInfo "Message End Point List Flow"
+    request("MessageEndPointListFlow", ["fsRenderResult":"json", "messageEndPointCompleteList": "true"]);
+    if(getResponseData() instanceof JSONArray) {
+        def entries = getResponseData();
+        String tabularTmpl = '%1$3s%2$15s%3$15s%4$15s%5$15s' ;
+        def headers =  ['#', 'Ext Service', 'User Name', 'Full Name', 'Topic Ids'] ;
+        def keyPaths = ['externalServiceDefinition', 'extServiceUsername', 'extServiceUserFullName', 'selectedTopics'] ;
+        printTabular(entries, tabularTmpl, headers, keyPaths)
+    } else {
+        prettyPrintResponse();
+    }
+}
+
+def printApiRequestAuditEntry = {
+    apiKey, userEmail, flowTypeFilter, httpStatuses, maxLogReturn ->
+    setApiVersion("suv1");
+    setKey(apiKey);
+    
+    printTaskInfo "ApiRequestAuditEntry log"
+    request("ApiRequestAuditEntriesFlow", ["fsRenderResult":"json", "email": userEmail, "httpStatusCodeList": "[" + httpStatuses + "]", "maxReturn": maxLogReturn]);
+    if(getResponseData() instanceof JSONArray) {
+        def entries = getResponseData();
+        for(int i = 0; i < entries.length(); i++) {
+            def entry = entries.get(i) ;
+            def httpStatusCode = entry.getStringByPath('response.code') ;
+            String flowType = entry.getStringByPath('request.parameters.requestPathArray') ;
+            if(flowTypeFilter != null) {
+                if(!flowType.matches(flowTypeFilter)) {
+                    continue ;
+                }
+            }
+            println "---------------------------------------------------------------------------------" ;
+            println i + 1 + '. ' + entry.getStringByPath('request.parameters.requestPathArray') ;
+            println '  Http Status Code: ' + httpStatusCode ;
+            println '  Message: ' + entry.getStringByPath('message') ;
+            println "..............................................................................." ;
+            println entry.toString(2) ;
+            println "----------------------------------------------------------------------------------\n\n" ;
+        }
+    } else {
+        prettyPrintResponse();
+    }
+}
+
+def printExternalApiMethodCalls = {
+    apiKey, userEmail, maxLogReturn ->
+    setApiVersion("suv1");
+    setKey(apiKey);
+    printTaskInfo "ExternalApiMethodCallAuditEntry log"
+    request("ExternalApiMethodCallAuditEntriesFlow", ["fsRenderResult":"json"]);
+    if(getResponseData() instanceof JSONArray) {
+        def entries = getResponseData();
+        def limit = entries.length() 
+        if(limit > Integer.parseInt(maxLogReturn)) {
+            limit = Integer.parseInt(maxLogReturn) ; 
+        }
+        for(int i = 0; i < limit; i++) {
+            def entry = entries.get(i) ;
+            def httpStatusCode = entry.getStringByPath('statusCode') ;
+            println entry.toString(2) ;
+            println "----------------------------------------------------------------------------------\n\n" ;
+        }
+    } else {
+        println externalApiMethodCallAuditEntries.toString(2);
+    }
+}
+
 def userEmail = "admin@amplafi.com"
 if (params && params["userEmail"]) {
     userEmail = params["userEmail"] ;
@@ -51,89 +205,26 @@ if (params && params["maxLogReturn"]) {
     maxLogReturn = params["maxLogReturn"] ;
 }
 
+def flowTypeFilter = null 
+if (params && params["flowTypeFilter"]) {
+    flowTypeFilter = params["flowTypeFilter"] ;
+}
+
+
 printHelp userEmail, httpStatuses, maxLogReturn;
 
-printTaskInfo "Create the temporaty api key for the customer " + userEmail ;
-
-setApiVersion("suv1");
-request("SuApiKeyFlow", ["fsRenderResult":"json", "email": userEmail, "reasonForAccess": "Inspect the customer problem"]);
-def data = getResponseData();
-
-def apiKey = null ;
-if(data instanceof JSONArray && data.length() == 1) {
-  apiKey = data.getString(0) ;
-}
-
-if(apiKey == null) {
-    println "An error when creating a temporary api key for the user " + userEmail ;
-    prettyPrintResponse();
-    System.exit(0) ;
-} else {
-    println "Temporary Api Key: " + apiKey ;
-}
-
-setApiVersion("apiv1");
-
-printTaskInfo "Available Social Services(External Services)"
-request("EligibleExternalServiceInstancesFlow", ["fsRenderResult":"json"]);
-if(getResponseData() instanceof JSONArray) {
-    def entries = getResponseData();
-    String tabularTmpl = '%1$3s %2$20s' ;
-    def headers =  ['#', 'Ext Service'] ;
-    def keyPaths = [     'name'] ;
-    printTabular(entries, tabularTmpl, headers, keyPaths)
-} else {
-    prettyPrintResponse();
-}
-
-printTaskInfo "Avaliable Categories"
-request("AvailableCategoriesFlow", ["fsRenderResult":"json"]);
-
-if(getResponseData() instanceof JSONArray) {
-    def entries = getResponseData();
-    String tabularTmpl = '%1$3s%2$20s%3$20s' ;
-    def headers =  ['#', 'Topic Id', 'Name'] ;
-    def keyPaths = ['entityId', 'name'] ;
-    printTabular(entries, tabularTmpl, headers, keyPaths)
-} else {
-    prettyPrintResponse();
-}
-
-printTaskInfo "User Role And Configuration Information"
-
-println "TODO: Find an existing or implement an user information flow provider"
-
-printTaskInfo "Message End Point List Flow"
-request("MessageEndPointListFlow", ["fsRenderResult":"json", "messageEndPointCompleteList": "true"]);
-if(getResponseData() instanceof JSONArray) {
-    def entries = getResponseData();
-    String tabularTmpl = '%1$3s%2$15s%3$15s%4$15s%5$15s' ;
-    def headers =  ['#', 'Ext Service', 'User Name', 'Full Name', 'Topic Ids'] ;
-    def keyPaths = ['externalServiceDefinition', 'extServiceUsername', 'extServiceUserFullName', 'selectedTopics'] ;
-    printTabular(entries, tabularTmpl, headers, keyPaths)
-} else {
-    prettyPrintResponse();
-}
+def suApiKey = getKey() ;
+def userTmpApiKey = createTmpKey(userEmail) ;
 
 
-printTaskInfo "ApiRequestAuditEntry log"
-setApiVersion("suv1");
-request("ApiRequestAuditEntriesFlow", ["fsRenderResult":"json", "email": userEmail, "httpStatusCodeList": "[" + httpStatuses + "]", "maxReturn": maxLogReturn]);
-def entries = getResponseData();
-if(entries instanceof JSONArray) {
-    for(int i = 0; i < entries.length(); i++) {
-        def entry = entries.get(i) ;
-        def httpStatusCode = entry.getStringByPath('response.code') ;
-        println "---------------------------------------------------------------------------------" ;
-        println i + 1 + '. ' + entry.getStringByPath('request.parameters.requestPathArray') ;
-        println '  Http Status Code: ' + httpStatusCode ;
-        println '  Message: ' + entry.getStringByPath('message') ;
-        if(!"200".equals(httpStatusCode)) {
-            println "..............................................................................." ;
-            println entry.toString(2) ;
-        }
-        println "----------------------------------------------------------------------------------\n\n" ;
-    }
-} else {
-    prettyPrintResponse();
-}
+printAvailableExternalServices(userTmpApiKey) ;
+
+printAvailableCategories(userTmpApiKey) ;
+
+printUserRoles(userTmpApiKey) ;
+
+printMessageEndPoints(userTmpApiKey) ;
+
+printApiRequestAuditEntry(userTmpApiKey, userEmail, flowTypeFilter, httpStatuses, maxLogReturn) ;
+
+printExternalApiMethodCalls(suApiKey, userEmail, maxLogReturn) ;

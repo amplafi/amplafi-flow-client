@@ -11,11 +11,15 @@ import org.amplafi.json.JSONObject;
  */
 public class ListFlow extends Action {
     
-    public void exec(Console c, ShellContext context, String[] params) throws Exception {
+    public void exec(Console c, ShellContext context, String args) throws Exception {
         String fullUri = buildBaseUriString(context) ;
         GeneralFlowRequest request = new GeneralFlowRequest(URI.create(fullUri), null, fsRenderResult, describe);
         String result = request.get();
         JSONObject jsonObject = new JSONObject("{ result: " + result + "}") ;
         c.printf("%1s%n", jsonObject.toString(2));
+    }
+    
+    public String getHelpInstruction() {
+        return "List the available flow for the selected api version" ;
     }
 }

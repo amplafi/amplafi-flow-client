@@ -1,28 +1,21 @@
 package org.amplafi.flow.utils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Properties;
-import java.io.*;  
+import java.io.*;
 import org.apache.commons.cli.ParseException;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import static org.amplafi.dsl.ScriptRunner.*;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.*;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.dsl.ScriptDescription;
-import static org.amplafi.dsl.ScriptRunner.*;
-import  java.util.prefs.*;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Command line interface for running scripts to communicate with the Farreach.es
  * wire server.
- * 
+ *
  * Please read AdminTool.md for more details
  */
 public class AdminTool{
@@ -32,12 +25,11 @@ public class AdminTool{
     public static final String CONFIG_FILE_NAME = "fareaches.fadmin.properties";
     public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
     public static final String DEFAULT_PORT = "80";
-    public static final String DEFAULT_API_VERSION = "apiv1";   
+    public static final String DEFAULT_API_VERSION = "apiv1";
     public static Properties configProperties;
 
-
     /**
-     * Main entry point for tool 
+     * Main entry point for tool
      */
     public static void main(String[] args){
 
@@ -117,16 +109,14 @@ public class AdminTool{
      *  Runs the named script.
      */
     private static void runScript(String filePath,Map<String,ScriptDescription> scriptLookup,AdminToolCommandLineOptions cmdOptions){
-
         List<String> remainder =  cmdOptions.getRemainingOptions();
 
             try {
                 String host = getOption(cmdOptions,HOST,DEFAULT_HOST);
-
                 String port = getOption(cmdOptions,PORT,DEFAULT_PORT);
-
                 String apiVersion = getOption(cmdOptions,API_VERSION,DEFAULT_API_VERSION);
                 String key = getOption(cmdOptions,API_KEY,"");
+                
                 if(filePath == null){
                     if (remainder.size() > 0){
                         String scriptName = remainder.get(0);
@@ -160,7 +150,6 @@ public class AdminTool{
 
     }
     
-    
     private static Map<String,String> getParamMap(List<String> remainderList){
         Map<String,String> map =new HashMap<String, String>();
         // On linux options like param1=cat comes through as a single param
@@ -181,10 +170,9 @@ public class AdminTool{
                 i++;
             }
         }
-        return map;        
+        return map;
     }
-    
-
+   
     private static String getOption(AdminToolCommandLineOptions cmdOptions, String key, String defaultVal) throws IOException{
         Properties props = getProperties();		        
         String value = null;
@@ -210,7 +198,6 @@ public class AdminTool{
         return value;    
     }
 
-    
     /**
      *  Gets the configuration properties, loading it if hasn't been loaded
      *  @return configuaration properties. 
@@ -228,7 +215,6 @@ public class AdminTool{
         return configProperties;        
     }
 
-
     /**
      *  Saves the configuration properties, loading it if hasn't been loaded
      */
@@ -242,7 +228,6 @@ public class AdminTool{
             }            
         }        
     }
-    
 
     private ScriptRunner runner = null;
 
@@ -251,11 +236,8 @@ public class AdminTool{
     }
 
     public void runScript(String filePath){
-    runner  = new ScriptRunner("");
+    	runner  = new ScriptRunner("");
         runner.loadAndRunOneScript(filePath);
-
     }	
-    
-
 
 }

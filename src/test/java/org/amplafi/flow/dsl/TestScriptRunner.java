@@ -47,7 +47,7 @@ public class TestScriptRunner {
         String script = "println('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFf'); \n " +
                     " request('HelloFlow',['cat':'dog','hippo':'pig']);" ;
         
-        instance.runScriptSource(script,"buildExe");
+        instance.runScriptSource(script,true);
     }
     
     @Test 

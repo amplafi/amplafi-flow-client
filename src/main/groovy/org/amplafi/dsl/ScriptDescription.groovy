@@ -4,6 +4,7 @@ import org.amplafi.flow.utils.GeneralFlowRequest;
 
 /**
  * This class contains various methods for loading and running FlowTestDSL scripts
+ * @author Daisy
  */
 public class ScriptDescription {
     def String name;
@@ -11,5 +12,4 @@ public class ScriptDescription {
     def String path;
     def boolean hasErrors;
     def String errorMesg;
-
 }
