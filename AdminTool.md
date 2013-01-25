@@ -44,10 +44,10 @@ Running ./FAdmin.sh without parameters will display the usage.
 To list the currently available commands enter :
 
     ./FAdmin.sh -l
-	
+    
 To list In-built Scripts and show all scripts path :
 
-	./FAdmin.sh -L
+    ./FAdmin.sh -L
 
 To run one of the commands enter the command name :
 
@@ -81,16 +81,16 @@ Any script placed here will be loaded on startup.
     // setKey("newkey");
 
 
-	//Access to command line parameters
-	if (params&&params["param2"]){
+    //Access to command line parameters
+    if (params&&params["param2"]){
 
-		println "------------"+ params["param2"]
-	} 
+        println "------------"+ params["param2"]
+    } 
 
-	if (params&&params["param1"]){
-		println "------------"+params["param1"]
+    if (params&&params["param1"]){
+        println "------------"+params["param1"]
 
-	}
+    }
 
 
     // Make a request to the server
