@@ -11,6 +11,7 @@
 		<version>1.0.4</version>
         <relativePath>../amplafi-opensource-parent/pom.xml</relativePath>
     </parent>	
+
 	
     <packaging>jar</packaging>
     <name>Amplafi Flow - Client and interfaces</name>
@@ -37,6 +38,12 @@
             <artifactId>easymockclassextension</artifactId>
             <scope>test</scope>
         </dependency>
+
+		<dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j-build}</version>
+		</dependency>                
 
         <dependency>
             <groupId>org.testng</groupId>
@@ -80,6 +87,11 @@
             <version>1.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>  
+        
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>properties-maven-plugin</artifactId>

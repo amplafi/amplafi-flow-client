@@ -7,10 +7,13 @@ import java.util.regex.Pattern;
 import java.util.Properties;
 import java.io.*;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.*;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.dsl.ScriptDescription;
 import java.util.Map;
+
 
 /**
  * Command line interface for running scripts to communicate with the Farreach.es
@@ -26,19 +29,23 @@ public class AdminTool{
     public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
     public static final String DEFAULT_PORT = "80";
     public static final String DEFAULT_API_VERSION = "apiv1";
-    public Properties configProperties;
+    private Properties configProperties;
 
+    private Log log;
+    
     /**
      * Main entry point for tool
      */
     public static void main(String[] args){
+		AdminTool adminTool = new AdminTool();
+		
         for (String arg : args){
-            System.err.println("arg: " + arg );
+            adminTool.getLog().debug("arg: " + arg );
         }
 
-        AdminTool adminTool = new AdminTool();
         adminTool.processCommandLine(args);
     }
+
     
     /**
      * Process command line 
@@ -50,8 +57,7 @@ public class AdminTool{
         try {
             cmdOptions = new AdminToolCommandLineOptions(args);
         } catch (ParseException e) {
-            System.err.println("Could not parse passed arguments, message:" + e.getMessage());
-            e.printStackTrace();
+            getLog().error("Could not parse passed arguments, message:", e);
             return;
         }
         
@@ -73,19 +79,19 @@ public class AdminTool{
             // descriptions.             
             for (ScriptDescription sd : runner.getGoodScripts() ){ 
                 if(cmdOptions.hasOption(LIST)){
-                    System.out.println("     " + sd.getName() + "       - " + sd.getDescription());
+                    emitOutput("     " + sd.getName() + "       - " + sd.getDescription());
                 }else{
-                    System.out.println("     " + sd.getName() + "       - " + sd.getDescription() + "       - " + getRelativePath(sd.getPath()));
+                    emitOutput("     " + sd.getName() + "       - " + sd.getDescription() + "       - " + getRelativePath(sd.getPath()));
                 }
             
             }
             // List scripts that have errors if there are any
             if (runner.getScriptsWithErrors().size() > 0){  
-                System.out.println("The following scripts have errors: ");            
+                emitOutput("The following scripts have errors: ");            
             }
             
             for (ScriptDescription sd : runner.getScriptsWithErrors() ){  
-                    System.out.println("  " + getRelativePath(sd.getPath()) + "       - " + sd.getErrorMesg());
+                emitOutput("  " + getRelativePath(sd.getPath()) + "       - " + sd.getErrorMesg());
             }                        
         } else if(cmdOptions.hasOption(FILE_PATH)){
             // run an ad-hoc script from a file
@@ -122,41 +128,48 @@ public class AdminTool{
     private void runScript(String filePath,Map<String,ScriptDescription> scriptLookup,AdminToolCommandLineOptions cmdOptions){
         List<String> remainder =  cmdOptions.getRemainingOptions();
 
-            try {
-                String host = getOption(cmdOptions,HOST,DEFAULT_HOST);
-                String port = getOption(cmdOptions,PORT,DEFAULT_PORT);
-                String apiVersion = getOption(cmdOptions,API_VERSION,DEFAULT_API_VERSION);
-                String key = getOption(cmdOptions,API_KEY,"");
-                
-                if(filePath == null){
-                    if (remainder.size() > 0){
-                        String scriptName = remainder.get(0);
-                        if (scriptLookup.containsKey(scriptName ) ){
-                            ScriptDescription sd = scriptLookup.get(scriptName);
-                            filePath = sd.getPath();
-                        }
-                        remainder.remove(0);
-                    }
-                }
-                Map<String,String> parammap = getParamMap(remainder);
-                boolean verbose = false;
-                if(cmdOptions.hasOption(VERBOSE)){
-                    verbose = true;
-                }
-                
-                ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap, verbose);
-                runner2.processScriptsInFolder(COMMAND_SCRIPT_PATH);
-
-                if (filePath != null){
-                    
-                    runner2.loadAndRunOneScript(filePath);
-                } else {
-                    System.err.println("No script to run or not found.");
-                } 
+        try {
+            // Get script options if needed
+            String host = getOption(cmdOptions,HOST,DEFAULT_HOST);
+            String port = getOption(cmdOptions,PORT,DEFAULT_PORT);
+            String apiVersion = getOption(cmdOptions,API_VERSION,DEFAULT_API_VERSION);
+            String key = getOption(cmdOptions,API_KEY,"");
             
-            } catch (IOException ioe){
-                    System.err.println("Error : " + ioe);  
+            // Check if we are running and ad-hoc script
+            if(filePath == null){
+                if (remainder.size() > 0){
+                    String scriptName = remainder.get(0);
+                    if (scriptLookup.containsKey(scriptName ) ){
+                        ScriptDescription sd = scriptLookup.get(scriptName);
+                        filePath = sd.getPath();
+                    }
+                    remainder.remove(0);
+                }
             }
+            
+            // Get the parameter for the script itself.
+            Map<String,String> parammap = getParamMap(remainder);
+            
+            // Is verbose switched on?
+            boolean verbose = false;
+            if(cmdOptions.hasOption(VERBOSE)){
+                verbose = true;
+            }
+            
+            // run the script
+            ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap, verbose);
+            runner2.processScriptsInFolder(COMMAND_SCRIPT_PATH);
+
+            if (filePath != null){
+                
+                runner2.loadAndRunOneScript(filePath);
+            } else {
+                getLog().error("No script to run or not found.");
+            } 
+        
+        } catch (IOException ioe){
+            getLog().error("Error : " + ioe);  
+        }
     }
 
     /**
@@ -166,7 +179,7 @@ public class AdminTool{
      */
     private Map<String,String> getParamMap(List<String> remainderList){
         Map<String,String> map =new HashMap<String, String>();
-        // On linux options like param1=cat comes through as a single param
+        // On linux, options like param1=cat comes through as a single param
         // On windows they come through as 2 params.         
         // To match options like param1=cat
         String patternStr = "(\\w+)=(\\S+)";
@@ -174,7 +187,7 @@ public class AdminTool{
         for(int i=0;i<remainderList.size();i++){
             Matcher matcher = p.matcher(remainderList.get(i));
             if (matcher.matches()){
-                //     then we are looking at param1=cat as a single param
+                // If mathces then we are looking at param1=cat as a single param
                 map.put(matcher.group(1),matcher.group(2));
                 
             } else {
@@ -231,7 +244,7 @@ public class AdminTool{
                 //load a properties file
                 configProperties.load(new FileInputStream(CONFIG_FILE_NAME)); 
             } catch (IOException ex) {
-                System.err.println("Error loading file " + CONFIG_FILE_NAME );
+                getLog().error("Error loading file " + CONFIG_FILE_NAME );
             }
         }
         return configProperties;        
@@ -246,12 +259,26 @@ public class AdminTool{
                 //load a properties file
                 configProperties.store(new FileOutputStream(CONFIG_FILE_NAME),"Farreach.es Admin tool properties"); 
             } catch (IOException ex) {
-                System.err.println("Error saving file " + CONFIG_FILE_NAME );
+                getLog().error("Error saving file " + CONFIG_FILE_NAME );
             }            
         }        
     }
 
-    public AdminTool(){
+    /**
+     * @param msg - message to emit
+     */
+    private void emitOutput(String msg){
+        getLog().info(msg);
+    }
+
+    /**
+     * Get the logger for this class.
+     */
+    public Log getLog(){
+        if ( this.log == null ) {
+            this.log = LogFactory.getLog(this.getClass());
+        }
+        return this.log;
     }
 
 }
