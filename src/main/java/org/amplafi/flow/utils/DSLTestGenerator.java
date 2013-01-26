@@ -222,6 +222,7 @@ public class DSLTestGenerator {
         String flowDefinitionResult = null;
         try {
             flowDefinitionResult = new GeneralFlowRequest(URI.create(requestUriString), flow).describeFlowRaw();
+debug("@@@ got flowDefinitionResult ");            
             assertNotNull(flowDefinitionResult, CONFIG_ERROR_MSG);
             assertFalse(flowDefinitionResult.trim().equals(""), messageStart + "was an empty String");
         } catch (IllegalArgumentException iae) {
@@ -254,35 +255,38 @@ public class DSLTestGenerator {
        
             // Some flows have no activities and can be called 
             if ( flowDefinition.has(JSON_ACTIVITY_KEY) ){
-            
+debug("@ has JSON_ACTIVITY_KEY ");
                 // Obtain the Activity list from the JSON data,            
                 JSONArray<JSONObject> activities = flowDefinition.getJSONArray(JSON_ACTIVITY_KEY);
                 assertFalse(activities.isEmpty(), "\"Activities\" array was empty.");    
 
                 // Loop over the activities in the flow definition and determine that each has a parameters attribute.
                 for (JSONObject activity : activities){
-            
+debug("@ Looping over activities " );            
                     // certain activities in flows such as AuditManagement do not have parameters. 
                     JSONArray<JSONObject> activityParameters = activity.getJSONArray(JSON_PARAMETER_KEY);
                     if (!activityParameters.isEmpty()){
+debug("@ Activity has parameters " );                                    
                         // if an activity does have parameters, then we should check that each parameter definition
                         //  has the correct attributes.
                         for (JSONObject param : activityParameters){
+debug("@ param start " ); 
                              assertTrue( param.has("name"),"name not found for parameter in activity " );
                              assertTrue(param.has("type"), "type not found for parameter in activity " );
                              assertTrue(param.has("req"), "req not found for parameter in activity " );
                         }
+                    
+                    } 
+                                        
+                    // Now we call the flow current flow but with each of the parameters set to a string 
+                    strategy.generateTestForActivity(flow, activity,requestUriString);    
                         
-                                            
-                        // Now we call the flow current flow but with each of the parameters set to a string 
-                        generateTestWithResultString(flow, activity);    
                         
                         
-                        
-                    }
                         
                 }   
             } else {
+debug("@ No JSON_ACTIVITY_KEY ");
                  // flow has no activities or parameters so we can just call it directly
                 URI requestUri = URI.create(requestUriString);
                 GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flow);
@@ -318,63 +322,8 @@ public class DSLTestGenerator {
         assertTrue(repeats.isEmpty(), "These parameters where repeated for flowtype " + flow + " :" + repeats.toString());
     }
 
-    /**
-     * This test uses the definition to request a flow with all of the parameters set to strings.
-     */
-    public void generateTestWithResultString(String flow, JSONObject activityDefinition)throws GenerationException {
-        login(); // does nothing and shouldn't be here in any case. 
-        
-        // Following method call creates a list of parameters with a fixed dummy string value 
-        // It makes the request to the server and returns the response.
-        getParametersAllStringsResult(flow, activityDefinition);
+ 
 
-        
-
-    }
-
-    /**
-     * TODO: Shouldn't the application have to login before requesting flows?<br>
-     * While running the test server if I drop
-     * "http://localhost:8080/flow/CreateAlert?messageBody=foo" into the browser then I am directed
-     * to login. However if I drop
-     * "http://localhost:8080/flow/CreateAlert?messageBody=foo&fsRenderResult=json" into the browser
-     * it returns the following:<br>
-     * <br>
-     * {"flowState":{"fsComplete":false,"fsCurrentActivityByName":"content","fsLookupKey":
-     * "CreateAlert_fjd2s3b6"
-     * ,"fsParameters":{"fsApiCall":false,"fsAutoComplete":false,"messageCalendarable"
-     * :false,"broadcastMessageType"
-     * :"nrm","basedOnMessagesList":true,"callbackCodes":[],"selectedEnvelopes"
-     * :[],"messageBody":"foo"}}}<br>
-     * <br>
-     * Why is this? Shouldn't I either get a redirect to log in or a json formatted error telling me
-     * to login?
-     */
-    private void login() {
-        //TODO: perform login
-    }
-
-    /**
-     * This method gets caches the results when a flow is passed all strings.
-     */
-    private void getParametersAllStringsResult(String flow, JSONObject flowDefinition)throws GenerationException {
-        assertNotNull(flowDefinition,
-            "flowDefinition was null, The test should depend on testJsonStringIsReturnedWhenRequestingTheFlowDefinition() does it?");
-        Collection<String> parameterNames = getAllParameterNames(flowDefinition);
-
-        Collection<NameValuePair> parametersPopulatedWithBogusData = strategy.generateParameters(flow,parameterNames);
-        //add the json response parameter
-        parametersPopulatedWithBogusData.add(renderAsJson);
-
-        URI requestUri = URI.create(requestUriString);
-        GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flow, parametersPopulatedWithBogusData);
-        strategy.addRequest(flow,parametersPopulatedWithBogusData);
-                
-        
-        strategy.addVerification(request.get());
-        
-        // return request.get();
-    }
 
     /**
      * Validates a generic flow response
@@ -406,20 +355,6 @@ public class DSLTestGenerator {
         }
 
         return jsonResult;
-    }
-
-    /**
-     * @Returns a collection of parameter names in this activity.
-     */
-    private Collection<String> getAllParameterNames(JSONObject activityDefinition) throws GenerationException{
-        assertTrue(activityDefinition.has(JSON_PARAMETER_KEY), JSON_PARAMETER_KEY + " not found in JSONObject: " + activityDefinition.toString());
-        JSONArray<JSONObject> parameters = activityDefinition.getJSONArray(JSON_PARAMETER_KEY);
-        List<String> parameterNames = new ArrayList<String>();
-        for (JSONObject jsonObject : parameters) {
-            assertTrue(jsonObject.has(JSON_PARAMETER_NAME_KEY), JSON_PARAMETER_NAME_KEY + " not found in JSONObject: " + jsonObject.toString());
-            parameterNames.add(jsonObject.getString(JSON_PARAMETER_NAME_KEY));
-        }
-        return parameterNames;
     }
 
 

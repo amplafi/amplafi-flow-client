@@ -40,7 +40,7 @@ public class CommandLineClient implements Runnable {
             System.exit(1);
         }
         
-        if (cmdOptions.hasOption(HELP)) {
+        if (args.length == 0 || cmdOptions.hasOption(HELP) ) {
             cmdOptions.printHelp();
             
             System.exit(0);

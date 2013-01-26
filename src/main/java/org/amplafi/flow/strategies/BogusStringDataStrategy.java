@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Formatter;
 import java.util.List;
+import java.util.ArrayList;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
 

@@ -7,7 +7,7 @@ package org.amplafi.flow.strategies;
  */
 public enum TestingStrategiesEnum  {
 
-    BogusString(new BogusStringDataStrategy()), CorruptParams(new CorruptParamsNameTestingStrategy()), NullParam(new NullParamStrategy());
+    BogusString(new BogusStringDataStrategy()), CorruptParams(new CorruptParamsNameTestingStrategy()), NullParam(new NullParamStrategy()), ParamCombinations(new CombinationsStrategy());
     
     private AbstractTestingStrategy strategy;
     
