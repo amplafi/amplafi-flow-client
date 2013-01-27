@@ -28,14 +28,20 @@ def printTaskInfo = {
 }
 
 def printHelp = { 
-    userEmail, httpStatuses, maxLogReturn ->
+    userEmail, apiHttpStatuses, apiMaxReturn ->
     printTaskInfo "CustomerProblemReport Script Help"
     println "This CustomerProblemReport script use to help the system administrator access"
     println "the various farreaches service configuration and user log information"
     println "Params: "
     println "  userEmail=<" + userEmail+ ">  The user that you want to inspect"
-    println "  httpStatuses=<" + httpStatuses + ">  The http status code list, empty to select all."
-    println "  maxLogReturn=<" + maxLogReturn + ">  The maximum number of the log entries that you want to return"
+    println ""
+    println "  apiHttpStatuses=<" + apiHttpStatuses + ">  The http status code list, empty to select all."
+    println "  apiFlowType=<flowType>  The flow type."
+    println "  apiMaxReturn=<" + apiMaxReturn + ">  The maximum number of the log entries that you want to return"
+    println ""
+    println "  externalApiNamespace=<twitter.com, facebook.com...>  The external service namespace"
+    println "  externalApiMethod=<ADD_MESSAGE...>  The external method call name"
+    println "  externalApiMaxReturn=<number>  The maximum number of the log entries that you want to return"
 }
 
 def printTabular = { 
@@ -108,14 +114,14 @@ def printAvailableCategories = {
 }
 
 def printUserRoles = { 
-    apiKey ->
+    apiKey, userEmail ->
     setApiVersion("suv1");
     setKey(apiKey);
     
     printTaskInfo "User Role And Configuration Information"
-    //request("UserRoleInfoFlow", ["fsRenderResult":"json", "email": userEmail]);
-    println "TODO: Find an existing or implement an user information flow provider"
-    //prettyPrintResponse();
+    request("UserRoleInfoFlow", ["fsRenderResult":"json", "email": userEmail]);
+    println "User " + userEmail + " has the following roles:"
+    prettyPrintResponse();
 }
 
 def printMessageEndPoints = { 
@@ -137,23 +143,23 @@ def printMessageEndPoints = {
 }
 
 def printApiRequestAuditEntry = {
-    apiKey, userEmail, flowTypeFilter, httpStatuses, maxLogReturn ->
+    apiKey, userEmail, apiFlowType, apiHttpStatuses, apiMaxReturn ->
     setApiVersion("suv1");
     setKey(apiKey);
-    
+    def reqParams = ["fsRenderResult":"json", "httpStatusCodeList": "[" + apiHttpStatuses + "]", "maxReturn": apiMaxReturn] ;
+    if(userEmail != null) {
+        reqParams["email"] = userEmail;
+    } 
+    if(apiFlowType != null) {
+        reqParams["flowType"] = apiFlowType;
+    } 
     printTaskInfo "ApiRequestAuditEntry log"
-    request("ApiRequestAuditEntriesFlow", ["fsRenderResult":"json", "email": userEmail, "httpStatusCodeList": "[" + httpStatuses + "]", "maxReturn": maxLogReturn]);
+    request("ApiRequestAuditEntriesFlow", reqParams);
     if(getResponseData() instanceof JSONArray) {
         def entries = getResponseData();
         for(int i = 0; i < entries.length(); i++) {
             def entry = entries.get(i) ;
             def httpStatusCode = entry.getStringByPath('response.code') ;
-            String flowType = entry.getStringByPath('request.parameters.requestPathArray') ;
-            if(flowTypeFilter != null) {
-                if(!flowType.matches(flowTypeFilter)) {
-                    continue ;
-                }
-            }
             println "---------------------------------------------------------------------------------" ;
             println i + 1 + '. ' + entry.getStringByPath('request.parameters.requestPathArray') ;
             println '  Http Status Code: ' + httpStatusCode ;
@@ -168,18 +174,21 @@ def printApiRequestAuditEntry = {
 }
 
 def printExternalApiMethodCalls = {
-    apiKey, userEmail, maxLogReturn ->
+    apiKey, userEmail, apiExternalNamespace, apiExternalMethod, apiExternalMaxReturn ->
     setApiVersion("suv1");
     setKey(apiKey);
     printTaskInfo "ExternalApiMethodCallAuditEntry log"
-    request("ExternalApiMethodCallAuditEntriesFlow", ["fsRenderResult":"json"]);
+    def reqParams = ["fsRenderResult":"json", "maxReturn": apiExternalMaxReturn] ;
+    if(apiExternalNamespace != null) {
+        reqParams["apiExternalNamespace"] = apiExternalNamespace ;
+    }
+    if(apiExternalMethod != null) {
+        reqParams["method"] = apiExternalMethod ;
+    }
+    request("ExternalApiMethodCallAuditEntriesFlow", reqParams);
     if(getResponseData() instanceof JSONArray) {
         def entries = getResponseData();
-        def limit = entries.length() 
-        if(limit > Integer.parseInt(maxLogReturn)) {
-            limit = Integer.parseInt(maxLogReturn) ; 
-        }
-        for(int i = 0; i < limit; i++) {
+        for(int i = 0; i < entries.length(); i++) {
             def entry = entries.get(i) ;
             def httpStatusCode = entry.getStringByPath('statusCode') ;
             println entry.toString(2) ;
@@ -195,23 +204,26 @@ if (params && params["userEmail"]) {
     userEmail = params["userEmail"] ;
 }
 
-def httpStatuses = "0, 400, 401"
-if (params && params["httpStatuses"]) {
-    httpStatuses = params["httpStatuses"] ;
+def apiHttpStatuses = "0, 400, 401"
+if (params && params["apiHttpStatuses"]) {
+    apiHttpStatuses = params["apiHttpStatuses"] ;
 }
 
-def maxLogReturn = "5"
-if (params && params["maxLogReturn"]) {
-    maxLogReturn = params["maxLogReturn"] ;
+def apiMaxReturn = "5"
+if (params && params["apiMaxReturn"]) {
+    apiMaxReturn = params["apiMaxReturn"] ;
 }
 
-def flowTypeFilter = null 
-if (params && params["flowTypeFilter"]) {
-    flowTypeFilter = params["flowTypeFilter"] ;
+def apiFlowType = null 
+if (params && params["apiFlowType"]) {
+    apiFlowType = params["apiFlowType"] ;
 }
 
+def apiExternalNamespace = null ;
+def apiExternalMethod = null ;
+def apiExternalMaxReturn = "10" ;
 
-printHelp userEmail, httpStatuses, maxLogReturn;
+printHelp userEmail, apiHttpStatuses, apiMaxReturn;
 
 def suApiKey = getKey() ;
 def userTmpApiKey = createTmpKey(userEmail) ;
@@ -221,10 +233,10 @@ printAvailableExternalServices(userTmpApiKey) ;
 
 printAvailableCategories(userTmpApiKey) ;
 
-printUserRoles(userTmpApiKey) ;
+printUserRoles(suApiKey, userEmail) ;
 
 printMessageEndPoints(userTmpApiKey) ;
 
-printApiRequestAuditEntry(userTmpApiKey, userEmail, flowTypeFilter, httpStatuses, maxLogReturn) ;
+printApiRequestAuditEntry(suApiKey, userEmail, apiFlowType, apiHttpStatuses, apiMaxReturn) ;
 
-printExternalApiMethodCalls(suApiKey, userEmail, maxLogReturn) ;
+printExternalApiMethodCalls(suApiKey, userEmail, apiExternalNamespace, apiExternalMethod, apiExternalMaxReturn) ;
