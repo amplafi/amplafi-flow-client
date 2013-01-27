@@ -1,21 +1,12 @@
 // This line must be the first line in the script
 
-//PROBLEMS:
-//1. ApiRequestAuditEntriesFlow produce a very large log, especially if the 
-//   maxReturn parameter is large and the flow is run multiple time.
+//TODO:
+//1. “Farreach.es is broken.” - current state of customer’s account ? Which flow return this information
 //2. When user create a post and he does not leave the post screen. The event bus
-//   request continuously to the wireservice and produce a lot of EnvelopeStatuses log.
-//3. Need to be able to filter the ApiRequesAuditEntry by the flow type and fsAltFinished ?
-//4. Need to add filter by user , http status , method , external entity status for 
-//   ExternalApiMethodCallAuditEntry
-//5. If user do not select the configured category , no call is made to the wireservice and no log.
-//6. Do we need the user information such user roles ?
-//7. Need to log the exception and exception type in ApiRequestAuditEntry
-//8. Need a more flexible way to query the log with different parameters.
-//9. “Farreach.es is broken.” - current state of customer’s account ? Which flow return this information
-//10. Should we include the user email in the log to run stattistical analysis for the overall report. 
-//    Security problem
-//  Basically, we need a more flexible log query and categorized log to produce a good report
+//   request continuously to the wireservice and produce a lot of EnvelopeStatuses log(TO_YURIY)
+//3. Need to log the exception and exception type in ApiRequestAuditEntry
+
+import java.util.HashMap 
  
 description "CustomerProblemReport", "Params: userEmail=<userEmail> This tool is used to report and identify the customer problem" ;
 
@@ -33,7 +24,7 @@ def printHelp = {
     println "This CustomerProblemReport script use to help the system administrator access"
     println "the various farreaches service configuration and user log information"
     println "Params: "
-    println "  userEmail=<" + userEmail+ ">  The user that you want to inspect"
+    println "  userEmail=<" + userEmail+ ">  The user that you want to inspect. If the userEmail is not specified. The overall report will be run"
     println ""
     println "  apiHttpStatuses=<" + apiHttpStatuses + ">  The http status code list, empty to select all."
     println "  apiFlowType=<flowType>  The flow type."
@@ -173,6 +164,82 @@ def printApiRequestAuditEntry = {
     }
 }
 
+def printOverallApiRequestAuditEntry = {
+    apiKey, apiFlowType, apiHttpStatuses, apiMaxReturn ->
+    setApiVersion("suv1");
+    setKey(apiKey);
+    def reqParams = ["fsRenderResult":"json", "maxReturn": apiMaxReturn] ;
+    if(apiFlowType != null) {
+        reqParams["flowType"] = apiFlowType;
+    } 
+    if(apiHttpStatuses != null) {
+        reqParams["apiStatusCodeList"] = "[" + apiHttpStatuses + "]";
+    }
+    printTaskInfo "Overall Report For ApiRequestAuditEntry Log"
+    
+    request("ApiRequestAuditEntriesFlow", reqParams);
+    if(getResponseData() instanceof JSONArray) {
+        def entries = getResponseData();
+        def byUserEmailStatistic = [:] ;
+        def byFlowTypeStatistic = [:] ;
+        for(int i = 0; i < entries.length(); i++) {
+            def entry = entries.get(i) ;
+            def email = entry.getStringByPath('request.defaultEmail') ;
+            def flowType = entry.getStringByPath('request.parameters.requestPathArray') ;
+            def httpStatusCode = Integer.parseInt(entry.getStringByPath('response.code')) ;
+            
+            if(byUserEmailStatistic[email] == null) {
+                byUserEmailStatistic[email] = [
+                   "User": email, "Http 1xx": 0, "Http 200": 0, "Http 2xx": 0, "Http 3xx": 0, "Http 4xx": 0, "Http 5xx": 0
+                ]; 
+            }
+            
+            if(byFlowTypeStatistic[flowType] == null) {
+                byFlowTypeStatistic[flowType] = [
+                   "Flow Type": flowType, "Http 1xx": 0, "Http 200": 0, "Http 2xx": 0, "Http 3xx": 0, "Http 4xx": 0, "Http 5xx": 0
+                ]; 
+            }
+            
+            if(httpStatusCode < 200) {
+                byUserEmailStatistic[email]["Http 1xx"] += 1; 
+                byFlowTypeStatistic[flowType]["Http 1xx"] += 1; 
+            } else if(httpStatusCode == 200) {
+                byUserEmailStatistic[email]["Http 200"] += 1; 
+                byFlowTypeStatistic[flowType]["Http 200"] += 1; 
+            } else if(httpStatusCode > 200 && httpStatusCode < 300) {
+                byUserEmailStatistic[email]["Http 2xx"] += 1; 
+                byFlowTypeStatistic[flowType]["Http 2xx"] += 1; 
+            } else if(httpStatusCode >= 300 && httpStatusCode <400) {
+                byUserEmailStatistic[email]["Http 3xx"] += 1; 
+                byFlowTypeStatistic[flowType]["Http 3xx"] += 1; 
+            } else if(httpStatusCode >= 400 && httpStatusCode < 500) {
+                byUserEmailStatistic[email]["Http 4xx"] += 1; 
+                byFlowTypeStatistic[flowType]["Http 4xx"] += 1; 
+            } else {
+                byUserEmailStatistic[email]["Http 5xx"] += 1; 
+                byFlowTypeStatistic[flowType]["Http 5xx"] += 1; 
+            }
+        }
+        
+        String tabularTmpl = '%1$-40s%2$10s%3$10s%4$10s%5$10s%6$10s%7$10s' ;
+        def headers =  ['User', 'Http 1xx', 'Http 200', 'Http 2xx', 'Http 3xx', 'Http 4xx', 'Http 5xx'] ;
+        println sprintf(tabularTmpl, headers) ;
+        println '-----------------------------------------------------------------------------------------------------'
+        for(entry in byUserEmailStatistic.values()) {
+            println sprintf(tabularTmpl, entry['User'], entry['Http 1xx'], entry['Http 200'], entry['Http 2xx'], entry['Http 3xx'], entry['Http 4xx'], entry['Http 5xx']);
+        }
+        println "\n\n"
+        headers =  ['Flow', 'Http 1xx', 'Http 200', 'Http 2xx', 'Http 3xx', 'Http 4xx', 'Http 5xx'] ;
+        println sprintf(tabularTmpl, headers) ;
+        println '-----------------------------------------------------------------------------------------------------'
+        for(entry in byFlowTypeStatistic.values()) {
+            println sprintf(tabularTmpl, entry['Flow Type'], entry['Http 1xx'], entry['Http 200'], entry['Http 2xx'], entry['Http 3xx'], entry['Http 4xx'], entry['Http 5xx']);
+        }
+    } else {
+        prettyPrintResponse();
+    }
+}
+
 def printExternalApiMethodCalls = {
     apiKey, userEmail, apiExternalNamespace, apiExternalMethod, apiExternalMaxReturn ->
     setApiVersion("suv1");
@@ -199,7 +266,7 @@ def printExternalApiMethodCalls = {
     }
 }
 
-def userEmail = "admin@amplafi.com"
+def userEmail = null ;
 if (params && params["userEmail"]) {
     userEmail = params["userEmail"] ;
 }
@@ -225,18 +292,19 @@ def apiExternalMaxReturn = "10" ;
 
 printHelp userEmail, apiHttpStatuses, apiMaxReturn;
 
-def suApiKey = getKey() ;
-def userTmpApiKey = createTmpKey(userEmail) ;
-
-
-printAvailableExternalServices(userTmpApiKey) ;
-
-printAvailableCategories(userTmpApiKey) ;
-
-printUserRoles(suApiKey, userEmail) ;
-
-printMessageEndPoints(userTmpApiKey) ;
-
-printApiRequestAuditEntry(suApiKey, userEmail, apiFlowType, apiHttpStatuses, apiMaxReturn) ;
-
-printExternalApiMethodCalls(suApiKey, userEmail, apiExternalNamespace, apiExternalMethod, apiExternalMaxReturn) ;
+if(userEmail != null) {
+    printTaskInfo "Running the customer problem report for the customer " + userEmail
+    def suApiKey = getKey() ;
+    def userTmpApiKey = createTmpKey(userEmail) ;
+    printAvailableExternalServices(userTmpApiKey) ;
+    printAvailableCategories(userTmpApiKey) ;
+    printUserRoles(suApiKey, userEmail) ;
+    printMessageEndPoints(userTmpApiKey) ;
+    printApiRequestAuditEntry(suApiKey, userEmail, apiFlowType, apiHttpStatuses, apiMaxReturn) ;
+    printExternalApiMethodCalls(suApiKey, userEmail, apiExternalNamespace, apiExternalMethod, apiExternalMaxReturn) ;
+} else {
+    def suApiKey = getKey() ;
+    printAvailableCategories(suApiKey) ;
+    printAvailableExternalServices(suApiKey) ;
+    printOverallApiRequestAuditEntry(suApiKey, apiFlowType, apiHttpStatuses, apiMaxReturn) ;
+}
