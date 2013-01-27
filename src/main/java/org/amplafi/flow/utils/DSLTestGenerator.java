@@ -13,6 +13,8 @@ import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONException;
 import org.amplafi.json.JSONObject;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import java.io.BufferedWriter;
@@ -30,13 +32,12 @@ import org.amplafi.flow.strategies.TestingStrategiesEnum;
 public class DSLTestGenerator {
 
     /** The strategy in use */
-    private AbstractTestingStrategy strategy = null;
+    private AbstractTestingStrategy strategy;
     private static final String JSON_ACTIVITY_KEY = "activities";
     private static final String JSON_PARAMETER_KEY = "parameters";
     private static final String JSON_PARAMETER_NAME_KEY = "name";
     private static final String JSON_GENERIC_ERROR_MESSAGE_KEY = "errorMessage";
     private static final String JSON_GENERIC_ERROR_MESSAGE = "Exception while running flowState";
-    private static boolean DEBUG = true;	
     private static final String CONFIG_ERROR_MSG = "\n***************************** \n" + 
                                                                     " This Error can be caused by the API key \n" +
                                                                     " not being set in the pom.xml, or the\n" +
@@ -47,7 +48,10 @@ public class DSLTestGenerator {
     
     private static final NameValuePair renderAsJson = new BasicNameValuePair("fsRenderResult", "json");
     private static final NameValuePair keyParam = new BasicNameValuePair("fsRenderResult", "json");
-
+    
+    private String requestUriString;
+    private String outPath;
+    private Log log;
 
     /**
      * Entry point for test generator
@@ -68,8 +72,9 @@ public class DSLTestGenerator {
         try {
             cmdOptions = new DSLTestGeneratorCommandLineOptions(args);
         } catch (ParseException e) {
-            System.err.println("Could not parse passed arguments, message:" + e.getMessage());
-            e.printStackTrace();
+            LogFactory.
+            getLog(GenerationException.class).
+            error("Could not parse passed arguments, message:" + e.getMessage(),e);
             System.exit(1);
         }
         
@@ -86,36 +91,24 @@ public class DSLTestGenerator {
         }
 
         String apiKey = cmdOptions.getOptionValue(API_KEY);
-        
         String host = cmdOptions.getOptionValue(HOST);
         String port = cmdOptions.getOptionValue(PORT);
         String apiversion = cmdOptions.getOptionValue(API_VERSION);
         String strategyName = cmdOptions.getOptionValue(STRATEGY);
         String outPath = cmdOptions.getOptionValue(OUTPATH);
-
-
-
         
         TestingStrategiesEnum strategy = Enum.valueOf(TestingStrategiesEnum.class,strategyName);
         DSLTestGenerator gen = new DSLTestGenerator(strategy.getStrategy(),apiKey, host, port, apiversion, outPath);
         
         if (cmdOptions.hasOption(FLOW)){
-            String flowName = cmdOptions.getOptionValue(FLOW);	
+            String flowName = cmdOptions.getOptionValue(FLOW);    
             gen.generateOne(flowName);
         } else{
-            gen.generate();	
+            gen.generate();    
         }
-        
-                
-        
-        
-        
+
     }
 
-    
-    private String requestUriString = null;
-    private String outPath = null;
-    
     /**
      * Constructor for the generator.
      * @param strategy - the current strategy
@@ -128,8 +121,6 @@ public class DSLTestGenerator {
     public DSLTestGenerator(AbstractTestingStrategy strategy,String apiKey, String host, String port, String apiversion, String outPath){
         this.strategy = strategy;
         this.outPath = outPath;
-        
-        
         this.requestUriString = host + ":" + port + "/c/" + apiKey   + "/apiv1"; 
     }
 
@@ -162,13 +153,12 @@ public class DSLTestGenerator {
             BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
             out.write(strategy.getTestFileContents());
             out.close();
-        } catch (IOException e)	{
+        } catch (IOException e)    {
             e.printStackTrace();
             throw new GenerationException("Error writing file",e);
         }
         
-    } 	
-
+    }     
 
     /**
      * Provides all flow names for testing
@@ -191,7 +181,6 @@ public class DSLTestGenerator {
         return flowList;
     }
 
- 
     /**
      * Generates a test scripts for this strategy and this Flow.
      * @param flow
@@ -200,7 +189,6 @@ public class DSLTestGenerator {
  
         debug("@@@ testConductor for flow " + flow);
         assertNotNull("flow should not be null", flow);
-
         //
         // This method calls other methods directly parsing data as parameters instead of
         // via member variables.
@@ -222,7 +210,7 @@ public class DSLTestGenerator {
         String flowDefinitionResult = null;
         try {
             flowDefinitionResult = new GeneralFlowRequest(URI.create(requestUriString), flow).describeFlowRaw();
-debug("@@@ got flowDefinitionResult ");            
+            debug("@@@ got flowDefinitionResult ");            
             assertNotNull(flowDefinitionResult, CONFIG_ERROR_MSG);
             assertFalse(flowDefinitionResult.trim().equals(""), messageStart + "was an empty String");
         } catch (IllegalArgumentException iae) {
@@ -251,26 +239,24 @@ debug("@@@ got flowDefinitionResult ");
             
             // Other flows seem to have bugs. Having identified those bugs we need to ingore them so that we can move on and
             // find new bugs.
-     
-       
             // Some flows have no activities and can be called 
             if ( flowDefinition.has(JSON_ACTIVITY_KEY) ){
-debug("@ has JSON_ACTIVITY_KEY ");
+                debug("@ has JSON_ACTIVITY_KEY ");
                 // Obtain the Activity list from the JSON data,            
                 JSONArray<JSONObject> activities = flowDefinition.getJSONArray(JSON_ACTIVITY_KEY);
                 assertFalse(activities.isEmpty(), "\"Activities\" array was empty.");    
 
                 // Loop over the activities in the flow definition and determine that each has a parameters attribute.
                 for (JSONObject activity : activities){
-debug("@ Looping over activities " );            
+                    debug("@ Looping over activities " );            
                     // certain activities in flows such as AuditManagement do not have parameters. 
                     JSONArray<JSONObject> activityParameters = activity.getJSONArray(JSON_PARAMETER_KEY);
                     if (!activityParameters.isEmpty()){
-debug("@ Activity has parameters " );                                    
+                        debug("@ Activity has parameters " );                                    
                         // if an activity does have parameters, then we should check that each parameter definition
                         //  has the correct attributes.
                         for (JSONObject param : activityParameters){
-debug("@ param start " ); 
+                            debug("@ param start " ); 
                              assertTrue( param.has("name"),"name not found for parameter in activity " );
                              assertTrue(param.has("type"), "type not found for parameter in activity " );
                              assertTrue(param.has("req"), "req not found for parameter in activity " );
@@ -281,12 +267,9 @@ debug("@ param start " );
                     // Now we call the flow current flow but with each of the parameters set to a string 
                     strategy.generateTestForActivity(flow, activity,requestUriString);    
                         
-                        
-                        
-                        
                 }   
             } else {
-debug("@ No JSON_ACTIVITY_KEY ");
+                debug("@ No JSON_ACTIVITY_KEY ");
                  // flow has no activities or parameters so we can just call it directly
                 URI requestUri = URI.create(requestUriString);
                 GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flow);
@@ -322,9 +305,6 @@ debug("@ No JSON_ACTIVITY_KEY ");
         assertTrue(repeats.isEmpty(), "These parameters where repeated for flowtype " + flow + " :" + repeats.toString());
     }
 
- 
-
-
     /**
      * Validates a generic flow response
      *
@@ -357,47 +337,86 @@ debug("@ No JSON_ACTIVITY_KEY ");
         return jsonResult;
     }
 
-
-    
-    private static void debug(String msg){
-        if (DEBUG){
-            System.err.println(msg);
+    /**
+     * Do debug logging
+     * @param msg
+     */
+    private void debug(String msg){
+        if (getLog().isDebugEnabled()){
+            getLog().debug(msg);
         }
     }
-
+	/**
+     * Complain if condition not met (Hangover from when this was a unit test) 
+	 * @param obj
+	 * @param msg
+	 * @throws GenerationException
+	 */
     private void assertNotNull(Object obj, String msg) throws GenerationException{
         if (obj == null){
             throw new GenerationException(msg);
         }
-    }	
-
+    }    
+    /**
+     * Complain if condition not met (Hangover from when this was a unit test) 
+     * @param obj
+     * @throws GenerationException
+     */
     private void assertNotNull(Object obj) throws GenerationException{
         if (obj == null){
             throw new GenerationException("");
         }
     }
-
+    /**
+     * Complain if condition not met (Hangover from when this was a unit test)
+     * @param b
+     * @param msg 
+     * @throws GenerationException
+     */
     private void assertFalse(boolean b, String msg) throws GenerationException{
         if (b){
             throw new GenerationException(msg);
         }
-    }	
+    }    
 
+    /**
+     * Complain if condition not met (Hangover from when this was a unit test)
+     * @param b
+     * @param msg
+     * @throws GenerationException
+     */
     private void assertTrue(boolean b, String msg) throws GenerationException{
         if (!b){
             throw new GenerationException(msg);
         }
     }
-    
+    /**
+     * Thros Exception
+     * @param msg
+     * @throws GenerationException
+     */
     private void fail(String msg) throws GenerationException{
-    
-            throw new GenerationException(msg);
-    
+        throw new GenerationException(msg);
     }
+    
+    /**
+     * Throw exception
+     * @param msg
+     * @param t
+     * @throws GenerationException
+     */
     private void fail(String msg, Throwable t) throws GenerationException{
-    
-            throw new GenerationException(msg, t);
-    
+        throw new GenerationException(msg, t);
     }
 
+    /**
+     * Get the logger for this class.
+     */
+    public Log getLog(){
+        if ( this.log == null ) {
+            this.log = LogFactory.getLog(this.getClass());
+        }
+        return this.log;
+    }
+    
 }
