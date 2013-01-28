@@ -44,45 +44,47 @@ public abstract class AbstractTestingStrategy {
     private Log log;
     
     private static final String JSON_PARAMETER_KEY = "parameters";
-    private static final String JSON_PARAMETER_NAME_KEY = "name";    
+    private static final String JSON_PARAMETER_NAME_KEY = "name";
+    private static final String JSON_PARAMETER_TYPE_KEY = "type"; 
+    private static final String JSON_PARAMETER_REQ_KEY = "req"; 
     protected static final NameValuePair renderAsJson = new BasicNameValuePair("fsRenderResult", "json");
     /**
      * @return the name of this strategy 
      */
-     public abstract String getName();
+    public abstract String getName();
 
     /**
      * @return the name of this strategy 
      */
-     public String getFileName(){
-         Formatter formatter = new Formatter();
-         return "" + formatter.format("%04d",sequence) + "" + getName() + "_" + currentFlow + ".groovy" ;
-     }
+    public String getFileName(){
+        Formatter formatter = new Formatter();
+        return "" + formatter.format("%04d",sequence) + "" + getName() + "_" + currentFlow + ".groovy" ;
+    }
      
-     public abstract Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames);
+    public abstract Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames);
      
-     /**
-      * Initializes a new test script
-      * @param flow -the current flow name
-      * @param activity - the current activity - unused
-      */
-     public void newTest(String flow, String activity){
-         testFileContents = new StringBuffer();
-         currentFlow = flow;
-         currentActivity = activity;
-         sequence++;
-     }
+    /**
+     * Initializes a new test script
+     * @param flow -the current flow name
+     * @param activity - the current activity - unused
+     */
+    public void newTest(String flow, String activity){
+        testFileContents = new StringBuffer();
+        currentFlow = flow;
+        currentActivity = activity;
+        sequence++;
+    }
      
-     /**
-      * closes the test script file etc.
-      */
-     public void endTest(){
+    /**
+     * closes the test script file etc.
+     */
+    public void endTest(){
         
         testFileContents = null;
         currentFlow = null;
         currentActivity = null;		
         return;
-     }
+    }
 
     /**
      * Called to determine if a test should be generated for this flow. A default implementation will 
@@ -91,16 +93,16 @@ public abstract class AbstractTestingStrategy {
      * @param flowName - the name of the flow being processed
      * @param flowDefinitionJson - the flow definition if available - otherwise null
      */
-     public boolean shouldGenerateTest(String flowName, String flowDefinitionJson ){
+    public boolean shouldGenerateTest(String flowName, String flowDefinitionJson ){
         return !TestProperties.ignoredFlows.contains(flowName);
-     }
+    }
 
 
-     /**
-      * add a "request" directive to the test script.
-      */
-     public void addRequest(String flow, Collection<NameValuePair> params){
-         if (params != null){
+    /**
+     * add a "request" directive to the test script.
+     */
+    public void addRequest(String flow, Collection<NameValuePair> params){
+        if (params != null){
             StringBuffer parameters = new StringBuffer();
             String sep = "";
             for (NameValuePair nvp : params){
@@ -114,14 +116,13 @@ public abstract class AbstractTestingStrategy {
                 parameters.append(nvp.getValue());
                 parameters.append("\"");
                 sep = ",";
-            }
-            
+            }            
             writeToFileBuffer("request(\"" + flow + "\", [" + parameters.toString() + "])\n");
-         } else {
+        } else {
             writeToFileBuffer("request(\"" + flow + "\", [:])\n");
-         }
+        }
          
-     }
+    }
 
     
     /**
@@ -136,28 +137,31 @@ public abstract class AbstractTestingStrategy {
     }
 
 
-     /**
-      * Adds an expected return to the test	
-      * @param json - the expected json data
-      */
-     public final void addExpect(String json){
+    /**
+     * Adds an expected return to the test	
+     * @param json - the expected json data
+     */
+    public final void addExpect(String json){
          
-         String strValue = "";
-         try {
+        String strValue = "";
+        try {
             // Try to format a JSON string if possible.
             JSONObject jsonObj = new JSONObject(json);
             strValue = jsonObj.toString(4);
-         } catch (Exception e){
-             // otherwise just use the raw string
+        } catch (Exception e){
+            // otherwise just use the raw string
             strValue = json; 
-         }
+        }
          
-         writeToFileBuffer("expect(\"\"\"" + strValue + "\"\"\")\n");
-     }
+        writeToFileBuffer("expect(\"\"\"" + strValue + "\"\"\")\n");
+    }
      
-     
+    /**
+     * Write expected value to test file buffer
+     * @param content - the expected value
+     */ 
     protected void writeToFileBuffer(String content){
-System.err.println(">>>>>>>>>> " + content);
+
         if (testFileContents == null){
             testFileContents = new StringBuffer();
         }
@@ -167,12 +171,12 @@ System.err.println(">>>>>>>>>> " + content);
     }
     
      
-     /**
-      * @return the test script.
-      */
-     public String getTestFileContents(){
-         return testFileContents.toString();
-     }
+    /**
+     * @return the test script.
+     */
+    public String getTestFileContents(){
+        return testFileContents.toString();
+    }
      
     /**
      * Generates a test for an activity
@@ -192,10 +196,9 @@ System.err.println(">>>>>>>>>> " + content);
         addRequest(flow,parametersPopulatedWithBogusData);
         
         addVerification(callFlowForTypicalData(requestUriString, flow, parametersPopulatedWithBogusData ));
-        
-        
-        
+   
     }
+
 
     /**
      * calls the flow to obtain a typical resonse.
@@ -205,14 +208,33 @@ System.err.println(">>>>>>>>>> " + content);
     public String callFlowForTypicalData(String requestUriString, String flow, Collection<NameValuePair> parametersPopulatedWithBogusData ){
         URI requestUri = URI.create(requestUriString);
         GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flow, parametersPopulatedWithBogusData);
-        
-     
+ 
         return request.get();
         
     }
     
     /**
-     * @Returns a collection of parameter names in this activity.
+     * @param activityDefinition - JSON object
+     * @return a collection of RequestParameter in this activity.
+     */
+    protected Collection<RequestParameter> getRequestParameters(JSONObject activityDefinition) throws GenerationException{
+        List<RequestParameter> requestParameters = new ArrayList<RequestParameter>();
+        assertTrue(activityDefinition.has(JSON_PARAMETER_KEY), JSON_PARAMETER_KEY + " not found in JSONObject: " + activityDefinition.toString());
+        JSONArray<JSONObject> parameters = activityDefinition.getJSONArray(JSON_PARAMETER_KEY);
+        
+        for (JSONObject jsonObject : parameters) {
+            assertTrue(jsonObject.has(JSON_PARAMETER_NAME_KEY), JSON_PARAMETER_NAME_KEY + " not found in JSONObject: " + jsonObject.toString());
+            String name =jsonObject.getString(JSON_PARAMETER_NAME_KEY);
+            String type = jsonObject.getString(JSON_PARAMETER_TYPE_KEY);
+            String req = jsonObject.getString(JSON_PARAMETER_REQ_KEY);
+            RequestParameter requestParameter = new RequestParameter(name,type,req);
+            requestParameters.add(requestParameter);
+        }
+        return requestParameters;
+    }
+    
+    /**
+     * @return a collection of parameter names in this activity.
      */
     protected Collection<String> getAllParameterNames(JSONObject activityDefinition) throws GenerationException{
         assertTrue(activityDefinition.has(JSON_PARAMETER_KEY), JSON_PARAMETER_KEY + " not found in JSONObject: " + activityDefinition.toString());
@@ -247,7 +269,7 @@ System.err.println(">>>>>>>>>> " + content);
         if (obj == null){
             throw new GenerationException(msg);
         }
-    }	
+    }
 
     protected void assertNotNull(Object obj) throws GenerationException{
         if (obj == null){
@@ -259,7 +281,7 @@ System.err.println(">>>>>>>>>> " + content);
         if (b){
             throw new GenerationException(msg);
         }
-    }	
+    }
 
     protected void assertTrue(boolean b, String msg) throws GenerationException{
         if (!b){
@@ -270,10 +292,9 @@ System.err.println(">>>>>>>>>> " + content);
     protected void fail(String msg) throws GenerationException{
             throw new GenerationException(msg);
     }
+    
     protected void fail(String msg, Throwable t) throws GenerationException{
         throw new GenerationException(msg, t);
     }
 
-
-     
 }

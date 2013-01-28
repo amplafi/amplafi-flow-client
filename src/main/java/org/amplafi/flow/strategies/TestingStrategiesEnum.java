@@ -7,7 +7,7 @@ package org.amplafi.flow.strategies;
  */
 public enum TestingStrategiesEnum  {
 
-    BogusString(new BogusStringDataStrategy()), CorruptParams(new CorruptParamsNameTestingStrategy()), NullParam(new NullParamStrategy()), ParamCombinations(new CombinationsStrategy());
+    BogusString(new BogusStringDataStrategy()), CorruptParams(new CorruptParamsNameTestingStrategy()), NullParam(new NullParamStrategy()), ParamCombinations(new CombinationsStrategy()), RealisticParams(new RealisticParamsStrategy());
     
     private AbstractTestingStrategy strategy;
     
@@ -15,7 +15,7 @@ public enum TestingStrategiesEnum  {
      * Constructor for this enum value.
      * @para 
      */
-     TestingStrategiesEnum(AbstractTestingStrategy strategy){
+    TestingStrategiesEnum(AbstractTestingStrategy strategy){
         this.strategy = strategy;
     }
     

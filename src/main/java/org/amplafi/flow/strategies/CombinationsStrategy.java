@@ -37,10 +37,10 @@ public class CombinationsStrategy extends AbstractTestingStrategy {
     /**
      * @return the name of this strategy 
      */
-     @Override
-     public String getName(){
-         return NAME;
-     }
+    @Override
+    public String getName(){
+        return NAME;
+    }
 
     /**
      * Generates a test for an activity
@@ -50,7 +50,6 @@ public class CombinationsStrategy extends AbstractTestingStrategy {
      */
     @Override
     public void generateTestForActivity(String flow, JSONObject activityDefinition, String requestUriString)throws GenerationException {
-System.err.println(" ####################################################" );
 
         assertNotNull(activityDefinition,
             "flowDefinition was null, The test should depend on testJsonStringIsReturnedWhenRequestingTheFlowDefinition() does it?");
@@ -77,7 +76,7 @@ System.err.println(" ####################################################" );
                 }
                 order *= 2;
             }
-System.err.println(" thisTestParams " + thisTestParams );
+
             // Generate request for this combination.
             Collection<NameValuePair> parametersPopulatedWithBogusData = generateParameters(flow,thisTestParams);
             //add the json response parameter
@@ -90,21 +89,18 @@ System.err.println(" thisTestParams " + thisTestParams );
             addVerification("");
             
         }
-    
-        
-                
-        
-    
-        
-        
         
     }
 
-
-
+    /**
+     * Generates test parameters
+     * @param flow - flow name
+     * @param parameterNames - parameter name for request
+     * @return parameters for request
+     */
     @Override
     public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
-         String bogusData = "bogusData";
+        String bogusData = "bogusData";
         List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
         for (String parameterName : parameterNames) {
             bogusDataList.add(new BasicNameValuePair(parameterName,bogusData));
