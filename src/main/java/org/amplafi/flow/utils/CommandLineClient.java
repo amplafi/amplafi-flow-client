@@ -90,7 +90,6 @@ public class CommandLineClient implements Runnable {
     public void run() {
         GeneralFlowRequest flowRequest = new GeneralFlowRequest(URI.create(buildBaseUriString()), this.flowRequestDescription.getFlowName(), this.flowRequestDescription.getParameters());;
         JsonConstruct result = null;
-
         if (flowRequestDescription.isDescribe() && flowRequestDescription.getFlowName() == null) {
             result = flowRequest.listFlows();
         } else if (flowRequestDescription.isDescribe() && flowRequestDescription.getFlowName() != null) {
