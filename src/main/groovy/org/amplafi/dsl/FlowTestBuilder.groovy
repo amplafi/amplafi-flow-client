@@ -211,6 +211,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
         return lastRequestResponse;
     }
 
+    /**
+     * @param message
+     * Print a message
+     */
     def printlnMsg(String msg){ 
         System.out.println(msg);
     }
@@ -368,7 +372,15 @@ public class DescribeScriptDSL {
      * Call a script
      */
     def callScript(String scriptPath){
-         throw new NoDescriptionException();
+        throw new NoDescriptionException();
+    }
+    
+    /**
+     * @param message
+     * Print a message
+     */
+    def printlnMsg(String msg){ 
+        throw new NoDescriptionException();
     }
 
     private static void debug(String msg){
