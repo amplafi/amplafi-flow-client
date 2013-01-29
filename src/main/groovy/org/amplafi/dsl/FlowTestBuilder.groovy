@@ -211,6 +211,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
         return lastRequestResponse;
     }
 
+    def printlnMsg(String msg){ 
+        System.out.println(msg);
+    }
 
     /**
      * Throws a test error if the actual data returned from the server is not the same as
