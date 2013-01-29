@@ -185,9 +185,9 @@ public class ScriptRunner {
         // to the top of the groovy program.
         scriptSb.append(getImportLines(sourceCode));
         String valibleScript = getValidClosureCode(sourceCode);
-		
-		// All the imports are prepended to the first line of the user script so error messages
-		// have the correct line number in them
+        
+        // All the imports are prepended to the first line of the user script so error messages
+        // have the correct line number in them
         def scriptStr = """import org.amplafi.dsl.FlowTestBuilder;import org.amplafi.json.*;def source = { ${valibleScript} }; return source """;
         scriptSb.append(scriptStr);
         def script = scriptSb.toString();
