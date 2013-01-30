@@ -37,8 +37,8 @@ public class AdminTool{
      * Main entry point for tool
      */
     public static void main(String[] args){
-		AdminTool adminTool = new AdminTool();
-		
+        AdminTool adminTool = new AdminTool();
+        
         for (String arg : args){
             adminTool.getLog().debug("arg: " + arg );
         }
@@ -61,8 +61,8 @@ public class AdminTool{
             return;
         }
         
-        // Print help if -h option was specified. 
-        if (cmdOptions.hasOption(HELP) || args.length == 0) {
+        // Print help if there has no args. 
+        if (args.length == 0) {
             cmdOptions.printHelp();            
             return;
         }
@@ -93,7 +93,27 @@ public class AdminTool{
             for (ScriptDescription sd : runner.getScriptsWithErrors() ){  
                 emitOutput("  " + getRelativePath(sd.getPath()) + "       - " + sd.getErrorMesg());
             }                        
-        } else if(cmdOptions.hasOption(FILE_PATH)){
+        } else if(cmdOptions.hasOption(HELP)){
+            // TODO print usage if has option help
+            if(args.length == 1){
+                cmdOptions.printHelp();
+            }else{
+                for(int i=1;i<args.length;i++){
+                    String scriptName = args[i];
+                    for (ScriptDescription sd : runner.getGoodScripts() ){
+                        if(sd.getName().equals(scriptName)){
+                            if(sd.getUsage()!=null && !sd.getUsage().equals("")){
+                                emitOutput("Script Usage: " + sd.getUsage());
+                            }else{
+                                emitOutput("Script "+scriptName+" does not have usage information");
+                            }
+                        }
+                    }
+                }
+                
+            }
+                
+        }else if(cmdOptions.hasOption(FILE_PATH)){
             // run an ad-hoc script from a file
             String filePath = cmdOptions.getOptionValue(FILE_PATH);            
             runScript(filePath,scriptLookup,cmdOptions);      
