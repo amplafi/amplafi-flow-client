@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Properties;
 import java.io.*;
+
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,12 +25,14 @@ import java.util.Map;
 public class AdminTool{
 
     /** Standard location for admin scripts */
-    public static final String COMMAND_SCRIPT_PATH = "src/main/resources/commandScripts";
-    public static final String CONFIG_FILE_NAME = "fareaches.fadmin.properties";
+	public static final String DEFAULT_COMMAND_SCRIPT_PATH = "src/main/resources/commandScripts";
+    public static final String DEFAULT_CONFIG_FILE_NAME = "fareaches.fadmin.properties";
     public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
     public static final String DEFAULT_PORT = "80";
     public static final String DEFAULT_API_VERSION = "apiv1";
     private Properties configProperties;
+    private String comandScriptPath;
+    private String configFileName;
 
     private Log log;
     
@@ -72,7 +75,7 @@ public class AdminTool{
         // Obtain a list of script descriptions from the script runner
         // this will also check for basic script compilation errors or lack of description lines in script.
         ScriptRunner runner  = new ScriptRunner("");
-        Map<String,ScriptDescription>  scriptLookup = runner.processScriptsInFolder(COMMAND_SCRIPT_PATH); 
+        Map<String,ScriptDescription>  scriptLookup = runner.processScriptsInFolder(getComandScriptPath()); 
 
         if (cmdOptions.hasOption(LIST) || cmdOptions.hasOption(LISTDETAILED)){
             // If user has asked for a list of commands then list the good scripts with their 
@@ -146,8 +149,8 @@ public class AdminTool{
      * @param cmdOptions
      */
     private void runScript(String filePath,Map<String,ScriptDescription> scriptLookup,AdminToolCommandLineOptions cmdOptions){
-        List<String> remainder =  cmdOptions.getRemainingOptions();
 
+        List<String> remainder =  cmdOptions.getRemainingOptions();
         try {
             // Get script options if needed
             String host = getOption(cmdOptions,HOST,DEFAULT_HOST);
@@ -178,7 +181,7 @@ public class AdminTool{
             
             // run the script
             ScriptRunner runner2  = new ScriptRunner(host, port, apiVersion, key, parammap, verbose);
-            runner2.processScriptsInFolder(COMMAND_SCRIPT_PATH);
+            runner2.processScriptsInFolder(getComandScriptPath());
 
             if (filePath != null){
                 
@@ -239,9 +242,10 @@ public class AdminTool{
             String prefValue = props.getProperty(key, "");       
             if (cmdOptions.hasOption(NOCACHE) || prefValue.equals("")){
                 // prompt the user for the option    
-                System.out.print("Please, Enter : " + key + " ( Enter defaults to: "+ defaultVal +") " );  
-                BufferedReader consoleIn =  new BufferedReader(new InputStreamReader(System.in));  
-                value = consoleIn.readLine();
+//                System.out.print("Please, Enter : " + key + " ( Enter defaults to: "+ defaultVal +") " );  
+//                BufferedReader consoleIn =  new BufferedReader(new InputStreamReader(System.in));  
+            	value = getUserInput(key);
+                //value = consoleIn.readLine();
                 if ("".equals(value)){
                     value = defaultVal;
                 }
@@ -257,14 +261,14 @@ public class AdminTool{
      *  Gets the configuration properties, loading it if hasn't been loaded
      *  @return configuration properties. 
      */
-    private Properties getProperties(){
+    public Properties getProperties(){
         if (configProperties == null){           
             configProperties = new Properties();
             try {
                 //load a properties file
-                configProperties.load(new FileInputStream(CONFIG_FILE_NAME)); 
+                configProperties.load(new FileInputStream(getConfigFileName())); 
             } catch (IOException ex) {
-                getLog().error("Error loading file " + CONFIG_FILE_NAME );
+                getLog().error("Error loading file " + getConfigFileName() );
             }
         }
         return configProperties;        
@@ -273,13 +277,13 @@ public class AdminTool{
     /**
      *  Saves the configuration properties, loading it if hasn't been loaded
      */
-    private void saveProperties(){
+    public void saveProperties(){
         if (configProperties != null){               
             try {
                 //load a properties file
-                configProperties.store(new FileOutputStream(CONFIG_FILE_NAME),"Farreach.es Admin tool properties"); 
+                configProperties.store(new FileOutputStream(getConfigFileName()),"Farreach.es Admin tool properties"); 
             } catch (IOException ex) {
-                getLog().error("Error saving file " + CONFIG_FILE_NAME );
+                getLog().error("Error saving file " + getConfigFileName() );
             }            
         }        
     }
@@ -287,7 +291,9 @@ public class AdminTool{
     /**
      * @param msg - message to emit
      */
-    private void emitOutput(String msg){
+    
+    public void emitOutput(String msg){
+    	System.out.println("this is adminTool");
         getLog().info(msg);
     }
 
@@ -301,4 +307,61 @@ public class AdminTool{
         return this.log;
     }
 
+    
+    /**
+     * Gets the script path for the tool.
+     * @return
+     */
+    String getComandScriptPath(){
+    	if ( comandScriptPath != null){
+    		return comandScriptPath;
+    		
+    	} else {
+    		comandScriptPath = DEFAULT_COMMAND_SCRIPT_PATH;	
+    	}
+    	return comandScriptPath;
+    }
+
+
+	/**
+	 * @param comandScriptPath the comandScriptPath to set
+	 */
+	public void setComandScriptPath(String comandScriptPath) {
+		this.comandScriptPath = comandScriptPath;
+	}
+    
+	
+	 /**
+     * Gets the script path for the tool.
+     * @return
+     */
+    public String getConfigFileName(){
+    	if ( configFileName != null){
+    		return configFileName;
+    		
+    	} else {
+    		configFileName = DEFAULT_CONFIG_FILE_NAME;	
+    	}
+    	return configFileName;
+    }
+
+
+	/**
+	 * @param comandScriptPath the comandScriptPath to set
+	 */
+	public void setConfigFileName(String configFileName) {
+		this.configFileName = configFileName;
+	}
+    
+    public String getUserInput(String key){
+    	 BufferedReader consoleIn =  new BufferedReader(new InputStreamReader(System.in));  
+         String value = "";
+		try {
+			value = consoleIn.readLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+         return value;
+    }
 }
