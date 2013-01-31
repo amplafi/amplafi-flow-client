@@ -21,7 +21,7 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
     public static final String NOCACHE = "x";
     public static final String FILE_PATH = "f";
     public static final String VERBOSE = "verbose";
-    
+    public static final String HELP = "help";
 
     /**
      * Constructor see AdminTool.md document for parameter string formats.
@@ -45,6 +45,7 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
         options.addOption(NOCACHE, false, "Don't use cached server credentials");
         options.addOption(FILE_PATH, true, "Ad-hoc script File Path");
         options.addOption(VERBOSE, false, "print request url");
+		options.addOption(HELP, false, "print script usage");
         
                 
         /*options.addOption(OptionBuilder.withArgName("property=value").

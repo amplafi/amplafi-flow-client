@@ -84,11 +84,13 @@ public class FlowTestBuilder {
 
     public buildExe(Closure c){
     
+
         if (requestUriString != null){
             c.delegate = new FlowTestDSL(requestUriString, runner, verbose);
         } else {
             c.delegate = new FlowTestDSL(host, port, apiVersion, key, runner, verbose);
         }
+        c.setResolveStrategy(Closure.DELEGATE_FIRST)        
         return c;
     }
 
@@ -141,6 +143,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
     public void description (String name, String description){
+    }
+    
+    public void description (String name, String description, String usage){
     }
 
 
@@ -215,7 +220,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param message
      * Print a message
      */
-    def printlnMsg(String msg){ 
+    def log(msg){ 
         System.out.println(msg);
     }
 
@@ -227,7 +232,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def expect(String expectedJSONData){
         JSONObject expected = new JSONObject(expectedJSONData);
         JSONObject actual = new JSONObject(lastRequestResponse);
-        assertEquals(expected,actual );
+        assertEquals(expected,actual);
 
     }
 
@@ -309,13 +314,14 @@ public class FlowTestDSL extends DescribeScriptDSL {
  */
 public class DescribeScriptDSL {
 
-    def String name = null;
-    def String description = null;
+    def String name;
+    def String usage;
+    def String description;
     private static final boolean DEBUG = false;
     /** This stores the base uri including the host,port,apikey */
-    private String requestUriString = null;
+    private String requestUriString;
     /** This stores the last request to the server */
-    private String lastRequestString = null;
+    private String lastRequestString;
 
     /**
      * Contains the last response from the server.
@@ -331,8 +337,16 @@ public class DescribeScriptDSL {
         this.name = name;
         this.description = description;
         // This pevents the other commands in the script fom being executed.
-        throw new EarlyExitException(new ScriptDescription(name:name , description:description ));
+        throw new EarlyExitException(new ScriptDescription(name:name , description:description, usage:"" ));
 
+    }
+    
+    public void description (String name, String description, String usage){
+        this.usage = usage;
+        this.name = name;
+        this.description = description;
+        // This pevents the other commands in the script fom being executed.
+        throw new EarlyExitException(new ScriptDescription(name:name , description:description, usage:usage ));
     }
 
     /**
@@ -379,8 +393,8 @@ public class DescribeScriptDSL {
      * @param message
      * Print a message
      */
-    def printlnMsg(String msg){ 
-        throw new NoDescriptionException();
+    def log(msg){ 
+         System.out.println(" >>>" +msg);
     }
 
     private static void debug(String msg){

@@ -27,42 +27,45 @@
 //2.  display external services having problems (so for all customers and all MEPs ) display errors by service 
 //    (facebook, twitter, tumblr) - answers "Is FarReach.es have a twitter integration problem?"
 
-import java.util.HashMap 
- 
-description "CustomerProblemReport", "Params: userEmail=<userEmail> This tool is used to report and identify the customer problem" ;
+import java.util.HashMap
 
+String newLine = System.getProperty("line.separator");
+String usage = "CustomerProblemReport Script Help" + newLine + "This CustomerProblemReport script use to help the system administrator access" + newLine + "the various farreaches service configuration and user log information" + newLine + "Params" + newLine + "  verbose=<true/false>  To print detail json log" + newLine + "  userEmail=<userEmail>  The user that you want to inspect. If the userEmail is not specified. The overall report will be run" + newLine + "" + newLine + "  apiHttpStatuses=<apiHttpStatuses>  The http status code list, empty to select all" + newLine +"  apiFlowType=<flowType>  The flow type."+ newLine + "  apiMaxReturn=<apiMaxReturn>  The maximum number of the log entries that you want to return"+ newLine + ""+ newLine + "  externalApiNamespace=<twitter.com, facebook.com...>  The external service namespace"+ newLine + "  externalApiMethod=<ADD_MESSAGE...>  The external method call name"+ newLine + "  externalApiMaxReturn=<number>  The maximum number of the log entries that you want to return";
+
+ 
+description "CustomerProblemReport", "This tool is used to report and identify the customer problem", "${usage}";
 
 def printTaskInfo = { 
     info ->
-    printlnMsg "\n"
-    printlnMsg "*********************************************************************************"
-    printlnMsg info ;
-    printlnMsg "*********************************************************************************"
+    println "\n"
+    println "*********************************************************************************";
+    println info ;
+    println "*********************************************************************************"
 }
 
 def printHelp = { 
     userEmail, apiHttpStatuses, apiMaxReturn ->
     printTaskInfo "CustomerProblemReport Script Help"
-    printlnMsg "This CustomerProblemReport script use to help the system administrator access"
-    printlnMsg "the various farreaches service configuration and user log information"
-    printlnMsg "Params: "
-    printlnMsg "  verbose=<true/false>  To print detail json log"
-    printlnMsg "  userEmail=<" + userEmail+ ">  The user that you want to inspect. If the userEmail is not specified. The overall report will be run"
-    printlnMsg ""
-    printlnMsg "  apiHttpStatuses=<" + apiHttpStatuses + ">  The http status code list, empty to select all."
-    printlnMsg "  apiFlowType=<flowType>  The flow type."
-    printlnMsg "  apiMaxReturn=<" + apiMaxReturn + ">  The maximum number of the log entries that you want to return"
-    printlnMsg ""
-    printlnMsg "  externalApiNamespace=<twitter.com, facebook.com...>  The external service namespace"
-    printlnMsg "  externalApiMethod=<ADD_MESSAGE...>  The external method call name"
-    printlnMsg "  externalApiMaxReturn=<number>  The maximum number of the log entries that you want to return"
+    println "This CustomerProblemReport script use to help the system administrator access"
+    println "the various farreaches service configuration and user log information"
+    println "Params: "
+    println "  verbose=<true/false>  To print detail json log"
+    println "  userEmail=<" + userEmail+ ">  The user that you want to inspect. If the userEmail is not specified. The overall report will be run"
+    println ""
+    println "  apiHttpStatuses=<" + apiHttpStatuses + ">  The http status code list, empty to select all."
+    println "  apiFlowType=<flowType>  The flow type."
+    println "  apiMaxReturn=<" + apiMaxReturn + ">  The maximum number of the log entries that you want to return"
+    println ""
+    println "  externalApiNamespace=<twitter.com, facebook.com...>  The external service namespace"
+    println "  externalApiMethod=<ADD_MESSAGE...>  The external method call name"
+    println "  externalApiMaxReturn=<number>  The maximum number of the log entries that you want to return"
 
 }
 
 def printTabular = { 
     entries, tabularTmpl, headers, keyPaths ->
-    printlnMsg sprintf(tabularTmpl, headers) ;
-    printlnMsg "-----------------------------------------------------------------------------------------"
+    println sprintf(tabularTmpl, headers) ;
+    println "-----------------------------------------------------------------------------------------"
     for(int i = 0; i < entries.length(); i++) {
         def entry = entries.get(i) ;
         def value = new String[keyPaths.size() + 1] ;
@@ -70,7 +73,7 @@ def printTabular = {
         for(int j = 0; j < value.length - 1; j++) {
             value[j + 1] = entry.getStringByPath(keyPaths[j]) ;
         }
-        printlnMsg sprintf(tabularTmpl, value) ;
+        println sprintf(tabularTmpl, value) ;
     }
 }
 
@@ -85,10 +88,10 @@ def createTmpKey = {
     if(data instanceof JSONArray && data.length() == 1) {
       userTmpApiKey = data.getString(0) ;
     } else {
-        printlnMsg "An error when creating a temporary api key for the user " + userEmail ;
+        println "An error when creating a temporary api key for the user " + userEmail ;
         prettyPrintResponse();
     }
-    printlnMsg "Temporary Key: " + userTmpApiKey ;
+    println "Temporary Key: " + userTmpApiKey ;
     return userTmpApiKey ;
 }
 
@@ -154,7 +157,7 @@ def printUserRoles = {
     
     printTaskInfo "User Role And Configuration Information"
     request("UserRoleInfoFlow", ["fsRenderResult":"json", "email": userEmail]);
-    printlnMsg "User " + userEmail + " has the following roles:"
+    println "User " + userEmail + " has the following roles:"
     prettyPrintResponse();
     def msg = "User Roles:\n" ;
     def result = getResponseData() ;
@@ -227,10 +230,10 @@ def printApiByUserEmailStatistic = {
     
     String tabularTmpl = '%1$-40s%2$10s%3$10s%4$10s%5$10s%6$10s%7$10s' ;
     def headers =  ['User', 'Http 1xx', 'Http 200', 'Http 2xx', 'Http 3xx', 'Http 4xx', 'Http 5xx'] ;
-    printlnMsg sprintf(tabularTmpl, headers) ;
-    printlnMsg '-----------------------------------------------------------------------------------------------------'
+    println sprintf(tabularTmpl, headers) ;
+    println '-----------------------------------------------------------------------------------------------------'
     for(entry in byUserEmailStatistic.values()) {
-        printlnMsg sprintf(tabularTmpl, entry['User'], entry['Http 1xx'], entry['Http 200'], entry['Http 2xx'], entry['Http 3xx'], entry['Http 4xx'], entry['Http 5xx']);
+        println sprintf(tabularTmpl, entry['User'], entry['Http 1xx'], entry['Http 200'], entry['Http 2xx'], entry['Http 3xx'], entry['Http 4xx'], entry['Http 5xx']);
     }
 }
 
@@ -265,10 +268,10 @@ def printApiByFlowTypeStatistic = {
     
     String tabularTmpl = '%1$-40s%2$10s%3$10s%4$10s%5$10s%6$10s%7$10s' ;
     def headers =  ['Flow', 'Http 1xx', 'Http 200', 'Http 2xx', 'Http 3xx', 'Http 4xx', 'Http 5xx'] ;
-    printlnMsg sprintf(tabularTmpl, headers) ;
-    printlnMsg '-----------------------------------------------------------------------------------------------------'
+    println sprintf(tabularTmpl, headers) ;
+    println '-----------------------------------------------------------------------------------------------------'
     for(entry in byFlowTypeStatistic.values()) {
-        printlnMsg sprintf(tabularTmpl, entry['Flow Type'], entry['Http 1xx'], entry['Http 200'], entry['Http 2xx'], entry['Http 3xx'], entry['Http 4xx'], entry['Http 5xx']);
+        println sprintf(tabularTmpl, entry['Flow Type'], entry['Http 1xx'], entry['Http 200'], entry['Http 2xx'], entry['Http 3xx'], entry['Http 4xx'], entry['Http 5xx']);
     }
 }
 
@@ -292,13 +295,13 @@ def printApiRequestAuditEntry = {
             for(int i = 0; i < entries.length(); i++) {
                 def entry = entries.get(i) ;
                 def httpStatusCode = entry.getStringByPath('response.code') ;
-                printlnMsg "---------------------------------------------------------------------------------" ;
-                printlnMsg i + 1 + '. ' + entry.getStringByPath('request.parameters.requestPathArray') ;
-                printlnMsg '  Http Status Code: ' + httpStatusCode ;
-                printlnMsg '  Message: ' + entry.getStringByPath('message') ;
-                printlnMsg "..............................................................................." ;
-                printlnMsg entry.toString(2) ;
-                printlnMsg "----------------------------------------------------------------------------------\n\n" ;
+                println "---------------------------------------------------------------------------------" ;
+                println i + 1 + '. ' + entry.getStringByPath('request.parameters.requestPathArray') ;
+                println '  Http Status Code: ' + httpStatusCode ;
+                println '  Message: ' + entry.getStringByPath('message') ;
+                println "..............................................................................." ;
+                println entry.toString(2) ;
+                println "----------------------------------------------------------------------------------\n\n" ;
             }
         }
     } else {
@@ -324,7 +327,7 @@ def printOverallReportApiRequestAuditEntry = {
     if(getResponseData() instanceof JSONArray) {
         def entries = getResponseData();
         printApiByUserEmailStatistic(entries) ;
-        printlnMsg '\n\n'
+        println '\n\n'
         printApiByFlowTypeStatistic(entries) ;
     } else {
         prettyPrintResponse();
@@ -336,11 +339,11 @@ def printExternalApiDetailMethodCalls = {
     def dateFormater = new java.text.SimpleDateFormat('DD/MM/yy@hh:mm:ss') ;
     String tabularTmpl = '%1$17s %2$-15s %3$20s %4$5s %5$10s %6$-50s' ;
     def headers =  ['Date', 'Namespace', 'Method', 'EES', 'Http Status', 'Message'] ;
-    printlnMsg '----------------------------------------------------------------------------------------------'
-    printlnMsg 'External Api Detail Calls'
-    printlnMsg '----------------------------------------------------------------------------------------------'
-    printlnMsg sprintf(tabularTmpl, headers) ;
-    printlnMsg '----------------------------------------------------------------------------------------------'
+    println '----------------------------------------------------------------------------------------------'
+    println 'External Api Detail Calls'
+    println '----------------------------------------------------------------------------------------------'
+    println sprintf(tabularTmpl, headers) ;
+    println '----------------------------------------------------------------------------------------------'
     for(int i = 0; i < entries.length(); i++) {
         def entry = entries.get(i) ;
         def timeInMillis = Long.parseLong(entry.getStringByPath('createTime.timeInMillis')) ;
@@ -353,7 +356,7 @@ def printExternalApiDetailMethodCalls = {
         if(message != null) {
             message = message.replace("\n", " ") ;
         }
-        printlnMsg sprintf(tabularTmpl, date, namespace, method, externalEntityStatus, httpStatusCode, message) ;
+        println sprintf(tabularTmpl, date, namespace, method, externalEntityStatus, httpStatusCode, message) ;
     }
 }
 
@@ -395,15 +398,15 @@ def printExternalStatisticMethodCalls = {
     for(namespace in namespaceHolder.entrySet()) {
         def name = namespace.getKey() ;
         def entry = namespace.getValue() ;
-        printlnMsg '-----------------------------------------------------------------------------------------------------' ;
-        printlnMsg "Statistic for " + name ;
-        printlnMsg '-----------------------------------------------------------------------------------------------------' ;
-        printlnMsg sprintf(tabularTmpl, headers) ;
-        printlnMsg '-----------------------------------------------------------------------------------------------------' ;
+        println '-----------------------------------------------------------------------------------------------------' ;
+        println "Statistic for " + name ;
+        println '-----------------------------------------------------------------------------------------------------' ;
+        println sprintf(tabularTmpl, headers) ;
+        println '-----------------------------------------------------------------------------------------------------' ;
         for(method in entry.values()) {
-          printlnMsg sprintf(tabularTmpl, method['method'], method['Http 1xx'], method['Http 200'], method['Http 2xx'], method['Http 3xx'], method['Http 4xx'], method['Http 5xx']);
+          println sprintf(tabularTmpl, method['method'], method['Http 1xx'], method['Http 200'], method['Http 2xx'], method['Http 3xx'], method['Http 4xx'], method['Http 5xx']);
         }
-        printlnMsg "\n\n" ;
+        println "\n\n" ;
     }
 }
 
@@ -423,17 +426,17 @@ def printExternalApiMethodCalls = {
     if(getResponseData() instanceof JSONArray) {
         def entries = getResponseData();
         printExternalStatisticMethodCalls(entries) ;
-        printlnMsg "\n\n" ;
+        println "\n\n" ;
         printExternalApiDetailMethodCalls(entries) ;
         if(verbose) {
             for(int i = 0; i < entries.length(); i++) {
                 def entry = entries.get(i) ;
-                printlnMsg entry.toString(2) ;
-                printlnMsg "----------------------------------------------------------------------------------\n\n" ;
+                println entry.toString(2) ;
+                println "----------------------------------------------------------------------------------\n\n" ;
             }
         }
     } else {
-        printlnMsg externalApiMethodCallAuditEntries.toString(2);
+        println externalApiMethodCallAuditEntries.toString(2);
     }
 }
 
@@ -529,7 +532,6 @@ if (params && params["verbose"]) {
     verbose = "true".equals(params["verbose"]) ;
 }
 
-printHelp userEmail, apiHttpStatuses, apiMaxReturn;
 
 if(userEmail != null) {
     printTaskInfo "Running the customer problem report for the customer " + userEmail

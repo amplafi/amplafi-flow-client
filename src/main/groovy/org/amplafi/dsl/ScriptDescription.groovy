@@ -12,4 +12,5 @@ public class ScriptDescription {
     def String path;
     def boolean hasErrors;
     def String errorMesg;
+    def String usage;
 }
