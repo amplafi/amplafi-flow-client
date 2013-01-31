@@ -5,16 +5,32 @@
  * 
  * TODO:
  * 1. “Farreach.es is broken.” - current state of customer’s account ?
+ *    + Show the status of the categories and Message End Point List Flow. If not MEP , should report a problem.
+ *    + if any external ADD_MESSAGE exception should be considered as broken.
+ *    + 
  * 2. When user create a post and he does not leave the post screen. The event bus
  *    request continuously to the wireservice and produce a lot of EnvelopeStatuses log(TO_YURIY)
  * 3. Need to log the exception and exception type in ApiRequestAuditEntry?
  * 4. Should we move the statistic report to flow provider. A big max return parameter can cause the out of memory exception?
+ * 5. GetWordpressPluginInfo: currently redirect to http://dl.dropbox.com/s/ps9nkwanrkut1hh/farreaches-wp-plugin-info.json
  */
 
+//At this point it looks like you have the basics of the data gathering.
+//    Are those 400's normal - because it is part of the authorization process?
+//    Are the customers experiencing any errors?
+//    Did all the posts get successfully to their destination MEPs?
+//    What are error conditions vs normal behavior?
+//
+//How about the tool has these 2 choices:
+//1.  display customer posts that failed to get sent to the MEPs they should have (enter customer uri) - 
+//    answers "Is FortunateFamilies.com having any problems with posting?"
+//2.  display external services having problems (so for all customers and all MEPs ) display errors by service 
+//    (facebook, twitter, tumblr) - answers "Is FarReach.es have a twitter integration problem?"
 
 import java.util.HashMap 
  
 description "CustomerProblemReport", "Params: userEmail=<userEmail> This tool is used to report and identify the customer problem" ;
+
 
 def printTaskInfo = { 
     info ->
@@ -83,15 +99,24 @@ def printAvailableExternalServices = {
     
     printTaskInfo "Available External Services(Social Services)"
     request("EligibleExternalServiceInstancesFlow", ["fsRenderResult":"json"]);
+    def msg = "Available External Services: \n"
     if(getResponseData() instanceof JSONArray) {
         def entries = getResponseData();
         String tabularTmpl = '%1$3s %2$20s' ;
         def headers =  ['#', 'Ext Service'] ;
         def keyPaths = [     'name'] ;
         printTabular(entries, tabularTmpl, headers, keyPaths)
+        if(entries.length() == 0) {
+            msg = msg + 
+                  "    FAIL(The post won't be forwarded to any external service since no external service is available)"
+        } else {
+            msg = msg + 
+                  "    SUCCESS(" + entries.length() + " external services are found)" ;
+        }
     } else {
         prettyPrintResponse();
     }
+    return msg ;
 }
 
 def printAvailableCategories = { 
@@ -100,16 +125,26 @@ def printAvailableCategories = {
     setKey(apiKey);
     printTaskInfo "Avaliable Categories"
     request("AvailableCategoriesFlow", ["fsRenderResult":"json"]);
-    
+    def msg = "Available Categories:\n" ;
     if(getResponseData() instanceof JSONArray) {
         def entries = getResponseData();
         String tabularTmpl = '%1$3s%2$20s%3$20s' ;
         def headers =  ['#', 'Topic Id', 'Name'] ;
         def keyPaths = ['entityId', 'name'] ;
         printTabular(entries, tabularTmpl, headers, keyPaths)
+        if(entries.length() == 0) {
+            msg = msg + 
+                   "    FAIL(The post won't be forwarded to any external service since no categories are configured)"
+        } else {
+            msg = msg + 
+                   "    SUCCESS(" + entries.length() + " categories are found)" ;
+        }
     } else {
         prettyPrintResponse();
+        msg = msg +
+              "    FAIL(Unknow Error. Cannot retrieve the list of categories)"
     }
+    return msg ;
 }
 
 def printUserRoles = { 
@@ -121,6 +156,16 @@ def printUserRoles = {
     request("UserRoleInfoFlow", ["fsRenderResult":"json", "email": userEmail]);
     printlnMsg "User " + userEmail + " has the following roles:"
     prettyPrintResponse();
+    def msg = "User Roles:\n" ;
+    def result = getResponseData() ;
+    if(result instanceof JSONArray) {
+        msg = msg + 
+              "    SUCCESS(" + result.toString() + ")" ;
+    } else {
+        msg = msg + 
+              "    FAIL(" + result.toString() + ")" ;
+    }
+    
 }
 
 def printMessageEndPoints = { 
@@ -130,12 +175,22 @@ def printMessageEndPoints = {
     
     printTaskInfo "Message End Point List Flow"
     request("MessageEndPointListFlow", ["fsRenderResult":"json", "messageEndPointCompleteList": "true"]);
+    
+    def msg = "Message End Points:\n" ;
     if(getResponseData() instanceof JSONArray) {
         def entries = getResponseData();
         String tabularTmpl = '%1$3s%2$15s%3$15s%4$15s%5$15s' ;
         def headers =  ['#', 'Ext Service', 'User Name', 'Full Name', 'Topic Ids'] ;
         def keyPaths = ['externalServiceDefinition', 'extServiceUsername', 'extServiceUserFullName', 'selectedTopics'] ;
         printTabular(entries, tabularTmpl, headers, keyPaths)
+        
+        if(entries.length()) {
+            msg = msg +
+                    "    SUCCESS(user is connected to " + entries.length() + " external services)" ;
+        } else {
+            msg = msg +
+                    "    FAIL(User does not connect to any external service)" ;
+        }
     } else {
         prettyPrintResponse();
     }
@@ -382,6 +437,59 @@ def printExternalApiMethodCalls = {
     }
 }
 
+def printUserPostInfo = {
+    apiKey, userEmail, apiMaxReturn, verbose ->
+    
+            
+    setApiVersion("suv1");
+    setKey(apiKey);
+    def reqParams = ["fsRenderResult":"json", "email": userEmail, "flowType": "CreateAlert", "maxReturn": apiMaxReturn] ;
+    printTaskInfo "Post Info For " + userEmail ; 
+    request("ApiRequestAuditEntriesFlow", reqParams);
+    def msg = "User Post Info: \n" ;
+    def failCount = 0 ;
+    def entries = getResponseData() ;
+    for(entry in  entries) {
+        def flowType = entry.getStringByPath('request.parameters.requestPathArray') ;
+        def fsAltFinished = entry.getStringByPath('request.parameters.fsAltFinished') ;
+        if("SaveAndPublish".equals(fsAltFinished)) {
+            def externalContentId = entry.getStringByPath('request.parameters.externalContentId') ;
+            def messageHeadLine = entry.getStringByPath('request.parameters.messageHeadline') ;
+            def messageBody = entry.getStringByPath('request.parameters.messageBody') ;
+            
+            setApiVersion("apiv1");
+            request("EnvelopeStatusesFlow", ["fsRenderResult":"json", "externalContentId": "[" + externalContentId + "]"]);
+            def mepStatuses = getResponseData() ;
+            
+            printlnMsg "Id: " + externalContentId ;
+            printlnMsg "Title: " + messageHeadLine ;
+            printlnMsg "Body: " + messageBody ;
+            
+            String tabularTmpl = '%1$-25s%2$10s%3$30s' ;
+            def headers =  ['External Service', 'Status', 'Complete Time'] ;
+            printlnMsg sprintf(tabularTmpl, headers);
+            printlnMsg "----------------------------------------------------------------------------------------------";
+            for(mepStatus in mepStatuses) {
+                def namespace = mepStatus.getStringByPath('externalServiceDefinition') ;
+                def status = mepStatus.getStringByPath('externalEntityStatus') ;
+                def completeTime = mepStatus.getStringByPath('unblockCompletedTime') ;
+                printlnMsg sprintf(tabularTmpl, namespace, status, completeTime);
+                if(!"pcd".equals(status)) {
+                    msg = msg +
+                          "    FAIL(message '" + messageHeadLine + "'" +  " with status " + status + " for " + namespace + ")\n" ;
+                    failCount++ ;
+                }
+            }
+            printlnMsg "\n";
+        }
+    }
+    if(failCount == 0) {
+        msg = msg +
+              "    SUCCESS(No fail post is detected)" ;
+    }
+    return msg ;
+}
+
 def userEmail = null ;
 if (params && params["userEmail"]) {
     userEmail = params["userEmail"] ;
@@ -427,16 +535,35 @@ if(userEmail != null) {
     printTaskInfo "Running the customer problem report for the customer " + userEmail
     def suApiKey = getKey() ;
     def userTmpApiKey = createTmpKey(userEmail) ;
-    printAvailableCategories(userTmpApiKey) ;
-    printAvailableExternalServices(userTmpApiKey) ;
-    printUserRoles(suApiKey, userEmail) ;
-    printMessageEndPoints(userTmpApiKey) ;
-    printApiRequestAuditEntry(suApiKey, userEmail, apiFlowType, apiHttpStatuses, apiMaxReturn, verbose) ;
-    printExternalApiMethodCalls(suApiKey, userEmail, externalApiNamespace, externalApiMethod, externalApiMaxReturn, verbose) ;
+    def summary = [] ;
+    if(userTmpApiKey == null) {
+        summary.add("Create a temporary key for the user " + userEmail + ": \n" + 
+                    "    Pleasse check your su api key, wireservice and connection.\n" + 
+                    "    FAIL") ;
+        return ;
+    } else {
+        summary.add("Create a temporary key for the user " + userEmail + ": \n" + 
+                    "    SUCCESS(Api Key = " + userTmpApiKey + ")") ;
+        summary.add(printAvailableCategories(userTmpApiKey)) ;
+        summary.add(printAvailableExternalServices(userTmpApiKey)) ;
+        summary.add(printUserRoles(suApiKey, userEmail)) ;
+        summary.add(printMessageEndPoints(userTmpApiKey)) ;
+        
+        printApiRequestAuditEntry(suApiKey, userEmail, apiFlowType, apiHttpStatuses, apiMaxReturn, verbose) ;
+        printExternalApiMethodCalls(suApiKey, userEmail, externalApiNamespace, externalApiMethod, externalApiMaxReturn, verbose) ;    
+        
+        summary.add(printUserPostInfo(suApiKey, userEmail, apiMaxReturn, verbose)) ;
+    }
+    printTaskInfo "Summary report for the user " + userEmail
+    for(message in summary) {
+       printlnMsg message  + "\n"; 
+    }
 } else {
     def suApiKey = getKey() ;
-    printAvailableCategories(suApiKey) ;
-    printAvailableExternalServices(suApiKey) ;
+    
+    summary.add(printAvailableCategories(userTmpApiKey)) ;
+    summary.add(printAvailableExternalServices(userTmpApiKey)) ;
+    
     printMessageEndPoints(suApiKey) ;
     printOverallReportApiRequestAuditEntry(suApiKey, apiFlowType, apiHttpStatuses, apiMaxReturn) ;
     printExternalApiMethodCalls(suApiKey, null, externalApiNamespace, externalApiMethod, externalApiMaxReturn, verbose) ;
