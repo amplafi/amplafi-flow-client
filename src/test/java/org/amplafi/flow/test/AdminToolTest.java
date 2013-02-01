@@ -20,7 +20,7 @@ import java.lang.reflect.*;
  */
 public class AdminToolTest {
     //the testBuffer is used to test if a script is opend by command
-    public static StringBuffer testBuffer;	
+    public static StringBuffer testBuffer = new StringBuffer();
     TestHelperAdminTool testHelpAdminTool = null;
     public static final String PATH = "src\\test\\resources\\testscripts\\junitTestScript";
     public static final String CONFIG_FILE_NAME = "fareaches.fadmin.test.properties";
@@ -39,7 +39,7 @@ public class AdminToolTest {
         userInputPort = "";
         userInputApiv = "";
         testHelpAdminTool = new TestHelperAdminTool();
-        testBuffer = new StringBuffer();
+//        testBuffer = new StringBuffer();
         testHelpAdminTool.setComandScriptPath(PATH);
         testHelpAdminTool.setConfigFileName(CONFIG_FILE_NAME);
     }
@@ -50,11 +50,14 @@ public class AdminToolTest {
     @After
     public void tearDown() throws Exception {
         testHelpAdminTool = null;
-        testBuffer = null;
+//        testBuffer = null;
         userInputKey = null;
         userInputHost = null;
         userInputPort = null;
         userInputApiv = null;
+        if(testBuffer.length()>0){
+        	testBuffer.delete(0, testBuffer.length());
+        }
     }
 
     /**
