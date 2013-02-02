@@ -5,6 +5,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONException;
 import org.amplafi.json.JSONObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import static org.testng.Assert.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,12 +40,6 @@ import java.util.Map;
  *  }
  *}
  *""");
-
- *
- *
- *
- *
- *
  *
  */
 public class FlowTestBuilder {
@@ -55,14 +51,19 @@ public class FlowTestBuilder {
     private String key;
     private ScriptRunner runner;
     private boolean verbose = false;
-    
+  
+    /**
+     * Constructor for tests
+     */
     public FlowTestBuilder(String requestUriString, ScriptRunner runner, boolean verbose){
         this.requestUriString = requestUriString;
         this.runner = runner;
         this.verbose = verbose;
     }
 
-    
+    /**
+     * Constructor for tools
+     */
     public FlowTestBuilder(String host, String port, String apiVersion, String key, ScriptRunner runner, boolean verbose){
         this.requestUriString = requestUriString;
         this.host = host;
@@ -82,6 +83,9 @@ public class FlowTestBuilder {
     }
 
 
+    /**
+     * Configure the closure to be runnaable
+     */
     public buildExe(Closure c){
     
 
@@ -94,6 +98,9 @@ public class FlowTestBuilder {
         return c;
     }
 
+    /**
+     * Configure the colsure to describe itself.
+     */
     public buildDesc(Closure c){
         c.delegate = new DescribeScriptDSL();
         return c;
@@ -113,6 +120,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def key;
     def ScriptRunner runner;
     def boolean verbose;
+    private Log log;
     private static boolean DEBUG;
 
     /** This stores the base uri including the host,port,apikey */
@@ -206,9 +214,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
         lastRequestString = request.getRequestString();
 
         if(verbose){
-            println("");
-            println(" Sent Request: " + lastRequestString );
-            println("");
+            emitOutput("");
+            emitOutput(" Sent Request: " + lastRequestString );
+            emitOutput("");
         }
         
         lastRequestResponse = request.get();
@@ -221,7 +229,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * Print a message
      */
     def log(msg){ 
-        System.out.println(msg);
+        emitOutput(msg)
     }
 
     /**
@@ -240,8 +248,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * Pretty Prints Last Response
      */
     def prettyPrintResponse(){
-
-        println(getResponseData().toString(4));
+        emitOutput(getResponseData().toString(4));
     
     }
 
@@ -287,11 +294,14 @@ public class FlowTestDSL extends DescribeScriptDSL {
         try {
             getResponseData();
         } catch (Exception e){
-           println("Invalid JSON Returned: " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
+           getLog.error("Invalid JSON Returned: " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
         }
 
     }
 
+    /**
+     * @return pre-configured request string of constructs one if needed.
+     */
     private String getRequestString(){
         if (requestUriString != null){
             return requestUriString;
@@ -301,10 +311,25 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
 
-    private static void debug(String msg){
-        if (DEBUG){
-            System.err.println(msg);
+    private void debug(String msg){
+        getLog().debug(msg);
+    }
+    
+    /**
+     * @param msg - message to emit
+     */
+    public void emitOutput(String msg){
+        getLog().info(msg);
+    }
+
+    /**
+     * Get the logger for this class.
+     */
+    public Log getLog(){
+        if ( this.log == null ) {
+            this.log = LogFactory.getLog(this.getClass());
         }
+        return this.log;
     }
     
 }
@@ -394,12 +419,22 @@ public class DescribeScriptDSL {
      * Print a message
      */
     def log(msg){ 
-         System.out.println(" >>>" +msg);
+         getLog().info(msg);
     }
 
-    private static void debug(String msg){
-        if (DEBUG){
-            System.err.println(msg);
+    
+    private void debug(String msg){
+        getLog().debug(msg);
+    }
+    
+    
+    /**
+     * Get the logger for this class.
+     */
+    public Log getLog(){
+        if ( this.log == null ) {
+            this.log = LogFactory.getLog(this.getClass());
         }
+        return this.log;
     }
 }

@@ -266,7 +266,6 @@ public class AdminTool{
      */
     
     public void emitOutput(String msg){
-        System.out.println("this is adminTool");
         getLog().info(msg);
     }
 

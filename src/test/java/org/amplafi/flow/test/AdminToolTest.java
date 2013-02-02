@@ -20,6 +20,7 @@ import java.lang.reflect.*;
  */
 public class AdminToolTest {
     //the testBuffer is used to test if a script is opend by command
+    //Use a public static to allow the example script to communicate back to this test.
     public static StringBuffer testBuffer = new StringBuffer();
     TestHelperAdminTool testHelpAdminTool = null;
     public static final String PATH = "src\\test\\resources\\testscripts\\junitTestScript";
@@ -240,12 +241,18 @@ public class AdminToolTest {
 
     /**
      * This class is AdminTool Mock, it extends AdminTool and override some method for test.
+     * DAISY: there are functions in easyMock that can do this much quicker.
      */
     class TestHelperAdminTool extends AdminTool {
+
+
         List<String> logMsgList = new ArrayList();
         Properties configProperties = new Properties();
         
         public TestHelperAdminTool(){
+// DAISY: It would be much more flexible to set the configProperties in the tests, not in this constructor.
+// As it is most of the tests use the -x option so this is ignored. I think you have missed a bunch of test cases
+// that don't have -x set. But I believe you have covered the code. 
             configProperties.setProperty("key", "ampcb_333df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469");
             configProperties.setProperty("host", AdminTool.DEFAULT_HOST);
             configProperties.setProperty("port", AdminTool.DEFAULT_PORT);
