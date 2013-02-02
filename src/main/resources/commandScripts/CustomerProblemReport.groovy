@@ -464,26 +464,26 @@ def printUserPostInfo = {
             request("EnvelopeStatusesFlow", ["fsRenderResult":"json", "externalContentId": "[" + externalContentId + "]"]);
             def mepStatuses = getResponseData() ;
             
-            printlnMsg "Id: " + externalContentId ;
-            printlnMsg "Title: " + messageHeadLine ;
-            printlnMsg "Body: " + messageBody ;
+            println "Id: " + externalContentId ;
+            println "Title: " + messageHeadLine ;
+            println "Body: " + messageBody ;
             
             String tabularTmpl = '%1$-25s%2$10s%3$30s' ;
             def headers =  ['External Service', 'Status', 'Complete Time'] ;
-            printlnMsg sprintf(tabularTmpl, headers);
-            printlnMsg "----------------------------------------------------------------------------------------------";
+            println sprintf(tabularTmpl, headers);
+            println "----------------------------------------------------------------------------------------------";
             for(mepStatus in mepStatuses) {
                 def namespace = mepStatus.getStringByPath('externalServiceDefinition') ;
                 def status = mepStatus.getStringByPath('externalEntityStatus') ;
                 def completeTime = mepStatus.getStringByPath('unblockCompletedTime') ;
-                printlnMsg sprintf(tabularTmpl, namespace, status, completeTime);
+                println sprintf(tabularTmpl, namespace, status, completeTime);
                 if(!"pcd".equals(status)) {
                     msg = msg +
                           "    FAIL(message '" + messageHeadLine + "'" +  " with status " + status + " for " + namespace + ")\n" ;
                     failCount++ ;
                 }
             }
-            printlnMsg "\n";
+            println "\n";
         }
     }
     if(failCount == 0) {
@@ -558,7 +558,7 @@ if(userEmail != null) {
     }
     printTaskInfo "Summary report for the user " + userEmail
     for(message in summary) {
-       printlnMsg message  + "\n"; 
+       println message  + "\n"; 
     }
 } else {
     def suApiKey = getKey() ;
