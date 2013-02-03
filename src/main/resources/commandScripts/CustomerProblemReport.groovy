@@ -30,7 +30,22 @@
 import java.util.HashMap
 
 String newLine = System.getProperty("line.separator");
-String usage = "CustomerProblemReport Script Help" + newLine + "This CustomerProblemReport script use to help the system administrator access" + newLine + "the various farreaches service configuration and user log information" + newLine + "Params" + newLine + "  verbose=<true/false>  To print detail json log" + newLine + "  userEmail=<userEmail>  The user that you want to inspect. If the userEmail is not specified. The overall report will be run" + newLine + "" + newLine + "  apiHttpStatuses=<apiHttpStatuses>  The http status code list, empty to select all" + newLine +"  apiFlowType=<flowType>  The flow type."+ newLine + "  apiMaxReturn=<apiMaxReturn>  The maximum number of the log entries that you want to return"+ newLine + ""+ newLine + "  externalApiNamespace=<twitter.com, facebook.com...>  The external service namespace"+ newLine + "  externalApiMethod=<ADD_MESSAGE...>  The external method call name"+ newLine + "  externalApiMaxReturn=<number>  The maximum number of the log entries that you want to return";
+String usage = 
+    "CustomerProblemReport Script Help" + newLine + 
+    "This CustomerProblemReport script use to help the system administrator access" + newLine + 
+    "the various farreaches service configuration and user log information" + newLine + 
+    "Params" + newLine + 
+    "  verbose=<true/false>  To print detail json log" + newLine + 
+    "  userEmail=<userEmail>  The user that you want to inspect. If the userEmail is not specified. The overall report will be run" + newLine  + newLine +
+    "  fromDate=<dd/MM/yyyy>  Limit the audit logs from date" + newLine +
+    "  toDate=<dd/MM/yyyy>  Limit the audit logs to date" + newLine +
+    
+    "  apiFlowType=<flowType>  The flow type."+ newLine + 
+    "  apiMaxReturn=<apiMaxReturn>  The maximum number of the log entries that you want to return"+ newLine + newLine + 
+    
+    "  externalApiNamespace=<twitter.com, facebook.com...>  The external service namespace"+ newLine + 
+    "  externalApiMethod=<ADD_MESSAGE...>  The external method call name"+ newLine + 
+    "  externalApiMaxReturn=<number>  The maximum number of the log entries that you want to return";
 
  
 description "CustomerProblemReport", "This tool is used to report and identify the customer problem", "${usage}";
@@ -44,22 +59,8 @@ def printTaskInfo = {
 }
 
 def printHelp = { 
-    userEmail, apiHttpStatuses, apiMaxReturn ->
     printTaskInfo "CustomerProblemReport Script Help"
-    println "This CustomerProblemReport script use to help the system administrator access"
-    println "the various farreaches service configuration and user log information"
-    println "Params: "
-    println "  verbose=<true/false>  To print detail json log"
-    println "  userEmail=<" + userEmail+ ">  The user that you want to inspect. If the userEmail is not specified. The overall report will be run"
-    println ""
-    println "  apiHttpStatuses=<" + apiHttpStatuses + ">  The http status code list, empty to select all."
-    println "  apiFlowType=<flowType>  The flow type."
-    println "  apiMaxReturn=<" + apiMaxReturn + ">  The maximum number of the log entries that you want to return"
-    println ""
-    println "  externalApiNamespace=<twitter.com, facebook.com...>  The external service namespace"
-    println "  externalApiMethod=<ADD_MESSAGE...>  The external method call name"
-    println "  externalApiMaxReturn=<number>  The maximum number of the log entries that you want to return"
-
+    println usage
 }
 
 def printTabular = { 
@@ -276,17 +277,26 @@ def printApiByFlowTypeStatistic = {
 }
 
 def printApiRequestAuditEntry = {
-    apiKey, userEmail, apiFlowType, apiHttpStatuses, apiMaxReturn, verbose ->
+    apiKey, userEmail, apiFlowType, fromDate, toDate, apiMaxReturn, verbose ->
     setApiVersion("suv1");
     setKey(apiKey);
-    def reqParams = ["fsRenderResult":"json", "httpStatusCodeList": "[" + apiHttpStatuses + "]", "maxReturn": apiMaxReturn] ;
+    def reqParams = ["fsRenderResult":"json", "maxReturn": apiMaxReturn] ;
     if(userEmail != null) {
         reqParams["email"] = userEmail;
     } 
     if(apiFlowType != null) {
         reqParams["flowType"] = apiFlowType;
     } 
-    printTaskInfo "ApiRequestAuditEntry log"
+    
+    if(fromDate != null) {
+        reqParams["fromDate"] = fromDate;
+    } 
+    
+    if(toDate != null) {
+        reqParams["toDate"] = toDate;
+    } 
+    
+    printTaskInfo "ApiRequestAuditEntry log, user = " + userEmail
     request("ApiRequestAuditEntriesFlow", reqParams);
     if(getResponseData() instanceof JSONArray) {
         def entries = getResponseData();
@@ -311,16 +321,22 @@ def printApiRequestAuditEntry = {
 
 
 def printOverallReportApiRequestAuditEntry = {
-    apiKey, apiFlowType, apiHttpStatuses, apiMaxReturn ->
+    apiKey, apiFlowType, fromDate, toDate, apiMaxReturn ->
     setApiVersion("suv1");
     setKey(apiKey);
     def reqParams = ["fsRenderResult":"json", "maxReturn": apiMaxReturn] ;
     if(apiFlowType != null) {
         reqParams["flowType"] = apiFlowType;
     } 
-    if(apiHttpStatuses != null) {
-        reqParams["apiStatusCodeList"] = "[" + apiHttpStatuses + "]";
-    }
+    
+    if(fromDate != null) {
+        reqParams["fromDate"] = fromDate;
+    } 
+    
+    if(toDate != null) {
+        reqParams["toDate"] = toDate;
+    } 
+    
     printTaskInfo "Overall Report For ApiRequestAuditEntry Log"
     
     request("ApiRequestAuditEntriesFlow", reqParams);
@@ -336,9 +352,9 @@ def printOverallReportApiRequestAuditEntry = {
 
 def printExternalApiDetailMethodCalls = {
     entries ->
-    def dateFormater = new java.text.SimpleDateFormat('DD/MM/yy@hh:mm:ss') ;
-    String tabularTmpl = '%1$17s %2$-15s %3$20s %4$5s %5$10s %6$-50s' ;
-    def headers =  ['Date', 'Namespace', 'Method', 'EES', 'Http Status', 'Message'] ;
+    def dateFormater = new java.text.SimpleDateFormat('dd/MM/yyyy@hh:mm:ss') ;
+    String tabularTmpl = '%1$20s %2$-15s %3$20s %4$5s %5$6s %6$-50s' ;
+    def headers =  ['Date', 'Namespace', 'Method', 'EES', 'Status', 'Message'] ;
     println '----------------------------------------------------------------------------------------------'
     println 'External Api Detail Calls'
     println '----------------------------------------------------------------------------------------------'
@@ -411,7 +427,7 @@ def printExternalStatisticMethodCalls = {
 }
 
 def printExternalApiMethodCalls = {
-    apiKey, userEmail, externalApiNamespace, externalApiMethod, externalApiMaxReturn, verbose ->
+    apiKey, userEmail, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn, verbose ->
     setApiVersion("suv1");
     setKey(apiKey);
     printTaskInfo "ExternalApiMethodCallAuditEntry log"
@@ -421,6 +437,12 @@ def printExternalApiMethodCalls = {
     }
     if(externalApiMethod != null) {
         reqParams["method"] = externalApiMethod ;
+    }
+    if(fromDate != null) {
+        reqParams["fromDate"] = fromDate ;
+    }
+    if(toDate != null) {
+        reqParams["toDate"] = toDate ;
     }
     request("ExternalApiMethodCallAuditEntriesFlow", reqParams);
     if(getResponseData() instanceof JSONArray) {
@@ -441,13 +463,27 @@ def printExternalApiMethodCalls = {
 }
 
 def printUserPostInfo = {
-    apiKey, userEmail, apiMaxReturn, verbose ->
+    apiKey, userEmail, fromDate, toDate, apiMaxReturn, verbose ->
     
             
     setApiVersion("suv1");
     setKey(apiKey);
-    def reqParams = ["fsRenderResult":"json", "email": userEmail, "flowType": "CreateAlert", "maxReturn": apiMaxReturn] ;
-    printTaskInfo "Post Info For " + userEmail ; 
+    def reqParams = ["fsRenderResult":"json", "flowType": "CreateAlert", "maxReturn": apiMaxReturn] ;
+    if(userEmail != null) {
+        reqParams["email"] = userEmail ;
+    }
+    if(fromDate != null) {
+        reqParams["fromDate"] = fromDate ;
+    }
+    if(toDate != null) {
+        reqParams["toDate"] = toDate ;
+    }
+    
+    if(userEmail != null) {
+        printTaskInfo "Post Info For " + userEmail ;
+    }  else {
+        printTaskInfo "Post Info" ;
+    }
     request("ApiRequestAuditEntriesFlow", reqParams);
     def msg = "User Post Info: \n" ;
     def failCount = 0 ;
@@ -479,7 +515,7 @@ def printUserPostInfo = {
                 println sprintf(tabularTmpl, namespace, status, completeTime);
                 if(!"pcd".equals(status)) {
                     msg = msg +
-                          "    FAIL(message '" + messageHeadLine + "'" +  " with status " + status + " for " + namespace + ")\n" ;
+                          "    FAIL(message '" + messageHeadLine + "'" +  " with status '" + status + "' for " + namespace + ")\n" ;
                     failCount++ ;
                 }
             }
@@ -488,7 +524,10 @@ def printUserPostInfo = {
     }
     if(failCount == 0) {
         msg = msg +
-              "    SUCCESS(No fail post is detected)" ;
+              "    SUCCESS(No failed post is detected from " + entries.length() + " posts)";
+    } else {
+        msg = msg +
+              "    FAIL(" + failCount + " failed posts are detected from " + entries.length() + " posts)";
     }
     return msg ;
 }
@@ -498,12 +537,7 @@ if (params && params["userEmail"]) {
     userEmail = params["userEmail"] ;
 }
 
-def apiHttpStatuses = "0, 400, 401"
-if (params && params["apiHttpStatuses"]) {
-    apiHttpStatuses = params["apiHttpStatuses"] ;
-}
-
-def apiMaxReturn = "5"
+def apiMaxReturn = "1000"
 if (params && params["apiMaxReturn"]) {
     apiMaxReturn = params["apiMaxReturn"] ;
 }
@@ -522,9 +556,20 @@ def externalApiMethod = null ;
 if (params && params["externalApiMethod"]) {
     externalApiMethod = params['externalApiMethod'] ;
 }
-def externalApiMaxReturn = "10" ;
+
+def externalApiMaxReturn = "1000" ;
 if (params && params["externalApiMaxReturn"]) {
     externalApiMaxReturn = params['externalApiMaxReturn'] ;
+}
+
+def fromDate = null ;
+if (params && params["fromDate"]) {
+    fromDate = params['fromDate'] ;
+}
+
+def toDate = null ;
+if (params && params["toDate"]) {
+    toDate = params['toDate'] ;
 }
 
 def verbose = false; 
@@ -535,9 +580,9 @@ if (params && params["verbose"]) {
 
 if(userEmail != null) {
     printTaskInfo "Running the customer problem report for the customer " + userEmail
+    def summary = [] ;
     def suApiKey = getKey() ;
     def userTmpApiKey = createTmpKey(userEmail) ;
-    def summary = [] ;
     if(userTmpApiKey == null) {
         summary.add("Create a temporary key for the user " + userEmail + ": \n" + 
                     "    Pleasse check your su api key, wireservice and connection.\n" + 
@@ -551,22 +596,30 @@ if(userEmail != null) {
         summary.add(printUserRoles(suApiKey, userEmail)) ;
         summary.add(printMessageEndPoints(userTmpApiKey)) ;
         
-        printApiRequestAuditEntry(suApiKey, userEmail, apiFlowType, apiHttpStatuses, apiMaxReturn, verbose) ;
-        printExternalApiMethodCalls(suApiKey, userEmail, externalApiNamespace, externalApiMethod, externalApiMaxReturn, verbose) ;    
+        printApiRequestAuditEntry(suApiKey, userEmail, apiFlowType, fromDate, toDate, apiMaxReturn, verbose) ;
+        printExternalApiMethodCalls(suApiKey, userEmail, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn, verbose) ;    
         
-        summary.add(printUserPostInfo(suApiKey, userEmail, apiMaxReturn, verbose)) ;
+        summary.add(printUserPostInfo(suApiKey, userEmail, fromDate, toDate, apiMaxReturn, verbose)) ;
     }
     printTaskInfo "Summary report for the user " + userEmail
     for(message in summary) {
        println message  + "\n"; 
     }
 } else {
+    def summary = [] ;
     def suApiKey = getKey() ;
     
-    summary.add(printAvailableCategories(userTmpApiKey)) ;
-    summary.add(printAvailableExternalServices(userTmpApiKey)) ;
+    summary.add(printAvailableCategories(suApiKey)) ;
+    summary.add(printAvailableExternalServices(suApiKey)) ;
+    summary.add(printMessageEndPoints(suApiKey)) ;
     
-    printMessageEndPoints(suApiKey) ;
-    printOverallReportApiRequestAuditEntry(suApiKey, apiFlowType, apiHttpStatuses, apiMaxReturn) ;
-    printExternalApiMethodCalls(suApiKey, null, externalApiNamespace, externalApiMethod, externalApiMaxReturn, verbose) ;
+    printOverallReportApiRequestAuditEntry(suApiKey, apiFlowType, fromDate, toDate, apiMaxReturn) ;
+    printExternalApiMethodCalls(suApiKey, null, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn, verbose) ;
+    
+    summary.add(printUserPostInfo(suApiKey, null, fromDate, toDate, apiMaxReturn, verbose)) ;
+    
+    printTaskInfo "Summary For The Overall Report"
+    for(message in summary) {
+       println message  + "\n"; 
+    }
 }
