@@ -1,29 +1,15 @@
 package org.amplafi.flow.dsl;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import static org.testng.Assert.fail;
+
 import java.util.List;
-import java.util.Set;
 
-import org.amplafi.flow.utils.GeneralFlowRequest;
-import org.amplafi.json.JSONArray;
-import org.amplafi.json.JSONException;
-import org.amplafi.json.JSONObject;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Factory;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.AfterTest;
 import org.amplafi.dsl.ScriptRunner;
-import static org.amplafi.dsl.ScriptRunner.*;
-import org.amplafi.dsl.FlowTestBuilder;
-import static org.testng.Assert.*;
-import org.amplafi.flow.TestProperties;
+import org.amplafi.flow.TestGenerationProperties;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 /**
  * This is a test for the TestScriptRunner itself, not the wire server
@@ -39,14 +25,13 @@ public class TestDSLScriptsBatchRunner {
      * supported by the server.
      */
     public TestDSLScriptsBatchRunner() {
-        runner  = new ScriptRunner(TestProperties.requestUriString);
+        runner  = new ScriptRunner(TestGenerationProperties.getInstance().getRequestUriString());
     }
 
     @Override
     public String toString() {
         return currentScriptName;
     }
-    
     
     /**
      * Provides all script names for testing
@@ -55,11 +40,10 @@ public class TestDSLScriptsBatchRunner {
      */
     @DataProvider(name = "scripts-list")
     public Object[][] getListOfTestScripts() {
-        ScriptRunner runner  = new ScriptRunner(TestProperties.requestUriString);
+        ScriptRunner runner  = new ScriptRunner(TestGenerationProperties.getInstance().getRequestUriString());
 
         //Get list of supported flow types from server.
         List<String> scriptList = runner.findAllTestScripts();
-System.err.println("" + scriptList);
         Object[][] arrayOfScripts = null;
         if (scriptList.size() > 0){
             // Drop the list into the Object[][] format which is standard for testNG data providers
@@ -83,7 +67,6 @@ System.err.println("" + scriptList);
     
     @AfterTest
     public void tearDown(){
-        
     }	
     
     /**

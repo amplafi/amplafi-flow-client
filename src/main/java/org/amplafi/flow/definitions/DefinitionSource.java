@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Implementers will provide Flow definitions.
  *
- * TODO should be namespace owner.
+ * TODO(pat) should be namespace owner.
  * @author patmoore
  * @param <F>
  *
@@ -27,20 +27,21 @@ public interface DefinitionSource<F extends FlowDefinition> {
 
     /**
      * Returns the flow having the specified name.
-     * @param flowTypeName
+     * @param flowTypeName the name of the flow.
      * @return the Flow definition. null if {@link #isFlowDefined(String)} returns false.
      */
     F getFlowDefinition(String flowTypeName);
     /**
      * does this DefinitionSource have a definition for a flow with supplied name.
-     * @param flowTypeName
+     * @param flowTypeName the name of the flow
      * @return true if definition exists.
      */
     boolean isFlowDefined(String flowTypeName);
 
     /**
      * Returns all defined flows, keyed by their name.
-     * @return the map with all the currently defined flows indexed by (usually) the {@link org.amplafi.flow.Flow#getFlowPropertyProviderName()}.
+     * @return the map with all the currently defined flows indexed by (usually) the
+     *                 {@link org.amplafi.flow.Flow#getFlowPropertyProviderName()}.
      */
     Map<String, F> getFlowDefinitions();
 }

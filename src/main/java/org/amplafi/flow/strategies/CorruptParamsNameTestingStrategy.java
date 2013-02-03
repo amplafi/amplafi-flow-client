@@ -15,42 +15,41 @@ package org.amplafi.flow.strategies;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Formatter;
 import java.util.List;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
 
 /**
- * This strategy produces tests that send requests with impossible param names
+ * This strategy produces tests that send requests with impossible param names.
  * @author paul
  */
 public class CorruptParamsNameTestingStrategy extends AbstractTestingStrategy {
-    
+
     private static final String NAME = "CorruptParamsNames";
     /**
-     * @return the name of this strategy 
+     * @return the name of this strategy
      */
      @Override
-     public String getName(){
+     public String getName() {
          return NAME;
      }
 
     @Override
-    public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
+    public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames) {
         // These elements may cause illegal JSON tokens
         String[] corruptParamElements = new String[]{" ", ".", "%", "{" };
         List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
         int idx = 0;
         for (String parameterName : parameterNames) {
             String badToken = "bad" + corruptParamElements[idx] + "token";
-            bogusDataList.add(new BasicNameValuePair(badToken,"bogusData"));
+            bogusDataList.add(new BasicNameValuePair(badToken, "bogusData"));
             idx = (idx + 1) % corruptParamElements.length;
         }
         return bogusDataList;
     }
-    
+
     @Override
-    public void addVerification(String typicalResponse){
+    public void addVerification(String typicalResponse) {
         writeToFileBuffer("checkReturnedValidJson()");
     }
 

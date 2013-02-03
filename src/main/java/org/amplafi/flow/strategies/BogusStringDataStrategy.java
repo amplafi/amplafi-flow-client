@@ -15,9 +15,7 @@ package org.amplafi.flow.strategies;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Formatter;
 import java.util.List;
-import java.util.ArrayList;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.NameValuePair;
 
@@ -26,28 +24,28 @@ import org.apache.http.NameValuePair;
  * @author paul
  */
 public class BogusStringDataStrategy extends AbstractTestingStrategy {
-    
+
     private static final String NAME = "BogusStringData";
     /**
-     * @return the name of this strategy 
+     * @return the name of this strategy
      */
      @Override
-     public String getName(){
+     public String getName() {
          return NAME;
      }
 
     @Override
-    public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames){
+    public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames) {
          String bogusData = "bogusData";
         List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
         for (String parameterName : parameterNames) {
-            bogusDataList.add(new BasicNameValuePair(parameterName,bogusData));
+            bogusDataList.add(new BasicNameValuePair(parameterName, bogusData));
         }
         return bogusDataList;
     }
-    
+
     @Override
-    public void addVerification(String typicalResponse){
+    public void addVerification(String typicalResponse) {
         writeToFileBuffer("checkReturnedValidJson()");
     }
 

@@ -327,7 +327,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     public Log getLog(){
         if ( this.log == null ) {
-            this.log = LogFactory.getLog(this.getClass());
+            this.log = LogFactory.getLog(FlowTestBuilder.class);
         }
         return this.log;
     }
@@ -433,7 +433,7 @@ public class DescribeScriptDSL {
      */
     public Log getLog(){
         if ( this.log == null ) {
-            this.log = LogFactory.getLog(this.getClass());
+            this.log = LogFactory.getLog(FlowTestBuilder.class);
         }
         return this.log;
     }
