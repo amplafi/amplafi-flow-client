@@ -1,46 +1,56 @@
 package org.amplafi.flow.test;
 
 import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.amplafi.flow.utils.AdminTool;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.log4j.spi.LoggingEvent;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import sun.reflect.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.*;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * A class tests AdminTool.
  * @author Daisy
- *
  */
-public class AdminToolTest {
-    //the testBuffer is used to test if a script is opend by command
+ 
+public class TestAdminTool {
+    //The testBuffer is used to test if a script is opened by command.
     //Use a public static to allow the example script to communicate back to this test.
-    public static StringBuffer testBuffer = new StringBuffer();
-    TestHelperAdminTool testHelpAdminTool = null;
-    public static final String PATH = "src\\test\\resources\\testscripts\\junitTestScript";
+    public static final String TEST_REPORT_SYS_PROP = "test.report";
+    private TestHelperAdminTool testHelpAdminTool = null;
+    private static final String SEP = System.getProperty("file.separator");
+    
+    public static final String PATH = "src" + SEP +"test" + SEP +"resources" + SEP +"testscripts" + SEP +"junitTestScript";
     public static final String CONFIG_FILE_NAME = "fareaches.fadmin.test.properties";
-    String userInputKey;
-    String userInputHost;
-    String userInputPort;
-    String userInputApiv;
+    private String userInputKey;
+    private String userInputHost;
+    private String userInputPort;
+    private String userInputApiv;
+    private TestAppender testAppender;
 
     /**
      * Junit test sets up data.
      */
-    @Before
+    @BeforeMethod
     public void setUp() throws Exception {
+        testAppender = new TestAppender();
+        Logger.getLogger(org.amplafi.dsl.FlowTestBuilder.class).addAppender(testAppender);
         userInputKey = "";
         userInputHost = "";
         userInputPort = "";
         userInputApiv = "";
         testHelpAdminTool = new TestHelperAdminTool();
-//        testBuffer = new StringBuffer();
         testHelpAdminTool.setComandScriptPath(PATH);
         testHelpAdminTool.setConfigFileName(CONFIG_FILE_NAME);
     }
@@ -48,17 +58,15 @@ public class AdminToolTest {
     /**
      * Junit test tears down the data.
      */
-    @After
-    public void tearDown() throws Exception {
+    @AfterMethod
+    public void tearDown() throws Exception {     
+        Logger.getLogger(org.amplafi.dsl.FlowTestBuilder.class).removeAllAppenders();
         testHelpAdminTool = null;
-//        testBuffer = null;
         userInputKey = null;
         userInputHost = null;
         userInputPort = null;
         userInputApiv = null;
-        if(testBuffer.length()>0){
-        	testBuffer.delete(0, testBuffer.length());
-        }
+        testAppender = null;
     }
 
     /**
@@ -88,11 +96,11 @@ public class AdminToolTest {
         testHelpAdminTool.processCommandLine(args);
         List<String> logMsgList = testHelpAdminTool.getLogMsgList();
         //This is test that use our own script
-        String excepted1 = "     testScript       - Just an test script       - \\src\\test\\resources\\testscripts\\junitTestScript\\testScript.groovy";
-        String excepted2 = "     testScript2       - Just an test2 script       - \\src\\test\\resources\\testscripts\\junitTestScript\\testScript2.groovy";
-        assertEquals(2,logMsgList.size());
-        assertTrue(logMsgList.contains(excepted1));
-        assertTrue(logMsgList.contains(excepted2));
+        String expected1 = "     testScript       - Just an test script       - " + SEP + PATH + SEP + "testScript.groovy";
+        String expected2 = "     testScript2       - Just an test2 script       - " + SEP + PATH + SEP + "testScript2.groovy";      
+        assertEquals(2,logMsgList.size());        
+        assertEquals(expected1,logMsgList.get(0));
+        assertEquals(expected2,logMsgList.get(1));
     }
 
     /**
@@ -117,7 +125,7 @@ public class AdminToolTest {
         testHelpAdminTool.processCommandLine(args);
         String excepted = "Script testScript does not have usage information";
         List<String> logMsgList = testHelpAdminTool.getLogMsgList();
-        assertEquals(1,logMsgList.size());
+        assertEquals(1, logMsgList.size());
         assertTrue(logMsgList.contains(excepted));
     }
 
@@ -140,10 +148,10 @@ public class AdminToolTest {
         String exceptedHost = userInputHost;
         String apivValue = testHelpAdminTool.getConfigProperties().getProperty("apiv", "");
         String exceptedApiv = userInputApiv;
-        assertEquals(exceptedKey,keyValue);
-        assertEquals(exceptedPort,portValue);
-        assertEquals(exceptedHost,hostValue);
-        assertEquals(exceptedApiv,apivValue);
+        assertEquals(exceptedKey, keyValue);
+        assertEquals(exceptedPort, portValue);
+        assertEquals(exceptedHost, hostValue);
+        assertEquals(exceptedApiv, apivValue);
     }
 
     /**
@@ -202,7 +210,17 @@ public class AdminToolTest {
         userInputKey = "";
         userInputPort = "";
         String[] args = { "testScript" };
+
+        // Set up config properties.
+        Properties configProperties = testHelpAdminTool.getConfigProperties();
+        configProperties.setProperty("key", "ampcb_333df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469");
+        configProperties.setProperty("host", AdminTool.DEFAULT_HOST);
+        configProperties.setProperty("port", AdminTool.DEFAULT_PORT);
+        configProperties.setProperty("apiv", AdminTool.DEFAULT_API_VERSION);
+
+        // Run the command.
         testHelpAdminTool.processCommandLine(args);
+        
         String keyValue = testHelpAdminTool.getConfigProperties().getProperty("key", "");
         String exceptedKey = "ampcb_333df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469";
         String portValue = testHelpAdminTool.getConfigProperties().getProperty("port", "");
@@ -224,8 +242,8 @@ public class AdminToolTest {
     public void testProcessCommandLineRunScript() {
         String[] args = { "testScript" };
         testHelpAdminTool.processCommandLine(args);
-        String exString = "This is testScript";
-        assertEquals(exString,AdminToolTest.testBuffer.toString());
+        String exString = "This is testScript1";
+        assertEquals(exString, testAppender.getLogs());
     }
 
     /**
@@ -235,9 +253,10 @@ public class AdminToolTest {
     public void testProcessCommandLineRunScriptWithParam() {
         String[] args = { "testScript", "param1=dog" };
         testHelpAdminTool.processCommandLine(args);
-        String exString = "This is testScript param1 : dog";
-        assertEquals(exString,AdminToolTest.testBuffer.toString());
+        String exString = "This is testScript1 param1 : dog";
+        assertEquals(exString, testAppender.getLogs());
     }
+ 
 
     /**
      * This class is AdminTool Mock, it extends AdminTool and override some method for test.
@@ -245,18 +264,10 @@ public class AdminToolTest {
      */
     class TestHelperAdminTool extends AdminTool {
 
-
-        List<String> logMsgList = new ArrayList();
-        Properties configProperties = new Properties();
+        private List<String> logMsgList = new ArrayList<String>();
+        private Properties configProperties = new Properties();
         
         public TestHelperAdminTool(){
-// DAISY: It would be much more flexible to set the configProperties in the tests, not in this constructor.
-// As it is most of the tests use the -x option so this is ignored. I think you have missed a bunch of test cases
-// that don't have -x set. But I believe you have covered the code. 
-            configProperties.setProperty("key", "ampcb_333df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469");
-            configProperties.setProperty("host", AdminTool.DEFAULT_HOST);
-            configProperties.setProperty("port", AdminTool.DEFAULT_PORT);
-            configProperties.setProperty("apiv", AdminTool.DEFAULT_API_VERSION);
         }
 
         /**
@@ -316,4 +327,28 @@ public class AdminToolTest {
         public void saveProperties(){
         }
     }
+
+    private class TestAppender extends AppenderSkeleton {
+        private StringBuffer logBuffer;
+
+        public TestAppender(){
+            logBuffer = new StringBuffer();
+        }
+        
+        public void append(LoggingEvent event) {
+            logBuffer.append(event.getMessage());
+        }
+
+        public boolean requiresLayout() {
+            return false;
+        }
+
+        public void close() {
+        }
+
+        public String getLogs(){
+            return logBuffer.toString();
+        }
+    }
+
 }

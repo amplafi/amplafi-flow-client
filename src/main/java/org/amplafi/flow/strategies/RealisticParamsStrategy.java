@@ -2,7 +2,7 @@ package org.amplafi.flow.strategies;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.amplafi.flow.TestProperties;
+import org.amplafi.flow.TestGenerationProperties;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONObject;
 import org.apache.http.NameValuePair;
@@ -51,7 +51,7 @@ public class RealisticParamsStrategy extends AbstractTestingStrategy {
             
         Collection<NameValuePair> parametersPopulatedWithRealParamData = generateRealisticParameters(requestParameters);
         
-        parametersPopulatedWithRealParamData.add(renderAsJson);
+        parametersPopulatedWithRealParamData.add(RENDER_AS_JSON);
 
         addRequest(flow,parametersPopulatedWithRealParamData);
         

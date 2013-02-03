@@ -1,7 +1,7 @@
 package org.amplafi.flow.definitions;
 
 /**
- * Implementors represent a FlowDefinition
+ * Implementors represent a FlowDefinition.
  * @author patmoore
  *
  */
@@ -18,6 +18,9 @@ public interface FlowDefinition {
      */
     String getContinueFlowTitle();
 
+    /**
+     * @return returns the link title text.
+     */
     String getLinkTitle();
 
     /**
