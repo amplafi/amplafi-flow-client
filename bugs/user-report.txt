@@ -1,0 +1,141 @@
+
+
+*********************************************************************************
+Running the customer problem report for the customer editor@amplafi.com
+*********************************************************************************
+
+
+*********************************************************************************
+Create the temporaty api key for the customer editor@amplafi.com
+*********************************************************************************
+Temporary Key: ampcb_0b210b79c251f4161ac9f9b7ddb705df8a23e5a38d01ccafa397b16b2df7aa0e
+
+
+*********************************************************************************
+Avaliable Categories
+*********************************************************************************
+  #            Topic Id                Name
+-----------------------------------------------------------------------------------------
+  1                   4         Social Site
+
+
+*********************************************************************************
+Available External Services(Social Services)
+*********************************************************************************
+  #          Ext Service
+-----------------------------------------------------------------------------------------
+  1             Facebook
+  2               Tumblr
+  3              Twitter
+
+
+*********************************************************************************
+User Role And Configuration Information
+*********************************************************************************
+User editor@amplafi.com has the following roles:
+
+    "ROLE_EDITOR"
+    "ROLE_SUBMITTER"
+    "ROLE_USER"
+    "ROLE_GUEST"
+    "ROLE_NONE
+]
+
+
+*********************************************************************************
+Message End Point List Flow
+*********************************************************************************
+  #    Ext Service      User Name      Full Name      Topic Ids
+-----------------------------------------------------------------------------------------
+  1    twitter.com       tuan0875    Tuan Nguyen            [4]
+
+
+*********************************************************************************
+ApiRequestAuditEntry log, user = editor@amplafi.com
+*********************************************************************************
+Flow                                      Http 1xx  Http 200  Http 2xx  Http 3xx  Http 4xx  Http 5xx
+-----------------------------------------------------------------------------------------------------
+AvailableCategoriesFlow                          0        20         0         0         0         0
+EligibleExternalServiceInstancesFlow             0        20         0         0         0         0
+MessageEndPointListFlow                          0        20         0         0         0         0
+EnvelopeStatuses                                 0        17         0         0         0         0
+CreateAlert                                      0         2         0         0         0         0
+TemporaryApiKey                                  0         2         0         0         0         0
+
+
+*********************************************************************************
+ExternalApiMethodCallAuditEntry log
+*********************************************************************************
+-----------------------------------------------------------------------------------------------------
+Statistic for twitter.com
+-----------------------------------------------------------------------------------------------------
+Method                     Http 1xx  Http 200  Http 2xx  Http 3xx  Http 4xx  Http 5xx
+-----------------------------------------------------------------------------------------------------
+ADD_MESSAGE                       0         2         0         0         1         0
+CHECK_AUTH                        0         1         0         0         2         0
+GET_TOKEN                         0         1         0         0         0         0
+GET_REQUEST_TOKEN                 0         1         0         0         0         0
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------
+External Api Detail Calls
+----------------------------------------------------------------------------------------------
+                Date Namespace                     Method   EES Status Message                                           
+----------------------------------------------------------------------------------------------
+ 03/02/2013@08:11:27 twitter.com              ADD_MESSAGE   aut    401 Status code: 401 Unauthorized request             
+ 03/02/2013@08:09:43 twitter.com              ADD_MESSAGE  null    200 null                                              
+ 03/02/2013@08:08:01 twitter.com              ADD_MESSAGE  null    200 null                                              
+ 03/02/2013@08:03:24 twitter.com               CHECK_AUTH  null    200 null                                              
+ 03/02/2013@08:03:23 twitter.com                GET_TOKEN  null    200 null                                              
+ 03/02/2013@08:03:19 twitter.com               CHECK_AUTH   aut    401 Status code: 401 Unauthorized request             
+ 03/02/2013@08:03:13 twitter.com        GET_REQUEST_TOKEN  null    200 null                                              
+ 03/02/2013@08:03:12 twitter.com               CHECK_AUTH   rej    400 Status code: 400 Bad request                      
+
+
+*********************************************************************************
+Post Info For editor@amplafi.com
+*********************************************************************************
+Id: 10
+Title: a post from editor(should fail)
+Body: a post from editor(should fail)
+External Service             Status                 Complete Time
+----------------------------------------------------------------------------------------------
+twitter.com                     aut    03 February 2013 13:11 GMT
+
+
+Id: 7
+Title: a post from editor
+Body: a post from editor
+External Service             Status                 Complete Time
+----------------------------------------------------------------------------------------------
+twitter.com                     pcd    03 February 2013 13:09 GMT
+
+
+
+
+*********************************************************************************
+Summary report for the user editor@amplafi.com
+*********************************************************************************
+Create a temporary key for the user editor@amplafi.com:
+    SUCCESS(Api Key = ampcb_0b210b79c251f4161ac9f9b7ddb705df8a23e5a38d01ccafa397b16b2df7aa0e
+
+Available Categories
+    SUCCESS(1 categories are found
+
+Available External Services:
+    SUCCESS(3 external services are found
+
+User Roles
+    SUCCESS(["ROLE_EDITOR","ROLE_SUBMITTER","ROLE_USER","ROLE_GUEST","ROLE_NONE"]
+
+Message End Points
+    SUCCESS(user is connected to 1 external services
+
+User Post Info:
+    FAIL(message 'a post from editor(should fail)' with status 'aut' for twitter.com
+    FAIL(1 failed posts are detected from 2 posts
+
