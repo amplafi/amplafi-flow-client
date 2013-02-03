@@ -108,7 +108,7 @@
                 <version>2.9.1</version>
                 <configuration>
                     <enableRulesSummary>false</enableRulesSummary>
-                    <configLocation>farreaches_checks.xml</configLocation>
+                    <configLocation>../amplafi-opensource-parent/farreaches_checkstyle.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
     <!--        <suppressionsLocation>${basedir}/../checkstyle-suppressions.xml</suppressionsLocation> -->
                 </configuration>
