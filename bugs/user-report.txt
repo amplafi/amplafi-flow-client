@@ -1,57 +1,134 @@
 
+*********************************************************************************
+Fortunate Families
+     http://fortunatefamilies.com/
+
+Summary:
+Message End Points
+    3 Active MessageEndPoints:
+        http://twitter.com/fortunatefamilies
+             FarReaches Id: 123
+        http://facebook.com/page/FortunateFamiliesNewsLetter
+            FarReaches Id: 45
+        http://tumblr.com/fortunatefamilies
+          FarReaches Id: 13
+    1 Disabled MessageEndPoint:
+        http://facebook.com/page/FortunateFamilies ( Authorization )
+
+Unresolved Post Issues:
+    MessageThread: 10  
+        http://twitter.com/fortunatefamilies
+             FarReaches Id: 123
+        FAIL(message 'a post from editor(should fail)' with status 'aut' for twitter.com
 
 *********************************************************************************
-Running the customer problem report for the customer editor@amplafi.com
-*********************************************************************************
-
-
-*********************************************************************************
-Create the temporaty api key for the customer editor@amplafi.com
-*********************************************************************************
-Temporary Key: ampcb_0b210b79c251f4161ac9f9b7ddb705df8a23e5a38d01ccafa397b16b2df7aa0e
-
-
-*********************************************************************************
-Avaliable Categories
-*********************************************************************************
-  #            Topic Id                Name
------------------------------------------------------------------------------------------
-  1                   4         Social Site
-
-
-*********************************************************************************
-Available External Services(Social Services)
-*********************************************************************************
-  #          Ext Service
------------------------------------------------------------------------------------------
-  1             Facebook
-  2               Tumblr
-  3              Twitter
-
 
 *********************************************************************************
 User Role And Configuration Information
 *********************************************************************************
-User editor@amplafi.com has the following roles:
+michael@fortunatefamilies.com:
+   [ AccountAdmin, Editor, Submitter, User, Guest ]
+   Michael Harmuth
 
-    "ROLE_EDITOR"
-    "ROLE_SUBMITTER"
-    "ROLE_USER"
-    "ROLE_GUEST"
-    "ROLE_NONE
-]
+peter@fortunatefamilies.com:
+   [ Editor, Submitter, User, Guest ]
+   Peter Jons
+   
+*********************************************************************************
+Categories
+*********************************************************************************
+Breaking News:
+  FarReaches Id: 23
+  External Ids:   fortunatefamilies.com (wordpress.com/3)
+                  tumblr.com (tumblr.com/45952)
+  Post Count: 10
+  MessageEndPoints: 
+          123              http://twitter.com/fortunatefamilies
+          13               http://tumblr.com/fortunatefamilies
+
+Story of the Month:
+  FarReaches Id: 423
+  External Ids: 
+          fortunatefamilies.com (wordpress.com/2)
+          tumblr.com (tumblr.com/452321)
+  Post Count: 3
+  MessageEndPoints: 
+          123              http://twitter.com/fortunatefamilies
+          13               http://tumblr.com/fortunatefamilies
+          45               http://facebook.com/page/FortunateFamiliesNewsLetter
+
+News of the World:
+  FarReaches Id: 239
+  External Ids:
+           fortunatefamilies.com (wordpress.com/1)
+  Post Count: 8
+
+*********************************************************************************
+Message End Points
+*********************************************************************************
+http://twitter.com/fortunatefamilies
+  FarReaches Id: 123
+  ExternalServiceDefinition: twitter.com
+  Categories:
+            Breaking News (23)
+  Posts: 5
+
+http://facebook.com/page/FortunateFamiliesNewsLetter
+  FarReaches Id: 45
+  ExternalServiceDefinition: facebook.com
+  Categories:
+            Story of the Month (423)
+  Posts: 3
+
+http://tumblr.com/fortunatefamilies
+  FarReaches Id: 13
+  ExternalServiceDefinition: tumblr.com
+  Categories:
+            Breaking News (23)
+            Story of the Month (423)
+  Posts: 9
 
 
 *********************************************************************************
-Message End Point List Flow
+Post Info
 *********************************************************************************
-  #    Ext Service      User Name      Full Name      Topic Ids
------------------------------------------------------------------------------------------
-  1    twitter.com       tuan0875    Tuan Nguyen            [4]
+MessageThread:
+   FarReaches Id: 10
+   Title: a post from editor(should fail)
+   Body: a post from editor(should fail)
+
+   BroadcastEnvelopes: [ Note: in time reversed order ]
+       FarReaches Id: 12341
+       External Ids:
+         facebook.com : 23423413284 ( http://facebook.com/post/23423413284 ) 
+         twitter.com : 23742374923749253422 ( http://twitter.com/status/23742374923749253422) 
+         tumblr.com : 234682364872648 ( http://tumblr.com/post/234682364872648 ) 
+       Transmission:
+          http://twitter.com/fortunatefamilies (123)
+                    Failed (authentication)    03 February 2013 12:11 GMT
+                    Successful                 03 February 2013 13:11 GMT
+
+       FarReaches Id: 1230
+       External Ids:
+         fortunatefamilies.com : 12 ( http://fortunatefamiles.com/?p=12 ) 
+         facebook.com : 12343453422 ( http://facebook.com/post/12343453422 ) 
+   
+       Transmission:
+          http://twitter.com/fortunatefamilies (123)
+                    Failed (authentication)    03 January 2013 12:11 GMT
+                    Successful                 03 January 2013 13:11 GMT
+          http://facebook.com/page/FortunateFamiliesNewsLetter (45)
+                    Successful    03 January 2013 13:11 GMT
+
+
+   FarReaches Id: 7
+   Title: a post from editor
+   Body: a post from editor
+      .... ( as above ) .....
 
 
 *********************************************************************************
-ApiRequestAuditEntry log, user = editor@amplafi.com
+ApiRequestAuditEntry log
 *********************************************************************************
 Flow                                      Http 1xx  Http 200  Http 2xx  Http 3xx  Http 4xx  Http 5xx
 -----------------------------------------------------------------------------------------------------
@@ -67,7 +144,7 @@ TemporaryApiKey                                  0         2         0         0
 ExternalApiMethodCallAuditEntry log
 *********************************************************************************
 -----------------------------------------------------------------------------------------------------
-Statistic for twitter.com
+twitter.com
 -----------------------------------------------------------------------------------------------------
 Method                     Http 1xx  Http 200  Http 2xx  Http 3xx  Http 4xx  Http 5xx
 -----------------------------------------------------------------------------------------------------
@@ -78,64 +155,20 @@ GET_REQUEST_TOKEN                 0         1         0         0         0     
 
 
 
-
-
-
 ----------------------------------------------------------------------------------------------
 External Api Detail Calls
 ----------------------------------------------------------------------------------------------
-                Date Namespace                     Method   EES Status Message                                           
+                Date MessageEndPoint               Namespace                     Method   EES Status Message                                           
 ----------------------------------------------------------------------------------------------
- 03/02/2013@08:11:27 twitter.com              ADD_MESSAGE   aut    401 Status code: 401 Unauthorized request             
- 03/02/2013@08:09:43 twitter.com              ADD_MESSAGE  null    200 null                                              
- 03/02/2013@08:08:01 twitter.com              ADD_MESSAGE  null    200 null                                              
- 03/02/2013@08:03:24 twitter.com               CHECK_AUTH  null    200 null                                              
- 03/02/2013@08:03:23 twitter.com                GET_TOKEN  null    200 null                                              
- 03/02/2013@08:03:19 twitter.com               CHECK_AUTH   aut    401 Status code: 401 Unauthorized request             
- 03/02/2013@08:03:13 twitter.com        GET_REQUEST_TOKEN  null    200 null                                              
- 03/02/2013@08:03:12 twitter.com               CHECK_AUTH   rej    400 Status code: 400 Bad request                      
+ 03/02/2013@08:11:27 twitter.com/fortunatefamilies twitter.com              ADD_MESSAGE   aut    401 Status code: 401 Unauthorized request
+                                                                        [ Note: add additional details: like information about the post being sent ]
+ 03/02/2013@08:09:43 twitter.com/fortunatefamilies twitter.com              ADD_MESSAGE  null    200 null                                              
+ 03/02/2013@08:08:01 twitter.com/fortunatefamilies twitter.com              ADD_MESSAGE  null    200 null                                              
+ 03/02/2013@08:03:24 twitter.com/fortunatefamilies twitter.com               CHECK_AUTH  null    200 null                                              
+ 03/02/2013@08:03:23 twitter.com/fortunatefamilies twitter.com                GET_TOKEN  null    200 null                                              
+ 03/02/2013@08:03:19 twitter.com/fortunatefamilies twitter.com               CHECK_AUTH   aut    401 Status code: 401 Unauthorized request             
+ 03/02/2013@08:03:13 twitter.com/fortunatefamilies twitter.com        GET_REQUEST_TOKEN  null    200 null                                              
+ 03/02/2013@08:03:12 twitter.com/fortunatefamilies twitter.com               CHECK_AUTH   rej    400 Status code: 400 Bad request                      
 
 
-*********************************************************************************
-Post Info For editor@amplafi.com
-*********************************************************************************
-Id: 10
-Title: a post from editor(should fail)
-Body: a post from editor(should fail)
-External Service             Status                 Complete Time
-----------------------------------------------------------------------------------------------
-twitter.com                     aut    03 February 2013 13:11 GMT
-
-
-Id: 7
-Title: a post from editor
-Body: a post from editor
-External Service             Status                 Complete Time
-----------------------------------------------------------------------------------------------
-twitter.com                     pcd    03 February 2013 13:09 GMT
-
-
-
-
-*********************************************************************************
-Summary report for the user editor@amplafi.com
-*********************************************************************************
-Create a temporary key for the user editor@amplafi.com:
-    SUCCESS(Api Key = ampcb_0b210b79c251f4161ac9f9b7ddb705df8a23e5a38d01ccafa397b16b2df7aa0e
-
-Available Categories
-    SUCCESS(1 categories are found
-
-Available External Services:
-    SUCCESS(3 external services are found
-
-User Roles
-    SUCCESS(["ROLE_EDITOR","ROLE_SUBMITTER","ROLE_USER","ROLE_GUEST","ROLE_NONE"]
-
-Message End Points
-    SUCCESS(user is connected to 1 external services
-
-User Post Info:
-    FAIL(message 'a post from editor(should fail)' with status 'aut' for twitter.com
-    FAIL(1 failed posts are detected from 2 posts
 
