@@ -4,15 +4,15 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>amplafi-flow-client</artifactId>
-    <version>0.9.4-SNAPSHOT</version>	
+    <version>0.9.4-SNAPSHOT</version>
     <parent>
         <groupId>org.amplafi</groupId>
         <artifactId>amplafi-opensource-parent</artifactId>
         <version>1.0.4</version>
         <relativePath>../amplafi-opensource-parent/pom.xml</relativePath>
-    </parent>	
+    </parent>
 
-    
+
     <packaging>jar</packaging>
     <name>Amplafi Flow - Client and interfaces</name>
     <description>CLI client</description>
@@ -20,13 +20,13 @@
         <developerConnection>scm:git:${github-base}${project.artifactId}.git</developerConnection>
     </scm>
 
-    <dependencies> 
-  
-  	    <dependency>
+    <dependencies>
+
+        <dependency>
           <groupId>org.codehaus.groovy</groupId>
           <artifactId>groovy-all</artifactId>
           <version>1.8.6</version>
-  	    </dependency>
+        </dependency>
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
@@ -43,7 +43,7 @@
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j-build}</version>
-        </dependency>                
+        </dependency>
 
         <dependency>
             <groupId>org.testng</groupId>
@@ -52,7 +52,7 @@
            <!-- <scope>test</scope> -->
             <exclusions>
                 <!-- exclude again when surefire 2.7 -->
-                <!--exclusion> <groupId>junit</groupId> <artifactId>junit</artifactId> 
+                <!--exclusion> <groupId>junit</groupId> <artifactId>junit</artifactId>
                     </exclusion -->
             </exclusions>
         </dependency>
@@ -72,7 +72,7 @@
             <artifactId>amplafi-json</artifactId>
             <version>${amplafi-json-build}</version>
             <type>jar</type>
-            
+
         </dependency>
 
         <dependency>
@@ -90,8 +90,8 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-        </dependency>  
-        
+        </dependency>
+
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>properties-maven-plugin</artifactId>
@@ -101,18 +101,7 @@
     </dependencies>
     <build>
         <defaultGoal>test</defaultGoal>
-        <plugins>                
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.9.1</version>
-                <configuration>
-                    <enableRulesSummary>false</enableRulesSummary>
-                    <configLocation>../amplafi-opensource-parent/src/main/resources/checkstyle/amplafi-checkstyle.xml</configLocation>
-                    <consoleOutput>true</consoleOutput>
-    <!--        <suppressionsLocation>${basedir}/../checkstyle-suppressions.xml</suppressionsLocation> -->
-                </configuration>
-          </plugin>
+        <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
@@ -150,13 +139,13 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin-build}</version>
                 <configuration>
-					<compilerId>groovy-eclipse-compiler</compilerId>
+                    <compilerId>groovy-eclipse-compiler</compilerId>
                     <source>${android-java-build}</source>
                     <target>${android-java-build}</target>
                     <encoding>UTF-8</encoding>
                     <!-- for when javac crashes <compilerArgument>-verbose</compilerArgument> -->
                 </configuration>
-				<dependencies>
+                <dependencies>
                   <dependency>
                     <groupId>org.codehaus.groovy</groupId>
                     <artifactId>groovy-eclipse-compiler</artifactId>
@@ -172,14 +161,14 @@
                     <excludes>
                         <!-- TestFlowTypes is for an old version of the API which may be out of use -->
                         <exclude>**/TestFlowTypes.java</exclude>
-                        <!-- TestFlowTypesSandBox should be enabled, it is only disabled while we make sure it works with the continuous integration 
-                        make sure it works with the  continuous integration server.   
-   					    <exclude>**/TestFlowTypesSandBox.java</exclude>  -->
-   					    <exclude>**/TestScriptRunner.java</exclude>  
-                        <exclude>**/TestDSLScriptsBatchRunner.java</exclude> 
-                         
-                        <exclude>**/TestFlowTypesSandBox.java</exclude> 
-                         
+                        <!-- TestFlowTypesSandBox should be enabled, it is only disabled while we make sure it works with the continuous integration
+                        make sure it works with the  continuous integration server.
+                        <exclude>**/TestFlowTypesSandBox.java</exclude>  -->
+                        <exclude>**/TestScriptRunner.java</exclude>
+                        <exclude>**/TestDSLScriptsBatchRunner.java</exclude>
+
+                        <exclude>**/TestFlowTypesSandBox.java</exclude>
+
                     </excludes>
 
                     <systemPropertyVariables>
@@ -187,7 +176,7 @@
                         <key>ampcb_720df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469</key>
                         <host>http://sandbox.farreach.es</host>
                         <port>8080</port>
-                        <!-- List the flows that you want to ignore here   -->		                                     
+                        <!-- List the flows that you want to ignore here   -->
                          <ignoreFlows>PermanentApiKey,CategoriesList</ignoreFlows>
                     </systemPropertyVariables>
                 </configuration>
