@@ -1,0 +1,174 @@
+
+*********************************************************************************
+Fortunate Families
+     http://fortunatefamilies.com/
+
+Summary:
+Message End Points
+    3 Active MessageEndPoints:
+        http://twitter.com/fortunatefamilies
+             FarReaches Id: 123
+        http://facebook.com/page/FortunateFamiliesNewsLetter
+            FarReaches Id: 45
+        http://tumblr.com/fortunatefamilies
+          FarReaches Id: 13
+    1 Disabled MessageEndPoint:
+        http://facebook.com/page/FortunateFamilies ( Authorization )
+
+Unresolved Post Issues:
+    MessageThread: 10  
+        http://twitter.com/fortunatefamilies
+             FarReaches Id: 123
+        FAIL(message 'a post from editor(should fail)' with status 'aut' for twitter.com
+
+*********************************************************************************
+
+*********************************************************************************
+User Role And Configuration Information
+*********************************************************************************
+michael@fortunatefamilies.com:
+   [ AccountAdmin, Editor, Submitter, User, Guest ]
+   Michael Harmuth
+
+peter@fortunatefamilies.com:
+   [ Editor, Submitter, User, Guest ]
+   Peter Jons
+   
+*********************************************************************************
+Categories
+*********************************************************************************
+Breaking News:
+  FarReaches Id: 23
+  External Ids:   fortunatefamilies.com (wordpress.com/3)
+                  tumblr.com (tumblr.com/45952)
+  Post Count: 10
+  MessageEndPoints: 
+          123              http://twitter.com/fortunatefamilies
+          13               http://tumblr.com/fortunatefamilies
+
+Story of the Month:
+  FarReaches Id: 423
+  External Ids: 
+          fortunatefamilies.com (wordpress.com/2)
+          tumblr.com (tumblr.com/452321)
+  Post Count: 3
+  MessageEndPoints: 
+          123              http://twitter.com/fortunatefamilies
+          13               http://tumblr.com/fortunatefamilies
+          45               http://facebook.com/page/FortunateFamiliesNewsLetter
+
+News of the World:
+  FarReaches Id: 239
+  External Ids:
+           fortunatefamilies.com (wordpress.com/1)
+  Post Count: 8
+
+*********************************************************************************
+Message End Points
+*********************************************************************************
+http://twitter.com/fortunatefamilies
+  FarReaches Id: 123
+  ExternalServiceDefinition: twitter.com
+  Categories:
+            Breaking News (23)
+  Posts: 5
+
+http://facebook.com/page/FortunateFamiliesNewsLetter
+  FarReaches Id: 45
+  ExternalServiceDefinition: facebook.com
+  Categories:
+            Story of the Month (423)
+  Posts: 3
+
+http://tumblr.com/fortunatefamilies
+  FarReaches Id: 13
+  ExternalServiceDefinition: tumblr.com
+  Categories:
+            Breaking News (23)
+            Story of the Month (423)
+  Posts: 9
+
+
+*********************************************************************************
+Post Info
+*********************************************************************************
+MessageThread:
+   FarReaches Id: 10
+   Title: a post from editor(should fail)
+   Body: a post from editor(should fail)
+
+   BroadcastEnvelopes: [ Note: in time reversed order ]
+       FarReaches Id: 12341
+       External Ids:
+         facebook.com : 23423413284 ( http://facebook.com/post/23423413284 ) 
+         twitter.com : 23742374923749253422 ( http://twitter.com/status/23742374923749253422) 
+         tumblr.com : 234682364872648 ( http://tumblr.com/post/234682364872648 ) 
+       Transmission:
+          http://twitter.com/fortunatefamilies (123)
+                    Failed (authentication)    03 February 2013 12:11 GMT
+                    Successful                 03 February 2013 13:11 GMT
+
+       FarReaches Id: 1230
+       External Ids:
+         fortunatefamilies.com : 12 ( http://fortunatefamiles.com/?p=12 ) 
+         facebook.com : 12343453422 ( http://facebook.com/post/12343453422 ) 
+   
+       Transmission:
+          http://twitter.com/fortunatefamilies (123)
+                    Failed (authentication)    03 January 2013 12:11 GMT
+                    Successful                 03 January 2013 13:11 GMT
+          http://facebook.com/page/FortunateFamiliesNewsLetter (45)
+                    Successful    03 January 2013 13:11 GMT
+
+
+   FarReaches Id: 7
+   Title: a post from editor
+   Body: a post from editor
+      .... ( as above ) .....
+
+
+*********************************************************************************
+ApiRequestAuditEntry log
+*********************************************************************************
+Flow                                      Http 1xx  Http 200  Http 2xx  Http 3xx  Http 4xx  Http 5xx
+-----------------------------------------------------------------------------------------------------
+AvailableCategoriesFlow                          0        20         0         0         0         0
+EligibleExternalServiceInstancesFlow             0        20         0         0         0         0
+MessageEndPointListFlow                          0        20         0         0         0         0
+EnvelopeStatuses                                 0        17         0         0         0         0
+CreateAlert                                      0         2         0         0         0         0
+TemporaryApiKey                                  0         2         0         0         0         0
+
+
+*********************************************************************************
+ExternalApiMethodCallAuditEntry log
+*********************************************************************************
+-----------------------------------------------------------------------------------------------------
+twitter.com
+-----------------------------------------------------------------------------------------------------
+Method                     Http 1xx  Http 200  Http 2xx  Http 3xx  Http 4xx  Http 5xx
+-----------------------------------------------------------------------------------------------------
+ADD_MESSAGE                       0         2         0         0         1         0
+CHECK_AUTH                        0         1         0         0         2         0
+GET_TOKEN                         0         1         0         0         0         0
+GET_REQUEST_TOKEN                 0         1         0         0         0         0
+
+
+
+----------------------------------------------------------------------------------------------
+External Api Detail Calls
+----------------------------------------------------------------------------------------------
+                Date MessageEndPoint               Namespace                     Method   EES Status Message                                           
+----------------------------------------------------------------------------------------------
+ 03/02/2013@08:11:27 twitter.com/fortunatefamilies twitter.com              ADD_MESSAGE   aut    401 Status code: 401 Unauthorized request
+                                                                        [ Note: add additional details: like information about the post being sent ]
+ 03/02/2013@08:09:43 twitter.com/fortunatefamilies twitter.com              ADD_MESSAGE  null    200 null                                              
+ 03/02/2013@08:08:01 twitter.com/fortunatefamilies twitter.com              ADD_MESSAGE  null    200 null                                              
+ 03/02/2013@08:03:24 twitter.com/fortunatefamilies twitter.com               CHECK_AUTH  null    200 null                                              
+ 03/02/2013@08:03:23 twitter.com/fortunatefamilies twitter.com                GET_TOKEN  null    200 null                                              
+ 03/02/2013@08:03:19 twitter.com/fortunatefamilies twitter.com               CHECK_AUTH   aut    401 Status code: 401 Unauthorized request             
+ 03/02/2013@08:03:13 twitter.com/fortunatefamilies twitter.com        GET_REQUEST_TOKEN  null    200 null                                              
+ 03/02/2013@08:03:12 twitter.com/fortunatefamilies twitter.com               CHECK_AUTH   rej    400 Status code: 400 Bad request                      
+
+
+
