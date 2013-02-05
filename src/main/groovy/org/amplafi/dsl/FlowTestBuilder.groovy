@@ -82,7 +82,7 @@ public class FlowTestBuilder {
         this.key = key;
     }
 
-
+    
     /**
      * Configure the closure to be runnaable
      */
@@ -122,6 +122,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def boolean verbose;
     private Log log;
     private static boolean DEBUG;
+    //private List<String> ignoreList = new ArrayList<String>();
 
     /** This stores the base uri including the host,port,apikey */
     private String requestUriString = null;
@@ -150,6 +151,12 @@ public class FlowTestDSL extends DescribeScriptDSL {
         this.verbose = verbose;
     }
 
+    //TODO 
+ //   def setIgnorePathList(List<String> ignoreList){
+	//	println(">>>>>>>>>>>ignoreList = "+ignoreList)
+ //      this.ignoreList = ignoreList;
+ //   }
+    
     public void description (String name, String description){
     }
     
@@ -231,8 +238,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def log(msg){ 
         emitOutput(msg)
     }
-
-    /**
+	
+	 /**
      * Throws a test error if the actual data returned from the server is not the same as
      * the expected JSON
      * @param expectedJSONData
@@ -240,8 +247,18 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def expect(String expectedJSONData){
         JSONObject expected = new JSONObject(expectedJSONData);
         JSONObject actual = new JSONObject(lastRequestResponse);
-        assertEquals(expected,actual);
+        assertTrue(compare(expected,actual,null));
+    }
 
+    /**
+     * Throws a test error if the actual data returned from the server is not the same as
+     * the expected JSON
+     * @param expectedJSONData, ignorePathList
+     */
+    def expect(String expectedJSONData,List<String> ignorePathList){
+        JSONObject expected = new JSONObject(expectedJSONData);
+        JSONObject actual = new JSONObject(lastRequestResponse);
+        assertTrue(compare(expected,actual,ignorePathList));
     }
 
     /**
@@ -249,7 +266,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     def prettyPrintResponse(){
         emitOutput(getResponseData().toString(4));
-    
     }
 
     /**
@@ -257,34 +273,27 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     def callScript(String scriptName, Map callparamsmap){
 
-         //def exe = ScriptRunner.createClosure(scriptPath);
-         def exe = runner.createClosure(scriptName,callparamsmap);
-         if(exe){
+        def exe = runner.createClosure(scriptName,callparamsmap);
+        if(exe){
             exe.delegate = this;
             exe();
-         }
-  
+        }
     }
 
     def getResponseData(){
         def data = null;
- 
         try {
             // first assume it is a normal object 
             data = new JSONObject(lastRequestResponse);
-
         } catch (Exception e){
             try {
                 // then see if it is an array
                 data = new JSONArray(lastRequestResponse);
-
             } catch (Exception e2){
                 fail("Invalid JSON. " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
             }
         }
-        
         return data;
-    
     }
 
     /**
@@ -294,9 +303,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
         try {
             getResponseData();
         } catch (Exception e){
-           getLog.error("Invalid JSON Returned: " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
+            getLog.error("Invalid JSON Returned: " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
         }
-
     }
 
     /**
@@ -309,8 +317,81 @@ public class FlowTestDSL extends DescribeScriptDSL {
             return this.host + ":" + this.port + "/c/" + this.key   + "/" + this.apiVersion; 
         }
     }
+    
+    public boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths){
+		println("################expected = "+expected);
+		println("#################actual = "+actual);
+        def isEqual = compare(expected,actual,excludePaths,"/");
+        return isEqual;
+    }
 
+    /**
+     * method to compare the actual jsonObject return to us with our expected, and can ignore some compared things,return true when they are the same. v */
+    public boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths, String currentPath){
+        def isEqual = false;
+        // when the compared object is null,return true directly.
+        if(expected == null && actual == null){
+            return true;
+        }
 
+        if(expected == null || actual == null){
+            fail("One of the expected and the actual is null");
+            return false;
+        }
+
+        def expectedNames = expected.names();
+        def actualNames = actual.names();
+
+        if(expectedNames == null && actualNames == null){
+            return true;
+        }
+
+        if(expectedNames == null || actualNames == null){
+            fail("One of the expected and the actual is null");
+            return false;
+        }
+        int i = 0;
+        //loops all of the property name in the object
+        actualNames.each { actualName ->
+            def expectedName = expectedNames.get(i);
+            def actualValue = actual.get(actualName);
+            def expectedValue = expected.get(expectedName);
+
+            //if no ignore compared things or current compared thing is not in the ignore,then we go to compare.
+            if(excludePaths == null){
+                excludePaths = new ArrayList<String>();
+                excludePaths.add("there is no ignore path");
+            }
+
+            if(!excludePaths.contains(currentPath)){
+                if(actualName.equals(expectedName)){
+                    if(expectedValue instanceof JSONObject && actualValue instanceof JSONObject ){
+                        isEqual = compare(expectedValue,actualValue,excludePaths,currentPath  + actualName + "/");
+                    }else{
+                        if (!excludePaths.contains(currentPath  + actualName + "/")){
+                            isEqual = actualValue.equals(expectedValue);
+                            if(!isEqual){
+                                fail("The two object is not equal in " + currentPath + actualName +":" + " expected is " + expectedValue + " but the actual is " + actualValue );
+                            }
+                        }
+                    }
+                }else{
+                    isEqual = false;
+                    fail("The property expected name is "+expectedName+" but the actual name is " + actualName);
+                }
+            }else{
+                isEqual = true;
+                return;
+            }
+            if(isEqual == false){
+                return;
+            }
+            i++;
+        }
+        return isEqual;
+        
+    }
+    
     private void debug(String msg){
         getLog().debug(msg);
     }
@@ -383,13 +464,21 @@ public class DescribeScriptDSL {
         throw new NoDescriptionException();
     }
 
-
-    /**
+/**
      * Throws a test error if the actual data returned from the server is not the same as
      * the expected JSON
      * @param expectedJSONData
      */
     def expect(String expectedJSONData){
+        throw new NoDescriptionException();
+    }
+	
+    /**
+     * Throws a test error if the actual data returned from the server is not the same as
+     * the expected JSON, ignorePathList
+     * @param expectedJSONData
+     */
+    def expect(String expectedJSONData,List<String> ignorePathList){
         throw new NoDescriptionException();
     }
 
@@ -413,6 +502,10 @@ public class DescribeScriptDSL {
     def callScript(String scriptPath){
         throw new NoDescriptionException();
     }
+	
+	//def setIgnorePathList(List<String> ignoreList){
+	//
+	//}
     
     /**
      * @param message
