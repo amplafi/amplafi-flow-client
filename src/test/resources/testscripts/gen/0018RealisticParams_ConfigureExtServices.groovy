@@ -1,15 +1,188 @@
 request("ConfigureExtServices", ["configuration":"abc","messageEndPointList":"['a','b','c']","messageEndPointUri":"null","messageSourcePointUri":"null","messageSourcePointList":"['a','b','c']","messageSourcePointUriMap":"null","connectionGroup":"null","connectionGroupList":"['a','b','c']","internalSourcePoint":"null","messageEndPointType":"null","messageSourcePointType":"null","externalServiceDefinitionsMap":"null","externalServiceDefinition":"null","externalServiceInstance":"null","newExternalServiceInstance":"null","defaultExternalServiceInstance":"null","newExternalServiceInstanceLookupKey":"abc","useDefaultExternalServiceInstanceIfNeeded":"null","externalCredential":"null","publicUri":"null","messageEndPoint":"null","messageSourcePoint":"null","fsRenderResult":"json"])
 
-checkReturnedValidJson()
+def ignorePathList = ["/flowState/fsLookupKey/"];
+
+expect("""{
+    "flowState": {
+        "fsComplete": true,
+        "fsCurrentActivityByName": "extServices",
+        "fsLookupKey": "ConfigureExtServices_8494wczd",
+        "fsParameters": {
+            "connectionGroupType": "rst",
+            "configuration": "abc",
+            "user": 4,
+            "broadcastProvider": 2,
+            "messageEndPointList": [],
+            "messageEndPointUri": "null",
+            "messageSourcePointUri": "null",
+            "messageSourcePointList": [],
+            "messageSourcePointUriMap": null,
+            "connectionGroupList": [],
+            "internalSourcePoint": false,
+            "externalServiceDefinitionsMap": null,
+            "newExternalServiceInstanceLookupKey": "abc",
+            "useDefaultExternalServiceInstanceIfNeeded": false,
+            "publicUri": "null",
+            "callback": "ampcb_720df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469"
+        }
+    },
+    "validationErrors": {"flow-result": {"flowValidationTracking": [{
+        "key": "MissingRequiredTracking",
+        "parameters": [
+            "externalServiceDefinition",
+            "No external service definition found to create a service instance."
+        ]
+    }]}}
+}""",ignorePathList)
+
 request("ConfigureExtServices", ["configuration":"abc","messageEndPointList":"['a','b','c']","messageEndPointUri":"null","messageSourcePointUri":"null","messageSourcePointList":"['a','b','c']","messageSourcePointUriMap":"null","connectionGroup":"null","connectionGroupList":"['a','b','c']","internalSourcePoint":"null","messageEndPointType":"null","messageSourcePointType":"null","externalServiceDefinitionsMap":"null","externalServiceDefinition":"null","externalServiceInstance":"null","newExternalServiceInstance":"null","defaultExternalServiceInstance":"null","newExternalServiceInstanceLookupKey":"abc","useDefaultExternalServiceInstanceIfNeeded":"null","externalCredential":"null","publicUri":"null","messageEndPoint":"null","messageSourcePoint":"null","connectionGroupType":"null","connectionType":"null","fsRenderResult":"json"])
 
-checkReturnedValidJson()
+ignorePathList = ["/flowState/fsLookupKey/"];
+
+expect("""{
+    "flowState": {
+        "fsComplete": true,
+        "fsCurrentActivityByName": "extServices",
+        "fsLookupKey": "ConfigureExtServices_dz17fm2b",
+        "fsParameters": {
+            "configuration": "abc",
+            "user": 4,
+            "broadcastProvider": 2,
+            "messageEndPointList": [],
+            "messageEndPointUri": "null",
+            "messageSourcePointUri": "null",
+            "messageSourcePointList": [],
+            "messageSourcePointUriMap": null,
+            "connectionGroupList": [],
+            "internalSourcePoint": false,
+            "externalServiceDefinitionsMap": null,
+            "newExternalServiceInstanceLookupKey": "abc",
+            "useDefaultExternalServiceInstanceIfNeeded": false,
+            "publicUri": "null",
+            "callback": "ampcb_720df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469"
+        }
+    },
+    "validationErrors": {"flow-result": {"flowValidationTracking": [{
+        "key": "MissingRequiredTracking",
+        "parameters": [
+            "externalServiceDefinition",
+            "No external service definition found to create a service instance."
+        ]
+    }]}}
+}""",ignorePathList)
+
 request("ConfigureExtServices", ["messageEndPointList":"['a','b','c']","messageEndPointUri":"null","messageSourcePointUri":"null","messageSourcePointList":"['a','b','c']","messageSourcePointUriMap":"null","connectionGroup":"null","connectionGroupList":"['a','b','c']","internalSourcePoint":"null","messageEndPointType":"null","messageSourcePointType":"null","externalServiceDefinitionsMap":"null","externalServiceDefinition":"null","externalCredential":"null","publicUri":"null","messageEndPoint":"null","messageSourcePoint":"null","configuration":"abc","showPointSpecificProperites":"null","hideExistingExternalServiceInstances":"null","externalServiceInstance":"null","newExternalServiceInstance":"null","defaultExternalServiceInstance":"null","newExternalServiceInstanceLookupKey":"abc","useDefaultExternalServiceInstanceIfNeeded":"null","externalServiceAwaitingCallback":"null","callback":"null","fsRenderResult":"json"])
 
-checkReturnedValidJson()
+ignorePathList = ["/flowState/fsLookupKey/"];
+
+expect("""{
+    "flowState": {
+        "fsComplete": true,
+        "fsCurrentActivityByName": "extServices",
+        "fsLookupKey": "ConfigureExtServices_k2pl81zh",
+        "fsParameters": {
+            "connectionGroupType": "rst",
+            "configuration": "abc",
+            "user": 4,
+            "broadcastProvider": 2,
+            "messageEndPointList": [],
+            "messageEndPointUri": "null",
+            "messageSourcePointUri": "null",
+            "messageSourcePointList": [],
+            "messageSourcePointUriMap": null,
+            "connectionGroupList": [],
+            "internalSourcePoint": false,
+            "externalServiceDefinitionsMap": null,
+            "newExternalServiceInstanceLookupKey": "abc",
+            "useDefaultExternalServiceInstanceIfNeeded": false,
+            "publicUri": "null",
+            "hideExistingExternalServiceInstances": false,
+            "callback": "ampcb_720df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469"
+        }
+    },
+    "validationErrors": {"flow-result": {"flowValidationTracking": [{
+        "key": "MissingRequiredTracking",
+        "parameters": [
+            "externalServiceDefinition",
+            "No external service definition found to create a service instance."
+        ]
+    }]}}
+}""",ignorePathList)
+
 request("ConfigureExtServices", ["configuration":"abc","messageEndPointList":"['a','b','c']","messageEndPointUri":"null","messageSourcePointUri":"null","messageSourcePointList":"['a','b','c']","messageSourcePointUriMap":"null","connectionGroup":"null","connectionGroupList":"['a','b','c']","internalSourcePoint":"null","messageEndPointType":"null","messageSourcePointType":"null","externalServiceDefinitionsMap":"null","externalServiceDefinition":"null","externalServiceInstance":"null","newExternalServiceInstance":"null","defaultExternalServiceInstance":"null","newExternalServiceInstanceLookupKey":"abc","useDefaultExternalServiceInstanceIfNeeded":"null","externalCredential":"null","publicUri":"null","messageEndPoint":"null","messageSourcePoint":"null","fsRenderResult":"json"])
 
-checkReturnedValidJson()
+ignorePathList = ["/flowState/fsLookupKey/"];
+
+expect("""{
+    "flowState": {
+        "fsComplete": true,
+        "fsCurrentActivityByName": "extServices",
+        "fsLookupKey": "ConfigureExtServices_k57co3er",
+        "fsParameters": {
+            "connectionGroupType": "rst",
+            "configuration": "abc",
+            "user": 4,
+            "broadcastProvider": 2,
+            "messageEndPointList": [],
+            "messageEndPointUri": "null",
+            "messageSourcePointUri": "null",
+            "messageSourcePointList": [],
+            "messageSourcePointUriMap": null,
+            "connectionGroupList": [],
+            "internalSourcePoint": false,
+            "externalServiceDefinitionsMap": null,
+            "newExternalServiceInstanceLookupKey": "abc",
+            "useDefaultExternalServiceInstanceIfNeeded": false,
+            "publicUri": "null",
+            "callback": "ampcb_720df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469"
+        }
+    },
+    "validationErrors": {"flow-result": {"flowValidationTracking": [{
+        "key": "MissingRequiredTracking",
+        "parameters": [
+            "externalServiceDefinition",
+            "No external service definition found to create a service instance."
+        ]
+    }]}}
+}""",ignorePathList)
+
 request("ConfigureExtServices", ["configuration":"abc","messageEndPointList":"['a','b','c']","messageEndPointUri":"null","messageSourcePointUri":"null","messageSourcePointList":"['a','b','c']","messageSourcePointUriMap":"null","connectionGroup":"null","connectionGroupList":"['a','b','c']","internalSourcePoint":"null","messageEndPointType":"null","messageSourcePointType":"null","externalServiceDefinitionsMap":"null","externalServiceDefinition":"null","externalServiceInstance":"null","newExternalServiceInstance":"null","defaultExternalServiceInstance":"null","newExternalServiceInstanceLookupKey":"abc","useDefaultExternalServiceInstanceIfNeeded":"null","externalCredential":"null","publicUri":"null","messageEndPoint":"null","messageSourcePoint":"null","availableCategories":"null","selectedTopics":"null","allCategories":"true","categorySelection":"null","fsRenderResult":"json"])
 
-checkReturnedValidJson()
+ignorePathList = ["/flowState/fsLookupKey/"];
+
+expect("""{
+    "flowState": {
+        "fsComplete": true,
+        "fsCurrentActivityByName": "extServices",
+        "fsLookupKey": "ConfigureExtServices_9xray3p6",
+        "fsParameters": {
+            "connectionGroupType": "rst",
+            "configuration": "abc",
+            "user": 4,
+            "broadcastProvider": 2,
+            "messageEndPointList": [],
+            "messageEndPointUri": "null",
+            "messageSourcePointUri": "null",
+            "messageSourcePointList": [],
+            "messageSourcePointUriMap": null,
+            "connectionGroupList": [],
+            "internalSourcePoint": false,
+            "externalServiceDefinitionsMap": null,
+            "newExternalServiceInstanceLookupKey": "abc",
+            "useDefaultExternalServiceInstanceIfNeeded": false,
+            "publicUri": "null",
+            "callback": "ampcb_720df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469",
+            "availableCategories": [],
+            "selectedTopics": [],
+            "allCategories": true
+        }
+    },
+    "validationErrors": {"flow-result": {"flowValidationTracking": [{
+        "key": "MissingRequiredTracking",
+        "parameters": [
+            "externalServiceDefinition",
+            "No external service definition found to create a service instance."
+        ]
+    }]}}
+}""",ignorePathList)
+

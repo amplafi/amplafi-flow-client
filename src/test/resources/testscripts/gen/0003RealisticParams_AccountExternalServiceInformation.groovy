@@ -1,3 +1,17 @@
 request("AccountExternalServiceInformation", ["configuration":"abc","externalServiceNatures":"['a','b','c']","externalServiceDefinitionsMap":"null","externalServiceDefinition":"null","fsRenderResult":"json"])
 
-checkReturnedValidJson()
+def ignorePathList = ["/flowState/fsLookupKey/"];
+
+expect("""{"flowState": {
+    "fsComplete": true,
+    "fsLookupKey": "AccountExternalServiceInformation_imxqf9go",
+    "fsParameters": {
+        "fsFlowTransitions": null,
+        "fsSuggestedNextFlowType": null,
+        "configuration": "abc",
+        "user": 4,
+        "broadcastProvider": 2,
+        "externalServiceDefinitionsMap": null
+    }
+}}""",ignorePathList)
+
