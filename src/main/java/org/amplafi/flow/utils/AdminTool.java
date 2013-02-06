@@ -31,7 +31,7 @@ public class AdminTool{
     private String comandScriptPath;
     private String configFileName;
     private Log log;
-    
+
     /**
      * Main entry point for tool
      */
@@ -44,7 +44,7 @@ public class AdminTool{
     }
 
     /**
-     * Process command line 
+     * Process command line
      * @param args
      */
     public void processCommandLine(String[] args){
@@ -56,7 +56,7 @@ public class AdminTool{
             getLog().error("Could not parse passed arguments, message:", e);
             return;
         }
-        // Print help if there has no args. 
+        // Print help if there has no args.
         if (args.length == 0) {
             cmdOptions.printHelp();
             return;
@@ -65,11 +65,11 @@ public class AdminTool{
         // Obtain a list of script descriptions from the script runner
         // this will also check for basic script compilation errors or lack of description lines in script.
         ScriptRunner runner  = new ScriptRunner("");
-        Map<String,ScriptDescription>  scriptLookup = runner.processScriptsInFolder(getComandScriptPath()); 
+        Map<String,ScriptDescription>  scriptLookup = runner.processScriptsInFolder(getComandScriptPath());
         if (cmdOptions.hasOption(LIST) || cmdOptions.hasOption(LISTDETAILED)){
-            // If user has asked for a list of commands then list the good scripts with their 
-            // descriptions.             
-            for (ScriptDescription sd : runner.getGoodScripts() ){ 
+            // If user has asked for a list of commands then list the good scripts with their
+            // descriptions.
+            for (ScriptDescription sd : runner.getGoodScripts() ){
                 if(cmdOptions.hasOption(LIST)){
                     emitOutput("     " + sd.getName() + "       - " + sd.getDescription());
                 }else{
@@ -77,10 +77,10 @@ public class AdminTool{
                 }
             }
             // List scripts that have errors if there are any
-            if (runner.getScriptsWithErrors().size() > 0){  
-                emitOutput("The following scripts have errors: "); 
+            if (runner.getScriptsWithErrors().size() > 0){
+                emitOutput("The following scripts have errors: ");
             }
-            for (ScriptDescription sd : runner.getScriptsWithErrors() ){  
+            for (ScriptDescription sd : runner.getScriptsWithErrors() ){
                 emitOutput("  " + getRelativePath(sd.getPath()) + "       - " + sd.getErrorMesg());
             }
         } else if(cmdOptions.hasOption(HELP)){
@@ -108,7 +108,7 @@ public class AdminTool{
         } else{
             runScript(null,scriptLookup,cmdOptions);
         }
-        // If the config properties were loaded, save them here. 
+        // If the config properties were loaded, save them here.
         saveProperties();
         return;
     }
@@ -165,21 +165,21 @@ public class AdminTool{
                 runner2.loadAndRunOneScript(filePath);
             } else {
                 getLog().error("No script to run or not found.");
-            } 
+            }
         } catch (IOException ioe){
-            getLog().error("Error : " + ioe);  
+            getLog().error("Error : " + ioe);
         }
     }
 
     /**
-     * Return the script parameters as a map of param name to param valye 
+     * Return the script parameters as a map of param name to param valye
      * @param remainderList
      * @return
      */
     private Map<String,String> getParamMap(List<String> remainderList){
         Map<String,String> map =new HashMap<String, String>();
         // On linux, options like param1=cat comes through as a single param
-        // On windows they come through as 2 params.         
+        // On windows they come through as 2 params.
         // To match options like param1=cat
         String patternStr = "(\\w+)=(\\S+)";
         Pattern p = Pattern.compile(patternStr);
@@ -189,7 +189,7 @@ public class AdminTool{
                 // If mathces then we are looking at param1=cat as a single param
                 map.put(matcher.group(1),matcher.group(2));
             } else {
-                if(remainderList.size()>i+1){        
+                if(remainderList.size()>i+1){
                     map.put(remainderList.get(i),remainderList.get(i+1));
                 }
                 i++;
@@ -203,7 +203,7 @@ public class AdminTool{
      * @param cmdOptions - Command line options
      * @param key - name of property
      * @param defaultVal - default value to suggest
-     * @return the option value. 
+     * @return the option value.
      * @throws IOException
      */
     private String getOption(AdminToolCommandLineOptions cmdOptions,String key,String defaultVal) throws IOException{
@@ -217,7 +217,7 @@ public class AdminTool{
             String prefValue = props.getProperty(key, "");
             if (cmdOptions.hasOption(NOCACHE) || prefValue.equals("")){
                 // prompt the user for the option
-                System.out.print("Please, Enter : " + key + " ( Enter defaults to: "+ defaultVal +") " );  
+                emitOutput("Please, Enter : " + key + " ( Enter defaults to: "+ defaultVal +") " );
                 value = getUserInput(key);
                 if ("".equals(value)){
                     value = defaultVal;
@@ -232,14 +232,14 @@ public class AdminTool{
 
     /**
      *  Gets the configuration properties, loading it if hasn't been loaded
-     *  @return configuration properties. 
+     *  @return configuration properties.
      */
     public Properties getProperties(){
         if (configProperties == null){
             configProperties = new Properties();
             try {
                 //load a properties file
-                configProperties.load(new FileInputStream(getConfigFileName())); 
+                configProperties.load(new FileInputStream(getConfigFileName()));
             } catch (IOException ex) {
                 getLog().error("Error loading file " + getConfigFileName() );
             }
@@ -254,7 +254,7 @@ public class AdminTool{
         if (configProperties != null){
             try {
                 //load a properties file
-                configProperties.store(new FileOutputStream(getConfigFileName()),"Farreach.es Admin tool properties"); 
+                configProperties.store(new FileOutputStream(getConfigFileName()),"Farreach.es Admin tool properties");
             } catch (IOException ex) {
                 getLog().error("Error saving file " + getConfigFileName() );
             }
@@ -264,7 +264,7 @@ public class AdminTool{
     /**
      * @param msg - message to emit
      */
-    
+
     public void emitOutput(String msg){
         getLog().info(msg);
     }
@@ -287,7 +287,7 @@ public class AdminTool{
         if ( comandScriptPath != null){
             return comandScriptPath;
         } else {
-            comandScriptPath = DEFAULT_COMMAND_SCRIPT_PATH;	
+            comandScriptPath = DEFAULT_COMMAND_SCRIPT_PATH;
         }
         return comandScriptPath;
     }
@@ -307,7 +307,7 @@ public class AdminTool{
         if ( configFileName != null){
             return configFileName;
         } else {
-            configFileName = DEFAULT_CONFIG_FILE_NAME;	
+            configFileName = DEFAULT_CONFIG_FILE_NAME;
         }
         return configFileName;
     }
@@ -320,7 +320,7 @@ public class AdminTool{
     }
 
     public String getUserInput(String key){
-         BufferedReader consoleIn =  new BufferedReader(new InputStreamReader(System.in));  
+         BufferedReader consoleIn =  new BufferedReader(new InputStreamReader(System.in));
          String value = "";
         try {
             value = consoleIn.readLine();
