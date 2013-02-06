@@ -188,7 +188,7 @@ public abstract class AbstractTestingStrategy {
             strValue = json;
         }
         Map<String, List<String>> ignoredPaths = getStandardIgnores();
-        getLog().info("!!!!!!!!!!!!!!! " + ignoredPaths);
+        getLog().info("ignoredPaths :  " + ignoredPaths);
         if (ignoredPaths == null || ignoredPaths.get(flowName) == null) {
             writeToFileBuffer("expect(\"\"\"" + strValue + "\"\"\")\n");
         } else {

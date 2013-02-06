@@ -151,11 +151,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
         this.verbose = verbose;
     }
 
-    //TODO 
- //   def setIgnorePathList(List<String> ignoreList){
-	//	println(">>>>>>>>>>>ignoreList = "+ignoreList)
- //      this.ignoreList = ignoreList;
- //   }
     
     public void description (String name, String description){
     }
@@ -319,8 +314,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
     
     public boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths){
-		println("################expected = "+expected);
-		println("#################actual = "+actual);
         def isEqual = compare(expected,actual,excludePaths,"/");
         return isEqual;
     }
