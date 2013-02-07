@@ -87,7 +87,7 @@ public class AdminTool {
                 }
             }
             // List scripts that have errors if there are any
-            if (runner.getScriptsWithErrors().size() > 0) {
+            if (!runner.getScriptsWithErrors().isEmpty()) {
                 emitOutput("The following scripts have errors: ");
             }
             for (ScriptDescription sd : runner.getScriptsWithErrors()) {
@@ -159,7 +159,7 @@ public class AdminTool {
             String key = getOption(cmdOptions, API_KEY, "");
             // Check if we are running and ad-hoc script
             if (filePath == null) {
-                if (remainder.size() > 0) {
+                if (!remainder.isEmpty()) {
                     String scriptName = remainder.get(0);
                     if (scriptLookup.containsKey(scriptName)) {
                         ScriptDescription sd = scriptLookup.get(scriptName);
@@ -171,10 +171,7 @@ public class AdminTool {
             // Get the parameter for the script itself.
             Map<String, String> parammap = getParamMap(remainder);
             // Is verbose switched on?
-            boolean verbose = false;
-            if (cmdOptions.hasOption(VERBOSE)) {
-                verbose = true;
-            }
+            boolean verbose = cmdOptions.hasOption(VERBOSE);
             // run the script
             ScriptRunner runner2 = new ScriptRunner(host, port, apiVersion,
                     key, parammap, verbose);
