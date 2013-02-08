@@ -1,32 +1,6 @@
 // This line must be the first line in the script
 
 
-/**
- * 
- * TODO:
- * 1. “Farreach.es is broken.” - current state of customer’s account ?
- *    + Show the status of the categories and Message End Point List Flow. If not MEP , should report a problem.
- *    + if any external ADD_MESSAGE exception should be considered as broken.
- *    + 
- * 2. When user create a post and he does not leave the post screen. The event bus
- *    request continuously to the wireservice and produce a lot of EnvelopeStatuses log(TO_YURIY)
- * 3. Need to log the exception and exception type in ApiRequestAuditEntry?
- * 4. Should we move the statistic report to flow provider. A big max return parameter can cause the out of memory exception?
- * 5. GetWordpressPluginInfo: currently redirect to http://dl.dropbox.com/s/ps9nkwanrkut1hh/farreaches-wp-plugin-info.json
- */
-
-//At this point it looks like you have the basics of the data gathering.
-//    Are those 400's normal - because it is part of the authorization process?
-//    Are the customers experiencing any errors?
-//    Did all the posts get successfully to their destination MEPs?
-//    What are error conditions vs normal behavior?
-//
-//How about the tool has these 2 choices:
-//1.  display customer posts that failed to get sent to the MEPs they should have (enter customer uri) - 
-//    answers "Is FortunateFamilies.com having any problems with posting?"
-//2.  display external services having problems (so for all customers and all MEPs ) display errors by service 
-//    (facebook, twitter, tumblr) - answers "Is FarReach.es have a twitter integration problem?"
-
 import java.util.HashMap
 
 String newLine = System.getProperty("line.separator");
@@ -37,8 +11,8 @@ String usage =
     "Params" + newLine + 
     "  verbose=<true/false>  To print detail json log" + newLine + 
     "  userEmail=<userEmail>  The user that you want to inspect. If the userEmail is not specified. The overall report will be run" + newLine  + newLine +
-    "  fromDate=<dd/MM/yyyy>  Limit the audit logs from date" + newLine +
-    "  toDate=<dd/MM/yyyy>  Limit the audit logs to date" + newLine +
+    "  fromDate=<yyyy/MM/dd>  Limit the audit logs from date" + newLine +
+    "  toDate=<yyyy/MM/dd>  Limit the audit logs to date" + newLine +
     
     "  apiFlowType=<flowType>  The flow type."+ newLine + 
     "  apiMaxReturn=<apiMaxReturn>  The maximum number of the log entries that you want to return"+ newLine + newLine + 
@@ -89,6 +63,14 @@ def printTabularMap = {
         }
         println sprintf(tabularTmpl, value) ;
     }
+}
+
+def toAmplafiJSONCalendar = { 
+    dateString -> 
+    def formater = new java.text.SimpleDateFormat("yyyy/MM/dd") ;
+    def date = formater.parse(dateString) ;
+    def json = sprintf('{"timeInMillis": %1d, "timeZoneID": "GMT"}', date.getTime()) ;
+    return json ;
 }
 
 def createTmpKey = { 
@@ -462,10 +444,10 @@ def getUserPostInfo = {
     setKey(apiKey);
     def reqParams = ["fsRenderResult":"json"] ;
     if(fromDate != null) {
-        reqParams["fromDate"] = fromDate ;
+        reqParams["fromDate"] = toAmplafiJSONCalendar(fromDate) ;
     }
     if(toDate != null) {
-        reqParams["toDate"] = toDate ;
+        reqParams["toDate"] = toAmplafiJSONCalendar(toDate) ;
     }
     
     request("BroadcastEnvelopesFlow", reqParams);
@@ -476,6 +458,7 @@ def getUserPostInfo = {
 def printUserPostStatisticByCategory = {
     entries, verbose ->
     printTaskInfo "User Post By Categories"
+    println entries.toString(2) ;
     def categoriesStat = [:] ;
     for(entry in entries) {
         def broadcastEnvelope = entry.get("broadcastEnvelope")
@@ -504,7 +487,9 @@ def printUserPostStatisticByCategory = {
                 if(!matchTopic) {
                     continue ;
                 }
-                categoriesStat[name]["externalIds"] << endPoint.get("publicUri") ;
+                if(endPoint.has("publicUri")) {
+                    categoriesStat[name]["externalIds"] << endPoint.get("publicUri") ;
+                }
                 def messagePointId = endPoint.get("messagePointId") ;
                 if(categoriesStat[name]["messageEndPoint"][messagePointId] == null) {
                     def messagePointUri = endPoint.get("messagePointUri") ;
@@ -582,59 +567,68 @@ def printUserPostStatisticByMessagePoint = {
 def printUserPostInfo = {
     entries, verbose ->
     printTaskInfo "User Post Info"
-    //println entries.toString(2) ;
-    def first = true ;
+    def messageThreads = [:] ;
     for(entry in entries) {
-        if(!first) {
-            println "------------------------------------------------------------"
-        }
-        first = false ;
         def broadcastEnvelope = entry.getJSONObject("broadcastEnvelope")
-        println "FarReaches Id:" + broadcastEnvelope.getString('entityId') ;
-        println "Title:" + broadcastEnvelope.getStringByPath('headLine') ;
-        println "Body:" + broadcastEnvelope.getString('messageText') ;
-        def topicNames = "" ;
-        for(selectedTopic in broadcastEnvelope.getJSONArray('selectedTopics')) {
-            if(topicNames.length() > 0) {
-                topicNames += ", " ;
-            }
-            topicNames += selectedTopic.getString("name")  ;
+        def messageThreadId = broadcastEnvelope.get("messageThreadId");
+        if(messageThreads[messageThreadId] == null) {
+            messageThreads[messageThreadId] = [] ;
         }
-        println "Selected Topics:" + topicNames;
-       
-        println "MessageEndPointEnvelopeRecord:"
-        def messageEndPointEnvelopeRecords = entry.getJSONArray("messageEndPointEnvelopeRecord") ; 
-        println "  External Ids: "
-        for(record in messageEndPointEnvelopeRecords) {
-            def externalEntityStatus = record.getString("externalEntityStatus") ;
-            if("pcd".equals(externalEntityStatus)) {
-               def externalServiceDefinition = record.getString("externalServiceDefinition") ;
-               def externalContentId = record.getString("externalContentId") ;
-               def publicUri = record.getString("publicUri") ;
-               println "    " + externalServiceDefinition + ": " + externalContentId + " (" + publicUri + ")" ;
+        messageThreads[messageThreadId] << entry ;
+    }
+    
+    for(messageThreadEntry in messageThreads) {
+        println "Message Thread: " + messageThreadEntry.getKey() ;
+        for(entry in messageThreadEntry.getValue()) {
+            def broadcastEnvelope = entry.getJSONObject("broadcastEnvelope")
+            println "  FarReaches Id:" + broadcastEnvelope.getString('entityId') ;
+            println "  Title:" + broadcastEnvelope.getStringByPath('headLine') ;
+            println "  Body:" + broadcastEnvelope.getString('messageText') ;
+            def topicNames = "" ;
+            for(selectedTopic in broadcastEnvelope.getJSONArray('selectedTopics')) {
+                if(topicNames.length() > 0) {
+                    topicNames += ", " ;
+                }
+                topicNames += selectedTopic.getString("name")  ;
             }
-        }
-        
-        println "  Transmission: "
-        for(record in messageEndPointEnvelopeRecords) {
-            def externalEntityStatus = record.getString("externalEntityStatus") ;
-            def messagePointUri = record.getString("messagePointUri") ;
-            def unblockCompletedTime = "" ;
-            if(record.has("unblockCompletedTime")) {
-                unblockCompletedTime = record.getString("unblockCompletedTime") ;
-            }
-            def status = null ;
-            if("pcd".equals(externalEntityStatus)) {
-                status = "Successful" 
-            } else if("nvr".equals(externalEntityStatus)) {
-                status = "Ignore" 
-            } else {
-                status = "Failed(" + externalEntityStatus + ")" ; 
+            println "  Selected Topics:" + topicNames;
+           
+            println "  MessageEndPointEnvelopeRecord:"
+            def messageEndPointEnvelopeRecords = entry.getJSONArray("messageEndPointEnvelopeRecord") ; 
+            println "    External Ids: "
+            for(record in messageEndPointEnvelopeRecords) {
+                def externalEntityStatus = record.getString("externalEntityStatus") ;
+                if("pcd".equals(externalEntityStatus)) {
+                   def externalServiceDefinition = record.getString("externalServiceDefinition") ;
+                   def externalContentId = record.getString("externalContentId") ;
+                   def publicUri = record.getString("publicUri") ;
+                   println "      " + externalServiceDefinition + ": " + externalContentId + " (" + publicUri + ")" ;
+                }
             }
             
-            println "    " + messagePointUri ;
-            println sprintf('      %1$-15s%2$40s', status, unblockCompletedTime) ;
+            println "    Transmission: "
+            for(record in messageEndPointEnvelopeRecords) {
+                def externalEntityStatus = record.getString("externalEntityStatus") ;
+                def messagePointUri = record.getString("messagePointUri") ;
+                def unblockCompletedTime = "" ;
+                if(record.has("unblockCompletedTime")) {
+                    unblockCompletedTime = record.getString("unblockCompletedTime") ;
+                }
+                def status = null ;
+                if("pcd".equals(externalEntityStatus)) {
+                    status = "Successful" 
+                } else if("nvr".equals(externalEntityStatus)) {
+                    status = "Ignore" 
+                } else {
+                    status = "Failed(" + externalEntityStatus + ")" ; 
+                }
+                
+                println "      " + messagePointUri ;
+                println sprintf('        %1$-15s%2$40s', status, unblockCompletedTime) ;
+            }
+            println ""
         }
+        println "\n" ;
     }
 }
 
@@ -710,8 +704,8 @@ printMessageEndPoints(meps) ;
 
 printUserRoles(apiKey) ;
     
-printOverallReportApiRequestAuditEntry(apiKey, apiFlowType, fromDate, toDate, apiMaxReturn) ;
-printExternalApiMethodCalls(apiKey, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn) ;
+//printOverallReportApiRequestAuditEntry(apiKey, apiFlowType, fromDate, toDate, apiMaxReturn) ;
+//printExternalApiMethodCalls(apiKey, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn) ;
 
 def userPostInfos = getUserPostInfo(apiKey, fromDate, toDate) ;
 printUserPostStatisticByCategory(userPostInfos, verbose) ;
