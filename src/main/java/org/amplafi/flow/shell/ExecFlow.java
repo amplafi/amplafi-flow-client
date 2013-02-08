@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.amplafi.flow.utils.GeneralFlowRequest;
 import org.amplafi.json.JSONObject;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 /**
  * @author Tuan Nguyen
@@ -22,7 +24,15 @@ public class ExecFlow extends Action {
         if(flowName == null) {
             c.printf(USAGE) ;
         } else {
-            GeneralFlowRequest request = new GeneralFlowRequest(URI.create(fullUri), flowName, fsRenderResult);
+            options.remove("name") ;
+            NameValuePair[] params = new NameValuePair[options.size() + 1] ;
+            params[0] = fsRenderResult ;
+            int index = 1 ;
+            for(Map.Entry<String, String> entry : options.entrySet()) {
+                params[index] = new BasicNameValuePair(entry.getKey(), entry.getValue()) ;
+                index++ ;
+            }
+            GeneralFlowRequest request = new GeneralFlowRequest(URI.create(fullUri), flowName, params);
             String result = request.get();
             if(!result.startsWith("{")) {
                 result = "{\"result\": " + result + "}" ;
