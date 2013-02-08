@@ -78,22 +78,66 @@ def printTabular = {
     }
 }
 
+def printTabularMap = { 
+    map, tabularTmpl, headers, keys ->
+    println sprintf(tabularTmpl, headers) ;
+    println "-----------------------------------------------------------------------------------------"
+    for(entry in map.values()) {
+        def value = new String[keys.size()] ;
+        for(int j = 0; j < value.length; j++) {
+            value[j] = entry.get(keys[j]) ;
+        }
+        println sprintf(tabularTmpl, value) ;
+    }
+}
+
 def createTmpKey = { 
-    userEmail ->
-    printTaskInfo "Create the temporaty api key for the customer " + userEmail ;
+    publicUri, userEmail ->
+    printTaskInfo "Create the temporaty api key for the customer " + publicUri ;
     setApiVersion("suv1");
-    request("SuApiKeyFlow", ["fsRenderResult":"json", "email": userEmail, "reasonForAccess": "Inspect the customer problem"]);
+    def reqParams = ["fsRenderResult":"json", "reasonForAccess": "Inspect the customer problem", "publicUri": publicUri] ;
+    reqParams["email"] = userEmail;
+    request("SuApiKeyFlow", reqParams);
     def data = getResponseData();
     
     def userTmpApiKey = null ;
     if(data instanceof JSONArray && data.length() == 1) {
       userTmpApiKey = data.getString(0) ;
     } else {
-        println "An error when creating a temporary api key for the user " + userEmail ;
+        println "An error when creating a temporary api key for the publicUri " + publicUri ;
         prettyPrintResponse();
     }
     println "Temporary Key: " + userTmpApiKey ;
     return userTmpApiKey ;
+}
+
+def getAvailableCategories = { 
+    apiKey ->
+    setApiVersion("apiv1");
+    setKey(apiKey);
+    request("AvailableCategoriesFlow", ["fsRenderResult":"json"]);
+    def categories = [:];
+    if(getResponseData() instanceof JSONArray) {
+        def entries = getResponseData();
+        for(entry in getResponseData()) {
+            def id = entry.getStringByPath("entityId") ;
+            def name = entry.getStringByPath("name") ;
+            categories[id] = ["id": id, "name": name] ;
+        }
+    } else {
+        println "ERROR: Cannot get the category list"
+        prettyPrintResponse();
+    }
+    return categories ;
+}
+
+def printAvailableCategories = { 
+    categories ->
+    printTaskInfo "Available Categories"
+    String tabularTmpl = '%1$10s%2$20s' ;
+    def headers =  ['Topic Id', 'Name'] ;
+    def keys = ['id', 'name'] ;
+    printTabularMap(categories, tabularTmpl, headers, keys);
 }
 
 def printAvailableExternalServices = { 
@@ -123,80 +167,80 @@ def printAvailableExternalServices = {
     return msg ;
 }
 
-def printAvailableCategories = { 
-    apiKey ->
-    setApiVersion("apiv1");
-    setKey(apiKey);
-    printTaskInfo "Avaliable Categories"
-    request("AvailableCategoriesFlow", ["fsRenderResult":"json"]);
-    def msg = "Available Categories:\n" ;
-    if(getResponseData() instanceof JSONArray) {
-        def entries = getResponseData();
-        String tabularTmpl = '%1$3s%2$20s%3$20s' ;
-        def headers =  ['#', 'Topic Id', 'Name'] ;
-        def keyPaths = ['entityId', 'name'] ;
-        printTabular(entries, tabularTmpl, headers, keyPaths)
-        if(entries.length() == 0) {
-            msg = msg + 
-                   "    FAIL(The post won't be forwarded to any external service since no categories are configured)"
-        } else {
-            msg = msg + 
-                   "    SUCCESS(" + entries.length() + " categories are found)" ;
-        }
-    } else {
-        prettyPrintResponse();
-        msg = msg +
-              "    FAIL(Unknow Error. Cannot retrieve the list of categories)"
-    }
-    return msg ;
-}
-
 def printUserRoles = { 
-    apiKey, userEmail ->
+    apiKey ->
     setApiVersion("suv1");
     setKey(apiKey);
     
     printTaskInfo "User Role And Configuration Information"
-    request("UserRoleInfoFlow", ["fsRenderResult":"json", "email": userEmail]);
-    println "User " + userEmail + " has the following roles:"
-    prettyPrintResponse();
-    def msg = "User Roles:\n" ;
+    request("UserRoleInfoFlow", ["fsRenderResult":"json"]);
     def result = getResponseData() ;
     if(result instanceof JSONArray) {
-        msg = msg + 
-              "    SUCCESS(" + result.toString() + ")" ;
+        for(entry in result) {
+            def email = entry.getStringByPath("defaultEmail") ;
+            def fullName = entry.getStringByPath("fullName") ;
+            def role = entry.getStringByPath("role") ;
+            println email 
+            println "  [" + role + "]" 
+            println "  " + fullName 
+        }
     } else {
-        msg = msg + 
-              "    FAIL(" + result.toString() + ")" ;
+        prettyPrintResponse();
     }
-    
+}
+def addMessageEndPointToMap = {
+    meps, entry ->
+    def mepId = entry.getStringByPath("lookupKey") ;
+    def publicUri = entry.getStringByPath("publicUri") ;
+    def externalServiceDefinition = entry.getStringByPath("externalServiceDefinition") ;
+    def extServiceUsername = entry.getStringByPath("extServiceUsername") ;
+    def extServiceUserFullName = entry.getStringByPath("extServiceUserFullName") ;
+    meps[mepId] = [
+        "mepId": mepId, "publicUri": publicUri, "externalServiceDefinition": externalServiceDefinition, 
+        "extServiceUsername": extServiceUsername, "extServiceUserFullName": extServiceUserFullName
+    ];
 }
 
-def printMessageEndPoints = { 
+def getMessageEndPoints = { 
     apiKey ->
     setApiVersion("apiv1");
     setKey(apiKey);
     
-    printTaskInfo "Message End Point List Flow"
     request("MessageEndPointListFlow", ["fsRenderResult":"json", "messageEndPointCompleteList": "true"]);
     
-    def msg = "Message End Points:\n" ;
-    if(getResponseData() instanceof JSONArray) {
-        def entries = getResponseData();
-        String tabularTmpl = '%1$3s%2$15s%3$15s%4$15s%5$15s' ;
-        def headers =  ['#', 'Ext Service', 'User Name', 'Full Name', 'Topic Ids'] ;
-        def keyPaths = ['externalServiceDefinition', 'extServiceUsername', 'extServiceUserFullName', 'selectedTopics'] ;
-        printTabular(entries, tabularTmpl, headers, keyPaths)
-        
-        if(entries.length()) {
-            msg = msg +
-                    "    SUCCESS(user is connected to " + entries.length() + " external services)" ;
-        } else {
-            msg = msg +
-                    "    FAIL(User does not connect to any external service)" ;
+    def meps = [:] ;
+    def entries = getResponseData();
+    for(entry in entries) {
+        addMessageEndPointToMap(meps, entry) ;
+        if(entry.has("messageEndPoints")) {
+            def childrenMessageEndPoints = entry.getJSONArray("messageEndPoints") ;
+            for(child in childrenMessageEndPoints) {
+                addMessageEndPointToMap(meps, child) ;
+            }
         }
-    } else {
-        prettyPrintResponse();
+    }
+    return meps;
+}
+
+def printMessageEndPoint = { 
+    mep ->
+    println "MEP ID:           " + mep['mepId'] ;
+    println "External Service: " + mep['externalServiceDefinition'] ;
+    println "Public Uri:       " + mep['publicUri'] ;
+    println "Username:         " + mep['extServiceUsername'] ;
+    println "Full Name:        " + mep['extServiceUserFullName'] ;
+}
+
+def printMessageEndPoints = { 
+    meps ->
+    printTaskInfo "Message End Points"
+    def first = true ;
+    for(mep in meps.values()) {
+        if(!first) {
+            println "-----------------------------------------------------------------------------------"
+        }
+        printMessageEndPoint(mep) ;
+        first = false ;
     }
 }
 
@@ -276,50 +320,6 @@ def printApiByFlowTypeStatistic = {
     }
 }
 
-def printApiRequestAuditEntry = {
-    apiKey, userEmail, apiFlowType, fromDate, toDate, apiMaxReturn, verbose ->
-    setApiVersion("suv1");
-    setKey(apiKey);
-    def reqParams = ["fsRenderResult":"json", "maxReturn": apiMaxReturn] ;
-    if(userEmail != null) {
-        reqParams["email"] = userEmail;
-    } 
-    if(apiFlowType != null) {
-        reqParams["flowType"] = apiFlowType;
-    } 
-    
-    if(fromDate != null) {
-        reqParams["fromDate"] = fromDate;
-    } 
-    
-    if(toDate != null) {
-        reqParams["toDate"] = toDate;
-    } 
-    
-    printTaskInfo "ApiRequestAuditEntry log, user = " + userEmail
-    request("ApiRequestAuditEntriesFlow", reqParams);
-    if(getResponseData() instanceof JSONArray) {
-        def entries = getResponseData();
-        printApiByFlowTypeStatistic(entries) ;
-        if(verbose) {
-            for(int i = 0; i < entries.length(); i++) {
-                def entry = entries.get(i) ;
-                def httpStatusCode = entry.getStringByPath('response.code') ;
-                println "---------------------------------------------------------------------------------" ;
-                println i + 1 + '. ' + entry.getStringByPath('request.parameters.requestPathArray') ;
-                println '  Http Status Code: ' + httpStatusCode ;
-                println '  Message: ' + entry.getStringByPath('message') ;
-                println "..............................................................................." ;
-                println entry.toString(2) ;
-                println "----------------------------------------------------------------------------------\n\n" ;
-            }
-        }
-    } else {
-        prettyPrintResponse();
-    }
-}
-
-
 def printOverallReportApiRequestAuditEntry = {
     apiKey, apiFlowType, fromDate, toDate, apiMaxReturn ->
     setApiVersion("suv1");
@@ -353,7 +353,7 @@ def printOverallReportApiRequestAuditEntry = {
 def printExternalApiDetailMethodCalls = {
     entries ->
     def dateFormater = new java.text.SimpleDateFormat('dd/MM/yyyy@hh:mm:ss') ;
-    String tabularTmpl = '%1$20s %2$-15s %3$20s %4$5s %5$6s %6$-50s' ;
+    String tabularTmpl = '%1$20s %2$-15s %3$30s %4$5s %5$6s %6$-50s' ;
     def headers =  ['Date', 'Namespace', 'Method', 'EES', 'Status', 'Message'] ;
     println '----------------------------------------------------------------------------------------------'
     println 'External Api Detail Calls'
@@ -409,7 +409,7 @@ def printExternalStatisticMethodCalls = {
         }
         
     }
-    String tabularTmpl = '%1$-25s%2$10s%3$10s%4$10s%5$10s%6$10s%7$10s' ;
+    String tabularTmpl = '%1$-30s%2$10s%3$10s%4$10s%5$10s%6$10s%7$10s' ;
     def headers =  ['Method', 'Http 1xx', 'Http 200', 'Http 2xx', 'Http 3xx', 'Http 4xx', 'Http 5xx'] ;
     for(namespace in namespaceHolder.entrySet()) {
         def name = namespace.getKey() ;
@@ -427,7 +427,7 @@ def printExternalStatisticMethodCalls = {
 }
 
 def printExternalApiMethodCalls = {
-    apiKey, userEmail, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn, verbose ->
+    apiKey, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn ->
     setApiVersion("suv1");
     setKey(apiKey);
     printTaskInfo "ExternalApiMethodCallAuditEntry log"
@@ -450,28 +450,17 @@ def printExternalApiMethodCalls = {
         printExternalStatisticMethodCalls(entries) ;
         println "\n\n" ;
         printExternalApiDetailMethodCalls(entries) ;
-        if(verbose) {
-            for(int i = 0; i < entries.length(); i++) {
-                def entry = entries.get(i) ;
-                println entry.toString(2) ;
-                println "----------------------------------------------------------------------------------\n\n" ;
-            }
-        }
     } else {
         println externalApiMethodCallAuditEntries.toString(2);
     }
 }
 
-def printUserPostInfo = {
-    apiKey, userEmail, fromDate, toDate, apiMaxReturn, verbose ->
+def getUserPostInfo = {
+    apiKey, fromDate, toDate->
     
-            
     setApiVersion("suv1");
     setKey(apiKey);
-    def reqParams = ["fsRenderResult":"json", "flowType": "CreateAlert", "maxReturn": apiMaxReturn] ;
-    if(userEmail != null) {
-        reqParams["email"] = userEmail ;
-    }
+    def reqParams = ["fsRenderResult":"json"] ;
     if(fromDate != null) {
         reqParams["fromDate"] = fromDate ;
     }
@@ -479,62 +468,184 @@ def printUserPostInfo = {
         reqParams["toDate"] = toDate ;
     }
     
-    if(userEmail != null) {
-        printTaskInfo "Post Info For " + userEmail ;
-    }  else {
-        printTaskInfo "Post Info" ;
-    }
-    request("ApiRequestAuditEntriesFlow", reqParams);
-    def msg = "User Post Info: \n" ;
-    def failCount = 0 ;
-    def entries = getResponseData() ;
-    for(entry in  entries) {
-        def flowType = entry.getStringByPath('request.parameters.requestPathArray') ;
-        def fsAltFinished = entry.getStringByPath('request.parameters.fsAltFinished') ;
-        if("SaveAndPublish".equals(fsAltFinished)) {
-            def externalContentId = entry.getStringByPath('request.parameters.externalContentId') ;
-            def messageHeadLine = entry.getStringByPath('request.parameters.messageHeadline') ;
-            def messageBody = entry.getStringByPath('request.parameters.messageBody') ;
-            
-            setApiVersion("apiv1");
-            request("EnvelopeStatusesFlow", ["fsRenderResult":"json", "externalContentId": "[" + externalContentId + "]"]);
-            def mepStatuses = getResponseData() ;
-            
-            println "Id: " + externalContentId ;
-            println "Title: " + messageHeadLine ;
-            println "Body: " + messageBody ;
-            
-            String tabularTmpl = '%1$-25s%2$10s%3$30s' ;
-            def headers =  ['External Service', 'Status', 'Complete Time'] ;
-            println sprintf(tabularTmpl, headers);
-            println "----------------------------------------------------------------------------------------------";
-            for(mepStatus in mepStatuses) {
-                def namespace = mepStatus.getStringByPath('externalServiceDefinition') ;
-                def status = mepStatus.getStringByPath('externalEntityStatus') ;
-                def completeTime = mepStatus.getStringByPath('unblockCompletedTime') ;
-                println sprintf(tabularTmpl, namespace, status, completeTime);
-                if(!"pcd".equals(status)) {
-                    msg = msg +
-                          "    FAIL(message '" + messageHeadLine + "'" +  " with status '" + status + "' for " + namespace + ")\n" ;
-                    failCount++ ;
-                }
-            }
-            println "\n";
-        }
-    }
-    if(failCount == 0) {
-        msg = msg +
-              "    SUCCESS(No failed post is detected from " + entries.length() + " posts)";
-    } else {
-        msg = msg +
-              "    FAIL(" + failCount + " failed posts are detected from " + entries.length() + " posts)";
-    }
-    return msg ;
+    request("BroadcastEnvelopesFlow", reqParams);
+    def result = getResponseData() ;
+    return result;
 }
 
-def userEmail = null ;
+def printUserPostStatisticByCategory = {
+    entries, verbose ->
+    printTaskInfo "User Post By Categories"
+    def categoriesStat = [:] ;
+    for(entry in entries) {
+        def broadcastEnvelope = entry.get("broadcastEnvelope")
+        def selectedTopics = broadcastEnvelope.get("selectedTopics")
+        def messageEndPointEnvelopeRecord = entry.get("messageEndPointEnvelopeRecord") ;
+        for(topic in selectedTopics) {
+            def name = topic.get("name");
+            if(categoriesStat[name] == null) {
+                categoriesStat[name] = [
+                    "name": name, "entityId": topic.get("entityId"), 
+                    "externalIds": [broadcastEnvelope.get("publicUri")], 
+                    "messageEndPoint": [:], 
+                    "postCount": 0
+                ] ;
+            }
+            categoriesStat[name]["postCount"] += 1 ;
+            for(endPoint in messageEndPointEnvelopeRecord) {
+                def messagePointBroadcastTopics = endPoint.get("messagePointBroadcastTopics") ;
+                def matchTopic = false ;
+                for(messagePointBroadcastTopic in messagePointBroadcastTopics) {
+                    if(name.equals(messagePointBroadcastTopic.get("name"))) {
+                        matchTopic = true;
+                        break ;
+                    }    
+                }
+                if(!matchTopic) {
+                    continue ;
+                }
+                categoriesStat[name]["externalIds"] << endPoint.get("publicUri") ;
+                def messagePointId = endPoint.get("messagePointId") ;
+                if(categoriesStat[name]["messageEndPoint"][messagePointId] == null) {
+                    def messagePointUri = endPoint.get("messagePointUri") ;
+                    categoriesStat[name]["messageEndPoint"][messagePointId] = ["messagePointId" : messagePointId, "messagePointUri": messagePointUri] ;
+                }
+            }
+        }
+    }
+    
+    for(category in categoriesStat.values()) {
+        println category["name"] + ":" ;
+        println "  Entity Id: " + category["entityId"] 
+        println "  External Ids: "
+        for(externalId in category["externalIds"]) {
+            println "    " + externalId
+        }
+        println "  Post Count: " + category["postCount"] 
+        println "  Message End Point: " 
+        for(messageEndPoint in category["messageEndPoint"].values()) {
+            println sprintf('%1$10s     %2$-40s', messageEndPoint["messagePointId"], messageEndPoint["messagePointUri"])
+        }
+        println "\n\n"
+    }
+}
+
+def printUserPostStatisticByMessagePoint = {
+    entries, verbose ->
+    printTaskInfo "User Post By Message End Points"
+    def mepStats = [:] ;
+    for(entry in entries) {
+        def broadcastEnvelope = entry.get("broadcastEnvelope")
+        def selectedTopics = broadcastEnvelope.get("selectedTopics") ;
+        def messageEndPointEnvelopeRecord = entry.get("messageEndPointEnvelopeRecord") ;
+        for(mep in messageEndPointEnvelopeRecord) {
+            def mepId = mep.get("messagePointId");
+            def mepExternalServiceDefinition = mep.get("externalServiceDefinition") ;
+            def mepMessagePointUri = mep.get("messagePointUri") ;
+            def mepBroadcastTopics = mep.get("messagePointBroadcastTopics") ;
+            if(mepStats[mepId] == null) {
+                mepStats[mepId] = [
+                    "messagePointId": mepId, "externalServiceDefinition": mepExternalServiceDefinition,
+                    "messagePointUri": mepMessagePointUri, "categories": [:], "postCount": 0
+                ] ;
+            }
+            mepStats[mepId]["postCount"] += 1 ;
+            for(mepBroadcastTopic in mepBroadcastTopics) {
+                def mepBroadcastTopicName = mepBroadcastTopic.get("name");
+                def matchTopic = false ;
+                for(selectedTopic in selectedTopics) {
+                    if(mepBroadcastTopicName.equals(selectedTopic.get("name"))) {
+                        matchTopic = true ;
+                        break ;
+                    }
+                }
+                if(matchTopic) {
+                    mepStats[mepId]["categories"][mepBroadcastTopicName] = ["entityId": mepBroadcastTopic.get("entityId"), "name": mepBroadcastTopicName] ;
+                }
+            }
+        }
+    }
+    
+    for(mepStat in mepStats.values()) {
+        println mepStat["messagePointUri"]
+        println "  Farreaches Id: " + mepStat["messagePointId"]
+        println "  External Service Definition: " + mepStat["externalServiceDefinition"]
+        println "  Categories: "
+        for(category in mepStat["categories"].values()) {
+            println sprintf('%1$10s %2$-30s', category["entityId"], category["name"]) ;
+        }
+        println "  Posts: "  + mepStat["postCount"] ;
+        println "\n"
+    }
+}
+
+def printUserPostInfo = {
+    entries, verbose ->
+    printTaskInfo "User Post Info"
+    //println entries.toString(2) ;
+    def first = true ;
+    for(entry in entries) {
+        if(!first) {
+            println "------------------------------------------------------------"
+        }
+        first = false ;
+        def broadcastEnvelope = entry.getJSONObject("broadcastEnvelope")
+        println "FarReaches Id:" + broadcastEnvelope.getString('entityId') ;
+        println "Title:" + broadcastEnvelope.getStringByPath('headLine') ;
+        println "Body:" + broadcastEnvelope.getString('messageText') ;
+        def topicNames = "" ;
+        for(selectedTopic in broadcastEnvelope.getJSONArray('selectedTopics')) {
+            if(topicNames.length() > 0) {
+                topicNames += ", " ;
+            }
+            topicNames += selectedTopic.getString("name")  ;
+        }
+        println "Selected Topics:" + topicNames;
+       
+        println "MessageEndPointEnvelopeRecord:"
+        def messageEndPointEnvelopeRecords = entry.getJSONArray("messageEndPointEnvelopeRecord") ; 
+        println "  External Ids: "
+        for(record in messageEndPointEnvelopeRecords) {
+            def externalEntityStatus = record.getString("externalEntityStatus") ;
+            if("pcd".equals(externalEntityStatus)) {
+               def externalServiceDefinition = record.getString("externalServiceDefinition") ;
+               def externalContentId = record.getString("externalContentId") ;
+               def publicUri = record.getString("publicUri") ;
+               println "    " + externalServiceDefinition + ": " + externalContentId + " (" + publicUri + ")" ;
+            }
+        }
+        
+        println "  Transmission: "
+        for(record in messageEndPointEnvelopeRecords) {
+            def externalEntityStatus = record.getString("externalEntityStatus") ;
+            def messagePointUri = record.getString("messagePointUri") ;
+            def unblockCompletedTime = "" ;
+            if(record.has("unblockCompletedTime")) {
+                unblockCompletedTime = record.getString("unblockCompletedTime") ;
+            }
+            def status = null ;
+            if("pcd".equals(externalEntityStatus)) {
+                status = "Successful" 
+            } else if("nvr".equals(externalEntityStatus)) {
+                status = "Ignore" 
+            } else {
+                status = "Failed(" + externalEntityStatus + ")" ; 
+            }
+            
+            println "    " + messagePointUri ;
+            println sprintf('      %1$-15s%2$40s', status, unblockCompletedTime) ;
+        }
+    }
+}
+
+def userEmail = "admin@amplafi.com" ;
 if (params && params["userEmail"]) {
     userEmail = params["userEmail"] ;
+}
+
+def publicUri = null ;
+if (params && params["publicUri"]) {
+    publicUri = params["publicUri"] ;
 }
 
 def apiMaxReturn = "1000"
@@ -578,48 +689,31 @@ if (params && params["verbose"]) {
 }
 
 
-if(userEmail != null) {
-    printTaskInfo "Running the customer problem report for the customer " + userEmail
-    def summary = [] ;
-    def suApiKey = getKey() ;
-    def userTmpApiKey = createTmpKey(userEmail) ;
-    if(userTmpApiKey == null) {
-        summary.add("Create a temporary key for the user " + userEmail + ": \n" + 
-                    "    Pleasse check your su api key, wireservice and connection.\n" + 
-                    "    FAIL") ;
-        return ;
-    } else {
-        summary.add("Create a temporary key for the user " + userEmail + ": \n" + 
-                    "    SUCCESS(Api Key = " + userTmpApiKey + ")") ;
-        summary.add(printAvailableCategories(userTmpApiKey)) ;
-        summary.add(printAvailableExternalServices(userTmpApiKey)) ;
-        summary.add(printUserRoles(suApiKey, userEmail)) ;
-        summary.add(printMessageEndPoints(userTmpApiKey)) ;
-        
-        printApiRequestAuditEntry(suApiKey, userEmail, apiFlowType, fromDate, toDate, apiMaxReturn, verbose) ;
-        printExternalApiMethodCalls(suApiKey, userEmail, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn, verbose) ;    
-        
-        summary.add(printUserPostInfo(suApiKey, userEmail, fromDate, toDate, apiMaxReturn, verbose)) ;
-    }
-    printTaskInfo "Summary report for the user " + userEmail
-    for(message in summary) {
-       println message  + "\n"; 
-    }
+def suApiKey = getKey() ;
+def apiKey = null ;
+if(publicUri != null) {
+    apiKey = createTmpKey(publicUri, userEmail) ;
 } else {
-    def summary = [] ;
-    def suApiKey = getKey() ;
-    
-    summary.add(printAvailableCategories(suApiKey)) ;
-    summary.add(printAvailableExternalServices(suApiKey)) ;
-    summary.add(printMessageEndPoints(suApiKey)) ;
-    
-    printOverallReportApiRequestAuditEntry(suApiKey, apiFlowType, fromDate, toDate, apiMaxReturn) ;
-    printExternalApiMethodCalls(suApiKey, null, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn, verbose) ;
-    
-    summary.add(printUserPostInfo(suApiKey, null, fromDate, toDate, apiMaxReturn, verbose)) ;
-    
-    printTaskInfo "Summary For The Overall Report"
-    for(message in summary) {
-       println message  + "\n"; 
-    }
+    apiKey = suApiKey ;
 }
+if(apiKey == null) {
+    return ;
+}
+
+def categories = getAvailableCategories(apiKey) ;
+printAvailableCategories(categories) ;
+
+printAvailableExternalServices(apiKey) ;
+
+def meps = getMessageEndPoints(apiKey) ;
+printMessageEndPoints(meps) ;
+
+printUserRoles(apiKey) ;
+    
+printOverallReportApiRequestAuditEntry(apiKey, apiFlowType, fromDate, toDate, apiMaxReturn) ;
+printExternalApiMethodCalls(apiKey, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn) ;
+
+def userPostInfos = getUserPostInfo(apiKey, fromDate, toDate) ;
+printUserPostStatisticByCategory(userPostInfos, verbose) ;
+printUserPostStatisticByMessagePoint(userPostInfos, verbose) ;
+printUserPostInfo(userPostInfos, verbose) ;
