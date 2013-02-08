@@ -5,7 +5,7 @@ def ignorePathList = ["/flowState/fsLookupKey/"];
 expect("""{"flowState": {
     "fsComplete": true,
     "fsCurrentActivityByName": "store",
-    "fsLookupKey": "CreateRevoke_an2n9rpj",
+    "fsLookupKey": "CreateRevoke_aoax64us",
     "fsParameters": {
         "fsAltFinished": "SaveAndPublish",
         "deleteOriginalMessage": false,
@@ -29,7 +29,7 @@ ignorePathList = ["/flowState/fsLookupKey/"];
 expect("""{"flowState": {
     "fsComplete": true,
     "fsCurrentActivityByName": "store",
-    "fsLookupKey": "CreateRevoke_whlzc9vw",
+    "fsLookupKey": "CreateRevoke_zaqhfp9c",
     "fsParameters": {
         "fsAltFinished": "SaveAndPublish",
         "deleteOriginalMessage": true,

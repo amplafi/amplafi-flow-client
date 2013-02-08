@@ -6,7 +6,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "EditUser",
-        "fsLookupKey": "EditUser_tnlwvl83",
+        "fsLookupKey": "EditUser_uc3tx6tk",
         "fsParameters": {
             "configuration": "abc",
             "firstName": "abc",

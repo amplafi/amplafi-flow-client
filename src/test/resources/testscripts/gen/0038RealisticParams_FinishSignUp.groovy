@@ -6,7 +6,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "createUserFlowActivity",
-        "fsLookupKey": "FinishSignUp_jv2zguoc",
+        "fsLookupKey": "FinishSignUp_gvftqjra",
         "fsParameters": {
             "newSession": true,
             "sendNotification": false,
@@ -41,7 +41,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "complete",
-        "fsLookupKey": "FinishSignUp_cys5eifq",
+        "fsLookupKey": "FinishSignUp_52y386ff",
         "fsParameters": {
             "newSession": true,
             "broadcastProviderType": "b",
@@ -74,7 +74,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "complete",
-        "fsLookupKey": "FinishSignUp_bkfzxuls",
+        "fsLookupKey": "FinishSignUp_ugxj4suj",
         "fsParameters": {
             "newSession": true,
             "broadcastProviderType": "b",
@@ -96,7 +96,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "complete",
-        "fsLookupKey": "FinishSignUp_rr8paznp",
+        "fsLookupKey": "FinishSignUp_zeknegn9",
         "fsParameters": {
             "newSession": true,
             "broadcastProviderType": "b",
@@ -117,7 +117,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "complete",
-        "fsLookupKey": "FinishSignUp_2f1vfeqn",
+        "fsLookupKey": "FinishSignUp_otcawnnv",
         "fsParameters": {
             "newSession": true,
             "broadcastProviderType": "b",
@@ -138,7 +138,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "complete",
-        "fsLookupKey": "FinishSignUp_8nn5yx8f",
+        "fsLookupKey": "FinishSignUp_2jse78kt",
         "fsParameters": {
             "newSession": true,
             "broadcastProviderType": "b",

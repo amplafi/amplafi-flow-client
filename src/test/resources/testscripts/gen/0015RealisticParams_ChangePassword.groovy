@@ -6,7 +6,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "changePasswordFlowActivity",
-        "fsLookupKey": "ChangePassword_4nbvq2ay",
+        "fsLookupKey": "ChangePassword_zlf1wura",
         "fsParameters": {
             "authenticateOnFinish": false,
             "resettingPassword": false

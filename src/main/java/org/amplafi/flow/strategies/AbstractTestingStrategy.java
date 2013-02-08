@@ -16,16 +16,21 @@ package org.amplafi.flow.strategies;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Formatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+
 import org.amplafi.flow.TestGenerationProperties;
 import org.amplafi.json.JSONArray;
+import org.amplafi.json.JSONException;
 import org.amplafi.json.JSONObject;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -48,6 +53,7 @@ public abstract class AbstractTestingStrategy {
     private String currentFlow = null;
     private String currentActivity = null;
     private Log log;
+    private String actualName;
     private static final int STANDARD_INDENTATION = 4;
     private static final String JSON_PARAMETER_KEY = "parameters";
     private static final String JSON_PARAMETER_NAME_KEY = "name";
@@ -155,8 +161,10 @@ public abstract class AbstractTestingStrategy {
         addExpect(typicalResponse);
     }
 
+
     /**
      * Adds an expected return to the test.
+     * 
      * @param json - the expected json data
      */
     public final void addExpect(String json) {
@@ -165,9 +173,15 @@ public abstract class AbstractTestingStrategy {
             // Try to format a JSON string if possible.
             JSONObject jsonObj = new JSONObject(json);
             strValue = jsonObj.toString(STANDARD_INDENTATION);
-        } catch (Exception e) {
+        } catch (JSONException e) {
             // otherwise just use the raw string
-            strValue = json;
+            // strValue = json;
+            try {
+                JSONArray strValueArray = new JSONArray(json);
+                strValue = strValueArray.toString();
+            } catch (Exception e2) {
+                return;
+            }
         }
         writeToFileBuffer("expect(\"\"\"" + strValue + "\"\"\")\n");
     }
@@ -177,7 +191,8 @@ public abstract class AbstractTestingStrategy {
      * @param json - the expected json data
      * @param flowName - the name of flow.
      */
-    public final void addExpectWithIgnoredPaths(String json, String flowName) {
+    public final void addExpectWithIgnoredPaths(String json, String flowName,
+            Set<String> ignores) {
         String strValue = "";
         try {
             // Try to format a JSON string if possible.
@@ -187,12 +202,10 @@ public abstract class AbstractTestingStrategy {
             // otherwise just use the raw string
             strValue = json;
         }
-        Map<String, List<String>> ignoredPaths = getStandardIgnores();
-        getLog().info("ignoredPaths :  " + ignoredPaths);
-        if (ignoredPaths == null || ignoredPaths.get(flowName) == null) {
+        if (ignores.isEmpty()) {
             writeToFileBuffer("expect(\"\"\"" + strValue + "\"\"\")\n");
         } else {
-            List<String> paths = ignoredPaths.get(flowName);
+            Set<String> paths = ignores;
             StringBuffer pathList = new StringBuffer("[");
             String sep = "";
             for (String path : paths) {
@@ -203,10 +216,153 @@ public abstract class AbstractTestingStrategy {
                 sep = ",";
             }
             pathList.append("]");
-            writeToFileBuffer("def ignorePathList = " + pathList + ";\n");
+            if (testFileContents.toString().contains("def ignorePathList")) {
+                writeToFileBuffer("ignorePathList = " + pathList + ";\n");
+            } else {
+                writeToFileBuffer("def ignorePathList = " + pathList + ";\n");
+            }
             writeToFileBuffer("expect(\"\"\"" + strValue
                     + "\"\"\",ignorePathList)\n");
         }
+    }
+
+
+    /**
+     * Generate standard ignore list in file.
+     * 
+     * @param json1 is the json data in first request
+     * @param json2 is the json data in second request
+     */
+    public Set<String> generateStandarIgnoreList(String json1, String json2,
+            String flow) {
+        Set<String> ignoreList = new HashSet<String>();
+        try {
+            if (json1 != null && json2 != null) {
+                JSONObject jsonObject1 = new JSONObject(json1);
+                JSONObject jsonObject2 = new JSONObject(json2);
+                System.out.println("#####jsonObject1 len = "
+                        + jsonObject1.length());
+                System.out.println("#####jsonObject2 len = "
+                        + jsonObject2.length());
+                if (jsonObject1.length() == jsonObject2.length()) {
+                    ignoreList = compare(jsonObject1, jsonObject2, "/",
+                            ignoreList);
+                }
+            }
+        } catch (JSONException ge) {
+            ge.printStackTrace();
+        }
+        Map<String, List<String>> allIgnores = getStandardIgnores();
+        if (allIgnores != null) {
+            List<String> thisFlowIgnores = allIgnores.get(flow);
+            if (thisFlowIgnores != null) {
+                ignoreList.addAll(thisFlowIgnores);
+            }
+        }
+        return ignoreList;
+    }
+
+//    
+//    private void writeIngnoresToFile(List<String> ingnoreList, String flow) {
+//        try {
+//            File file = new File("StandarIgnoreList.groovy");
+//            String script = getContents(file);
+//            FileWriter fileWriter = new FileWriter("StandarIgnoreList.groovy",
+//                    true);
+//            // fileWriter.write("Map<String, List<String>> ret = new HashMap<String, List<String>>();");
+//            StringBuffer sb = new StringBuffer();
+//            String newLine = System.getProperty("line.separator");
+//            if(!script.contains(flow)){
+//                sb.append(newLine);
+//                sb.append("ret.put(\"");
+//                sb.append(flow);
+//                sb.append("\",");
+////                fileWriter.write(ingnoreList.toString());
+//                sb.append("[");
+//                String sep = "";
+//                for (String ingnorePath : ingnoreList) {
+//                    sb.append(sep);
+//                    sb.append("\"");
+//                    sb.append(ingnorePath);
+//                    sb.append("\"");
+//                    sep = ",";
+//                }
+//                sb.append("]");
+//                
+//                sb.append(");");
+//            }
+//            fileWriter.write(sb.toString());
+//            // fileWriter.write("Map<String, List<String>> ret = [\""+flow+"\":"+ingnoreList+"]");
+//            // for(String ingnore : ingnoreList){
+//            // fileWriter.write(ingnore+",");
+//            // }
+//            fileWriter.flush();
+//            fileWriter.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//    
+//
+//    public void writeReturnRetToIngnoresFile() {
+//        System.out.println("###########wirte return");
+//        try {
+//            File file = new File("StandarIgnoreList.groovy");
+//            String script = getContents(file);
+//            if(!script.contains("return ret;")){
+//                System.out.println("###########not contains retrun");
+//                FileWriter fileWriter = new FileWriter("StandarIgnoreList.groovy",
+//                        true);
+//                fileWriter.write(System.getProperty("line.separator"));
+//                fileWriter.write("return ret;");
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    /**
+     * Compare of two JSONObjects.
+     * 
+     * @param json1 is the json data in first request
+     * @param json2 is the json data in second request
+     * @param currentPath is the current property path
+     * @param ignoreList is list of path which is ignore when compare
+     */
+    private Set<String> compare(JSONObject json1, JSONObject json2,
+            String currentPath, Set<String> ignoreList) {
+
+        if (json1 != null && json2 != null) {
+            JSONArray jsonNames1 = json1.names();
+            JSONArray jsonNames2 = json2.names();
+            if (jsonNames1 != null && jsonNames2 != null) {
+                // loops all of the property name in the object
+                for (int i = 0; i < jsonNames2.length(); i++) {
+                    String jsonName1 = (String) jsonNames1.get(i);
+                    String jsonName2 = (String) jsonNames2.get(i);
+                    Object jsonValue1 = json2.get(jsonName1);
+                    Object jsonValue2 = json1.get(jsonName2);
+
+                    if (jsonName1.equals(jsonName2)) {
+                        if (jsonValue2 instanceof JSONObject
+                                && jsonValue1 instanceof JSONObject) {
+                            try {
+                                compare((JSONObject) jsonValue2,
+                                        (JSONObject) jsonValue1, currentPath
+                                                + jsonName2 + "/", ignoreList);
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+                        } else {
+                            if (!jsonValue1.equals(jsonValue2)) {
+                                ignoreList.add(currentPath + jsonName2 + "/");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return ignoreList;
     }
 
     /**

@@ -4,7 +4,7 @@ def ignorePathList = ["/flowState/fsLookupKey/"];
 
 expect("""{"flowState": {
     "fsComplete": true,
-    "fsLookupKey": "ClearFlows_xs9ta2is",
+    "fsLookupKey": "ClearFlows_rbzfs815",
     "fsParameters": {
         "fsFlowTransitions": null,
         "flows": [

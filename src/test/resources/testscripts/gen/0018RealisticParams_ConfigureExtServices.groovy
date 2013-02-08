@@ -6,7 +6,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "extServices",
-        "fsLookupKey": "ConfigureExtServices_8494wczd",
+        "fsLookupKey": "ConfigureExtServices_scqv2nak",
         "fsParameters": {
             "connectionGroupType": "rst",
             "configuration": "abc",
@@ -43,7 +43,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "extServices",
-        "fsLookupKey": "ConfigureExtServices_dz17fm2b",
+        "fsLookupKey": "ConfigureExtServices_m2tbdi5b",
         "fsParameters": {
             "configuration": "abc",
             "user": 4,
@@ -79,7 +79,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "extServices",
-        "fsLookupKey": "ConfigureExtServices_k2pl81zh",
+        "fsLookupKey": "ConfigureExtServices_yej1v2t8",
         "fsParameters": {
             "connectionGroupType": "rst",
             "configuration": "abc",
@@ -117,7 +117,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "extServices",
-        "fsLookupKey": "ConfigureExtServices_k57co3er",
+        "fsLookupKey": "ConfigureExtServices_b7yxswtf",
         "fsParameters": {
             "connectionGroupType": "rst",
             "configuration": "abc",
@@ -154,7 +154,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "extServices",
-        "fsLookupKey": "ConfigureExtServices_9xray3p6",
+        "fsLookupKey": "ConfigureExtServices_j63afo23",
         "fsParameters": {
             "connectionGroupType": "rst",
             "configuration": "abc",
