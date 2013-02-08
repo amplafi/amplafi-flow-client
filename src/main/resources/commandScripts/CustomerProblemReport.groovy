@@ -312,11 +312,11 @@ def printOverallReportApiRequestAuditEntry = {
     } 
     
     if(fromDate != null) {
-        reqParams["fromDate"] = fromDate;
+        reqParams["fromDate"] = toAmplafiJSONCalendar(fromDate);
     } 
     
     if(toDate != null) {
-        reqParams["toDate"] = toDate;
+        reqParams["toDate"] = toAmplafiJSONCalendar(toDate);
     } 
     
     printTaskInfo "Overall Report For ApiRequestAuditEntry Log"
@@ -421,10 +421,10 @@ def printExternalApiMethodCalls = {
         reqParams["method"] = externalApiMethod ;
     }
     if(fromDate != null) {
-        reqParams["fromDate"] = fromDate ;
+        reqParams["fromDate"] = toAmplafiJSONCalendar(fromDate) ;
     }
     if(toDate != null) {
-        reqParams["toDate"] = toDate ;
+        reqParams["toDate"] = toAmplafiJSONCalendar(toDate) ;
     }
     request("ExternalApiMethodCallAuditEntriesFlow", reqParams);
     if(getResponseData() instanceof JSONArray) {
@@ -433,7 +433,7 @@ def printExternalApiMethodCalls = {
         println "\n\n" ;
         printExternalApiDetailMethodCalls(entries) ;
     } else {
-        println externalApiMethodCallAuditEntries.toString(2);
+        prettyPrintResponse();
     }
 }
 
@@ -458,7 +458,6 @@ def getUserPostInfo = {
 def printUserPostStatisticByCategory = {
     entries, verbose ->
     printTaskInfo "User Post By Categories"
-    println entries.toString(2) ;
     def categoriesStat = [:] ;
     for(entry in entries) {
         def broadcastEnvelope = entry.get("broadcastEnvelope")
@@ -704,8 +703,8 @@ printMessageEndPoints(meps) ;
 
 printUserRoles(apiKey) ;
     
-//printOverallReportApiRequestAuditEntry(apiKey, apiFlowType, fromDate, toDate, apiMaxReturn) ;
-//printExternalApiMethodCalls(apiKey, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn) ;
+printOverallReportApiRequestAuditEntry(apiKey, apiFlowType, fromDate, toDate, apiMaxReturn) ;
+printExternalApiMethodCalls(apiKey, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn) ;
 
 def userPostInfos = getUserPostInfo(apiKey, fromDate, toDate) ;
 printUserPostStatisticByCategory(userPostInfos, verbose) ;
