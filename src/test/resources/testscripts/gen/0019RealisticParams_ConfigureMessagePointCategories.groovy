@@ -6,7 +6,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "topics",
-        "fsLookupKey": "ConfigureMessagePointCategories_lpii1z7t",
+        "fsLookupKey": "ConfigureMessagePointCategories_ksn7qa2f",
         "fsParameters": {
             "configuration": "abc",
             "user": 4,

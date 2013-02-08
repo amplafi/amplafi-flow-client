@@ -6,7 +6,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "BroadcastTopicEntry",
-        "fsLookupKey": "BroadcastTopicEntry_7fxhjmlt",
+        "fsLookupKey": "BroadcastTopicEntry_8wstssb2",
         "fsParameters": {
             "configuration": "abc",
             "user": 4,

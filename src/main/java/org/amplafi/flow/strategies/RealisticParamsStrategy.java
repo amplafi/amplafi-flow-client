@@ -3,6 +3,8 @@ package org.amplafi.flow.strategies;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+
 import org.amplafi.json.JSONObject;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -48,10 +50,12 @@ public class RealisticParamsStrategy extends AbstractTestingStrategy {
                 = generateRealisticParameters(requestParameters);
         parametersPopulatedWithRealParamData.add(RENDER_AS_JSON);
         addRequest(flow, parametersPopulatedWithRealParamData);
-        addExpectWithIgnoredPaths(callFlowForTypicalData(requestUriString,
-                flow, parametersPopulatedWithRealParamData), flow);
+        String json = callFlowForTypicalData(requestUriString,flow, parametersPopulatedWithRealParamData);
+        String json2 = callFlowForTypicalData(requestUriString,flow, parametersPopulatedWithRealParamData);
+        Set<String> ignores = generateStandarIgnoreList(json, json2, flow);
+        addExpectWithIgnoredPaths(json, flow,ignores);
+        
     }
-
 
     /**
      * @param requestParameters - Collection of RequestParameter
@@ -91,5 +95,4 @@ public class RealisticParamsStrategy extends AbstractTestingStrategy {
             return "null";
         }
     }
-
 }

@@ -6,7 +6,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "content",
-        "fsLookupKey": "CreateAlert_z26aj2cr",
+        "fsLookupKey": "CreateAlert_iwgtla9o",
         "fsParameters": {
             "messageCalendarable": false,
             "broadcastMessageType": "nrm",

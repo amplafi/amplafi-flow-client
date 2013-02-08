@@ -6,7 +6,7 @@ expect("""{
     "flowState": {
         "fsComplete": true,
         "fsCurrentActivityByName": "login",
-        "fsLookupKey": "Login_y85evvcu",
+        "fsLookupKey": "Login_kzjd7j97",
         "fsParameters": {
             "configuration": "abc",
             "newSession": true,

@@ -87,8 +87,6 @@ public class FlowTestBuilder {
      * Configure the closure to be runnaable
      */
     public buildExe(Closure c){
-    
-
         if (requestUriString != null){
             c.delegate = new FlowTestDSL(requestUriString, runner, verbose);
         } else {
@@ -105,7 +103,6 @@ public class FlowTestBuilder {
         c.delegate = new DescribeScriptDSL();
         return c;
     }
-
 
 }
 
@@ -135,7 +132,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     public String lastRequestResponse = null;
 
-
     public FlowTestDSL(String requestString, ScriptRunner runner, boolean verbose){
         this.requestUriString = requestString;
         this.runner = runner;
@@ -151,13 +147,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
         this.verbose = verbose;
     }
 
-    
     public void description (String name, String description){
     }
     
     public void description (String name, String description, String usage){
     }
-
 
     void setHost(String host){
         this.host = host;
@@ -197,30 +191,20 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param paramsMap key value map of parameters to send.
      */
     String request(String flowName, Map paramsMap){
-
         debug("flowName ${flowName}");
-
         Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
-
         paramsMap.each{ k,v ->
             requestParams.add(new BasicNameValuePair(k, v));
-
         }
-
         URI requestUri = URI.create(getRequestString());
-
         GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flowName, requestParams);
-
         debug(requestParams.toString());
-
         lastRequestString = request.getRequestString();
-
         if(verbose){
             emitOutput("");
-            emitOutput(" Sent Request: " + lastRequestString );
+            emitOutput(" Sent Request: " + request.getRequestString() );
             emitOutput("");
         }
-        
         lastRequestResponse = request.get();
         debug(lastRequestResponse);
         return lastRequestResponse;
@@ -230,19 +214,19 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param message
      * Print a message
      */
-    def log(msg){ 
+    def log(msg){
         emitOutput(msg)
     }
-	
-	 /**
+    
+     /**
      * Throws a test error if the actual data returned from the server is not the same as
      * the expected JSON
      * @param expectedJSONData
      */
     def expect(String expectedJSONData){
-        JSONObject expected = new JSONObject(expectedJSONData);
-        JSONObject actual = new JSONObject(lastRequestResponse);
-        assertTrue(compare(expected,actual,null));
+            JSONObject expected = new JSONObject(expectedJSONData);
+            JSONObject actual = new JSONObject(lastRequestResponse);
+            assertTrue(compare(expected,actual,null));
     }
 
     /**
@@ -251,23 +235,29 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param expectedJSONData, ignorePathList
      */
     def expect(String expectedJSONData,List<String> ignorePathList){
-        JSONObject expected = new JSONObject(expectedJSONData);
-        JSONObject actual = new JSONObject(lastRequestResponse);
-        assertTrue(compare(expected,actual,ignorePathList));
+        try{
+            JSONObject expected = new JSONObject(expectedJSONData);
+            JSONObject actual = new JSONObject(lastRequestResponse);
+            assertTrue(compare(expected,actual,ignorePathList));
+        }catch(JSONException ex){
+            // then see if it is an array
+            def expected = new JSONArray(expectedJSONData);
+            def actual = new JSONArray(lastRequestResponse);
+            assertEquals(expected, actual);
+        }
     }
 
     /**
-     * Pretty Prints Last Response
+     * Pretty Prints Last Response.
      */
     def prettyPrintResponse(){
         emitOutput(getResponseData().toString(4));
     }
 
     /**
-     * Call a script
+     * Call a script.
      */
     def callScript(String scriptName, Map callparamsmap){
-
         def exe = runner.createClosure(scriptName,callparamsmap);
         if(exe){
             exe.delegate = this;
@@ -275,6 +265,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
     }
 
+    /**
+     * Get response data.
+     * @return response data
+     */
     def getResponseData(){
         def data = null;
         try {
@@ -313,32 +307,41 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
     }
     
+    /**
+     * method to compare the actual jsonObject return to us with our expected, and can ignore some compared things,return true when they are the same.
+     * @param expected is expected JSONObject
+     * @param actual is actual JSONObject
+     * @param excludePaths is ignore list
+     * @return true if the expected object is same with the actual object
+     */
     public boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths){
         def isEqual = compare(expected,actual,excludePaths,"/");
         return isEqual;
     }
 
     /**
-     * method to compare the actual jsonObject return to us with our expected, and can ignore some compared things,return true when they are the same. v */
+     * method to compare the actual jsonObject return to us with our expected, and can ignore some compared things,return true when they are the same.
+     * @param expected is expected JSONObject
+     * @param actual is actual JSONObject
+     * @param excludePaths is ignore list
+     * @param currentPath is path of the property
+     * @return true if the expected object is same with the actual object
+     */
     public boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths, String currentPath){
         def isEqual = false;
         // when the compared object is null,return true directly.
         if(expected == null && actual == null){
             return true;
         }
-
         if(expected == null || actual == null){
             fail("One of the expected and the actual is null");
             return false;
         }
-
         def expectedNames = expected.names();
         def actualNames = actual.names();
-
         if(expectedNames == null && actualNames == null){
             return true;
         }
-
         if(expectedNames == null || actualNames == null){
             fail("One of the expected and the actual is null");
             return false;
@@ -349,13 +352,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
             def expectedName = expectedNames.get(i);
             def actualValue = actual.get(actualName);
             def expectedValue = expected.get(expectedName);
-
             //if no ignore compared things or current compared thing is not in the ignore,then we go to compare.
             if(excludePaths == null){
                 excludePaths = new ArrayList<String>();
                 excludePaths.add("there is no ignore path");
             }
-
             if(!excludePaths.contains(currentPath)){
                 if(actualName.equals(expectedName)){
                     if(expectedValue instanceof JSONObject && actualValue instanceof JSONObject ){
@@ -364,7 +365,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
                         if (!excludePaths.contains(currentPath  + actualName + "/")){
                             isEqual = actualValue.equals(expectedValue);
                             if(!isEqual){
-                                fail("The two object is not equal in " + currentPath + actualName +":" + " expected is " + expectedValue + " but the actual is " + actualValue );
+                                fail("After Calling ${lastRequestString}.Response did not match expected in following path:" + currentPath + actualName +":" + " expected was " + expectedValue + " but the actual was " + actualValue );
                             }
                         }
                     }
@@ -385,6 +386,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
         
     }
     
+     /**
+     * @param msg is message to debug log
+     */
     private void debug(String msg){
         getLog().debug(msg);
     }
@@ -412,7 +416,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
  * This class defines the methods that are callable within the flow test DSL
  */
 public class DescribeScriptDSL {
-
     def String name;
     def String usage;
     def String description;
@@ -421,25 +424,33 @@ public class DescribeScriptDSL {
     private String requestUriString;
     /** This stores the last request to the server */
     private String lastRequestString;
-
     /**
      * Contains the last response from the server.
      */
     public String lastRequestResponse = null;
-
     public DescribeScriptDSL(){
-
-
     }
-
+    
+    /**
+     * The description of the name
+     *@param name - the name to description
+     *@param description - the name 's description
+     *@throw EarlyExitException if it just need description
+     */
     public void description (String name, String description){
         this.name = name;
         this.description = description;
         // This pevents the other commands in the script fom being executed.
         throw new EarlyExitException(new ScriptDescription(name:name , description:description, usage:"" ));
-
     }
     
+    /**
+     * The description of the name.
+     *@param name - the name to description
+     *@param description - the name 's description
+     *@param usage is the usage of the script
+     *@throw EarlyExitException  if it just need description
+     */
     public void description (String name, String description, String usage){
         this.usage = usage;
         this.name = name;
@@ -449,7 +460,7 @@ public class DescribeScriptDSL {
     }
 
     /**
-     * Sends a request to the named flow with the specified parameters
+     * Sends a request to the named flow with the specified parameters.
      * @param flowName to call
      * @param paramsMap key value map of parameters to send.
      */
@@ -457,17 +468,17 @@ public class DescribeScriptDSL {
         throw new NoDescriptionException();
     }
 
-/**
-     * Throws a test error if the actual data returned from the server is not the same as
+    /**
+     * Throws a test error if the actual data returned from the server is not the same as.
      * the expected JSON
      * @param expectedJSONData
      */
     def expect(String expectedJSONData){
         throw new NoDescriptionException();
     }
-	
+    
     /**
-     * Throws a test error if the actual data returned from the server is not the same as
+     * Throws a test error if the actual data returned from the server is not the same as.
      * the expected JSON, ignorePathList
      * @param expectedJSONData
      */
@@ -495,10 +506,6 @@ public class DescribeScriptDSL {
     def callScript(String scriptPath){
         throw new NoDescriptionException();
     }
-	
-	//def setIgnorePathList(List<String> ignoreList){
-	//
-	//}
     
     /**
      * @param message
@@ -508,14 +515,16 @@ public class DescribeScriptDSL {
          getLog().info(msg);
     }
 
-    
+    /**
+     * @param msg is message to debug log
+     */
     private void debug(String msg){
         getLog().debug(msg);
     }
     
-    
     /**
      * Get the logger for this class.
+     * @return log
      */
     public Log getLog(){
         if ( this.log == null ) {
