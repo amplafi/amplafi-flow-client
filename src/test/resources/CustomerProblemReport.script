@@ -1,4 +1,9 @@
 println ********************************************************************
+println Help Instruction
+println ********************************************************************
+help
+
+println ********************************************************************
 println Set Api Version
 println ********************************************************************
 set --apiv=apiv1
@@ -6,6 +11,7 @@ set --apiv=apiv1
 println ********************************************************************
 println EligibleExternalServiceInstancesFlow
 println ********************************************************************
+desc --name=EligibleExternalServiceInstancesFlow
 flow --name=EligibleExternalServiceInstancesFlow
 
 println ********************************************************************
