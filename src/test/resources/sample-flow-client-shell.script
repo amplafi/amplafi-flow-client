@@ -1,3 +1,18 @@
+#This is a sample batch script for the amplafi flow client shell
+
+#Available commands:
+
+#EXIT      Exit this shell.
+#HELP      Print this help instructions.
+#ENV       Print the shell environment such: host, port, api version, api key...
+#SET       Set the shell environment such: host, port, api version, api key...
+#PRINTLN   Print a message
+#LIST      List the available flow for the selected api version
+#DESC      Show the description of a flow
+#FLOW      Run a flow
+#TUTORIAL  Run the tutorial flow.
+
+
 println ********************************************************************
 println Help Instruction
 println ********************************************************************
@@ -23,3 +38,5 @@ println ********************************************************************
 println MessageEndPointListFlow 
 println ********************************************************************
 flow --name=MessageEndPointListFlow --messageEndPointCompleteList=true
+
+exit

@@ -61,7 +61,7 @@ public class AdminTool {
             return;
         }
         // Print help if there has no args.
-        if (args.length == 0) {
+        if (args.length == 0 || cmdOptions.hasOption(HELP)) {
             cmdOptions.printHelp();
             return;
         }

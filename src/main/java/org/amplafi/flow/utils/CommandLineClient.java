@@ -13,12 +13,12 @@ import org.amplafi.json.JsonConstruct;
 import org.apache.commons.cli.ParseException;
 
 /**
+ * TODO: remove this class and its dependencies. Replace by Shell
  * A shell to manage the wireservice.
  * 
  * @author Tuan
  * @author Haris Osmanagic
  */
-
 public class CommandLineClient implements Runnable {
     private static final int INDENTATION_LEVEL = 5;
 
@@ -125,5 +125,4 @@ public class CommandLineClient implements Runnable {
         
         return json;
     }
-
 }

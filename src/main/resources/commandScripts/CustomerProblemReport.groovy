@@ -470,7 +470,8 @@ def printUserPostStatisticByCategory = {
                     "name": name, "entityId": topic.get("entityId"), 
                     "externalIds": [broadcastEnvelope.get("publicUri")], 
                     "messageEndPoint": [:], 
-                    "postCount": 0
+                    "postCount": 0,
+                    "postFailedCount": 0
                 ] ;
             }
             categoriesStat[name]["postCount"] += 1 ;
@@ -485,6 +486,11 @@ def printUserPostStatisticByCategory = {
                 }
                 if(!matchTopic) {
                     continue ;
+                }
+                
+                def externalEntityStatus = endPoint.getString("externalEntityStatus") ;
+                if(!"pcd".equals(externalEntityStatus)) {
+                    categoriesStat[name]["postFailedCount"] += 1 ;
                 }
                 if(endPoint.has("publicUri")) {
                     categoriesStat[name]["externalIds"] << endPoint.get("publicUri") ;
@@ -505,7 +511,7 @@ def printUserPostStatisticByCategory = {
         for(externalId in category["externalIds"]) {
             println "    " + externalId
         }
-        println "  Post Count: " + category["postCount"] 
+        println "  Post Count: " + category["postCount"] //+ "(" + category["postFailedCount"]+ " Fails)" ;
         println "  Message End Point: " 
         for(messageEndPoint in category["messageEndPoint"].values()) {
             println sprintf('%1$10s     %2$-40s', messageEndPoint["messagePointId"], messageEndPoint["messagePointUri"])
