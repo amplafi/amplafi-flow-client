@@ -85,9 +85,7 @@ def createTmpKey = {
     def userTmpApiKey = null ;
     if(data instanceof JSONArray && data.length() == 1) {
       userTmpApiKey = data.getString(0) ;
-    } 
-    if(userTmpApiKey == null || !userTmpApiKey.startsWith("amp")) {
-        userTmpApiKey = null ;
+    } else {
         println "An error when creating a temporary api key for the publicUri " + publicUri ;
         prettyPrintResponse();
     }
@@ -697,7 +695,6 @@ if(publicUri != null) {
 } else {
     apiKey = suApiKey ;
 }
-
 if(apiKey == null) {
     return ;
 }
