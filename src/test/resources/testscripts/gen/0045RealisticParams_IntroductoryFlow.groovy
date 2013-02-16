@@ -1,9 +1,0 @@
-request("IntroductoryFlow", ["configuration":"abc","broadcastMessageType":"null","originalBroadcastEnvelope":"null","originalBroadcastEnvelopes":"['a','b','c']","broadcastEnvelope":"null","broadcastEnvelopes":"['a','b','c']","copyOriginalMessage":"null","deleteOriginalMessage":"null","standardMessageSourcePointType":"null","externalContentId":"null","externalContentIds":"['a','b','c']","fsRenderResult":"json"])
-
-checkReturnedValidJson()
-request("IntroductoryFlow", ["configuration":"abc","broadcastMessageType":"null","originalBroadcastEnvelope":"null","originalBroadcastEnvelopes":"['a','b','c']","broadcastEnvelope":"null","broadcastEnvelopes":"['a','b','c']","originalMessageBody":"abc","selectedEnvelopes":"['a','b','c']","language":"null","messageBody":"abc","messageHeadline":"abc","messageExcerpt":"abc","explicitMessageResources":"null","embeddedMessageResources":"null","messageResources":"null","publicUri":"null","fsRenderResult":"json"])
-
-checkReturnedValidJson()
-request("IntroductoryFlow", ["configuration":"abc","messageEndPointList":"['a','b','c']","messageEndPointUri":"null","messageSourcePointUri":"null","messageSourcePointList":"['a','b','c']","messageSourcePointUriMap":"null","connectionGroup":"null","connectionGroupList":"['a','b','c']","internalSourcePoint":"null","messageEndPointType":"null","messageSourcePointType":"null","externalServiceDefinitionsMap":"null","externalServiceDefinition":"null","externalServiceInstance":"null","newExternalServiceInstance":"null","defaultExternalServiceInstance":"null","newExternalServiceInstanceLookupKey":"abc","useDefaultExternalServiceInstanceIfNeeded":"null","externalCredential":"null","publicUri":"null","messageEndPoint":"null","messageSourcePoint":"null","validInsertionPointOffset":"null","insertionPointOffset":"abc","derivedUrlNotRequired":"null","fsRenderResult":"json"])
-
-checkReturnedValidJson()

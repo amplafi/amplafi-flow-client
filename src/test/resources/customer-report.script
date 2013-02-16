@@ -1,0 +1,18 @@
+#This is a sample batch script to run the customer report
+
+println ********************************************************************
+println Pring Paul tool instruction
+println ********************************************************************
+gscript -help
+
+println ********************************************************************
+println List the available groovy script to run
+println ********************************************************************
+gscript -l
+
+println ********************************************************************
+println Run the customer report
+println ********************************************************************
+gscript CustomerProblemReport
+
+exit

@@ -25,15 +25,14 @@ public class GeneralFlowRequest {
     private static final NameValuePair fsRenderResult = new BasicNameValuePair("fsRenderResult", "json");
     private static final NameValuePair describe = new BasicNameValuePair("describe",null);
     public static final String APPLICATION_ZIP = "application/zip";
-
-
     private URI requestUri;
     private String flowName;    
     private String queryString;
 
     /**
      * @param requestUri is expected to have everything accept the queryString
-     * @param params
+     * @param params is the parameters of the request
+     * @param flowName is name of the flow
      */
     public GeneralFlowRequest(URI requestUri, String flowName, NameValuePair... params) {
         this(requestUri, flowName, Arrays.asList(params));
@@ -41,7 +40,8 @@ public class GeneralFlowRequest {
 
     /**
      * @param requestUri is expected to have everything accept the queryString
-     * @param parameters
+     * @param parameters is the parameters of the request
+     * @param flowName is name of the flow
      */
     public GeneralFlowRequest(URI requestUri, String flowName, Collection<NameValuePair> parameters) {
         this.requestUri = requestUri;
@@ -59,16 +59,18 @@ public class GeneralFlowRequest {
     }
 
     /**
-     * @return JSONObject representation of all of the parameters that this flow has.
+     * @return JSONObject representation of all of the parameters that this flow has
      */
     public JSONObject describeFlow() {
         String responseString = describeFlowRaw();
         return new JSONObject(responseString);
     }
     
+    /**
+     * @return request response string
+     */
     public String describeFlowRaw(){
         GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(requestUri, flowName, fsRenderResult, describe);
-        
         return generalFlowRequest.get();
     }
 
@@ -86,10 +88,8 @@ public class GeneralFlowRequest {
         try {
             HttpClient client = new DefaultHttpClient();
             String requestString = getRequestString();
-
             HttpGet request = new HttpGet(requestString);
             HttpResponse response = client.execute(request);
-
             Header contentTypeHeader = response.getFirstHeader("Content-Type");
             if (contentTypeHeader != null && 
                     contentTypeHeader.getValue() != null  && contentTypeHeader.getValue().equals(APPLICATION_ZIP)){
@@ -98,20 +98,23 @@ public class GeneralFlowRequest {
             } else {
                 output = EntityUtils.toString(response.getEntity());
             }
-            
-        
         } catch (Exception e) {
             // Throw an exception here ?
             e.printStackTrace();
         }
-          
         return output;
     }
 
+    /**
+     * @return the full url
+     */
     private String getFullUri() {
         return flowName != null ? (requestUri + "/" + flowName) : requestUri.toString();
     }
     
+    /**
+     * @return the request string
+     */
     public String getRequestString() {
         return getFullUri() + "?" + queryString;
     }

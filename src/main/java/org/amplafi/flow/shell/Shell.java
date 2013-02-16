@@ -7,18 +7,6 @@ import java.util.Date;
 
 public class Shell {
     private static final String NO_CONSOLE = "Error: Console unavailable";
-    private static final String HELP_INFO = 
-        "\n" +
-        "This shell is used to help the administrator access and manage\n" +
-        "the farreaches wireservice\n" +
-        "Params: \n" +
-        "  -Dfarreaches.api.key=<key>      The user api key. This parameter is mandatory\n" +
-        "  -Dfarreaches.host=<key>         The wireservice host, the default value is http://sandbox.farreach.es\n" +
-        "  -Dfarreaches.port=<port>        The wireservice port, the default value is 8080\n" +
-        "  -Dfarreaches.apiv=<apiv1, suv1> The wireservice api version, the default value is apiv1\n" +
-        "  -Dfarreaches.script=<file>      The script to run\n" +
-        "\n";
-    
     private static final String UNKNOWN_COMMAND = "Unknown command [%1$s]%n";
 
     private static final String TIME_FORMAT = "%1$tH:%1$tM:%1$tS";
@@ -26,14 +14,17 @@ public class Shell {
 
     public static void main(String[] args) throws Exception {
         Console console = System.console();
+        
         if (console != null) {
-            String apiKey = System.getProperty("farreaches.api.key");
-            String host = System.getProperty("farreaches.host", "http://sandbox.farreach.es") ;
-            String port =  System.getProperty("farreaches.port", "8080") ;
-            String apiVersion = System.getProperty("farreaches.apiv", "apiv1") ;
-            String scriptFile = System.getProperty("farreaches.script") ;
-            console.printf(HELP_INFO);
+            ShellCommandParser commandParser = new ShellCommandParser(args) ;
+            String apiKey = commandParser.getOption(ShellCommandParser.API_KEY, null);
+            String host = commandParser.getOption(ShellCommandParser.HOST, "http://sandbox.farreach.es"); 
+            String port =  commandParser.getOption(ShellCommandParser.PORT, "8080");
+            String apiVersion = commandParser.getOption(ShellCommandParser.API_VERSION, "apiv1"); ;
+            String scriptFile = commandParser.getOption(ShellCommandParser.SCRIPT, null);
+            commandParser.printHelp(); 
             if(apiKey == null) {
+                console.printf("\n\nERROR: The api key parameter is mandatory\n\n") ;
                 System.exit(0) ;
             }
             ShellContext context = new ShellContext() ;
@@ -43,9 +34,8 @@ public class Shell {
             context.setApiVersion(apiVersion) ;
             if(scriptFile != null) {
                 execScript(console, context, scriptFile);
-            } else {
-                execCommandLoop(console, context);
-            }
+            } 
+            execCommandLoop(console, context);
         } else {
             throw new RuntimeException(NO_CONSOLE);
         }
@@ -62,7 +52,9 @@ public class Shell {
         BufferedReader reader = new BufferedReader(new FileReader(scriptFile)) ;
         String commandLine = null ;
         while((commandLine = reader.readLine()) != null) {
-            execCommandLine(console, context, commandLine) ;
+            if(!commandLine.startsWith("#")) {
+                execCommandLine(console, context, commandLine) ;
+            }
         }
     }
 

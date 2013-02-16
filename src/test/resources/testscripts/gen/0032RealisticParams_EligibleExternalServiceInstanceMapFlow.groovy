@@ -1,3 +1,4 @@
 request("EligibleExternalServiceInstanceMapFlow", ["fsRenderResult":"json"])
 
-checkReturnedValidJson()
+expect("""{}""")
+
