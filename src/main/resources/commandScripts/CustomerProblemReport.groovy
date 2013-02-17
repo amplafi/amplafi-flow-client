@@ -24,46 +24,12 @@ String usage =
  
 description "CustomerProblemReport", "This tool is used to report and identify the customer problem", "${usage}";
 
-def printTaskInfo = { 
-    info ->
-    println "\n"
-    println "*********************************************************************************";
-    println info ;
-    println "*********************************************************************************"
-}
 
 def printHelp = { 
     printTaskInfo "CustomerProblemReport Script Help"
     println usage
 }
 
-def printTabular = { 
-    entries, tabularTmpl, headers, keyPaths ->
-    println sprintf(tabularTmpl, headers) ;
-    println "-----------------------------------------------------------------------------------------"
-    for(int i = 0; i < entries.length(); i++) {
-        def entry = entries.get(i) ;
-        def value = new String[keyPaths.size() + 1] ;
-        value[0] = Integer.toString(i + 1) ;
-        for(int j = 0; j < value.length - 1; j++) {
-            value[j + 1] = entry.optStringByPath(keyPaths[j]) ;
-        }
-        println sprintf(tabularTmpl, value) ;
-    }
-}
-
-def printTabularMap = { 
-    map, tabularTmpl, headers, keys ->
-    println sprintf(tabularTmpl, headers) ;
-    println "-----------------------------------------------------------------------------------------"
-    for(entry in map.values()) {
-        def value = new String[keys.size()] ;
-        for(int j = 0; j < value.length; j++) {
-            value[j] = entry.get(keys[j]) ;
-        }
-        println sprintf(tabularTmpl, value) ;
-    }
-}
 
 def toAmplafiJSONCalendar = { 
     dateString -> 
@@ -73,81 +39,7 @@ def toAmplafiJSONCalendar = {
     return json ;
 }
 
-def createTmpKey = { 
-    publicUri, userEmail ->
-    printTaskInfo "Create the temporaty api key for the customer " + publicUri ;
-    setApiVersion("suv1");
-    def reqParams = ["fsRenderResult":"json", "reasonForAccess": "Inspect the customer problem", "publicUri": publicUri] ;
-    reqParams["email"] = userEmail;
-    request("SuApiKeyFlow", reqParams);
-    def data = getResponseData();
-    
-    def userTmpApiKey = null ;
-    if(data instanceof JSONArray && data.length() == 1) {
-      userTmpApiKey = data.getString(0) ;
-    } else {
-        println "An error when creating a temporary api key for the publicUri " + publicUri ;
-        prettyPrintResponse();
-    }
-    println "Temporary Key: " + userTmpApiKey ;
-    return userTmpApiKey ;
-}
 
-def getAvailableCategories = { 
-    apiKey ->
-    setApiVersion("apiv1");
-    setKey(apiKey);
-    request("AvailableCategoriesFlow", ["fsRenderResult":"json"]);
-    def categories = [:];
-    if(getResponseData() instanceof JSONArray) {
-        def entries = getResponseData();
-        for(entry in getResponseData()) {
-            def id = entry.opt("entityId") ;
-            def name = entry.opt("name") ;
-            categories[id] = ["id": id, "name": name] ;
-        }
-    } else {
-        println "ERROR: Cannot get the category list"
-        prettyPrintResponse();
-    }
-    return categories ;
-}
-
-def printAvailableCategories = { 
-    categories ->
-    printTaskInfo "Available Categories"
-    String tabularTmpl = '%1$10s%2$20s' ;
-    def headers =  ['Topic Id', 'Name'] ;
-    def keys = ['id', 'name'] ;
-    printTabularMap(categories, tabularTmpl, headers, keys);
-}
-
-def printAvailableExternalServices = { 
-    apiKey ->
-    setApiVersion("apiv1");
-    setKey(apiKey);
-    
-    printTaskInfo "Available External Services(Social Services)"
-    request("EligibleExternalServiceInstancesFlow", ["fsRenderResult":"json"]);
-    def msg = "Available External Services: \n"
-    if(getResponseData() instanceof JSONArray) {
-        def entries = getResponseData();
-        String tabularTmpl = '%1$3s %2$20s' ;
-        def headers =  ['#', 'Ext Service'] ;
-        def keyPaths = [     'name'] ;
-        printTabular(entries, tabularTmpl, headers, keyPaths)
-        if(entries.length() == 0) {
-            msg = msg + 
-                  "    FAIL(The post won't be forwarded to any external service since no external service is available)"
-        } else {
-            msg = msg + 
-                  "    SUCCESS(" + entries.length() + " external services are found)" ;
-        }
-    } else {
-        prettyPrintResponse();
-    }
-    return msg ;
-}
 
 def printUserRoles = { 
     apiKey ->
@@ -687,7 +579,8 @@ try {
     def suApiKey = getKey() ;
     def apiKey = null ;
     if(publicUri != null) {
-        apiKey = createTmpKey(publicUri, userEmail) ;
+        // call other script and get return value.
+        apiKey = callScript("CreateSuApiKey",["publicUri":publicUri,"userEmail":userEmail]);
     } else {
         apiKey = suApiKey ;
     }
@@ -695,11 +588,16 @@ try {
         return ;
     }
     
-    def categories = getAvailableCategories(apiKey) ;
-    printAvailableCategories(categories) ;
+
+    // This is a global settig that will effect subsequent scripts
+    setKey(apiKey);
+    // call other script
+    callScript("DisplayAvailableCategories");
     
-    printAvailableExternalServices(apiKey) ;
-    
+    // call other script
+    callScript("DisplayAvailableExternalServices");
+
+    // TUAN I have refactored up to here. I can continue tomorrow if you like.
     def meps = getMessageEndPoints(apiKey) ;
     printMessageEndPoints(meps) ;
     

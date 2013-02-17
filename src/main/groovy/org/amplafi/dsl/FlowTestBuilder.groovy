@@ -111,6 +111,7 @@ public class FlowTestBuilder {
  */
 public class FlowTestDSL extends DescribeScriptDSL {
 
+
     def host;
     def port;
     def apiVersion;
@@ -119,6 +120,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def boolean verbose;
     private Log log;
     private static boolean DEBUG;
+    private static final String THICK_DIVIDER =
+    "*********************************************************************************";
+    
+    private static final String THIN_DIVIDER =
+    "---------------------------------------------------------------------------------";
     //private List<String> ignoreList = new ArrayList<String>();
 
     /** This stores the base uri including the host,port,apikey */
@@ -253,6 +259,43 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def prettyPrintResponse(){
         emitOutput(getResponseData().toString(4));
     }
+
+    def printTaskInfo(info){
+        emitOutput "\n"
+        emitOutput THICK_DIVIDER;
+        emitOutput info ;
+        emitOutput THICK_DIVIDER;
+    }
+
+    
+
+    def printTabular(entries, tabularTmpl, headers, keyPaths){
+        emitOutput sprintf(tabularTmpl, headers) ;
+        emitOutput THIN_DIVIDER;
+        for(int i = 0; i < entries.length(); i++) {
+            def entry = entries.get(i) ;
+            def value = new String[keyPaths.size() + 1] ;
+            value[0] = Integer.toString(i + 1) ;
+            for(int j = 0; j < value.length - 1; j++) {
+                value[j + 1] = entry.optStringByPath(keyPaths[j]) ;
+            }
+            println sprintf(tabularTmpl, value) ;
+        }
+    }
+
+    def printTabularMap(map, tabularTmpl, headers, keys){ 
+         
+        emitOutput sprintf(tabularTmpl, headers) ;
+        emitOutput THIN_DIVIDER;
+        for(entry in map.values()) {
+            def value = new String[keys.size()] ;
+            for(int j = 0; j < value.length; j++) {
+                value[j] = entry.get(keys[j]) ;
+            }
+            println sprintf(tabularTmpl, value) ;
+        }
+    }
+
 
     /**
      * Call a script.
