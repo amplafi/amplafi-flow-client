@@ -13,7 +13,7 @@ gscript -l
 println ********************************************************************
 println Run the customer report
 println ********************************************************************
-#set --host=http://apiv1.farreach.es
+set --host=http://apiv1.farreach.es
 gscript CustomerProblemReport userEmail=mharmuth@fortunatefamilies.com publicUri=http://fortunatefamilies.com
 
 exit
