@@ -11,6 +11,16 @@ import static org.testng.Assert.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mortbay.jetty.Request;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.AbstractHandler;
+
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * This class defines a simple DSL for sending reqests to the amplafi wire server
  * and expecting results.
@@ -119,6 +129,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def boolean verbose;
     private Log log;
     private static boolean DEBUG;
+    private String tempApiKey;
+    private boolean received = false;
     //private List<String> ignoreList = new ArrayList<String>();
 
     /** This stores the base uri including the host,port,apikey */
@@ -386,6 +398,89 @@ public class FlowTestDSL extends DescribeScriptDSL {
         
     }
     
+    /**
+     * The method is to open a port and listens request.
+     * @param portNo is port number
+     * @param timeOutSeconds is time out seconds
+     * @param doNow is the request in script
+     * @param handleRequest is the handle method when recieved a request
+     */
+    public void openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
+        def monitor = new Object();
+        received = false;
+        Server server = new Server(portNo);
+        server .setGracefulShutdown(1000);
+        server.setHandler(new MyHandler(handleRequest,monitor));
+        server.start();
+        doNow.delegate = this;
+        doNow();
+        //Wait for 10 seconds
+        try{
+            synchronized (monitor) {
+                monitor.wait(timeOutSeconds * 1000);
+            }
+            if(received == false){
+                server.doStop();
+                fail("Server did not send any request");
+            }
+            server.doStop();
+        }catch(InterruptedException ie){
+            ie.printStackTrace();
+        }
+    }
+
+    /**
+     * This class defines the handler of the client jetty server
+     */
+    public class MyHandler extends AbstractHandler {
+        def Closure handleRequest;
+        def monitor;
+        
+        /**
+         * The method is constructor of the class.
+         * @param handleRequest is handleRequest closure
+         * @param monitor is a synchronized lock
+         */
+        MyHandler(Closure handleRequest,def monitor){
+            this.handleRequest = handleRequest;
+            this.monitor = monitor;
+        }
+        
+        /**
+         * The method is handle of the client jetty server.
+         * @param target is the target of the request - either a URI or a name.
+         * @param request is the request either as the Request object or a wrapper
+         * of that request.
+         * @param response is the response as the Response object or a wrapper of that
+         * request.
+         * @param dispatch is the dispatch mode: REQUEST, FORWARD, INCLUDE, ERROR 
+         */
+        public void handle(String target, HttpServletRequest request,
+                HttpServletResponse response, int dispatch)
+            throws IOException,
+                ServletException {
+            response.setContentType("text/html");
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().println("<h1>Hello</h1>");
+            ((Request) request).setHandled(true);
+            handleRequest.delegate = this;
+            handleRequest(request);
+            received = true;
+            synchronized (monitor) {
+                monitor.notifyAll();
+            }
+        }
+    }
+
+    /**
+     * The method is set api key.
+     * @param tempApiKey 
+     */
+    def setApiKey(String tempApiKey){
+        this.tempApiKey=tempApiKey;
+    }
+
+    
      /**
      * @param msg is message to debug log
      */
@@ -507,6 +602,9 @@ public class DescribeScriptDSL {
         throw new NoDescriptionException();
     }
     
+    public void openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
+        
+    }
     /**
      * @param message
      * Print a message
