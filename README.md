@@ -123,7 +123,67 @@ For eaxmple it may look like this:
 				
 When this is finished, the key that you need will be visible in the diagnostics screen for the plugin (It is a long hex string like this: ampcb_0cf02bdcd1218c9f5556b632640749a53946923cb26d0e90d2b9cf2300280497).
 
-## Running the client manually ##
+## Running the flow client shell ##
+Prerequisites:
+a)amplafi-opensource-parent is required and the directory is same as amplafi-flow-client
+b)amplafi-json needs to be downloaded and installed
+
+To build: 
+
+    mvn package
+
+This will create a jar file:
+target/amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar
+
+To run the shell:
+
+    #Shell options:
+    #-apiv <arg>     The wireservice api version, the default value is apiv1
+    #-host <arg>     The wireservice host, the default value is
+    #                http://sandbox.farreach.es
+    #-key <arg>      The user api key. This parameter is mandatory
+    #-port <arg>     The wireservice port, the default value is 8080
+    #-script <arg>   The batch script file to run
+
+    java -cp amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar org.amplafi.flow.shell.Shell -key <api_key>
+
+You can also create a script file and run the script. A sample script:
+
+    #Available commands:
+
+    #EXIT      Exit this shell.
+    #HELP      Print this help instructions.
+    #ENV       Print the shell environment such: host, port, api version, api key...
+    #SET       Set the shell environment such: host, port, api version, api key...
+    #PRINTLN   Print a message
+    #LIST      List the available flow for the selected api version
+    #DESC      Show the description of a flow
+    #FLOW      Run a flow
+    #TUTORIAL  Run the tutorial flow.
+
+    println Help Instruction
+    help
+
+    println Set Api Version
+    set --apiv=apiv1
+
+    println EligibleExternalServiceInstancesFlow
+    desc --name=EligibleExternalServiceInstancesFlow
+    flow --name=EligibleExternalServiceInstancesFlow
+
+    println AvailableCategoriesFlow
+    flow --name=AvailableCategoriesFlow
+
+    println MessageEndPointListFlow 
+    flow --name=MessageEndPointListFlow --messageEndPointCompleteList=true
+
+    exit
+
+To run the shell script:
+
+    java -cp amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar org.amplafi.flow.shell.Shell -key <api_key> -script path/to/file.script
+
+## Running the client manually(Deprecated) ##
 Prerequisites:
 a)amplafi-opensource-parent is required and the directory is same as amplafi-flow-client
 b)amplafi-json needs to be downloaded and installed

@@ -2,7 +2,7 @@
 // this simple DSL offers 2 methods request() and expect()
 println("1example.groovy");
 
-/*
+
 request('HelloFlow',['param1':'dog','param2':'pig']);
 
 expect("""
@@ -26,4 +26,3 @@ expect("""
    }
 }
 """);
-*/

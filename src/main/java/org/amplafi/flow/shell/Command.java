@@ -91,6 +91,7 @@ public enum Command {
     LIST(new ListFlow()),
     DESC(new DescFlow()),
     FLOW(new ExecFlow()),
+    GSCRIPT(new GScript()),
     TUTORIAL(new TutorialFlow());
 
     private Action action;

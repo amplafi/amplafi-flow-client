@@ -1,0 +1,10 @@
+#This is a sample batch script to run the customer report
+
+
+println ********************************************************************
+println Run the customer report
+println ********************************************************************
+set --host=http://sandbox.farreach.es --port=8080
+gscript CustomerProblemReport userEmail=admin@amplafi.com publicUri=http://example.com
+
+exit
