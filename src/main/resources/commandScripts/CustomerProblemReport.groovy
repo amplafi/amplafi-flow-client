@@ -136,17 +136,9 @@ def printAvailableExternalServices = {
         def headers =  ['#', 'Ext Service'] ;
         def keyPaths = [     'name'] ;
         printTabular(entries, tabularTmpl, headers, keyPaths)
-        if(entries.length() == 0) {
-            msg = msg + 
-                  "    FAIL(The post won't be forwarded to any external service since no external service is available)"
-        } else {
-            msg = msg + 
-                  "    SUCCESS(" + entries.length() + " external services are found)" ;
-        }
     } else {
         prettyPrintResponse();
     }
-    return msg ;
 }
 
 def printUserRoles = { 
@@ -194,12 +186,6 @@ def getMessageEndPoints = {
     def entries = getResponseData();
     for(entry in entries) {
         addMessageEndPointToMap(meps, entry) ;
-        if(entry.has("messageEndPoints")) {
-            def childrenMessageEndPoints = entry.optJSONArray("messageEndPoints") ;
-            for(child in childrenMessageEndPoints) {
-                addMessageEndPointToMap(meps, child) ;
-            }
-        }
     }
     return meps;
 }
