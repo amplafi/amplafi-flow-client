@@ -7,6 +7,8 @@ import org.amplafi.json.JSONException;
 import org.amplafi.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import static org.testng.Assert.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +53,7 @@ public class FlowTestBuilder {
     private String key;
     private ScriptRunner runner;
     private boolean verbose = false;
-  
+
     /**
      * Constructor for tests
      */
@@ -73,7 +75,7 @@ public class FlowTestBuilder {
         this.runner = runner;
         this.verbose = verbose;
     }
-    
+
      public FlowTestBuilder(String host, String port, String apiVersion, String key, List<String> paramArray){
         this.requestUriString = requestUriString;
         this.host = host;
@@ -82,7 +84,7 @@ public class FlowTestBuilder {
         this.key = key;
     }
 
-    
+
     /**
      * Configure the closure to be runnaable
      */
@@ -92,7 +94,7 @@ public class FlowTestBuilder {
         } else {
             c.delegate = new FlowTestDSL(host, port, apiVersion, key, runner, verbose);
         }
-        c.setResolveStrategy(Closure.DELEGATE_FIRST)        
+        c.setResolveStrategy(Closure.DELEGATE_FIRST)
         return c;
     }
 
@@ -149,7 +151,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     public void description (String name, String description){
     }
-    
+
     public void description (String name, String description, String usage){
     }
 
@@ -189,8 +191,34 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * Sends a request to the named flow with the specified parameters
      * @param flowName to call
      * @param paramsMap key value map of parameters to send.
+     * @return response string
      */
     String request(String flowName, Map paramsMap){
+        GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
+        lastRequestResponse = request.get();
+        debug(lastRequestResponse);
+        return lastRequestResponse;
+    }
+
+    /**
+     * Sends a request to the named flow with the specified parameters
+     * @param flowName to call
+     * @param paramsMap key value map of parameters to send.
+     * @return response object
+     */
+    HttpResponse requestResponse(String flowName, Map paramsMap){
+        GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
+        HttpResponse response = request.sendRequest();
+        lastRequestResponse = EntityUtils.toString(response.getEntity());
+        return response;
+    }
+
+    /**
+     * Sends a request to the named flow with the specified parameters
+     * @param flowName to call
+     * @param paramsMap key value map of parameters to send.
+     */
+    GeneralFlowRequest createGeneralFlowRequest(String flowName, Map paramsMap){
         debug("flowName ${flowName}");
         Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
         paramsMap.each{ k,v ->
@@ -205,9 +233,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
             emitOutput(" Sent Request: " + request.getRequestString() );
             emitOutput("");
         }
-        lastRequestResponse = request.get();
-        debug(lastRequestResponse);
-        return lastRequestResponse;
+        return request;
     }
 
     /**
@@ -217,7 +243,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def log(msg){
         emitOutput(msg)
     }
-    
+
      /**
      * Throws a test error if the actual data returned from the server is not the same as
      * the expected JSON
@@ -272,7 +298,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def getResponseData(){
         def data = null;
         try {
-            // first assume it is a normal object 
+            // first assume it is a normal object
             data = new JSONObject(lastRequestResponse);
         } catch (Exception e){
             try {
@@ -303,10 +329,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
         if (requestUriString != null){
             return requestUriString;
         } else {
-            return this.host + ":" + this.port + "/c/" + this.key   + "/" + this.apiVersion; 
+            return this.host + ":" + this.port + "/c/" + this.key   + "/" + this.apiVersion;
         }
     }
-    
+
     /**
      * method to compare the actual jsonObject return to us with our expected, and can ignore some compared things,return true when they are the same.
      * @param expected is expected JSONObject
@@ -383,16 +409,16 @@ public class FlowTestDSL extends DescribeScriptDSL {
             i++;
         }
         return isEqual;
-        
+
     }
-    
+
      /**
      * @param msg is message to debug log
      */
     private void debug(String msg){
         getLog().debug(msg);
     }
-    
+
     /**
      * @param msg - message to emit
      */
@@ -409,7 +435,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
         return this.log;
     }
-    
+
 }
 
 /**
@@ -430,7 +456,7 @@ public class DescribeScriptDSL {
     public String lastRequestResponse = null;
     public DescribeScriptDSL(){
     }
-    
+
     /**
      * The description of the name
      *@param name - the name to description
@@ -443,7 +469,7 @@ public class DescribeScriptDSL {
         // This pevents the other commands in the script fom being executed.
         throw new EarlyExitException(new ScriptDescription(name:name , description:description, usage:"" ));
     }
-    
+
     /**
      * The description of the name.
      *@param name - the name to description
@@ -468,6 +494,10 @@ public class DescribeScriptDSL {
         throw new NoDescriptionException();
     }
 
+    HttpResponse requestResponse(String flowName, Map paramsMap){
+        throw new NoDescriptionException();
+    }
+
     /**
      * Throws a test error if the actual data returned from the server is not the same as.
      * the expected JSON
@@ -476,7 +506,7 @@ public class DescribeScriptDSL {
     def expect(String expectedJSONData){
         throw new NoDescriptionException();
     }
-    
+
     /**
      * Throws a test error if the actual data returned from the server is not the same as.
      * the expected JSON, ignorePathList
@@ -506,12 +536,12 @@ public class DescribeScriptDSL {
     def callScript(String scriptPath){
         throw new NoDescriptionException();
     }
-    
+
     /**
      * @param message
      * Print a message
      */
-    def log(msg){ 
+    def log(msg){
          getLog().info(msg);
     }
 
@@ -521,7 +551,7 @@ public class DescribeScriptDSL {
     private void debug(String msg){
         getLog().debug(msg);
     }
-    
+
     /**
      * Get the logger for this class.
      * @return log

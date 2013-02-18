@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.io.IOException;
 
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONObject;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -26,8 +28,9 @@ public class GeneralFlowRequest {
     private static final NameValuePair describe = new BasicNameValuePair("describe",null);
     public static final String APPLICATION_ZIP = "application/zip";
     private URI requestUri;
-    private String flowName;    
+    private String flowName;
     private String queryString;
+    private HttpClient httpClient;
 
     /**
      * @param requestUri is expected to have everything accept the queryString
@@ -65,7 +68,7 @@ public class GeneralFlowRequest {
         String responseString = describeFlowRaw();
         return new JSONObject(responseString);
     }
-    
+
     /**
      * @return request response string
      */
@@ -80,29 +83,37 @@ public class GeneralFlowRequest {
     }
 
     /**
-      * This method actually send the http request represented by this object. 
-      * @return request response string. 
+      * This method actually send the http request represented by this object.
+      * @return request response string.
       */
     public String get() {
-        String output = null;
-        try {
-            HttpClient client = new DefaultHttpClient();
-            String requestString = getRequestString();
-            HttpGet request = new HttpGet(requestString);
-            HttpResponse response = client.execute(request);
+         String output = null;
+         try {
+            HttpResponse response = sendRequest();
             Header contentTypeHeader = response.getFirstHeader("Content-Type");
-            if (contentTypeHeader != null && 
+            if (contentTypeHeader != null &&
                     contentTypeHeader.getValue() != null  && contentTypeHeader.getValue().equals(APPLICATION_ZIP)){
                 // calling classes should check for this.
                 output = APPLICATION_ZIP;
             } else {
                 output = EntityUtils.toString(response.getEntity());
             }
+
         } catch (Exception e) {
             // Throw an exception here ?
             e.printStackTrace();
         }
         return output;
+    }
+
+    public HttpResponse sendRequest() throws IOException, ClientProtocolException {
+        HttpResponse response = null;
+        HttpClient client = getHttpClient();
+        String requestString = getRequestString();
+        HttpGet request = new HttpGet(requestString);
+        response = client.execute(request);
+        return response;
+
     }
 
     /**
@@ -111,11 +122,18 @@ public class GeneralFlowRequest {
     private String getFullUri() {
         return flowName != null ? (requestUri + "/" + flowName) : requestUri.toString();
     }
-    
+
     /**
      * @return the request string
      */
     public String getRequestString() {
         return getFullUri() + "?" + queryString;
+    }
+
+    public HttpClient getHttpClient(){
+        if (httpClient == null){
+            httpClient = new DefaultHttpClient();
+        }
+        return httpClient;
     }
 }
