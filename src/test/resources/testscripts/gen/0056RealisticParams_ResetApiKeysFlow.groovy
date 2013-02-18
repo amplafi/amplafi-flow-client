@@ -11,7 +11,7 @@ expect("""{"flowState": {
         "configuration": "abc",
         "user": 4,
         "broadcastProvider": 2,
-        "publicUri": "null",
+        "publicUri": [],
         "recreate": false
     }
 }}""",ignorePathList)

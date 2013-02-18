@@ -19,6 +19,10 @@
     <scm>
         <developerConnection>scm:git:${github-base}${project.artifactId}.git</developerConnection>
     </scm>
+    
+    <properties>
+    <jettyVersion>7.2.0.v20101020</jettyVersion>
+  </properties>
 
     <dependencies>
 
@@ -97,6 +101,25 @@
             <artifactId>properties-maven-plugin</artifactId>
             <version>1.0-alpha-2</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+            <version>6.1H.14.1</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>maven-jetty-plugin</artifactId>
+            <version>6.1.26</version>
+        </dependency>
+         
 
     </dependencies>
     <build>
@@ -173,7 +196,7 @@
 
                     <systemPropertyVariables>
                         <!-- call mvn -Dkey=your_api_key ( looks like: ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e )  -->
-                        <key>ampcb_720df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469</key>
+                        <key>ampcb_e2ea34097f9aba4f69ff7c095d227beabccef732971eb2539065997d297b12c9</key>
                         <host>http://sandbox.farreach.es</host>
                         <port>8080</port>
                         <!-- List the flows that you want to ignore here   -->
@@ -228,6 +251,13 @@
               </configuration>
             </plugin>
 
+ 	<plugin>
+        <!-- This plugin is needed for the servlet example -->
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>${jettyVersion}</version>
+      </plugin>
+      
         </plugins>
     </build>
     <profiles>

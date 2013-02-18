@@ -12,6 +12,13 @@ import org.apache.http.util.EntityUtils;
 import static org.testng.Assert.*;
 import java.util.HashMap;
 import java.util.Map;
+import org.mortbay.jetty.Request;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.AbstractHandler;
+import java.util.Map;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * This class defines a simple DSL for sending reqests to the amplafi wire server
@@ -84,7 +91,6 @@ public class FlowTestBuilder {
         this.key = key;
     }
 
-
     /**
      * Configure the closure to be runnaable
      */
@@ -121,6 +127,12 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def boolean verbose;
     private Log log;
     private static boolean DEBUG;
+    private static final String THICK_DIVIDER =
+    "*********************************************************************************";
+    private static final String THIN_DIVIDER =
+    "---------------------------------------------------------------------------------";
+    private String tempApiKey;
+    private boolean received = false;
     //private List<String> ignoreList = new ArrayList<String>();
 
     /** This stores the base uri including the host,port,apikey */
@@ -280,15 +292,62 @@ public class FlowTestDSL extends DescribeScriptDSL {
         emitOutput(getResponseData().toString(4));
     }
 
+    def printTaskInfo(info){
+        emitOutput "\n"
+        emitOutput THICK_DIVIDER;
+        emitOutput info ;
+        emitOutput THICK_DIVIDER;
+    }
+
+
+
+    def printTabular(entries, tabularTmpl, headers, keyPaths){
+        emitOutput sprintf(tabularTmpl, headers) ;
+        emitOutput THIN_DIVIDER;
+        for(int i = 0; i < entries.length(); i++) {
+            def entry = entries.get(i) ;
+            def value = new String[keyPaths.size() + 1] ;
+            value[0] = Integer.toString(i + 1) ;
+            for(int j = 0; j < value.length - 1; j++) {
+                value[j + 1] = entry.optStringByPath(keyPaths[j]) ;
+            }
+            println sprintf(tabularTmpl, value) ;
+        }
+    }
+
+    def printTabularMap(map, tabularTmpl, headers, keys){
+
+        emitOutput sprintf(tabularTmpl, headers) ;
+        emitOutput THIN_DIVIDER;
+        for(entry in map.values()) {
+            def value = new String[keys.size()] ;
+            for(int j = 0; j < value.length; j++) {
+                value[j] = entry.get(keys[j]) ;
+            }
+            println sprintf(tabularTmpl, value) ;
+        }
+    }
+
+
     /**
-     * Call a script.
+     * Call a script with params
+     * @param scriptName script name
+     * @param callParamsMap script parameters
      */
-    def callScript(String scriptName, Map callparamsmap){
-        def exe = runner.createClosure(scriptName,callparamsmap);
+    def callScript(String scriptName, Map callParamsMap){
+        def exe = runner.createClosure(scriptName,callParamsMap);
         if(exe){
             exe.delegate = this;
             exe();
         }
+    }
+
+    /**
+     * Call a script with no params
+     * @param scriptName script name
+     */
+    def callScript(String scriptName){
+        callScript(scriptName,[:]);
     }
 
     /**
@@ -412,6 +471,89 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     }
 
+    /**
+     * The method is to open a port and listens request.
+     * @param portNo is port number
+     * @param timeOutSeconds is time out seconds
+     * @param doNow is the request in script
+     * @param handleRequest is the handle method when recieved a request
+     */
+    public void openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
+        def monitor = new Object();
+        received = false;
+        Server server = new Server(portNo);
+        server .setGracefulShutdown(1000);
+        server.setHandler(new MyHandler(handleRequest,monitor));
+        server.start();
+        doNow.delegate = this;
+        doNow();
+        //Wait for 10 seconds
+        try{
+            synchronized (monitor) {
+                monitor.wait(timeOutSeconds * 1000);
+            }
+            if(received == false){
+                server.doStop();
+                fail("Server did not send any request");
+            }
+            server.doStop();
+        }catch(InterruptedException ie){
+            ie.printStackTrace();
+        }
+    }
+
+    /**
+     * This class defines the handler of the client jetty server
+     */
+    public class MyHandler extends AbstractHandler {
+        def Closure handleRequest;
+        def monitor;
+        
+        /**
+         * The method is constructor of the class.
+         * @param handleRequest is handleRequest closure
+         * @param monitor is a synchronized lock
+         */
+        MyHandler(Closure handleRequest,def monitor){
+            this.handleRequest = handleRequest;
+            this.monitor = monitor;
+        }
+        
+        /**
+         * The method is handle of the client jetty server.
+         * @param target is the target of the request - either a URI or a name.
+         * @param request is the request either as the Request object or a wrapper
+         * of that request.
+         * @param response is the response as the Response object or a wrapper of that
+         * request.
+         * @param dispatch is the dispatch mode: REQUEST, FORWARD, INCLUDE, ERROR 
+         */
+        public void handle(String target, HttpServletRequest request,
+                HttpServletResponse response, int dispatch)
+            throws IOException,
+                ServletException {
+            response.setContentType("text/html");
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().println("<h1>Hello</h1>");
+            ((Request) request).setHandled(true);
+            handleRequest.delegate = this;
+            handleRequest(request);
+            received = true;
+            synchronized (monitor) {
+                monitor.notifyAll();
+            }
+        }
+    }
+
+    /**
+     * The method is set api key.
+     * @param tempApiKey 
+     */
+    def setApiKey(String tempApiKey){
+        this.tempApiKey=tempApiKey;
+    }
+
+    
      /**
      * @param msg is message to debug log
      */
@@ -531,9 +673,22 @@ public class DescribeScriptDSL {
     }
 
     /**
-     * Call a script
+     * Call a script with params
+     * @param scriptName script name
+     * @param callParamsMap script parameters
      */
-    def callScript(String scriptPath){
+    def callScript(String scriptName, Map callParamsMap){
+        throw new NoDescriptionException();
+    }
+
+    public void openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
+        
+    }
+    /**
+     * Call a script with no params
+     * @param scriptName script name
+     */
+    def callScript(String scriptName){
         throw new NoDescriptionException();
     }
 
