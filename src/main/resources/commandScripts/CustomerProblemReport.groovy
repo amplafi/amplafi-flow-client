@@ -46,7 +46,7 @@ def printTabular = {
         def value = new String[keyPaths.size() + 1] ;
         value[0] = Integer.toString(i + 1) ;
         for(int j = 0; j < value.length - 1; j++) {
-            value[j + 1] = entry.getStringByPath(keyPaths[j]) ;
+            value[j + 1] = entry.optStringByPath(keyPaths[j]) ;
         }
         println sprintf(tabularTmpl, value) ;
     }
@@ -102,8 +102,8 @@ def getAvailableCategories = {
     if(getResponseData() instanceof JSONArray) {
         def entries = getResponseData();
         for(entry in getResponseData()) {
-            def id = entry.getStringByPath("entityId") ;
-            def name = entry.getStringByPath("name") ;
+            def id = entry.opt("entityId") ;
+            def name = entry.opt("name") ;
             categories[id] = ["id": id, "name": name] ;
         }
     } else {
@@ -159,9 +159,9 @@ def printUserRoles = {
     def result = getResponseData() ;
     if(result instanceof JSONArray) {
         for(entry in result) {
-            def email = entry.getStringByPath("defaultEmail") ;
-            def fullName = entry.getStringByPath("fullName") ;
-            def role = entry.getStringByPath("role") ;
+            def email = entry.opt("defaultEmail") ;
+            def fullName = entry.opt("fullName") ;
+            def role = entry.opt("role") ;
             println email 
             println "  [" + role + "]" 
             println "  " + fullName 
@@ -172,11 +172,11 @@ def printUserRoles = {
 }
 def addMessageEndPointToMap = {
     meps, entry ->
-    def mepId = entry.getStringByPath("lookupKey") ;
-    def publicUri = entry.getStringByPath("publicUri") ;
-    def externalServiceDefinition = entry.getStringByPath("externalServiceDefinition") ;
-    def extServiceUsername = entry.getStringByPath("extServiceUsername") ;
-    def extServiceUserFullName = entry.getStringByPath("extServiceUserFullName") ;
+    def mepId = entry.opt("lookupKey") ;
+    def publicUri = entry.opt("publicUri") ;
+    def externalServiceDefinition = entry.opt("externalServiceDefinition") ;
+    def extServiceUsername = entry.opt("extServiceUsername") ;
+    def extServiceUserFullName = entry.opt("extServiceUserFullName") ;
     meps[mepId] = [
         "mepId": mepId, "publicUri": publicUri, "externalServiceDefinition": externalServiceDefinition, 
         "extServiceUsername": extServiceUsername, "extServiceUserFullName": extServiceUserFullName
@@ -195,7 +195,7 @@ def getMessageEndPoints = {
     for(entry in entries) {
         addMessageEndPointToMap(meps, entry) ;
         if(entry.has("messageEndPoints")) {
-            def childrenMessageEndPoints = entry.getJSONArray("messageEndPoints") ;
+            def childrenMessageEndPoints = entry.optJSONArray("messageEndPoints") ;
             for(child in childrenMessageEndPoints) {
                 addMessageEndPointToMap(meps, child) ;
             }
@@ -231,8 +231,8 @@ def printApiByUserEmailStatistic = {
     def byUserEmailStatistic = [:] ;
     for(int i = 0; i < entries.length(); i++) {
         def entry = entries.get(i) ;
-        def email = entry.getStringByPath('request.defaultEmail') ;
-        def httpStatusCode = Integer.parseInt(entry.getStringByPath('response.code')) ;
+        def email = entry.optStringByPath('request.defaultEmail') ;
+        def httpStatusCode = Integer.parseInt(entry.optStringByPath('response.code')) ;
         
         if(byUserEmailStatistic[email] == null) {
             byUserEmailStatistic[email] = [
@@ -269,8 +269,8 @@ def printApiByFlowTypeStatistic = {
     def byFlowTypeStatistic = [:] ;
     for(int i = 0; i < entries.length(); i++) {
         def entry = entries.get(i) ;
-        def flowType = entry.getStringByPath('request.parameters.requestPathArray') ;
-        def httpStatusCode = Integer.parseInt(entry.getStringByPath('response.code')) ;
+        def flowType = entry.optStringByPath('request.parameters.requestPathArray') ;
+        def httpStatusCode = Integer.parseInt(entry.optStringByPath('response.code')) ;
         
         if(byFlowTypeStatistic[flowType] == null) {
             byFlowTypeStatistic[flowType] = [
@@ -344,13 +344,13 @@ def printExternalApiDetailMethodCalls = {
     println '----------------------------------------------------------------------------------------------'
     for(int i = 0; i < entries.length(); i++) {
         def entry = entries.get(i) ;
-        def timeInMillis = Long.parseLong(entry.getStringByPath('createTime.timeInMillis')) ;
+        def timeInMillis = Long.parseLong(entry.optStringByPath('createTime.timeInMillis')) ;
         def date = dateFormater.format(new Date(timeInMillis)) ;
-        def namespace = entry.getStringByPath('externalServiceDefinitionNamespace') ;
-        def method = entry.getStringByPath('method') ;
-        def externalEntityStatus = entry.getStringByPath('externalEntityStatus') ;
-        def httpStatusCode = entry.getStringByPath('statusCode') ;
-        def message = entry.getStringByPath('message') ;
+        def namespace = entry.optStringByPath('externalServiceDefinitionNamespace') ;
+        def method = entry.optStringByPath('method') ;
+        def externalEntityStatus = entry.optStringByPath('externalEntityStatus') ;
+        def httpStatusCode = entry.optStringByPath('statusCode') ;
+        def message = entry.optStringByPath('message') ;
         if(message != null) {
             message = message.replace("\n", " ") ;
         }
@@ -363,9 +363,9 @@ def printExternalStatisticMethodCalls = {
     def namespaceHolder = [:] ;
     for(int i = 0; i < entries.length(); i++) {
         def entry = entries.get(i) ;
-        def namespace = entry.getStringByPath('externalServiceDefinitionNamespace') ;
-        def httpStatusCode = Integer.parseInt(entry.getStringByPath('statusCode')) ;
-        def method = entry.getStringByPath('method') ;
+        def namespace = entry.optStringByPath('externalServiceDefinitionNamespace') ;
+        def httpStatusCode = Integer.parseInt(entry.optStringByPath('statusCode')) ;
+        def method = entry.optStringByPath('method') ;
         if(namespaceHolder[namespace] == null) {
            namespaceHolder[namespace] = [:]  ;
         }
@@ -467,11 +467,10 @@ def printUserPostStatisticByCategory = {
             def name = topic.get("name");
             if(categoriesStat[name] == null) {
                 categoriesStat[name] = [
-                    "name": name, "entityId": topic.get("entityId"), 
-                    "externalIds": [broadcastEnvelope.get("publicUri")], 
+                    "name": name, "entityId": topic.optString("entityId"), 
+                    "externalIds": [broadcastEnvelope.optString("publicUri")], 
                     "messageEndPoint": [:], 
-                    "postCount": 0,
-                    "postFailedCount": 0
+                    "postCount": 0
                 ] ;
             }
             categoriesStat[name]["postCount"] += 1 ;
@@ -488,10 +487,7 @@ def printUserPostStatisticByCategory = {
                     continue ;
                 }
                 
-                def externalEntityStatus = endPoint.getString("externalEntityStatus") ;
-                if(!"pcd".equals(externalEntityStatus)) {
-                    categoriesStat[name]["postFailedCount"] += 1 ;
-                }
+                def externalEntityStatus = endPoint.optString("externalEntityStatus") ;
                 if(endPoint.has("publicUri")) {
                     categoriesStat[name]["externalIds"] << endPoint.get("publicUri") ;
                 }
@@ -511,7 +507,7 @@ def printUserPostStatisticByCategory = {
         for(externalId in category["externalIds"]) {
             println "    " + externalId
         }
-        println "  Post Count: " + category["postCount"] //+ "(" + category["postFailedCount"]+ " Fails)" ;
+        println "  Post Count: " + category["postCount"] ;
         println "  Message End Point: " 
         for(messageEndPoint in category["messageEndPoint"].values()) {
             println sprintf('%1$10s     %2$-40s', messageEndPoint["messagePointId"], messageEndPoint["messagePointUri"])
@@ -586,38 +582,38 @@ def printUserPostInfo = {
         println "Message Thread: " + messageThreadEntry.getKey() ;
         for(entry in messageThreadEntry.getValue()) {
             def broadcastEnvelope = entry.getJSONObject("broadcastEnvelope")
-            println "  FarReaches Id:" + broadcastEnvelope.getString('entityId') ;
-            println "  Title:" + broadcastEnvelope.getStringByPath('headLine') ;
-            println "  Body:" + broadcastEnvelope.getString('messageText') ;
+            println "  FarReaches Id:" + broadcastEnvelope.optString('entityId') ;
+            println "  Title:" + broadcastEnvelope.optString('headLine') ;
+            println "  Body:" + broadcastEnvelope.optString('messageText') ;
             def topicNames = "" ;
-            for(selectedTopic in broadcastEnvelope.getJSONArray('selectedTopics')) {
+            for(selectedTopic in broadcastEnvelope.optJSONArray('selectedTopics')) {
                 if(topicNames.length() > 0) {
                     topicNames += ", " ;
                 }
-                topicNames += selectedTopic.getString("name")  ;
+                topicNames += selectedTopic.optString("name")  ;
             }
             println "  Selected Topics:" + topicNames;
            
             println "  MessageEndPointEnvelopeRecord:"
-            def messageEndPointEnvelopeRecords = entry.getJSONArray("messageEndPointEnvelopeRecord") ; 
+            def messageEndPointEnvelopeRecords = entry.optJSONArray("messageEndPointEnvelopeRecord") ; 
             println "    External Ids: "
             for(record in messageEndPointEnvelopeRecords) {
-                def externalEntityStatus = record.getString("externalEntityStatus") ;
+                def externalEntityStatus = record.optString("externalEntityStatus") ;
                 if("pcd".equals(externalEntityStatus)) {
-                   def externalServiceDefinition = record.getString("externalServiceDefinition") ;
-                   def externalContentId = record.getString("externalContentId") ;
-                   def publicUri = record.getString("publicUri") ;
+                   def externalServiceDefinition = record.optString("externalServiceDefinition") ;
+                   def externalContentId = record.optString("externalContentId") ;
+                   def publicUri = record.optString("publicUri") ;
                    println "      " + externalServiceDefinition + ": " + externalContentId + " (" + publicUri + ")" ;
                 }
             }
             
             println "    Transmission: "
             for(record in messageEndPointEnvelopeRecords) {
-                def externalEntityStatus = record.getString("externalEntityStatus") ;
-                def messagePointUri = record.getString("messagePointUri") ;
+                def externalEntityStatus = record.optString("externalEntityStatus") ;
+                def messagePointUri = record.optString("messagePointUri") ;
                 def unblockCompletedTime = "" ;
                 if(record.has("unblockCompletedTime")) {
-                    unblockCompletedTime = record.getString("unblockCompletedTime") ;
+                    unblockCompletedTime = record.optString("unblockCompletedTime") ;
                 }
                 def status = null ;
                 if("pcd".equals(externalEntityStatus)) {
@@ -687,32 +683,38 @@ if (params && params["verbose"]) {
     verbose = "true".equals(params["verbose"]) ;
 }
 
-
-def suApiKey = getKey() ;
-def apiKey = null ;
-if(publicUri != null) {
-    apiKey = createTmpKey(publicUri, userEmail) ;
-} else {
-    apiKey = suApiKey ;
-}
-if(apiKey == null) {
-    return ;
-}
-
-def categories = getAvailableCategories(apiKey) ;
-printAvailableCategories(categories) ;
-
-printAvailableExternalServices(apiKey) ;
-
-def meps = getMessageEndPoints(apiKey) ;
-printMessageEndPoints(meps) ;
-
-printUserRoles(apiKey) ;
+try {
+    def suApiKey = getKey() ;
+    def apiKey = null ;
+    if(publicUri != null) {
+        apiKey = createTmpKey(publicUri, userEmail) ;
+    } else {
+        apiKey = suApiKey ;
+    }
+    if(apiKey == null) {
+        return ;
+    }
     
-printOverallReportApiRequestAuditEntry(apiKey, apiFlowType, fromDate, toDate, apiMaxReturn) ;
-printExternalApiMethodCalls(apiKey, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn) ;
-
-def userPostInfos = getUserPostInfo(apiKey, fromDate, toDate) ;
-printUserPostStatisticByCategory(userPostInfos, verbose) ;
-printUserPostStatisticByMessagePoint(userPostInfos, verbose) ;
-printUserPostInfo(userPostInfos, verbose) ;
+    def categories = getAvailableCategories(apiKey) ;
+    printAvailableCategories(categories) ;
+    
+    printAvailableExternalServices(apiKey) ;
+    
+    def meps = getMessageEndPoints(apiKey) ;
+    printMessageEndPoints(meps) ;
+    
+    printUserRoles(apiKey) ;
+        
+    printOverallReportApiRequestAuditEntry(apiKey, apiFlowType, fromDate, toDate, apiMaxReturn) ;
+    printExternalApiMethodCalls(apiKey, externalApiNamespace, externalApiMethod, fromDate, toDate, externalApiMaxReturn) ;
+    
+    def userPostInfos = getUserPostInfo(apiKey, fromDate, toDate) ;
+    printUserPostStatisticByCategory(userPostInfos, verbose) ;
+    printUserPostStatisticByMessagePoint(userPostInfos, verbose) ;
+    printUserPostInfo(userPostInfos, verbose) ;
+} catch(Throwable ex) {
+    println "Error: " + ex.getMessage() ;
+    if(verbose) {
+        ex.printStackTrace();
+    }
+}
