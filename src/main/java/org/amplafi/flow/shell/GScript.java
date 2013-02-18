@@ -18,7 +18,8 @@ public class GScript extends Action {
         if(argsLine == null) {
             argsLine = "" ;
         }
-        argsLine = "-key " + context.getApiKey() + " -host " + context.getHost() + " " + argsLine;
+        argsLine = "-key " + context.getApiKey() + " -host " + context.getHost() + 
+                   " -port " + context.getPort() +  " " + argsLine;
         //TODO: should handle the string in " case
         String[] args = argsLine.split(" ") ;
         AdminTool adminTool = new AdminTool();
