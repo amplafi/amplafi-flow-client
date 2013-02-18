@@ -37,8 +37,12 @@ public class ExecFlow extends Action {
             if(!result.startsWith("{")) {
                 result = "{\"result\": " + result + "}" ;
             }
-            JSONObject jsonObject = new JSONObject(result ) ;
-            c.printf("%1s%n", jsonObject.toString(2));
+            try {
+                JSONObject jsonObject = new JSONObject(result ) ;
+                c.printf("%1s%n", jsonObject.toString(2));
+            } catch(Throwable t) {
+               System.out.println(result); 
+            }
         }
     }
 

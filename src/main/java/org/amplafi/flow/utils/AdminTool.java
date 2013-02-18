@@ -103,12 +103,11 @@ public class AdminTool {
                     String scriptName = args[i];
                     for (ScriptDescription sd : runner.getGoodScripts()) {
                         if (sd.getName().equals(scriptName)) {
-                            if (sd.getUsage() != null
-                                    && !sd.getUsage().equals("")) {
+                            if (sd.getUsage() != null && !sd.getUsage().equals("")) {
                                 emitOutput("Script Usage: " + sd.getUsage());
                             } else {
-                                emitOutput("Script " + scriptName
-                                        + " does not have usage information");
+                                emitOutput("Script " + scriptName + 
+                                           " does not have usage information");
                             }
                         }
                     }
@@ -147,8 +146,8 @@ public class AdminTool {
      * @param cmdOptions is instance of AdminToolCommandLineOptions
      */
     private void runScript(String filePath,
-            Map<String, ScriptDescription> scriptLookup,
-            AdminToolCommandLineOptions cmdOptions) {
+                           Map<String, ScriptDescription> scriptLookup,
+                           AdminToolCommandLineOptions cmdOptions) {
         List<String> remainder = cmdOptions.getRemainingOptions();
         try {
             // Get script options if needed
