@@ -1,5 +1,4 @@
-description "ShowAvailableCategories", "Lists Available Categories","none";
-
+description "DisplayAvailableCategories", "Lists Available Categories", "none";
 
 setApiVersion("apiv1");
 
@@ -28,12 +27,8 @@ if(getResponseData() instanceof JSONArray) {
 
     // In case someone needs this.
     return categories;
-
 } else {
     println "ERROR: Cannot get the category list"
     prettyPrintResponse();
     return;
 }
-
-
-
