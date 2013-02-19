@@ -86,12 +86,6 @@ def getMessageEndPoints = {
     def entries = getResponseData();
     for(entry in entries) {
         addMessageEndPointToMap(meps, entry) ;
-        if(entry.has("messageEndPoints")) {
-            def childrenMessageEndPoints = entry.optJSONArray("messageEndPoints") ;
-            for(child in childrenMessageEndPoints) {
-                addMessageEndPointToMap(meps, child) ;
-            }
-        }
     }
     return meps;
 }
