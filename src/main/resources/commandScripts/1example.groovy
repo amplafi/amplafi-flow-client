@@ -16,6 +16,17 @@ description "example", "Just an example script"
 import javax.net.*;
 
 
+println("Call open port");
+openPort(9090, 20,{ println("Paul says In do now");  },
+{ request, response ->
+
+        println("Paul says In handle " + request.getParameter("param1"))
+        response.getWriter().println("<h1>Hello Paul</h1>");
+//throw new Exception();
+});
+
+return;
+
 // proof it works
 Socket socket = SocketFactory.getDefault() .createSocket();
 

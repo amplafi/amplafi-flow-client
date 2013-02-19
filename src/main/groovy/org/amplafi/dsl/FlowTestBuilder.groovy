@@ -521,21 +521,27 @@ public class FlowTestDSL extends DescribeScriptDSL {
         server.setHandler(myHandler);
         server.start();
         doNow.delegate = this;
-        doNow();
+        
         //Wait for 10 seconds
         try{
+            doNow();
             synchronized (monitor) {
                 monitor.wait(timeOutSeconds * 1000);
             }
+            
             if(myHandler.getReceived() == false){
                 server.doStop();
-                if(myHandler.getNoRequestReceived() == false){
-                    fail("Server did not send any request");
-                }
+                fail("Server did not send any request");
             }
+
+            if(myHandler.getHandlingError() != null){
+                fail("Error Handling Request.", myHandler.getHandlingError());
+            }
+            
             server.doStop();
-        }catch(InterruptedException ie){
+        } catch(InterruptedException ie) {
             ie.printStackTrace();
+        } finally {
             server.doStop();
         }
     }
@@ -547,7 +553,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
         def Closure handleRequest;
         def monitor;
         def received = false;
-        def noRequestReceived = false;
+        def handlerError;
+
         /**
          * The method is constructor of the class.
          * @param handleRequest is handleRequest closure
@@ -571,22 +578,19 @@ public class FlowTestDSL extends DescribeScriptDSL {
                 HttpServletResponse response, int dispatch)
             throws IOException,
                 ServletException {
+            received = true;
             response.setContentType("text/html");
             response.setStatus(HttpServletResponse.SC_OK);
             ((Request) request).setHandled(true);
             handleRequest.delegate = this;
             try{
-                handleRequest(request);
-                received = true;
+                handleRequest(request,response);
             }catch(Exception e){
-                noRequestReceived = true;
+                handlerError = e;
+            } finally {
                 synchronized (monitor) {
-                monitor.notifyAll();
+                    monitor.notifyAll();
                 }
-                fail("No request had been received.");
-            }
-            synchronized (monitor) {
-                monitor.notifyAll();
             }
         }
 
@@ -594,8 +598,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
             return received;
         }
 
-        def getNoRequestReceived(){
-            return noRequestReceived;
+        def getHandlingError(){
+            return handlerError;
         }
     }
 
