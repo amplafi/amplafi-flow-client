@@ -140,7 +140,33 @@ setApiVersion(String apiVersion)        - sets the api for all subsequent reques
 setKey(String apiKey)                   - sets the key for all subsequent requests
 
 
+### open port and listens request ###
 
+openPort method : The method is "blocking" until a request is received or the timeout occurs
+/**
+ * The method is to open a port and listens request.
+ * @param portNo is port number
+ * @param timeOutSeconds is time out seconds
+ * @param doNow is the request in script
+ * @param handleRequest is the handle method when recieved a request
+ */
+ public void openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest)
+
+
+openPort script like blow:
+// This line must be the first line in the script
+description "openPort", "Open port"
+
+println("Call open port");
+openPort(9090, 20,{ println("In do now") },
+{ request ->
+
+        println("In handle " + request.getParameter("param1")) 
+
+});
+
+
+Run command "FAdmin <openPort script>"
 
 
 ## TODO ##
