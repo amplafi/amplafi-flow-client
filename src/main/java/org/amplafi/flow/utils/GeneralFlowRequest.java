@@ -89,31 +89,21 @@ public class GeneralFlowRequest {
     public String get() {
          String output = null;
          try {
-            HttpResponse response = sendRequest();
-            Header contentTypeHeader = response.getFirstHeader("Content-Type");
-            if (contentTypeHeader != null &&
-                    contentTypeHeader.getValue() != null  && contentTypeHeader.getValue().equals(APPLICATION_ZIP)){
-                // calling classes should check for this.
-                output = APPLICATION_ZIP;
-            } else {
-                output = EntityUtils.toString(response.getEntity());
-            }
-
+            FlowResponse response = sendRequest();
+            output = response.getResponseAsString() ;
         } catch (Exception e) {
             // Throw an exception here ?
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return output;
     }
 
-    public HttpResponse sendRequest() throws IOException, ClientProtocolException {
-        HttpResponse response = null;
+    public FlowResponse sendRequest() throws IOException, ClientProtocolException {
         HttpClient client = getHttpClient();
         String requestString = getRequestString();
         HttpGet request = new HttpGet(requestString);
-        response = client.execute(request);
-        return response;
-
+        FlowResponse response = new FlowResponse(client.execute(request));
+        return response ;
     }
 
     /**
