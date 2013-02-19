@@ -16,16 +16,15 @@ printTaskInfo "Create the temporaty api key for the customer " + publicUri ;
 setApiVersion("suv1");
 def reqParams = ["fsRenderResult":"json", "reasonForAccess": "Inspect the customer problem", "publicUri": publicUri] ;
 reqParams["email"] = userEmail;
-request("SuApiKeyFlow", reqParams);
-def data = getResponseData();
+def response = requestResponse("SuApiKeyFlow", reqParams);
 
-def userTmpApiKey = null ;
-if(data instanceof JSONArray && data.length() == 1) {
-  userTmpApiKey = data.getString(0) ;
-} else {
+if(response.hasError()) {
     println "An error when creating a temporary api key for the publicUri " + publicUri ;
-    prettyPrintResponse();
+    println response.getErrorMessage() ;
+    System.exit(1) ;
 }
+
+def userTmpApiKey = response.getResponseAsJSONArray().getString(0) ;
 
 println "Temporary Key: " + userTmpApiKey ;
 

@@ -119,12 +119,9 @@ if(toDate != null) {
 
 printTaskInfo "Overall Report For ApiRequestAuditEntry Log"
 
-request("ApiRequestAuditEntriesFlow", reqParams);
-if(getResponseData() instanceof JSONArray) {
-    def entries = getResponseData();
-    printByUserEmailStatistic(entries) ;
-    println '\n\n'
-    printByFlowTypeStatistic(entries) ;
-} else {
-    prettyPrintResponse();
-}
+def response = requestResponse("ApiRequestAuditEntriesFlow", reqParams) ;
+checkError(response) ;
+def entries = response.getResponseAsJSONArray();
+printByUserEmailStatistic(entries) ;
+println '\n\n'
+printByFlowTypeStatistic(entries) ;

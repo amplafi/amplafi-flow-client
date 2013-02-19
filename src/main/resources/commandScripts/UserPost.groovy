@@ -22,9 +22,9 @@ def getUserPostInfo = {
         reqParams["toDate"] = toAmplafiJSONCalendar(toDate) ;
     }
     
-    request("BroadcastEnvelopesFlow", reqParams);
-    def result = getResponseData() ;
-    return result;
+    def response = requestResponse("BroadcastEnvelopesFlow", reqParams);
+    checkError(response) ;
+    return response.getResponseAsJSONArray();
 }
 
 def printUserPostStatisticByCategory = { entries ->

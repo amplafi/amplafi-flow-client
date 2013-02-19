@@ -115,12 +115,9 @@ if(fromDate != null) {
 if(toDate != null) {
     reqParams["toDate"] = toAmplafiJSONCalendar(toDate) ;
 }
-request("ExternalApiMethodCallAuditEntriesFlow", reqParams);
-if(getResponseData() instanceof JSONArray) {
-    def entries = getResponseData();
-    printExternalStatisticMethodCalls(entries) ;
-    println "\n\n" ;
-    printExternalApiDetailMethodCalls(entries) ;
-} else {
-    prettyPrintResponse();
-}
+def response = requestResponse("ExternalApiMethodCallAuditEntriesFlow", reqParams);
+checkError(response) ;
+def entries = response.getResponseAsJSONArray();
+printExternalStatisticMethodCalls(entries) ;
+println "\n\n" ;
+printExternalApiDetailMethodCalls(entries) ;

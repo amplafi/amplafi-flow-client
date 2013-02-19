@@ -1,5 +1,6 @@
 package org.amplafi.dsl;
 import org.amplafi.flow.utils.GeneralFlowRequest;
+import org.amplafi.flow.utils.FlowResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.amplafi.json.JSONArray;
@@ -218,11 +219,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param paramsMap key value map of parameters to send.
      * @return response object
      */
-    HttpResponse requestResponse(String flowName, Map paramsMap){
+    FlowResponse requestResponse(String flowName, Map paramsMap){
         GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
-        HttpResponse response = request.sendRequest();
-        lastRequestResponse = EntityUtils.toString(response.getEntity());
-        return response;
+        FlowResponse response = request.sendRequest();
+        lastRequestResponse = response.getResponseAsString() ;
+        return response ;
     }
 
     /**
@@ -284,6 +285,18 @@ public class FlowTestDSL extends DescribeScriptDSL {
             assertEquals(expected, actual);
         }
     }
+
+    /**
+     * Pretty Prints Last Response.
+     */
+    def checkError(FlowResponse response){
+        if(response.hasError()) {
+          emitOutput "Error in the flow response"
+          emitOutput response.getErrorMessage() ;
+          System.exit(1) ;
+        }
+    }
+      
 
     /**
      * Pretty Prints Last Response.
@@ -636,7 +649,7 @@ public class DescribeScriptDSL {
         throw new NoDescriptionException();
     }
 
-    HttpResponse requestResponse(String flowName, Map paramsMap){
+    FlowResponse requestResponse(String flowName, Map paramsMap){
         throw new NoDescriptionException();
     }
 
