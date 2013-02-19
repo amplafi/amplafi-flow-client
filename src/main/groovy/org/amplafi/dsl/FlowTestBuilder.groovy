@@ -483,7 +483,19 @@ public class FlowTestDSL extends DescribeScriptDSL {
         return isEqual;
 
     }
-
+    
+    def server = null;
+    def currentPort = 0;
+    public Server getServer(int portNo){
+        
+        if(server == null || currentPort != portNo){
+            server = new Server(portNo);
+        }
+        
+        return server;
+        
+    }
+    
     /**
      * The method is to open a port and listens request.
      * @param portNo is port number
@@ -493,30 +505,28 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     public void openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
         def monitor = new Object();
-        // DAISY move this received property to the MyHandler class below. default value false.
-        received = false;
-        //DAISY: Are there ways to re-use this Server?
-        Server server = new Server(portNo);
-        server .setGracefulShutdown(1000);
-        server.setHandler(new MyHandler(handleRequest,monitor));
+        server = getServer(portNo);
+        server.setGracefulShutdown(1000);
+        MyHandler myHandler = new MyHandler(handleRequest,monitor);
+        server.setHandler(myHandler);
         server.start();
         doNow.delegate = this;
-
-        // DAISY: If doNow throws an exception (which is always likely with a user script) then
-        // the server will remain active, waste resources and we will be unable to open that port again.
         doNow();
         //Wait for 10 seconds
         try{
             synchronized (monitor) {
                 monitor.wait(timeOutSeconds * 1000);
             }
-            if(received == false){
+            if(myHandler.getReceived() == false){
                 server.doStop();
-                fail("Server did not send any request");
+                if(myHandler.getNoRequestReceived() == false){
+                    fail("Server did not send any request");
+                }
             }
             server.doStop();
         }catch(InterruptedException ie){
             ie.printStackTrace();
+            server.doStop();
         }
     }
 
@@ -526,7 +536,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
     public class MyHandler extends AbstractHandler {
         def Closure handleRequest;
         def monitor;
-        
+        def received = false;
+        def noRequestReceived = false;
         /**
          * The method is constructor of the class.
          * @param handleRequest is handleRequest closure
@@ -552,19 +563,29 @@ public class FlowTestDSL extends DescribeScriptDSL {
                 ServletException {
             response.setContentType("text/html");
             response.setStatus(HttpServletResponse.SC_OK);
-            // DAISY: why are we sending Hello?
-            // maybe set status to ok and give handleRequest access to the response object.
-            response.getWriter().println("<h1>Hello</h1>");
             ((Request) request).setHandled(true);
             handleRequest.delegate = this;
-            handleRequest(request);
-            // DAISY: if handleRequest throws an exception (which is likely) then
-            // received will still be false. So we would incorrectly tell the user that
-            // no request had been received.
-            received = true;
+            try{
+                handleRequest(request);
+                received = true;
+            }catch(Exception e){
+                noRequestReceived = true;
+                synchronized (monitor) {
+                monitor.notifyAll();
+                }
+                fail("No request had been received.");
+            }
             synchronized (monitor) {
                 monitor.notifyAll();
             }
+        }
+
+        def getReceived(){
+            return received;
+        }
+
+        def getNoRequestReceived(){
+            return noRequestReceived;
         }
     }
 
