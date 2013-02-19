@@ -1,6 +1,5 @@
 // This line must be the first line in the script
 
-
 import java.util.HashMap
 
 String newLine = System.getProperty("line.separator");
@@ -25,15 +24,6 @@ description "CustomerProblemReport", "This tool is used to report and identify t
 def printHelp = { 
     printTaskInfo "CustomerProblemReport Script Help"
     println usage
-}
-
-
-def toAmplafiJSONCalendar = { 
-    dateString -> 
-    def formater = new java.text.SimpleDateFormat("yyyy/MM/dd") ;
-    def date = formater.parse(dateString) ;
-    def json = sprintf('{"timeInMillis": %1d, "timeZoneID": "GMT"}', date.getTime()) ;
-    return json ;
 }
 
 def addMessageEndPointToMap = {
@@ -137,10 +127,8 @@ try {
         return ;
     }
     
-
     // This is a global settig that will effect subsequent scripts
     setKey(apiKey);
-    // call other script
     callScript("AvailableCategories");
     
     // call other script
@@ -149,15 +137,9 @@ try {
     def meps = getMessageEndPoints(apiKey) ;
     printMessageEndPoints(meps) ;
     
-        
     callScript("ApiRequestAuditEntryLog",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate, "maxReturn": apiMaxReturn]);
     
     callScript("ExternalApiMethodCallLog",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate, "maxReturn": externalApiMaxReturn]);
-    
-    //def userPostInfos = getUserPostInfo(apiKey, fromDate, toDate) ;
-    //printUserPostStatisticByCategory(userPostInfos, verbose) ;
-    //printUserPostStatisticByMessagePoint(userPostInfos, verbose) ;
-    //printUserPostInfo(userPostInfos, verbose) ;
     
     callScript("UserPost",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate]);
 } catch(Throwable ex) {
