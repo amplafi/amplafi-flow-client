@@ -51,7 +51,7 @@ public class FlowTestBuilder {
     private String key;
     private ScriptRunner runner;
     private boolean verbose = false;
-  
+
     /**
      * Constructor for tests
      */
@@ -73,7 +73,7 @@ public class FlowTestBuilder {
         this.runner = runner;
         this.verbose = verbose;
     }
-    
+
      public FlowTestBuilder(String host, String port, String apiVersion, String key, List<String> paramArray){
         this.requestUriString = requestUriString;
         this.host = host;
@@ -82,7 +82,7 @@ public class FlowTestBuilder {
         this.key = key;
     }
 
-    
+
     /**
      * Configure the closure to be runnaable
      */
@@ -92,7 +92,7 @@ public class FlowTestBuilder {
         } else {
             c.delegate = new FlowTestDSL(host, port, apiVersion, key, runner, verbose);
         }
-        c.setResolveStrategy(Closure.DELEGATE_FIRST)        
+        c.setResolveStrategy(Closure.DELEGATE_FIRST)
         return c;
     }
 
@@ -111,6 +111,7 @@ public class FlowTestBuilder {
  */
 public class FlowTestDSL extends DescribeScriptDSL {
 
+
     def host;
     def port;
     def apiVersion;
@@ -119,6 +120,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def boolean verbose;
     private Log log;
     private static boolean DEBUG;
+    private static final String THICK_DIVIDER =
+    "*********************************************************************************";
+
+    private static final String THIN_DIVIDER =
+    "---------------------------------------------------------------------------------";
     //private List<String> ignoreList = new ArrayList<String>();
 
     /** This stores the base uri including the host,port,apikey */
@@ -149,7 +155,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     public void description (String name, String description){
     }
-    
+
     public void description (String name, String description, String usage){
     }
 
@@ -217,7 +223,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def log(msg){
         emitOutput(msg)
     }
-    
+
      /**
      * Throws a test error if the actual data returned from the server is not the same as
      * the expected JSON
@@ -254,15 +260,62 @@ public class FlowTestDSL extends DescribeScriptDSL {
         emitOutput(getResponseData().toString(4));
     }
 
+    def printTaskInfo(info){
+        emitOutput "\n"
+        emitOutput THICK_DIVIDER;
+        emitOutput info ;
+        emitOutput THICK_DIVIDER;
+    }
+
+
+
+    def printTabular(entries, tabularTmpl, headers, keyPaths){
+        emitOutput sprintf(tabularTmpl, headers) ;
+        emitOutput THIN_DIVIDER;
+        for(int i = 0; i < entries.length(); i++) {
+            def entry = entries.get(i) ;
+            def value = new String[keyPaths.size() + 1] ;
+            value[0] = Integer.toString(i + 1) ;
+            for(int j = 0; j < value.length - 1; j++) {
+                value[j + 1] = entry.optStringByPath(keyPaths[j]) ;
+            }
+            println sprintf(tabularTmpl, value) ;
+        }
+    }
+
+    def printTabularMap(map, tabularTmpl, headers, keys){
+
+        emitOutput sprintf(tabularTmpl, headers) ;
+        emitOutput THIN_DIVIDER;
+        for(entry in map.values()) {
+            def value = new String[keys.size()] ;
+            for(int j = 0; j < value.length; j++) {
+                value[j] = entry.get(keys[j]) ;
+            }
+            println sprintf(tabularTmpl, value) ;
+        }
+    }
+
+
     /**
-     * Call a script.
+     * Call a script with params
+     * @param scriptName script name
+     * @param callParamsMap script parameters
      */
-    def callScript(String scriptName, Map callparamsmap){
-        def exe = runner.createClosure(scriptName,callparamsmap);
+    def callScript(String scriptName, Map callParamsMap){
+        def exe = runner.createClosure(scriptName,callParamsMap);
         if(exe){
             exe.delegate = this;
             exe();
         }
+    }
+
+    /**
+     * Call a script with no params
+     * @param scriptName script name
+     */
+    def callScript(String scriptName){
+        callScript(scriptName,[:]);
     }
 
     /**
@@ -272,7 +325,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def getResponseData(){
         def data = null;
         try {
-            // first assume it is a normal object 
+            // first assume it is a normal object
             data = new JSONObject(lastRequestResponse);
         } catch (Exception e){
             try {
@@ -303,10 +356,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
         if (requestUriString != null){
             return requestUriString;
         } else {
-            return this.host + ":" + this.port + "/c/" + this.key   + "/" + this.apiVersion; 
+            return this.host + ":" + this.port + "/c/" + this.key   + "/" + this.apiVersion;
         }
     }
-    
+
     /**
      * method to compare the actual jsonObject return to us with our expected, and can ignore some compared things,return true when they are the same.
      * @param expected is expected JSONObject
@@ -383,16 +436,16 @@ public class FlowTestDSL extends DescribeScriptDSL {
             i++;
         }
         return isEqual;
-        
+
     }
-    
+
      /**
      * @param msg is message to debug log
      */
     private void debug(String msg){
         getLog().debug(msg);
     }
-    
+
     /**
      * @param msg - message to emit
      */
@@ -409,7 +462,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
         return this.log;
     }
-    
+
 }
 
 /**
@@ -430,7 +483,7 @@ public class DescribeScriptDSL {
     public String lastRequestResponse = null;
     public DescribeScriptDSL(){
     }
-    
+
     /**
      * The description of the name
      *@param name - the name to description
@@ -443,7 +496,7 @@ public class DescribeScriptDSL {
         // This pevents the other commands in the script fom being executed.
         throw new EarlyExitException(new ScriptDescription(name:name , description:description, usage:"" ));
     }
-    
+
     /**
      * The description of the name.
      *@param name - the name to description
@@ -476,7 +529,7 @@ public class DescribeScriptDSL {
     def expect(String expectedJSONData){
         throw new NoDescriptionException();
     }
-    
+
     /**
      * Throws a test error if the actual data returned from the server is not the same as.
      * the expected JSON, ignorePathList
@@ -501,17 +554,27 @@ public class DescribeScriptDSL {
     }
 
     /**
-     * Call a script
+     * Call a script with params
+     * @param scriptName script name
+     * @param callParamsMap script parameters
      */
-    def callScript(String scriptPath){
+    def callScript(String scriptName, Map callParamsMap){
         throw new NoDescriptionException();
     }
-    
+
+    /**
+     * Call a script with no params
+     * @param scriptName script name
+     */
+    def callScript(String scriptName){
+        throw new NoDescriptionException();
+    }
+
     /**
      * @param message
      * Print a message
      */
-    def log(msg){ 
+    def log(msg){
          getLog().info(msg);
     }
 
@@ -521,7 +584,7 @@ public class DescribeScriptDSL {
     private void debug(String msg){
         getLog().debug(msg);
     }
-    
+
     /**
      * Get the logger for this class.
      * @return log
