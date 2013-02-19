@@ -293,6 +293,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
         if(response.hasError()) {
           emitOutput "Error in the flow response"
           emitOutput response.getErrorMessage() ;
+          // TUAN: it is likely that these scripts will be called from a server based process
+          // in the future. This would kill the server and dramtically reduces re-use potential.
+          // Let's not use System.exit outside the commmand main method.
           System.exit(1) ;
         }
     }
@@ -493,12 +496,17 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     public void openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
         def monitor = new Object();
+        // DAISY move this received property to the MyHandler class below. default value false.
         received = false;
+        //DAISY: Are there ways to re-use this Server?
         Server server = new Server(portNo);
         server .setGracefulShutdown(1000);
         server.setHandler(new MyHandler(handleRequest,monitor));
         server.start();
         doNow.delegate = this;
+
+        // DAISY: If doNow throws an exception (which is always likely with a user script) then
+        // the server will remain active, waste resources and we will be unable to open that port again.
         doNow();
         //Wait for 10 seconds
         try{
@@ -547,10 +555,15 @@ public class FlowTestDSL extends DescribeScriptDSL {
                 ServletException {
             response.setContentType("text/html");
             response.setStatus(HttpServletResponse.SC_OK);
+            // DAISY: why are we sending Hello?
+            // maybe set status to ok and give handleRequest access to the response object.
             response.getWriter().println("<h1>Hello</h1>");
             ((Request) request).setHandled(true);
             handleRequest.delegate = this;
             handleRequest(request);
+            // DAISY: if handleRequest throws an exception (which is likely) then
+            // received will still be false. So we would incorrectly tell the user that
+            // no request had been received.
             received = true;
             synchronized (monitor) {
                 monitor.notifyAll();
