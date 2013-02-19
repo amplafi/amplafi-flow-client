@@ -434,8 +434,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
         if(expected == null || actual == null){
             fail("After Calling ${lastRequestString}.Response did not match expected:"+ newLine
-                +"expected was " + expected + newLine
-                + "but the actual was "+ actual);
+                + "expected data was " + expected + newLine
+                + "but the actual data was "+ actual);
             return false;
         }
         def expectedNames = expected.names();
@@ -446,7 +446,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
         if(expectedNames == null || actualNames == null){
             fail("After Calling ${lastRequestString}.Response did not match expected names:" + newLine
                 + "expected names was " + expectedNames + newLine 
-                + "but the actual names was "+ actualNames);
+                + "but the actual names was "+ actualNames + newLine
+				+ "expected data was " + expected + newLine
+                + "but the actual data was "+ actual);
             return false;
         }
         int i = 0;
@@ -468,10 +470,12 @@ public class FlowTestDSL extends DescribeScriptDSL {
                         if (!excludePaths.contains(currentPath  + actualName + "/")){
                             isEqual = actualValue.equals(expectedValue);
                             if(!isEqual){
-                                fail("After Calling ${lastRequestString}.Response did not match expected in following path:" + newLine
-                                + currentPath + actualName +":" +newLine
+                                fail("After Calling ${lastRequestString}.Response did not match expected in following path:"
+								+ currentPath + newLine + actualName +":" +newLine
                                 + "expected was " + expectedValue + newLine
-                                + "but the actual was " + actualValue );
+                                + "but the actual was " + actualValue + newLine
+								+ "expected data was " + expected + newLine
+								+ "but the actual data was "+ actual);
                             }
                         }
                     }
@@ -479,7 +483,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
                     isEqual = false;
                     fail("After Calling ${lastRequestString}.Response did not match expected property name:"+ newLine
                     + "expected name was "+expectedName + newLine
-                    + "but the actual name was " + actualName);
+                    + "but the actual name was " + actualName + newLine
+					+ "expected data was " + expected + newLine
+					+ "but the actual data was "+ actual);
                 }
             }else{
                 isEqual = true;
