@@ -291,12 +291,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     def checkError(FlowResponse response){
         if(response.hasError()) {
-          emitOutput "Error in the flow response"
-          emitOutput response.getErrorMessage() ;
-          // TUAN: it is likely that these scripts will be called from a server based process
-          // in the future. This would kill the server and dramtically reduces re-use potential.
-          // Let's not use System.exit outside the commmand main method.
-          System.exit(1) ;
+          String mesg = "Error in the script " + this.name + ". The response status is " + response.getHttpStatusCode() + "\n" ;
+                         response.getErrorMessage() ;
+          throw new RuntimeException(mesg) ;
         }
     }
       
