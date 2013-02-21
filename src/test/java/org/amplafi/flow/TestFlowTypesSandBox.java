@@ -89,6 +89,7 @@ public class TestFlowTypesSandBox {
         requestUriString = host + ":" + port + "/c/" + apiKey   + "/apiv1";
 
         String ignoredFlowsStr = System.getProperty("ignoreFlows","");
+		System.err.println("Will ignore flows" + ignoredFlowsStr);
         String[] ignoredFlowsArr = ignoredFlowsStr.split(",");
         ignoredFlows = new HashSet<String>(Arrays.asList(ignoredFlowsArr));
 
@@ -340,7 +341,7 @@ public class TestFlowTypesSandBox {
                 jsonResult = new JSONObject(jsonStr);
             } catch (JSONException jsonException) {
 
-                fail("Flow definition not valid JSON, JSON Error: " + jsonException.getMessage());
+                fail("Flow definition not valid JSON, for flow "+ flow +". JSON Error: " + jsonException.getMessage());
             }
 
 
