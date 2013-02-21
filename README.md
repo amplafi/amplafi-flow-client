@@ -21,7 +21,8 @@ Eventually, other 4xx error codes might be used to indicate a client problem.
 Every time an error response is returned it is indicated by a status code of 4xx or 500.
 Error response always has a json object as response body. The object is guaranteed to have an 'error' property
 containing detailed problem description. For example:
-         { error: "Can't create key."}
+
+     { error: "Can't create key."}
 
 ###Success response
 Success response is always indicated by 200 HTTP status code (eventually we can start using 201, 202 and other OK-codes, this will be mirrored in the documentation).
