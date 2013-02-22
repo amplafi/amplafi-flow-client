@@ -29,7 +29,7 @@ public class TestScriptRunner {
         
         String script = "println('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFf'); \n " +
                     " request('HelloFlow',['cat':'dog','hippo':'pig']);" ;
-        instance.runScriptSource(script,true);
+        instance.runScriptSource(script,true,null);
     }
 
     @Test 

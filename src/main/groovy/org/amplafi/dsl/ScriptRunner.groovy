@@ -30,7 +30,7 @@ public class ScriptRunner {
     /**
      * Description of all scripts known to this runner. 
      */
-    private Map<String,ScriptDescription> scriptLookup;
+    public Map<String,ScriptDescription> scriptLookup;
     /**
      * Map of param name to param value that will be passed to the scripts.   
      */
@@ -133,13 +133,17 @@ public class ScriptRunner {
      * @param filePath is the full path to the script.
      */
     def loadAndRunOneScript(String filePath){
-        
+        def description = describeOneScript(filePath);
+		
+		
         def file = new File(filePath);
         def script = file.getText();
-        def value = runScriptSource(script,true);
+        def value = runScriptSource(script,true,description);
+		
         return value;
     }
 
+	
     /**
      * Runs or describes a script from source code
      * @param sourceCode
@@ -149,11 +153,11 @@ public class ScriptRunner {
      * @throws NoDescriptionException - Thrown if the description DSL does not find a description directive
      * @throws EarlyExitException - thrown to prevent the description dsl from running any commands. 
      */
-    def runScriptSource(String sourceCode, boolean execOrDescribe) throws NoDescriptionException, EarlyExitException{        
+    def runScriptSource(String sourceCode, boolean execOrDescribe, ScriptDescription description) throws NoDescriptionException, EarlyExitException{        
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
-        Object closure = getClosure(sourceCode,paramsmap);
+        Object closure = getClosure(sourceCode,paramsmap,description);
         def builder = null;
         if(requestUriString && requestUriString!=""){
             builder = new FlowTestBuilder(requestUriString,this,verbose);
@@ -163,12 +167,11 @@ public class ScriptRunner {
         
         if(execOrDescribe){            
             def execScript = builder.buildExe(closure);
-            execScript();
+            return execScript();
         }else{
             def execScript = builder.buildDesc(closure);
-            execScript();
+            return execScript();
         }
-        return closure;
     }
     
     /**
@@ -178,9 +181,9 @@ public class ScriptRunner {
      * @param paramsmap
      * @return
      */
-    def getClosure(String sourceCode, Map<String,String> paramsmap){       
-        StringBuffer scriptSb = new StringBuffer();      
-        
+    def getClosure(String sourceCode, Map<String,String> paramsmap, ScriptDescription description){
+		String generateParams = generateParams(description,paramsmap);
+		StringBuffer scriptSb = new StringBuffer(); 
         // Extract the import statements from the input source code and re-add them 
         // to the top of the groovy program.
         scriptSb.append(getImportLines(sourceCode));
@@ -188,7 +191,7 @@ public class ScriptRunner {
         
         // All the imports are prepended to the first line of the user script so error messages
         // have the correct line number in them
-        def scriptStr = """import org.amplafi.dsl.FlowTestBuilder;import org.amplafi.json.*;def source = { ${valibleScript} }; return source """;
+        def scriptStr = """import org.amplafi.dsl.FlowTestBuilder;import org.amplafi.json.*; ${generateParams} def source = { ${valibleScript} }; return source """;
         scriptSb.append(scriptStr);
         def script = scriptSb.toString();
         def bindingMap = ["params":paramsmap];
@@ -204,6 +207,62 @@ public class ScriptRunner {
         Object closure = shell.evaluate(script);
         return closure;
     }
+	
+	def generateParams(ScriptDescription description, Map<String,String> paramsmap){
+		StringBuffer paramsSb = new StringBuffer("");
+		//TODO get current script description
+		if(description){
+			def usageList = description.getUsageList();
+			if(usageList){
+				for(ParameterUsge paramUsage : usageList){
+					def name;
+					def optional;
+					def defaultValue;
+					//Validata usages in script
+					if(paramUsage.getName() && paramUsage.getName() != ""){
+						name = paramUsage.getName();
+					}else{
+						throw new Exception();
+					}
+					if(paramUsage.getOptional()){
+						optional = paramUsage.getOptional();
+					}else{
+						optional = false;
+					}
+					if(paramUsage.getDefaultValue()){
+						defaultValue = paramUsage.getDefaultValue();
+					}else{
+						defaultValue = null;
+					}
+				
+				
+					//Validata paramsmap and generate params in script
+					//StringBuffer paramSb = new StringBuffer("");
+					def paramName;
+					def paramValue;
+						if(paramsmap.containsKey(name)){
+							paramName = name;
+							paramValue = paramsmap.get(name)
+						}else{
+							if(optional == false){
+								//TODO tell user should input name=<value>
+								throw new RuntimeException("Parameter" + name + " must be supplied.");
+							}else{
+								if(defaultValue){
+									paramName = name;
+									paramValue = defaultValue;
+								}
+							}
+						}
+						if(paramName&&paramValue){
+							paramsSb.append("def " + paramName + " = \""+ paramValue + "\";");
+						}
+				}
+			}
+		}
+		
+        return paramsSb.toString();
+	}
 
     /**
      * Creates an un-configured closure (no delegate set) from the 
@@ -268,7 +327,6 @@ public class ScriptRunner {
                 haveErrors.add(sd);
             }
         }
-        
         return scriptLookup;
     }
 
@@ -283,7 +341,7 @@ public class ScriptRunner {
         def value =  null;
         
         try {
-            value = runScriptSource(script,false);
+            value = runScriptSource(script,false,null);
         } catch (EarlyExitException eee){
             value = eee.desc;
             value.path = filePath;
@@ -357,6 +415,10 @@ public class ScriptRunner {
     public List<ScriptDescription> getScriptsWithErrors(){
         return haveErrors;
     }
+	
+	public void setScriptLookup(Map<String,ScriptDescription> scriptLookup){
+	    this.scriptLookup = scriptLookup;
+	}
 
     /**
      * Utility method for debugging code. 
