@@ -167,6 +167,15 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     public void description (String name, String description, String usage){
     }
+    
+     public void description (String name, String description, List<ParameterUsge> usages){
+
+     }
+     
+    public ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue){
+    
+        return new ParameterUsge(name,description,optional,defaultValue);
+    }
 
     void setHost(String host){
         this.host = host;
@@ -263,9 +272,15 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param expectedJSONData
      */
     def expect(String expectedJSONData){
+        try{
             JSONObject expected = new JSONObject(expectedJSONData);
             JSONObject actual = new JSONObject(lastRequestResponse);
             assertTrue(compare(expected,actual,null));
+        }catch(JSONException ex){
+            def expected = new JSONArray(expectedJSONData);
+            def actual = new JSONArray(lastRequestResponse);
+            assertEquals(expected, actual);
+        }
     }
 
     /**
@@ -390,7 +405,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
         try {
             getResponseData();
         } catch (Exception e){
-            getLog.error("Invalid JSON Returned: " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
+            getLog().error("Invalid JSON Returned: " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
         }
     }
 
@@ -447,7 +462,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
             fail("After Calling ${lastRequestString}.Response did not match expected names:" + newLine
                 + "expected names was " + expectedNames + newLine 
                 + "but the actual names was "+ actualNames + newLine
-				+ "expected data was " + expected + newLine
+                + "expected data was " + expected + newLine
                 + "but the actual data was "+ actual);
             return false;
         }
@@ -471,11 +486,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
                             isEqual = actualValue.equals(expectedValue);
                             if(!isEqual){
                                 fail("After Calling ${lastRequestString}.Response did not match expected in following path:"
-								+ currentPath + newLine + actualName +":" +newLine
+                                + currentPath + newLine + actualName +":" +newLine
                                 + "expected was " + expectedValue + newLine
                                 + "but the actual was " + actualValue + newLine
-								+ "expected data was " + expected + newLine
-								+ "but the actual data was "+ actual);
+                                + "expected data was " + expected + newLine
+                                + "but the actual data was "+ actual);
                             }
                         }
                     }
@@ -484,8 +499,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
                     fail("After Calling ${lastRequestString}.Response did not match expected property name:"+ newLine
                     + "expected name was "+expectedName + newLine
                     + "but the actual name was " + actualName + newLine
-					+ "expected data was " + expected + newLine
-					+ "but the actual data was "+ actual);
+                    + "expected data was " + expected + newLine
+                    + "but the actual data was "+ actual);
                 }
             }else{
                 isEqual = true;
@@ -684,12 +699,31 @@ public class DescribeScriptDSL {
      *@throw EarlyExitException  if it just need description
      */
     public void description (String name, String description, String usage){
+        
         this.usage = usage;
         this.name = name;
         this.description = description;
         // This pevents the other commands in the script fom being executed.
         throw new EarlyExitException(new ScriptDescription(name:name , description:description, usage:usage ));
     }
+    
+     public void description (String name, String description, List<ParameterUsge> usages){
+        String newLine = System.getProperty("line.separator");
+        StringBuffer usageSb = new StringBuffer(newLine);
+        
+        for(ParameterUsge paramUsage : usages){
+            if(paramUsage.getName()&& paramUsage.getDescription()){
+                usageSb.append(paramUsage.getName() + " = " +"<" +paramUsage.getDescription() + ">");
+                usageSb.append(newLine);
+            }
+            
+        }
+        this.usage =  usageSb.toString();
+        this.name = name;
+        this.description = description;
+        // This pevents the other commands in the script fom being executed.
+        throw new EarlyExitException(new ScriptDescription(name:name , description:description, usage:usage, usageList:usages ));
+     }
 
     /**
      * Sends a request to the named flow with the specified parameters.
@@ -781,4 +815,11 @@ public class DescribeScriptDSL {
         }
         return this.log;
     }
+    
+    public ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue){
+    
+        return new ParameterUsge(name,description,optional,defaultValue);
+    }
 }
+
+

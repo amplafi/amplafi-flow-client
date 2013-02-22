@@ -13,4 +13,5 @@ public class ScriptDescription {
     def boolean hasErrors;
     def String errorMesg;
     def String usage;
+    def List<ParameterUsge> usageList;
 }

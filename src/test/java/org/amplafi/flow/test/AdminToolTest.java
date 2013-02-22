@@ -1,6 +1,7 @@
 package org.amplafi.flow.test;
 
 import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -237,7 +238,7 @@ public class AdminToolTest {
         String exString = "This is testScript param1 : dog";
         assertEquals(exString,AdminToolTest.testBuffer.toString());
     }
-
+    
     /**
      * This class is AdminTool Mock, it extends AdminTool and override some method for test.
      */
