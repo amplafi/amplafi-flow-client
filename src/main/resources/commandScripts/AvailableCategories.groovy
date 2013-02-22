@@ -3,7 +3,7 @@ description "AvailableCategories", "Available Categories", "none";
 setApiVersion("apiv1");
 
 // Request list of categories
-def response = requestResponse("AvailableCategoriesFlow", ["fsRenderResult":"json"]);
+def response = requestResponse("AvailableCategoriesList", ["fsRenderResult":"json"]);
 
 checkError(response) ;
 

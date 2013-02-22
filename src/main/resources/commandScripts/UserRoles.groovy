@@ -15,7 +15,7 @@ setApiVersion("suv1");
 setKey(apiKey);
 
 printTaskInfo "User Role And Configuration Information"
-def response = requestResponse("UserRoleInfoFlow", ["fsRenderResult":"json", "publicUri": publicUri]);
+def response = requestResponse("UserRoleInfo", ["fsRenderResult":"json", "publicUri": publicUri]);
 
 checkError(response) ;
 

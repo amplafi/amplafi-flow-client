@@ -22,7 +22,7 @@ def getUserPostInfo = {
         reqParams["toDate"] = toAmplafiJSONCalendar(toDate) ;
     }
     
-    def response = requestResponse("BroadcastEnvelopesFlow", reqParams);
+    def response = requestResponse("BroadcastEnvelopes", reqParams);
     checkError(response) ;
     return response.getResponseAsJSONArray();
 }

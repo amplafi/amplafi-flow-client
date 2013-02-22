@@ -44,7 +44,7 @@ def getMessageEndPoints = {
     setApiVersion("apiv1");
     setKey(apiKey);
     
-    request("MessageEndPointListFlow", ["fsRenderResult":"json", "messageEndPointCompleteList": "true"]);
+    request("MessageEndPointList", ["fsRenderResult":"json", "messageEndPointCompleteList": "true"]);
     
     def meps = [:] ;
     def entries = getResponseData();
