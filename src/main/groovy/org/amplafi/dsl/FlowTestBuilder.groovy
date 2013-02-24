@@ -163,14 +163,20 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
     public void description (String name, String description){
+        this.name = name;
+        this.description = description;        
     }
 
     public void description (String name, String description, String usage){
+        this.usage = usage;
+        this.name = name;
+        this.description = description;
     }
     
-     public void description (String name, String description, List<ParameterUsge> usages){
-
-     }
+    public void description (String name, String description, List<ParameterUsge> usages){
+        this.name = name;
+        this.description = description;
+    }
      
     public ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue){
     
