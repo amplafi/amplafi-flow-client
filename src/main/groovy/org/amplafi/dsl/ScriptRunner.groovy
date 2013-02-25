@@ -248,7 +248,7 @@ public class ScriptRunner {
                         }else{
                             if(optional == false){
                                 //TODO tell user should input name=<value>
-                                throw new RuntimeException("Parameter" + name + " must be supplied.");
+                                throw new RuntimeException("Parameter " + name + " must be supplied.");
                             }else{
                                 if(defaultValue){
                                     paramName = name;
@@ -274,10 +274,11 @@ public class ScriptRunner {
      */
     public def createClosure(String scriptName,Map<String,String> callParamsMap){
         def filePath = getScriptPath(scriptName);
+        ScriptDescription sd = describeOneScript(filePath);
         if(filePath){
             def file = new File(filePath);
             def sourceCode = file.getText();
-            def closure = getClosure(sourceCode,callParamsMap,null);
+            def closure = getClosure(sourceCode,callParamsMap,sd);
             return closure;
         }else{
             getLog().error("Script ${scriptName} does not exist" );

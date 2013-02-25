@@ -176,6 +176,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     public void description (String name, String description, List<ParameterUsge> usages){
         this.name = name;
         this.description = description;
+        this.usages = usages;
     }
      
     public ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue){
@@ -672,6 +673,8 @@ public class DescribeScriptDSL {
     def String name;
     def String usage;
     def String description;
+    def List<ParameterUsge> usages;
+    def scriptDescription;
     private static final boolean DEBUG = false;
     /** This stores the base uri including the host,port,apikey */
     private String requestUriString;
@@ -693,8 +696,9 @@ public class DescribeScriptDSL {
     public void description (String name, String description){
         this.name = name;
         this.description = description;
+        this.scriptDescription = new ScriptDescription(name:name , description:description, usage:"" );
         // This pevents the other commands in the script fom being executed.
-        throw new EarlyExitException(new ScriptDescription(name:name , description:description, usage:"" ));
+        throw new EarlyExitException(scriptDescription);
     }
 
     /**
@@ -705,12 +709,12 @@ public class DescribeScriptDSL {
      *@throw EarlyExitException  if it just need description
      */
     public void description (String name, String description, String usage){
-        
         this.usage = usage;
         this.name = name;
         this.description = description;
+        this.scriptDescription = new ScriptDescription(name:name , description:description, usage:usage );
         // This pevents the other commands in the script fom being executed.
-        throw new EarlyExitException(new ScriptDescription(name:name , description:description, usage:usage ));
+        throw new EarlyExitException(scriptDescription);
     }
     
      public void description (String name, String description, List<ParameterUsge> usages){
@@ -727,8 +731,9 @@ public class DescribeScriptDSL {
         this.usage =  usageSb.toString();
         this.name = name;
         this.description = description;
+        this.scriptDescription = new ScriptDescription(name:name , description:description, usage:usage, usageList:usages );
         // This pevents the other commands in the script fom being executed.
-        throw new EarlyExitException(new ScriptDescription(name:name , description:description, usage:usage, usageList:usages ));
+        throw new EarlyExitException(scriptDescription);
      }
 
     /**
@@ -794,6 +799,10 @@ public class DescribeScriptDSL {
      */
     def callScript(String scriptName){
         throw new NoDescriptionException();
+    }
+    
+    def getscriptDescription(){
+    	return scriptDescription;
     }
 
     /**
