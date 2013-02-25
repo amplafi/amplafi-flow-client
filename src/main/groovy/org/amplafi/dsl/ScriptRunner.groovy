@@ -2,6 +2,8 @@ package org.amplafi.dsl;
 import groovy.io.FileType;
 import org.amplafi.flow.utils.GeneralFlowRequest;
 import java.util.HashMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
@@ -134,16 +136,16 @@ public class ScriptRunner {
      */
     def loadAndRunOneScript(String filePath){
         def description = describeOneScript(filePath);
-		
-		
+        
+        
         def file = new File(filePath);
         def script = file.getText();
         def value = runScriptSource(script,true,description);
-		
+        
         return value;
     }
 
-	
+    
     /**
      * Runs or describes a script from source code
      * @param sourceCode
@@ -182,8 +184,8 @@ public class ScriptRunner {
      * @return
      */
     def getClosure(String sourceCode, Map<String,String> paramsmap, ScriptDescription description){
-		String generateParams = generateParams(description,paramsmap);
-		StringBuffer scriptSb = new StringBuffer(); 
+        String generateParams = generateParams(description,paramsmap);
+        StringBuffer scriptSb = new StringBuffer(); 
         // Extract the import statements from the input source code and re-add them 
         // to the top of the groovy program.
         scriptSb.append(getImportLines(sourceCode));
@@ -207,62 +209,62 @@ public class ScriptRunner {
         Object closure = shell.evaluate(script);
         return closure;
     }
-	
-	def generateParams(ScriptDescription description, Map<String,String> paramsmap){
-		StringBuffer paramsSb = new StringBuffer("");
-		//TODO get current script description
-		if(description){
-			def usageList = description.getUsageList();
-			if(usageList){
-				for(ParameterUsge paramUsage : usageList){
-					def name;
-					def optional;
-					def defaultValue;
-					//Validata usages in script
-					if(paramUsage.getName() && paramUsage.getName() != ""){
-						name = paramUsage.getName();
-					}else{
-						throw new Exception();
-					}
-					if(paramUsage.getOptional()){
-						optional = paramUsage.getOptional();
-					}else{
-						optional = false;
-					}
-					if(paramUsage.getDefaultValue()){
-						defaultValue = paramUsage.getDefaultValue();
-					}else{
-						defaultValue = null;
-					}
-				
-				
-					//Validata paramsmap and generate params in script
-					//StringBuffer paramSb = new StringBuffer("");
-					def paramName;
-					def paramValue;
-						if(paramsmap.containsKey(name)){
-							paramName = name;
-							paramValue = paramsmap.get(name)
-						}else{
-							if(optional == false){
-								//TODO tell user should input name=<value>
-								throw new RuntimeException("Parameter" + name + " must be supplied.");
-							}else{
-								if(defaultValue){
-									paramName = name;
-									paramValue = defaultValue;
-								}
-							}
-						}
-						if(paramName&&paramValue){
-							paramsSb.append("def " + paramName + " = \""+ paramValue + "\";");
-						}
-				}
-			}
-		}
-		
+    
+    def generateParams(ScriptDescription description, Map<String,String> paramsmap){
+        StringBuffer paramsSb = new StringBuffer("");
+        //TODO get current script description
+        if(description){
+            def usageList = description.getUsageList();
+            if(usageList){
+                for(ParameterUsge paramUsage : usageList){
+                    def name;
+                    def optional;
+                    def defaultValue;
+                    //Validata usages in script
+                    if(paramUsage.getName() && paramUsage.getName() != ""){
+                        name = paramUsage.getName();
+                    }else{
+                        throw new Exception("Parameter Name Not Set");
+                    }
+                    if(paramUsage.getOptional()){
+                        optional = paramUsage.getOptional();
+                    }else{
+                        optional = false;
+                    }
+                    if(paramUsage.getDefaultValue()){
+                        defaultValue = paramUsage.getDefaultValue();
+                    }else{
+                        defaultValue = null;
+                    }
+                
+                
+                    //Validata paramsmap and generate params in script
+                    //StringBuffer paramSb = new StringBuffer("");
+                    def paramName;
+                    def paramValue;
+                        if(paramsmap.containsKey(name)){
+                            paramName = name;
+                            paramValue = paramsmap.get(name)
+                        }else{
+                            if(optional == false){
+                                //TODO tell user should input name=<value>
+                                throw new RuntimeException("Parameter" + name + " must be supplied.");
+                            }else{
+                                if(defaultValue){
+                                    paramName = name;
+                                    paramValue = defaultValue;
+                                }
+                            }
+                        }
+                        if(paramName&&paramValue){
+                            paramsSb.append("def " + paramName + " = \""+ paramValue + "\";");
+                        }
+                }
+            }
+        }
+        
         return paramsSb.toString();
-	}
+    }
 
     /**
      * Creates an un-configured closure (no delegate set) from the 
@@ -275,10 +277,10 @@ public class ScriptRunner {
         if(filePath){
             def file = new File(filePath);
             def sourceCode = file.getText();
-            def closure = getClosure(sourceCode,callParamsMap);
+            def closure = getClosure(sourceCode,callParamsMap,null);
             return closure;
         }else{
-            println("Script ${scriptName} does not exist" );
+            getLog().error("Script ${scriptName} does not exist" );
             return null;
         }
 
@@ -415,10 +417,10 @@ public class ScriptRunner {
     public List<ScriptDescription> getScriptsWithErrors(){
         return haveErrors;
     }
-	
-	public void setScriptLookup(Map<String,ScriptDescription> scriptLookup){
-	    this.scriptLookup = scriptLookup;
-	}
+    
+    public void setScriptLookup(Map<String,ScriptDescription> scriptLookup){
+        this.scriptLookup = scriptLookup;
+    }
 
     /**
      * Utility method for debugging code. 
@@ -428,6 +430,16 @@ public class ScriptRunner {
         if (DEBUG){
             System.err.println(msg);
         }
+    }
+
+    /**
+     * Get the logger for this class.
+     */
+    public Log getLog(){
+        if ( this.log == null ) {
+            this.log = LogFactory.getLog(FlowTestBuilder.class);
+        }
+        return this.log;
     }
 
 }
