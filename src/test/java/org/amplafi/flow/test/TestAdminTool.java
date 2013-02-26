@@ -23,14 +23,14 @@ import org.apache.log4j.Logger;
  * A class tests AdminTool.
  * @author Daisy
  */
- 
+
 public class TestAdminTool {
     //The testBuffer is used to test if a script is opened by command.
     //Use a public static to allow the example script to communicate back to this test.
     public static final String TEST_REPORT_SYS_PROP = "test.report";
     private TestHelperAdminTool testHelpAdminTool = null;
     private static final String SEP = System.getProperty("file.separator");
-    
+
     public static final String PATH = "src" + SEP +"test" + SEP +"resources" + SEP +"testscripts" + SEP +"junitTestScript";
     public static final String CONFIG_FILE_NAME = "fareaches.fadmin.test.properties";
     private String userInputKey;
@@ -59,7 +59,7 @@ public class TestAdminTool {
      * Junit test tears down the data.
      */
     @AfterMethod
-    public void tearDown() throws Exception {     
+    public void tearDown() throws Exception {
         Logger.getLogger(org.amplafi.dsl.FlowTestBuilder.class).removeAllAppenders();
         testHelpAdminTool = null;
         userInputKey = null;
@@ -97,8 +97,8 @@ public class TestAdminTool {
         List<String> logMsgList = testHelpAdminTool.getLogMsgList();
         //This is test that use our own script
         String expected1 = "     testScript       - Just an test script       - " + SEP + PATH + SEP + "testScript.groovy";
-        String expected2 = "     testScript2       - Just an test2 script       - " + SEP + PATH + SEP + "testScript2.groovy";      
-        assertEquals(2,logMsgList.size());        
+        String expected2 = "     testScript2       - Just an test2 script       - " + SEP + PATH + SEP + "testScript2.groovy";
+        assertEquals(2,logMsgList.size());
         assertEquals(expected1,logMsgList.get(0));
         assertEquals(expected2,logMsgList.get(1));
     }
@@ -220,7 +220,7 @@ public class TestAdminTool {
 
         // Run the command.
         testHelpAdminTool.processCommandLine(args);
-        
+
         String keyValue = testHelpAdminTool.getConfigProperties().getProperty("key", "");
         String exceptedKey = "ampcb_333df5d558173cc402f59913355e9f5f1fb8b444cd7d43be01c89fe216500469";
         String portValue = testHelpAdminTool.getConfigProperties().getProperty("port", "");
@@ -256,7 +256,7 @@ public class TestAdminTool {
         String exString = "This is testScript1 param1 : dog";
         assertEquals(exString, testAppender.getLogs());
     }
- 
+
 
     /**
      * This class is AdminTool Mock, it extends AdminTool and override some method for test.
@@ -266,7 +266,7 @@ public class TestAdminTool {
 
         private List<String> logMsgList = new ArrayList<String>();
         private Properties configProperties = new Properties();
-        
+
         public TestHelperAdminTool(){
         }
 
@@ -334,7 +334,7 @@ public class TestAdminTool {
         public TestAppender(){
             logBuffer = new StringBuffer();
         }
-        
+
         public void append(LoggingEvent event) {
             logBuffer.append(event.getMessage());
         }

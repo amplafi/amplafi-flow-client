@@ -23,17 +23,7 @@ import java.util.Map;
  * Farreach.es wire server. Please read AdminTool.md
  * for more details
  */
-public class AdminTool {
-    /** Standard location for admin scripts. */
-    public static final String DEFAULT_COMMAND_SCRIPT_PATH = "src/main/resources/commandScripts";
-    public static final String DEFAULT_CONFIG_FILE_NAME = "fareaches.fadmin.properties";
-    public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
-    public static final String DEFAULT_PORT = "80";
-    public static final String DEFAULT_API_VERSION = "apiv1";
-    private Properties configProperties;
-    private String comandScriptPath;
-    private String configFileName;
-    private Log log;
+public class AdminTool extends UtilParent {
 
     /**
      * Main entry point for tool.
@@ -95,7 +85,7 @@ public class AdminTool {
                         + sd.getErrorMesg());
             }
         } else if (cmdOptions.hasOption(HELP)) {
-            // TODO print usage if has option help
+            //  print usage if has option help
             if (args.length == 1) {
                 cmdOptions.printHelp();
             } else {
@@ -106,7 +96,7 @@ public class AdminTool {
                             if (sd.getUsage() != null && !sd.getUsage().equals("")) {
                                 emitOutput("Script Usage: " + sd.getUsage());
                             } else {
-                                emitOutput("Script " + scriptName + 
+                                emitOutput("Script " + scriptName +
                                            " does not have usage information");
                             }
                         }
@@ -126,20 +116,6 @@ public class AdminTool {
     }
 
     /**
-     * Get the relative path by the absolute path.
-     * @param filePath is the full path to the script.
-     * @return relative path of the file
-     */
-    private String getRelativePath(String filePath) {
-        String relativePath = filePath;
-        String currentPath = System.getProperty("user.dir");
-        if (filePath.contains(currentPath)) {
-            relativePath = filePath.substring(currentPath.length());
-        }
-        return relativePath;
-    }
-
-    /**
      * Runs the named script.
      * @param filePath is the full path to the script
      * @param scriptLookup is the map of ScriptDescription
@@ -148,7 +124,7 @@ public class AdminTool {
     private void runScript(String filePath,
                            Map<String, ScriptDescription> scriptLookup,
                            AdminToolCommandLineOptions cmdOptions) {
-						   System.out.println("In adminTool scriptLookup = "+scriptLookup);
+                           System.out.println("In adminTool scriptLookup = "+scriptLookup);
         boolean verbose = cmdOptions.hasOption(VERBOSE);
         List<String> remainder = cmdOptions.getRemainingOptions();
         try {
@@ -173,11 +149,11 @@ public class AdminTool {
             Map<String, String> parammap = getParamMap(remainder);
             // Is verbose switched on?
             // run the script
-			System.out.println("--------------------------------------------------------");
+            System.out.println("--------------------------------------------------------");
             ScriptRunner runner2 = new ScriptRunner(host, port, apiVersion, key, parammap, verbose);
-			runner2.setScriptLookup(scriptLookup);
+            runner2.setScriptLookup(scriptLookup);
             if (filePath != null) {
-				System.out.println("call loadAndRunOneScript filePath = "+filePath);
+                System.out.println("call loadAndRunOneScript filePath = "+filePath);
                 runner2.loadAndRunOneScript(filePath);
             } else {
                 getLog().error("No script to run or not found.");
@@ -191,175 +167,7 @@ public class AdminTool {
         }
     }
 
-    /**
-     * Return the script parameters as a map of param name to param valye.
-     * @param remainderList is command arg list
-     * @return map of the user input params
-     */
-    private Map<String, String> getParamMap(List<String> remainderList) {
-        Map<String, String> map = new HashMap<String, String>();
-        // On linux, options like param1=cat comes through as a single param
-        // On windows they come through as 2 params.
-        // To match options like param1=cat
-        String patternStr = "(\\w+)=(\\S+)";
-        Pattern p = Pattern.compile(patternStr);
-        for (int i = 0; i < remainderList.size(); i++) {
-            Matcher matcher = p.matcher(remainderList.get(i));
-            if (matcher.matches()) {
-                // If mathces then we are looking at param1=cat as a single
-                // param
-                map.put(matcher.group(1), matcher.group(2));
-            } else {
-                if (remainderList.size() > i + 1) {
-                    map.put(remainderList.get(i), remainderList.get(i + 1));
-                }
-                i++;
-            }
-        }
-        return map;
-    }
 
-    /**
-     * Gets the program options, either from the command line, from the saved
-     * properties or asks the user.
-     * @param cmdOptions - Command line options
-     * @param key - name of property
-     * @param defaultVal - default value to suggest
-     * @return the option value.
-     * @throws IOException
-     */
-    private String getOption(AdminToolCommandLineOptions cmdOptions,
-            String key, String defaultVal)
-        throws IOException {
-        Properties props = getProperties();
-        String value = null;
-        if (cmdOptions.hasOption(key)) {
-            // if option passed in on commandline then use that
-            value = cmdOptions.getOptionValue(key);
-        } else {
-            // if option is in properties then use that
-            String prefValue = props.getProperty(key, "");
-            if (cmdOptions.hasOption(NOCACHE) || prefValue.equals("")) {
-                // prompt the user for the option
-                System.out.print("Please, Enter : " + key
-                        + " ( Enter defaults to: " + defaultVal + ") ");
-                value = getUserInput(key);
-                if ("".equals(value)) {
-                    value = defaultVal;
-                }
-            } else {
-                return prefValue;
-            }
-        }
-        props.setProperty(key, value);
-        return value;
-    }
 
-    /**
-     * Gets the configuration properties, loading it if hasn't been loaded.
-     * @return configuration properties.
-     */
-    public Properties getProperties() {
-        if (configProperties == null) {
-            configProperties = new Properties();
-            try {
-                // load a properties file
-                configProperties.load(new FileInputStream(getConfigFileName()));
-            } catch (IOException ex) {
-                getLog().error("Error loading file " + getConfigFileName());
-            }
-        }
-        return configProperties;
-    }
 
-    /**
-     * Saves the configuration properties, loading it if hasn't been loaded.
-     */
-    public void saveProperties() {
-        if (configProperties != null) {
-            try {
-                // load a properties file
-                configProperties.store(
-                        new FileOutputStream(getConfigFileName()),
-                        "Farreach.es Admin tool properties");
-            } catch (IOException ex) {
-                getLog().error("Error saving file " + getConfigFileName());
-            }
-        }
-    }
-
-    /**
-     * @param msg - message to emit
-     */
-
-    public void emitOutput(String msg) {
-        getLog().info(msg);
-    }
-
-    /**
-     * Get the logger for this class.
-     */
-    public Log getLog() {
-        if (this.log == null) {
-            this.log = LogFactory.getLog(this.getClass());
-        }
-        return this.log;
-    }
-
-    /**
-     * Gets the script path for the tool.
-     * @return path of the file commandScript
-     */
-    String getComandScriptPath() {
-        if (comandScriptPath != null) {
-            return comandScriptPath;
-        } else {
-            comandScriptPath = DEFAULT_COMMAND_SCRIPT_PATH;
-        }
-        return comandScriptPath;
-    }
-
-    /**
-     * @param comandScriptPath the comandScriptPath to set
-     */
-    public void setComandScriptPath(String comandScriptPath) {
-        this.comandScriptPath = comandScriptPath;
-    }
-
-    /**
-     * Gets the script path for the tool.
-     * @return the name of the config file
-     */
-    public String getConfigFileName() {
-        if (configFileName != null) {
-            return configFileName;
-        } else {
-            configFileName = DEFAULT_CONFIG_FILE_NAME;
-        }
-        return configFileName;
-    }
-
-    /**
-     * @param configFileName the name of the config file
-     */
-    public void setConfigFileName(String configFileName) {
-        this.configFileName = configFileName;
-    }
-
-    /**
-     * @param key is the key of user input
-     * @return the value of user input
-     */
-    public String getUserInput(String key) {
-        BufferedReader consoleIn = new BufferedReader(new InputStreamReader(
-                System.in));
-        String value = "";
-        try {
-            value = consoleIn.readLine();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return value;
-    }
 }

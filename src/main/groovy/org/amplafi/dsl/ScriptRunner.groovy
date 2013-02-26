@@ -14,15 +14,18 @@ import org.codehaus.groovy.control.MultipleCompilationErrorsException
  * @author Paul
  */
 public class ScriptRunner {
-    
+
     private String requestUriString;
     private String host;
     private String port;
     private String apiVersion;
     private String key;
-    
+
+    /** Allows re-running of last script */
+    private Closure lastScript;
+
     /**
-     * List of scripts that had errors. 
+     * List of scripts that had errors.
      */
     private List<ScriptDescription> haveErrors = new ArrayList<ScriptDescription>();
     /**
@@ -30,19 +33,19 @@ public class ScriptRunner {
      */
     private List<ScriptDescription> goodScripts = new ArrayList<ScriptDescription>();
     /**
-     * Description of all scripts known to this runner. 
+     * Description of all scripts known to this runner.
      */
     public Map<String,ScriptDescription> scriptLookup;
     /**
-     * Map of param name to param value that will be passed to the scripts.   
+     * Map of param name to param value that will be passed to the scripts.
      */
     private Map<String,String> paramsmap;
-    
+
     /**
      * Allow verbose output
      */
     private boolean verbose = false;
-    
+
     private static final boolean DEBUG = false;
     private static final IMPORT_REGEX = /^\s*?import (.*)$/;
     private static final NL = System.getProperty("line.separator");
@@ -76,12 +79,12 @@ public class ScriptRunner {
     }
     /**
      * Constructs a Script runner with individual parameters that can be overridden in scripts.
-     * passes a map of parameters to the script 
+     * passes a map of parameters to the script
      * @param host - host address e.g. http://www.farreach.es
      * @param port - e.g. 80
      * @param apiVersion - e.g. apiv1
      * @param key - Api Key string
-     * @param paramsmap - map of paramname to param value 
+     * @param paramsmap - map of paramname to param value
      * @param verbose - print verbose output.
      */
     public ScriptRunner(String host, String port, String apiVersion, String key, Map<String,String> paramsmap, boolean verbose){
@@ -108,7 +111,7 @@ public class ScriptRunner {
 
     /**
      * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH
-     * @return 
+     * @return
      */
     public List<String> findAllTestScripts(){
         findAllScripts(DEFAULT_SCRIPT_PATH);
@@ -136,26 +139,33 @@ public class ScriptRunner {
      */
     def loadAndRunOneScript(String filePath){
         def description = describeOneScript(filePath);
-        
-        
+
+
         def file = new File(filePath);
         def script = file.getText();
         def value = runScriptSource(script,true,description);
-        
+
         return value;
     }
 
-    
+    def reRunLastScript(){
+        if (lastScript){
+            lastScript();
+        } else {
+            getLog().error("No script was previously run." );
+        }
+    }
+
     /**
      * Runs or describes a script from source code
      * @param sourceCode
-     * @param execOrDescibe - If true then execute the source code as a command script if false run 
-     *                         the code as a description DSL to obtain its description  
-     * @return The groovy closure (Why?) 
+     * @param execOrDescibe - If true then execute the source code as a command script if false run
+     *                         the code as a description DSL to obtain its description
+     * @return The groovy closure (Why?)
      * @throws NoDescriptionException - Thrown if the description DSL does not find a description directive
-     * @throws EarlyExitException - thrown to prevent the description dsl from running any commands. 
+     * @throws EarlyExitException - thrown to prevent the description dsl from running any commands.
      */
-    def runScriptSource(String sourceCode, boolean execOrDescribe, ScriptDescription description) throws NoDescriptionException, EarlyExitException{        
+    def runScriptSource(String sourceCode, boolean execOrDescribe, ScriptDescription description) throws NoDescriptionException, EarlyExitException{
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
@@ -166,31 +176,34 @@ public class ScriptRunner {
         }else{
             builder = new FlowTestBuilder(host,port,apiVersion,key,this,verbose);
         }
-        
-        if(execOrDescribe){            
-            def execScript = builder.buildExe(closure);
-            return execScript();
+
+        if(execOrDescribe){
+            lastScript = builder.buildExe(closure);
+            return lastScript();
         }else{
-            def execScript = builder.buildDesc(closure);
-            return execScript();
+            lastScript = builder.buildDesc(closure);
+            return lastScript();
         }
     }
-    
+
+
+
+
     /**
      * Takes the source code string and wraps in into a valid groovy script that when run will return a closure
-     * that can be either configured to describe itself or to run as a sequence of commands.  
+     * that can be either configured to describe itself or to run as a sequence of commands.
      * @param sourceCode
      * @param paramsmap
      * @return
      */
     def getClosure(String sourceCode, Map<String,String> paramsmap, ScriptDescription description){
         String generateParams = generateParams(description,paramsmap);
-        StringBuffer scriptSb = new StringBuffer(); 
-        // Extract the import statements from the input source code and re-add them 
+        StringBuffer scriptSb = new StringBuffer();
+        // Extract the import statements from the input source code and re-add them
         // to the top of the groovy program.
         scriptSb.append(getImportLines(sourceCode));
         String valibleScript = getValidClosureCode(sourceCode);
-        
+
         // All the imports are prepended to the first line of the user script so error messages
         // have the correct line number in them
         def scriptStr = """import org.amplafi.dsl.FlowTestBuilder;import org.amplafi.json.*; ${generateParams} def source = { ${valibleScript} }; return source """;
@@ -201,7 +214,7 @@ public class ScriptRunner {
         binding.setVariable("requestUriString",requestUriString);
         GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
         def lineNo = 1;
-        script.split("\n").each{ line -> 
+        script.split("\n").each{ line ->
             debug("${lineNo}>${line}");
             lineNo++;
         }
@@ -209,7 +222,7 @@ public class ScriptRunner {
         Object closure = shell.evaluate(script);
         return closure;
     }
-    
+
     def generateParams(ScriptDescription description, Map<String,String> paramsmap){
         StringBuffer paramsSb = new StringBuffer("");
         //TODO get current script description
@@ -236,8 +249,8 @@ public class ScriptRunner {
                     }else{
                         defaultValue = null;
                     }
-                
-                
+
+
                     //Validata paramsmap and generate params in script
                     //StringBuffer paramSb = new StringBuffer("");
                     def paramName;
@@ -262,12 +275,12 @@ public class ScriptRunner {
                 }
             }
         }
-        
+
         return paramsSb.toString();
     }
 
     /**
-     * Creates an un-configured closure (no delegate set) from the 
+     * Creates an un-configured closure (no delegate set) from the
      * @param scriptName
      * @param callParamsMap - map of parameters name to value
      * @return
@@ -286,10 +299,10 @@ public class ScriptRunner {
         }
 
     }
-    
+
     /**
      * Obtain the script file path from the short name in the script description directive.
-     * This should be called after processScriptsInFolder(...) or it will return null. 
+     * This should be called after processScriptsInFolder(...) or it will return null.
      * @param scriptName
      * @return file path string
      */
@@ -303,16 +316,16 @@ public class ScriptRunner {
         }
         return filePath;
     }
-    
+
     /**
-     * Process all the scripts in the folder path and determine . 
+     * Process all the scripts in the folder path and determine .
      * @param path
      * @return map of all scripts and their descriptions
      */
     public Map<String,ScriptDescription> processScriptsInFolder(String path){
         List<ScriptDescription> ret = [];
         List<String> scriptPaths = findAllScripts(path);
-        
+
         scriptPaths.each{ spath ->
             def desc = describeOneScript(spath);
             if (desc != null){
@@ -320,8 +333,8 @@ public class ScriptRunner {
             }
         }
         scriptLookup = new HashMap<String,ScriptDescription>();
-        
-        // Determine which scripts are good to run and which have errors. 
+
+        // Determine which scripts are good to run and which have errors.
         for (ScriptDescription sd : ret ){
             if (!sd.getHasErrors()){
                 goodScripts.add(sd);
@@ -338,11 +351,11 @@ public class ScriptRunner {
      * @param filePath is the full path to the script.
      */
     public ScriptDescription describeOneScript(String filePath){
-        
+
         def file = new File(filePath);
         def script = file.getText();
         def value =  null;
-        
+
         try {
             value = runScriptSource(script,false,null);
         } catch (EarlyExitException eee){
@@ -356,7 +369,7 @@ public class ScriptRunner {
         }
         return value;
     }
-    
+
      /**
      * Get the relative path by the absolute path
      * @param filePath is the full path to the script.
@@ -365,14 +378,14 @@ public class ScriptRunner {
         def relativePath = filePath;
         def currentPath = System.getProperty("user.dir");
         if(filePath.contains(currentPath)){
-            relativePath = filePath.substring(currentPath.length()); 
+            relativePath = filePath.substring(currentPath.length());
         }
     }
-    
+
     /**
      * Returns the script source with import lines removed.
      * @param source - original source code.
-     * @return - modified code 
+     * @return - modified code
      */
     def getValidClosureCode(String source){
         StringBuffer sb = new StringBuffer();
@@ -381,15 +394,15 @@ public class ScriptRunner {
             if (!(line =~ IMPORT_REGEX)){
                 sb << "${line}${NL}"
             }
-        } 
+        }
         return sb.toString();
     }
-    
+
     /**
-     * Returns the all of the import lines from the script so they can be put in the 
-     * correct location in the wrapper script. 
+     * Returns the all of the import lines from the script so they can be put in the
+     * correct location in the wrapper script.
      * @param source - source code
-     * @return - string of import statements. 
+     * @return - string of import statements.
      */
     private String getImportLines(String source){
         def ret = new StringBuffer();
@@ -418,13 +431,13 @@ public class ScriptRunner {
     public List<ScriptDescription> getScriptsWithErrors(){
         return haveErrors;
     }
-    
+
     public void setScriptLookup(Map<String,ScriptDescription> scriptLookup){
         this.scriptLookup = scriptLookup;
     }
 
     /**
-     * Utility method for debugging code. 
+     * Utility method for debugging code.
      * @param msg - message to print
      */
     private final void debug(String msg){
