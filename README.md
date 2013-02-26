@@ -59,15 +59,22 @@ Setting up the wire serve using just the plugin downloaded from farreach.es on w
 		farreaches-wp-plugin
 		amplafi-tools
 		
-7) in amplafi-tools we unzipped apache-maven-3.0.4-bin.zip
-	and in the resulting folder apache-maven-3.0.4-bin there is a sub folder  apache-maven-3.0.4 which we copied up a level to <baseFolder>/amplafi-tools
+7) in amplafi-tools run "ant validate-tools-opensource"
 
 Also note that our development PC already had a MySQL database installed for other projects and we decided to use that as the DB for the wireserver. 
 The result here was that we ended up with to mysql instances (a bitnami one for worpress and a default one)
 We ran the bitnami db on port 3308 and the default one 3306, see below
 
+**********
+TODO TO_PAUL TO_DAISY: 
+    Do we really need the plugin setup steps now? 
+    
+    Can't we have the tool get its own key now???
+    
+**********
+
 8) In <baseFolder>/farreaches-wp-plugin we copied the build.local.properties.example to build.local.properties
-It ended up with the following contents (note fields you need to change are marke like this <your-field-here> ):
+It ended up with the following contents (note fields you need to change are marked like this <your-field-here> ):
 
     # Remove quotes around path for Linux:   
     wordpress-user user   
