@@ -96,5 +96,6 @@
 <node TEXT="Bug Fixes" POSITION="left" ID="ID_890202894" CREATED="1361329486157" MODIFIED="1361329492098">
 <node TEXT="Set amplafi-flow-client issues list" ID="ID_124901727" CREATED="1361329823505" MODIFIED="1361329843591"/>
 </node>
+<node TEXT="Remove use of external scripts: no .sh only ant targets" POSITION="right" ID="ID_1821842168" CREATED="1361912481545" MODIFIED="1361912499052"/>
 </node>
 </map>
