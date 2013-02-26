@@ -16,7 +16,7 @@ printTaskInfo "Create the temporaty api key for the customer " + publicUri ;
 setApiVersion("suv1");
 def reqParams = ["fsRenderResult":"json", "reasonForAccess": "Inspect the customer problem", "publicUri": publicUri] ;
 reqParams["email"] = userEmail;
-def response = requestResponse("SuApiKeyFlow", reqParams);
+def response = requestResponse("SuApiKey", reqParams);
 
 if(response.hasError()) {
     println "An error when creating a temporary api key for the publicUri " + publicUri ;

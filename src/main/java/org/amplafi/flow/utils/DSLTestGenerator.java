@@ -130,12 +130,17 @@ public class DSLTestGenerator {
     public void generate() throws GenerationException{
         List<String> flows = getListOfFlows();
         for (String flow : flows){
-            if ( strategy.shouldGenerateTest(flow,null)){
-                strategy.newTest(flow,"");
-                generateOne(flow);
-                writeTestFile();
-                strategy.endTest();
-            }
+			String ignoredFlowsStr = System.getProperty("ignoreFlows","");
+			System.err.println("Will ignore flows" + ignoredFlowsStr);
+			if (!ignoredFlowsStr.contains(flow)) {
+				if ( strategy.shouldGenerateTest(flow,null)){
+					strategy.newTest(flow,"");
+					generateOne(flow);
+					writeTestFile();
+					strategy.endTest();
+				}
+			}
+			
         }
         
     }

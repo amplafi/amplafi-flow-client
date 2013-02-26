@@ -4,7 +4,7 @@ description "AvailableExternalServices", "Available External Services","none";
 setApiVersion("apiv1");
 
 printTaskInfo "Available External Services(Social Services)"
-def response = requestResponse("EligibleExternalServiceInstancesFlow", ["fsRenderResult":"json"]);
+def response = requestResponse("EligibleExternalServiceInstanceList", ["fsRenderResult":"json"]);
 checkError(response) ;
 
 def entries = response.getResponseAsJSONArray();

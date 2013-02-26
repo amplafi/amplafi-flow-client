@@ -148,6 +148,7 @@ public class AdminTool {
     private void runScript(String filePath,
                            Map<String, ScriptDescription> scriptLookup,
                            AdminToolCommandLineOptions cmdOptions) {
+						   System.out.println("In adminTool scriptLookup = "+scriptLookup);
         boolean verbose = cmdOptions.hasOption(VERBOSE);
         List<String> remainder = cmdOptions.getRemainingOptions();
         try {
@@ -172,9 +173,11 @@ public class AdminTool {
             Map<String, String> parammap = getParamMap(remainder);
             // Is verbose switched on?
             // run the script
+			System.out.println("--------------------------------------------------------");
             ScriptRunner runner2 = new ScriptRunner(host, port, apiVersion, key, parammap, verbose);
-            runner2.processScriptsInFolder(getComandScriptPath());
+			runner2.setScriptLookup(scriptLookup);
             if (filePath != null) {
+				System.out.println("call loadAndRunOneScript filePath = "+filePath);
                 runner2.loadAndRunOneScript(filePath);
             } else {
                 getLog().error("No script to run or not found.");

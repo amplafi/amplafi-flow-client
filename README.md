@@ -6,6 +6,29 @@ During development it is normal to use a local server running on port 8080 and t
 To make any API calls you will need an API key. This will be generated the first time the wordpress plugin connects to the server. So you will need to install wordpress and the farreaches-wp-plugin to do this. 
 To do that should follow the instructions at https://github.com/farreaches/farreaches-wp-plugin
 
+## API response parsing
+Following is the description of how API is supposed to work. If you see different behavior, that is a bug; please report or fix it.
+###HTTP response codes
+Server might return following response codes:
+ * 200 -- A call finished successfully. A call result (an object, an array, or a string might be returned as response body).
+ * 400 -- An error (usually user related) happened on server. Usually means bad request parameters.
+ * 401 -- Authorization problem. Usually means you're using invalid API key.
+ * 500 -- Server has problems. Contact server developers.
+ * 302 -- Redirect. Usually not handled by client, as redirects happen automatically.
+
+Eventually, other 4xx error codes might be used to indicate a client problem.
+###Error response
+Every time an error response is returned it is indicated by a status code of 4xx or 500.
+Error response always has a json object as response body. The object is guaranteed to have an 'error' property
+containing detailed problem description. For example:
+
+     { error: "Can't create key."}
+
+###Success response
+Success response is always indicated by 200 HTTP status code (eventually we can start using 201, 202 and other OK-codes, this will be mirrored in the documentation).
+Success response body might be either empty or contain string, array or object. You have to refer to API documentation to figure out what you're to expect. All flows 
+that have their name end with '*List' are guaranteed to return an array upon success. Flows without 'List' suffix in their name may return either string or json object as response body.
+
 ## Run Server ##
 
 Goal is to create a basic server for the purpose of testing the flow-client
