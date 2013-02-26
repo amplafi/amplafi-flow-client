@@ -149,6 +149,9 @@ public class LoadTool extends UtilParent{
                     getLog().info(THICK_DIVIDER);
                     getLog().info("Total calls in all threads=" + totalCalls + "  " + (totalCalls*1000/totalTime) +  " calls per second" );
                     getLog().info(THICK_DIVIDER);
+
+                    // TODO output above to file or speadsheet
+                    // TODO output time variant call data to speadsheet
                 }
             });
 
@@ -171,9 +174,9 @@ public class LoadTool extends UtilParent{
     }
 
     // Never accessed by multiple threads
-    List<Thread> threads = new ArrayList<Thread>();
+    private List<Thread> threads = new ArrayList<Thread>();
     // Never accessed by multiple threads
-    Map<Thread,ThreadReport> threadReports = new LinkedHashMap();
+    private Map<Thread,ThreadReport> threadReports = new LinkedHashMap();
 
     /**
      * runs a single-threaded proxy server on
@@ -237,7 +240,6 @@ public class LoadTool extends UtilParent{
         for (Thread t : threads){
             t.start();
         }
-
     }
 
     /**
