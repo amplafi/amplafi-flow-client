@@ -11,6 +11,9 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.amplafi.flow.utils.LoggingProxy;
+import org.amplafi.json.JSONArray;
+import org.amplafi.json.JSONException;
+import org.amplafi.json.JSONObject;
 import org.apache.log4j.spi.LoggingEvent;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -87,7 +90,6 @@ public class TestLoggingProxy {
         assertTrue(req.contains("fsRenderResult"));
         assertTrue(req.contains("json"));
         assertTrue(req.contains("checkReturnedValidJson()"));
-        
         assertFalse(req.contains("AvailableCategoriesList1"));
         assertFalse(req.contains("fsRenderResult1asd"));
         assertFalse(req.contains("jsonwe"));
@@ -147,6 +149,8 @@ public class TestLoggingProxy {
           //  checkReturnedValidJson()
             
         }
+        
+      
     }
 
 }

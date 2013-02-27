@@ -4,11 +4,21 @@ import java.io.*;
 import java.net.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.amplafi.json.JSONArray;
+import org.amplafi.json.JSONException;
+import org.amplafi.json.JSONObject;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.internal.runners.statements.Fail;
 
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.API_KEY;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.API_VERSION;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.HOST;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.OUTPATH;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.PORT;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.STRATEGY;
 import static org.amplafi.flow.utils.LoggingProxyCommandLineOptions.*;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -33,6 +43,11 @@ import java.util.Set;
  */
 public class LoggingProxy {
 
+    private StringBuffer testFileContents = null;
+    private static final int STANDARD_INDENTATION = 4;
+    String NL = System.getProperty("line.separator");
+    
+    
     /**
      * Main method for proxy server. See TestGenerationProxyCommandLineOptions for usage.
      */
@@ -97,6 +112,15 @@ public class LoggingProxy {
                 return;
             }
         }
+        
+        
+        String apiKey = cmdOptions.getOptionValue(API_KEY);
+        String host = cmdOptions.getOptionValue(HOST);
+        String port = cmdOptions.getOptionValue(PORT);
+        String apiversion = cmdOptions.getOptionValue(API_VERSION);
+        
+        
+        
     }
 
     /**
@@ -250,9 +274,8 @@ public class LoggingProxy {
                             + reqMap.get(paramName) + "\"");
                     i++;
                 }
-                String newLine = System.getProperty("line.separator");
-                // request("AvailableCategoriesList",["java.util.HashMap$KeyIterator@75324a":"null])
-                out.write("])" + newLine);
+                
+                out.write("])" + NL);
                 out.write("checkReturnedValidJson()");// to be a expected json
                 // Close the output stream
                 out.close();
@@ -350,6 +373,77 @@ public class LoggingProxy {
         }
         return request;
     }
+    
+    /**
+     * Adds an expected return to the test.
+     * 
+     * @param json - the expected json data
+     */
+    public void addExpect(String json) {
+        String strValue = "";
+        try {
+            // Try to format a JSON string if possible.
+            JSONObject jsonObj = new JSONObject(json);
+            strValue = jsonObj.toString(STANDARD_INDENTATION);
+        } catch (JSONException e) {
+            // otherwise just use the raw string
+            // strValue = json;
+            try {
+                JSONArray strValueArray = new JSONArray(json);
+                strValue = strValueArray.toString();
+            } catch (Exception e2) {
+                return;
+            }
+        }
+
+        writeToFileBuffer("expect(\"\"\"" + strValue + "\"\"\")\n");
+    }
+    
+    public final void addExpectWithIgnoredPaths(String json, String flowName,
+            Set<String> ignores) {
+        String strValue = "";
+        try {
+            // Try to format a JSON string if possible.
+            JSONObject jsonObj = new JSONObject(json);
+            strValue = jsonObj.toString(STANDARD_INDENTATION);
+        } catch (Exception e) {
+            // otherwise just use the raw string
+            strValue = json;
+        }
+        if (ignores.isEmpty()) {
+            writeToFileBuffer("expect(\"\"\"" + strValue + "\"\"\")\n");
+        } else {
+            Set<String> paths = ignores;
+            StringBuffer pathList = new StringBuffer("[");
+            String sep = "";
+            for (String path : paths) {
+                pathList.append(sep);
+                pathList.append("\"");
+                pathList.append(path);
+                pathList.append("\"");
+                sep = ",";
+            }
+            pathList.append("]");
+            if (testFileContents.toString().contains("def ignorePathList")) {
+                writeToFileBuffer("ignorePathList = " + pathList + ";\n");
+            } else {
+                writeToFileBuffer("def ignorePathList = " + pathList + ";\n");
+            }
+            writeToFileBuffer("expect(\"\"\"" + strValue
+                    + "\"\"\",ignorePathList)\n");
+        }
+    }
+
+    protected void writeToFileBuffer(String strValue) {
+        // TODO Auto-generated method stub
+        try{
+            Writer writer = getTestFileWriter();
+            writer.write(strValue);
+            writer.close();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
 
     /**
      * The method handles response.
@@ -357,6 +451,11 @@ public class LoggingProxy {
      */
     private void handleResponse(String resp) {
         getLog().info(resp);
+        String[] resps = resp.split(NL);
+        if(resps != null && resps.length >0){
+            String responseJson = resps[resps.length-1];
+            addExpect(responseJson);
+        }
     }
 
     /**
