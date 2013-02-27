@@ -108,7 +108,6 @@ public class TestLoggingProxy {
         }
 
         protected Writer getTestFileWriter(){
-            System.out.println("<<<<<<<<<<<<<<<<<,get string writer >>>>>>>>>>>>>>>>>>>>>>>");
             return new StringWriter();
         }
 
