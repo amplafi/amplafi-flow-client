@@ -90,7 +90,7 @@ public class TestFlowTestDSL{
 		o2.put("name","samantha");
 		o2.put("name2","ccc");
 		try{
-        boolean ret = dslInstance.compare(o1, o2, null);
+		    boolean ret = dslInstance.compare(o1, o2, null);
 			fail("Expected Excetion was not thrown");
 		} catch (AssertionError ae){
 			// Do Nothing

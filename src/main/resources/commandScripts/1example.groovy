@@ -1,5 +1,7 @@
 // This line must be the first line in the script
-description "example", "Just an example script" 
+//description "example", "Just an example script" 
+description "example", "Just an example script", [paramDef("param1","test param1",true,"100"),
+                                                    paramDef("param2","test param1",false,"100")]
 
 //,[["param1","most favorite animal"], ["param2","other most favorite animal"], ["param3","dadgu"] ]
 
@@ -15,6 +17,15 @@ description "example", "Just an example script"
 // Example Import
 import javax.net.*;
 
+
+
+
+    println ">>>>param1 : "+param1;
+
+
+
+
+    println ">>>>>>param2 : "+param2;
 
 println("Call open port");
 openPort(9090, 20,{ println("Paul says In do now");  },

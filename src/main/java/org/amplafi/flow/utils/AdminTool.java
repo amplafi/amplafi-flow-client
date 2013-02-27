@@ -124,7 +124,6 @@ public class AdminTool extends UtilParent {
     private void runScript(String filePath,
                            Map<String, ScriptDescription> scriptLookup,
                            AdminToolCommandLineOptions cmdOptions) {
-                           System.out.println("In adminTool scriptLookup = "+scriptLookup);
         boolean verbose = cmdOptions.hasOption(VERBOSE);
         List<String> remainder = cmdOptions.getRemainingOptions();
         try {
