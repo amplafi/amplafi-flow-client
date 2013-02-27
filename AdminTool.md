@@ -179,3 +179,79 @@ Run command "FAdmin <openPort script>"
 6. Add -f <filename> option so that an adhoc script can be run without putting it in the scripts folder.
 7. Add ability for one script to call another. 
 
+
+### automatic parameter validation and default value setup from parameter specification ###
+
+description method in dsl:
+/**
+ * The description of the name.
+ *@param name - the name to description
+ *@param description - the name 's description
+ *@param usage is the usage of the script
+ *@throw EarlyExitException  if it just need description
+ */
+public void description (String name, String description, String usage)
+
+Add params usage in script like below:
+description "example", "Just an example script", [paramDef("param1","test param1",true,"100"),
+                                                    paramDef("param2","test param1",false,"100")]
+
+paramDef method in dsl:
+/**
+ * This method returns a ParameterUsge.
+ * @param name is name of the param
+ * @param description is description of the param
+ * @param optional is optional of the param
+ * @param defaultValue is default value of the param
+ * @return a ParameterUsge
+ */                                                 
+ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue)
+
+Run command line "FAdmin example param1=dog param2=cat" will generate script line:
+def param1 = dog;def param2 = cat;
+Then user can use param1 and param2 in script.Just like 'println param1'.
+
+Run command line "FAdmin example param1=dog" will throw an exception:
+Parameter param2 must be supplied.
+Because param2 is not optional.
+
+Run command line "FAdmin example param2=cat" will generate script line:
+def param1 = 100;def param2 = cat;
+Then user can use param1 and param2 in script.
+When param optional is true and user does not set the param value, script use the default value.
+
+
+### automatic generation of parameter usage doc from description ###
+
+description method in dsl:
+/**
+ * The description of the name.
+ *@param name - the name to description
+ *@param description - the name 's description
+ *@param usage is the usage of the script
+ *@throw EarlyExitException  if it just need description
+ */
+public void description (String name, String description, String usage)
+
+Add params usage in script like below:
+description "example", "Just an example script", [paramDef("param1","test param1",true,"100"),
+                                                    paramDef("param2","test param1",false,"100")]
+
+paramDef method in dsl:
+/**
+ * This method returns a ParameterUsge.
+ * @param name is name of the param
+ * @param description is description of the param
+ * @param optional is optional of the param
+ * @param defaultValue is default value of the param
+ * @return a ParameterUsge
+ */                                                 
+ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue)
+
+Run command line "FAdmin -help example" will print usage:
+Script Usage:
+param1 = <test param1>
+param2 = <test param1>
+param3 = <test param1>
+                                                    
+
