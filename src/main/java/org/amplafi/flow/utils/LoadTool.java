@@ -136,8 +136,8 @@ public class LoadTool extends UtilParent{
 
                     // Loop over the ThreadReports
                     int threadNum = 1;
-                    long totalTime = 0;
-                    long totalCalls = 0;
+                    double totalTime = 0;
+                    double totalCalls = 0;
                     getLog().info(THICK_DIVIDER);
                     for (Thread t : threads){
                        ThreadReport rep = threadReports.get(t);
