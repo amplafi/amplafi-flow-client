@@ -51,7 +51,7 @@ public class TestScriptRunnerDyn {
     @Test 
     public void testDescribeScript(){
         def testScript1 = """
-        description "Test1", "Description1", [paramDef("param1","test param1",true,"100"),
+        description "Test1", "Description1", [paramDef("param1","test param1",false,"100"),
                                     paramDef("param2","test param2",true,"100"),
                                     paramDef("param3","test param3",true,"100")]
                                     
@@ -74,10 +74,9 @@ public class TestScriptRunnerDyn {
         assertEquals(desc.name,"Test1");
         assertEquals(desc.description,"Description1");
         assertNull(desc.path);
-        assertEquals(desc.usage,NL + "param1 = <test param1>" + NL + "param2 = <test param2>"+ NL +"param3 = <test param3>" +NL);
-        ParameterUsge parameterUsge1 = new ParameterUsge("param1","test param1",true,"100");
-        ParameterUsge parameterUsge2 = new ParameterUsge("param2","test param2",true,"100");
-        ParameterUsge parameterUsge3 = new ParameterUsge("param3","test param3",true,"100");
+        assertEquals(desc.usage,NL + "param1 = <test param1> , required , defaultValue = 100" 
+                    + NL + "param2 = <test param2> , optional , defaultValue = 100"
+                    + NL +"param3 = <test param3> , optional , defaultValue = 100" +NL);
     }
     
     //This test tests script runner with no param input.

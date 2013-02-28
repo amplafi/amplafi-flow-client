@@ -194,7 +194,7 @@ public void description (String name, String description, String usage)
 
 Add params usage in script like below:
 description "example", "Just an example script", [paramDef("param1","test param1",true,"100"),
-                                                    paramDef("param2","test param1",false,"100")]
+                                                    paramDef("param2","test param2",false,"100")]
 
 paramDef method in dsl:
 /**
@@ -235,7 +235,7 @@ public void description (String name, String description, String usage)
 
 Add params usage in script like below:
 description "example", "Just an example script", [paramDef("param1","test param1",true,"100"),
-                                                    paramDef("param2","test param1",false,"100")]
+                                                    paramDef("param2","test param2",false,"200")]
 
 paramDef method in dsl:
 /**
@@ -250,8 +250,7 @@ ParameterUsge paramDef(String name,String description,boolean optional,Object de
 
 Run command line "FAdmin -help example" will print usage:
 Script Usage:
-param1 = <test param1>
-param2 = <test param1>
-param3 = <test param1>
+param1 = <test param1> , optional , defaultValue = 100
+param2 = <test param2> , required , defaultValue = 200
                                                     
 

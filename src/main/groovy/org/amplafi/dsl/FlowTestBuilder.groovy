@@ -723,6 +723,14 @@ public class DescribeScriptDSL {
         for(ParameterUsge paramUsage : usages){
             if(paramUsage.getName()&& paramUsage.getDescription()){
                 usageSb.append(paramUsage.getName() + " = " +"<" +paramUsage.getDescription() + ">");
+                if(paramUsage.getOptional()){
+                    usageSb.append(" , optional");
+                }else{
+                    usageSb.append(" , required");
+                }
+                if(paramUsage.getDefaultValue()){
+                    usageSb.append(" , defaultValue = " + paramUsage.getDefaultValue());
+                }
                 usageSb.append(newLine);
             }
             
@@ -830,6 +838,14 @@ public class DescribeScriptDSL {
         return this.log;
     }
     
+    /**
+     * This method returns a ParameterUsge.
+     * @param name is name of the param
+     * @param description is description of the param
+     * @param optional is optional of the param
+     * @param defaultValue is default value of the param
+     * @return a ParameterUsge
+     */
     public ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue){
     
         return new ParameterUsge(name,description,optional,defaultValue);

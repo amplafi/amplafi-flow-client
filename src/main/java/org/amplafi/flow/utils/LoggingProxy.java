@@ -46,8 +46,12 @@ public class LoggingProxy {
     private StringBuffer testFileContents = null;
     private static final int STANDARD_INDENTATION = 4;
     String NL = System.getProperty("line.separator");
+    protected LoggingProxyCommandLineOptions cmdOptions = null;
+    private Log log;
     
-    
+    public LoggingProxy() {
+    }
+
     /**
      * Main method for proxy server. See TestGenerationProxyCommandLineOptions for usage.
      */
@@ -61,16 +65,8 @@ public class LoggingProxy {
         }
     }
 
-    private Log log;
-
-    public LoggingProxy() {
-    }
-
-    protected LoggingProxyCommandLineOptions cmdOptions = null;
-
     /**
      * Process command line and run the server.
-     * 
      * @param args
      */
     public void processCommandLine(String[] args) {
@@ -112,15 +108,10 @@ public class LoggingProxy {
                 return;
             }
         }
-        
-        
         String apiKey = cmdOptions.getOptionValue(API_KEY);
         String host = cmdOptions.getOptionValue(HOST);
         String port = cmdOptions.getOptionValue(PORT);
         String apiversion = cmdOptions.getOptionValue(API_VERSION);
-        
-        
-        
     }
 
     /**
@@ -274,9 +265,7 @@ public class LoggingProxy {
                             + reqMap.get(paramName) + "\"");
                     i++;
                 }
-                
-                out.write("])" + NL);
-                out.write("checkReturnedValidJson()");// to be a expected json
+                out.write("])");
                 // Close the output stream
                 out.close();
             } catch (Exception e) {// Catch exception if any
@@ -398,44 +387,12 @@ public class LoggingProxy {
 
         writeToFileBuffer("expect(\"\"\"" + strValue + "\"\"\")\n");
     }
-    
-    public final void addExpectWithIgnoredPaths(String json, String flowName,
-            Set<String> ignores) {
-        String strValue = "";
-        try {
-            // Try to format a JSON string if possible.
-            JSONObject jsonObj = new JSONObject(json);
-            strValue = jsonObj.toString(STANDARD_INDENTATION);
-        } catch (Exception e) {
-            // otherwise just use the raw string
-            strValue = json;
-        }
-        if (ignores.isEmpty()) {
-            writeToFileBuffer("expect(\"\"\"" + strValue + "\"\"\")\n");
-        } else {
-            Set<String> paths = ignores;
-            StringBuffer pathList = new StringBuffer("[");
-            String sep = "";
-            for (String path : paths) {
-                pathList.append(sep);
-                pathList.append("\"");
-                pathList.append(path);
-                pathList.append("\"");
-                sep = ",";
-            }
-            pathList.append("]");
-            if (testFileContents.toString().contains("def ignorePathList")) {
-                writeToFileBuffer("ignorePathList = " + pathList + ";\n");
-            } else {
-                writeToFileBuffer("def ignorePathList = " + pathList + ";\n");
-            }
-            writeToFileBuffer("expect(\"\"\"" + strValue
-                    + "\"\"\",ignorePathList)\n");
-        }
-    }
 
+    /**
+     * The method is write the String to a buffer writer. 
+     * @param strValue is the String write to FileBuffer
+     */
     protected void writeToFileBuffer(String strValue) {
-        // TODO Auto-generated method stub
         try{
             Writer writer = getTestFileWriter();
             writer.write(strValue);
