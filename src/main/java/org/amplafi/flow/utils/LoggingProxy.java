@@ -302,7 +302,7 @@ public class LoggingProxy {
      * @return test script file name.
      */
     public String getFileName() {
-        return "loggingProxyTest_testScript.groovy";
+        return cmdOptions.getOptionValue(OUT_FILE);
     }
 
     /**
@@ -379,7 +379,7 @@ public class LoggingProxy {
             // strValue = json;
             try {
                 JSONArray strValueArray = new JSONArray(json);
-                strValue = strValueArray.toString();
+                strValue = strValueArray.toString(STANDARD_INDENTATION);
             } catch (Exception e2) {
                 return;
             }
