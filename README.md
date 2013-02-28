@@ -13,6 +13,7 @@ Server might return following response codes:
  * 200 -- A call finished successfully. A call result (an object, an array, or a string might be returned as response body).
  * 400 -- An error (usually user related) happened on server. Usually means bad request parameters.
  * 401 -- Authorization problem. Usually means you're using invalid API key.
+ * 404 -- Flow not found. Means that the request tried to access a non existent API entry point.
  * 500 -- Server has problems. Contact server developers.
  * 302 -- Redirect. Usually not handled by client, as redirects happen automatically.
 
