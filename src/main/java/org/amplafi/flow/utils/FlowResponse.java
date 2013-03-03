@@ -72,6 +72,8 @@ public class FlowResponse {
     }
     
     public String getErrorMessage() {
+        //TO_PAUL: why you use the vague error explanations? Those are merely http code descriptions.
+        //You should show the error message which is passed back. Read https://github.com/amplafi/amplafi-flow-client#error-response carefully.
         return "Http Status Code " +
                 this.getHttpStatusCode() + "\n" +
                     responseExplanations.get(this.getHttpStatusCode()) + "\n" +
