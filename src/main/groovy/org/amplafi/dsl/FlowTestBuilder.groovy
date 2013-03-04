@@ -229,6 +229,28 @@ public class FlowTestDSL extends DescribeScriptDSL {
         return lastRequestResponse;
     }
 
+
+    /**
+     * Sends a request to the named flow with the specified parameters
+     * @param flowName to call
+     * @param paramsMap key value map of parameters to send.
+     * @return response string
+     */
+    String requestPost(String flowName, Map paramsMap){
+        GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
+        FlowResponse response = request.post();
+		lastRequestResponse = response.getResponseAsString() ;
+		
+        debug(lastRequestResponse);
+		if (response.hasError()){
+            getLog().error(response.getErrorMessage());
+        } else {
+			getLog().info(response.getResponseAsString());		
+		}
+        
+        return lastRequestResponse;
+    }
+
     /**
      * Sends a request to the named flow with the specified parameters
      * @param flowName to call
@@ -427,7 +449,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
         if (requestUriString != null){
             return requestUriString;
         } else {
-            return this.host + ":" + this.port + "/c/" + this.key   + "/" + this.apiVersion;
+			def postKeySep = "";
+			if ( this.key != null && this.key != ""){
+				postKeySep = "/";
+			}
+            return this.host + ":" + this.port + "/c/" + this.key   + "${postKeySep}" + this.apiVersion;
         }
     }
 
@@ -545,7 +571,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param doNow is the request in script
      * @param handleRequest is the handle method when recieved a request
      */
-    public void openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
+    public def openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
         def monitor = new Object();
         server = getServer(portNo);
         server.setGracefulShutdown(1000);
@@ -571,11 +597,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
             }
             
             server.doStop();
+			
         } catch(InterruptedException ie) {
             ie.printStackTrace();
         } finally {
             server.doStop();
         }
+		return myHandler.handlerReturn;
     }
 
     /**
@@ -586,6 +614,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
         def monitor;
         def received = false;
         def handlerError;
+		def handlerReturn;
 
         /**
          * The method is constructor of the class.
@@ -616,7 +645,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
             ((Request) request).setHandled(true);
             handleRequest.delegate = this;
             try{
-                handleRequest(request,response);
+                handlerReturn = handleRequest(request,response);
             }catch(Exception e){
                 handlerError = e;
             } finally {
@@ -748,6 +777,13 @@ public class DescribeScriptDSL {
         throw new EarlyExitException(scriptDescription);
      }
 
+	/**
+	 * send a post request
+	 */
+	String requestPost(String flowName, Map paramsMap){
+        throw new NoDescriptionException();	
+	}
+
     /**
      * Sends a request to the named flow with the specified parameters.
      * @param flowName to call
@@ -802,7 +838,7 @@ public class DescribeScriptDSL {
         throw new NoDescriptionException();
     }
 
-    public void openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
+    public def openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
         
     }
     /**

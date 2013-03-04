@@ -3,6 +3,7 @@ package org.amplafi.flow.utils;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -41,10 +42,14 @@ public class UtilParent {
      */
     public String getRelativePath(String filePath) {
         String relativePath = filePath;
-        String currentPath = System.getProperty("user.dir");
-        if (filePath.contains(currentPath)) {
-            relativePath = filePath.substring(currentPath.length());
-        }
+		try {
+			String currentPath = new File(".").getCanonicalPath();
+			if (filePath.contains(currentPath)) {
+				relativePath = filePath.substring(currentPath.length());
+			}
+		} catch (Exception e){
+			// Do nothing
+		}
         return relativePath;
     }
 

@@ -15,7 +15,10 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -31,6 +34,7 @@ public class GeneralFlowRequest {
     private String flowName;
     private String queryString;
     private HttpClient httpClient;
+	private Collection<NameValuePair> parameters;
 
     /**
      * @param requestUri is expected to have everything accept the queryString
@@ -50,6 +54,7 @@ public class GeneralFlowRequest {
         this.requestUri = requestUri;
         this.flowName = flowName;
         queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");
+		this.parameters = parameters;
     }
 
     /**
@@ -97,6 +102,21 @@ public class GeneralFlowRequest {
         }
         return output;
     }
+	
+	/**
+	 * Send post request 
+	 */
+	public FlowResponse post() throws IOException, ClientProtocolException {
+        HttpClient client = getHttpClient();
+        String requestString = getRequestString();
+        HttpPost request = new HttpPost(getFullUri());
+		
+		request.setEntity(new UrlEncodedFormEntity(parameters));
+		
+        FlowResponse response = new FlowResponse(client.execute(request));
+        return response;	
+	}
+	
 
     public FlowResponse sendRequest() throws IOException, ClientProtocolException {
         HttpClient client = getHttpClient();
