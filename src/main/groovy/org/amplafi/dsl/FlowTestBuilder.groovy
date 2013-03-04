@@ -239,6 +239,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
         GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
         FlowResponse response = request.sendRequest();
         lastRequestResponse = response.getResponseAsString() ;
+
+        if (response.hasError()){
+            getLog().error(response.getErrorMessage());
+        }
+        
         return response ;
     }
 

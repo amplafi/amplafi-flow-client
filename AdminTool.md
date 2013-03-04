@@ -117,7 +117,7 @@ Any script placed here will be loaded on startup.
     // print the result
     println "The lookup key in the first row of the response is: <<" + row1LookupKey + ">>"
 
-
+// Document pretty printing
 
 ### DSL Function Reference ###
 
@@ -158,6 +158,7 @@ openPort script like blow:
 description "openPort", "Open port"
 
 println("Call open port");
+
 openPort(9090, 20,{ println("In do now") },
 { request ->
 
@@ -221,7 +222,7 @@ Then user can use param1 and param2 in script.
 When param optional is true and user does not set the param value, script use the default value.
 
 
-### automatic generation of parameter usage doc from description ###
+### Automatic generation of parameter usage doc from description ###
 
 description method in dsl:
 /**

@@ -50,6 +50,7 @@
 </map_styles>
 </hook>
 <node TEXT="DSL Improvements" POSITION="right" ID="ID_50910786" CREATED="1361329331847" MODIFIED="1361329367483">
+<node TEXT="ParamValidation" ID="ID_1886287531" CREATED="1362102527768" MODIFIED="1362102533790">
 <node TEXT="parameter specification in description line" ID="ID_1363999908" CREATED="1361330033118" MODIFIED="1361343382291" BACKGROUND_COLOR="#ff9c9c">
 <node TEXT="param name" ID="ID_705651292" CREATED="1361330048206" MODIFIED="1361330054703"/>
 <node TEXT="param description" ID="ID_1532211834" CREATED="1361330055790" MODIFIED="1361330359634"/>
@@ -58,6 +59,13 @@
 </node>
 <node TEXT="automatic parameter validation and default value setup from parameter specification" ID="ID_1624639717" CREATED="1361330379595" MODIFIED="1361343382301" BACKGROUND_COLOR="#ff9c9c"/>
 <node TEXT="automatic generation of parameter usage doc from description" ID="ID_1094814574" CREATED="1361330434930" MODIFIED="1361343382314" BACKGROUND_COLOR="#ff9c9c"/>
+<node TEXT="Bugs" ID="ID_1652879890" CREATED="1362102544003" MODIFIED="1362102549225">
+<node TEXT="Mandatory parameters should not have default values. Maybe call it an example value instead." ID="ID_780639421" CREATED="1362102550269" MODIFIED="1362102626268"/>
+</node>
+</node>
+<node TEXT="add improved openPort method that behaves like request." ID="ID_670150402" CREATED="1362101938187" MODIFIED="1362101975420">
+<node TEXT="e.g. requestAsync(&quot;FlowName&quot;,[&quot;param1&quot;:&quot;param2&quot;...etc]) returns ??? not sure would be nice if was JSON object but it might be an httpRequest object." ID="ID_991117320" CREATED="1362101980548" MODIFIED="1362102086292"/>
+</node>
 </node>
 <node TEXT="Testing Server" POSITION="right" ID="ID_1282514577" CREATED="1361329378380" MODIFIED="1361329391908">
 <node TEXT="Security Testing" ID="ID_1056914958" CREATED="1361329392973" MODIFIED="1361329417589"/>
@@ -92,6 +100,13 @@
 <node TEXT="Testing Admin Tool And DSL" POSITION="left" ID="ID_1850217554" CREATED="1361329344880" MODIFIED="1361329357992">
 <node TEXT="Unit Tests For FlowTestDSL" ID="ID_775525918" CREATED="1361329511105" MODIFIED="1361329542868"/>
 <node TEXT="Test harness for testing DSL scripts e.g. mocking calls to server and simulating responses." ID="ID_1464996551" CREATED="1361329549896" MODIFIED="1361342864931" BACKGROUND_COLOR="#ff9c9c"/>
+<node TEXT="Should Print Server Response on Error" ID="ID_425100561" CREATED="1362101783193" MODIFIED="1362101812888">
+<node TEXT="Response Handling" ID="ID_1317043521" CREATED="1362102324797" MODIFIED="1362102333275">
+<node TEXT="Print out the returned message and the associated explanation from Kostya&apos;s Readme.md" ID="ID_1482239241" CREATED="1362102348927" MODIFIED="1362102412141"/>
+</node>
+</node>
+<node TEXT="If you miss the protocol it should default to http." ID="ID_1029895252" CREATED="1362101813764" MODIFIED="1362101837129"/>
+<node TEXT="If you get a parameter wrong it should print the usage." ID="ID_542250780" CREATED="1362101843908" MODIFIED="1362101861899"/>
 </node>
 <node TEXT="Monitoring Server" POSITION="left" ID="ID_1941888742" CREATED="1361329447976" MODIFIED="1361329454933">
 <node TEXT="Monitoring Proxy" ID="ID_1299937294" CREATED="1361329608097" MODIFIED="1361329615824">
