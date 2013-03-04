@@ -3,7 +3,7 @@
 The amplafi flow client is a tool for sending http requests to a farreach.es API server.
 During development it is normal to use a local server running on port 8080 and to edit your hosts file so that sandbox.farreach.es is mapped to 127.0.0.1.
 
-To make any API calls you will need an API key. This will be generated the first time the wordpress plugin connects to the server. So you will need to install wordpress and the farreaches-wp-plugin to do this. 
+To make any API calls you will need an API key. This will be generated the first time the wordpress plugin connects to the server. So you will need to install wordpress and the farreaches-wp-plugin to do this.
 To do that should follow the instructions at https://github.com/farreaches/farreaches-wp-plugin
 
 ## API response parsing
@@ -27,7 +27,7 @@ containing detailed problem description. For example:
 
 ###Success response
 Success response is always indicated by 200 HTTP status code (eventually we can start using 201, 202 and other OK-codes, this will be mirrored in the documentation).
-Success response body might be either empty or contain string, array or object. You have to refer to API documentation to figure out what you're to expect. All flows 
+Success response body might be either empty or contain string, array or object. You have to refer to API documentation to figure out what you're to expect. All flows
 that have their name end with '*List' are guaranteed to return an array upon success. Flows without 'List' suffix in their name may return either string or json object as response body.
 
 ## Run Server ##
@@ -38,101 +38,68 @@ Setting up the wire serve using just the plugin downloaded from farreach.es on w
 
 1) Edit your hosts file to contain the following:
 
-    127.0.0.1    sandbox.farreach.es    
-    # The wordpress blog domain    
+    127.0.0.1    sandbox.farreach.es
+    # The wordpress blog domain
     127.0.0.1    example.com
-  
-2) First we downloaded and installed Bitname Wordpress - Make a note of the bitname stack password
-  
-3) Downloaded the plugin from farreach.es
-  
-4) Unzip the plugin file and in the fareaches-wp.php file edit the API host and port to be the folowing:
 
-    define('FARREACHES_API_HOST', 'sandbox.farreach.es');       
-    define('FARREACHES_API_PORT', '8080');
-
-5) Install the plugin (following the instructions on farreach.es )
-
-6) In a folder <baseFolder> on our local machine checked out (git clone):
-		amplafi-flow-client
-		amplafi-opensource-parent
-		amplafi-json
-		farreaches-wp-plugin
-		amplafi-tools
-		
-7) in amplafi-tools run "ant validate-tools-opensource"
-
-Also note that our development PC already had a MySQL database installed for other projects and we decided to use that as the DB for the wireserver. 
-The result here was that we ended up with to mysql instances (a bitnami one for worpress and a default one)
-We ran the bitnami db on port 3308 and the default one 3306, see below
-
-**********
-TODO TO_PAUL TO_DAISY: 
-    Do we really need the plugin setup steps now? 
-    
-    Can't we have the tool get its own key now???
-    
-**********
-
-8) In <baseFolder>/farreaches-wp-plugin we copied the build.local.properties.example to build.local.properties
+2) In <baseFolder>/farreaches-wp-plugin we copied the build.local.properties.example to build.local.properties
 It ended up with the following contents (note fields you need to change are marked like this <your-field-here> ):
 
-    # Remove quotes around path for Linux:   
-    wordpress-user user   
-    wordpress-password 123  
-    wordpress-dir="C:/xampp/htdocs/wordpress"  
-    wordpress-db=wordpress  
-    wordpress-dbuser=root  
-    wordpress-dbpassword=admin  
-    wordpress-dbhost=localhost:/tmp/mysql.sock  
-    
-    # if above fails then try this:   
+    # Remove quotes around path for Linux:
+    wordpress-user user
+    wordpress-password 123
+    wordpress-dir="C:/xampp/htdocs/wordpress"
+    wordpress-db=wordpress
+    wordpress-dbuser=root
+    wordpress-dbpassword=admin
+    wordpress-dbhost=localhost:/tmp/mysql.sock
+
+    # if above fails then try this:
     wordpress-dbhost=localhost:3306
-    
-    #For automated testing  
-    wordpress-test-db=wp_test  
-    wordpress-test-dbuser=wp_test_user  
-    wordpress-test-dbpassword=(enter your own value)  
+
+    #For automated testing
+    wordpress-test-db=wp_test
+    wordpress-test-dbuser=wp_test_user
+    wordpress-test-dbpassword=(enter your own value)
     wordpress-test-dbhost=localhost:/tmp/mysql.sock
-    
-    # if above fails then try this:  
-    #wordpress-test-dbhost=localhost:3306  
-    wordpress-test-domain=example.org  
-    wordpress-test-email=admin@example.org  
-    wordpress-test-title=Test_Blog  
+
+    # if above fails then try this:
+    #wordpress-test-dbhost=localhost:3306
+    wordpress-test-domain=example.org
+    wordpress-test-email=admin@example.org
+    wordpress-test-title=Test_Blog
     wordpress-test-abspath=
-    
-    # make sure there are no trailing spaces!  
-    # changelog-init is a build.xml property, changelog-initial.sql is an sql file  
-    mysql-home=/C:/Program Files/MySQL/MySQL Server 5.0  
-    amplafi-mysql-username=root  
-    amplafi-mysql-password=admin  
+
+    # make sure there are no trailing spaces!
+    # changelog-init is a build.xml property, changelog-initial.sql is an sql file
+    mysql-home=/C:/Program Files/MySQL/MySQL Server 5.0
+    amplafi-mysql-username=root
+    amplafi-mysql-password=admin
     farreaches-host=sandbox.farreach.es
-    
-    #Items below need changing  
-    farreaches-port=8080  
-    mysql-root-user=root  
-    mysql-root-password=admin  
+
+    #Items below need changing
+    farreaches-port=8080
+    mysql-root-user=root
+    mysql-root-password=admin
     amplafi-dropbox-folder=D:/Dropbox2/server-config
-    
 
-9) in <baseFolder>/farreaches-wp-plugin run: ant server-init
 
-10) in <baseFolder>/farreaches-wp-plugin run:  ant server-run
+3) in <baseFolder>/farreaches-wp-plugin run: ant server-init
 
-11) In wordpress admin dashboard activate the "Social Marketing Management Center" plugin
+4) in <baseFolder>/farreaches-wp-plugin run:  ant server-run
 
-12) under the Farreach.es menu click "Activate Confirm"
-you should be able to see some activity in the wireserivce command line window. (from step 9)
 
-13) When activation is complete, then open the bitname phpmyadmin page at 
-http://127.0.0.1/phpmyadmin
-enter username root
-password <the password youset in step 2.>
+5) Obtain a new API key from the server using
+./FAdmin.sh GetApiKey
 
-In  bitnami_wordpress database  table wp_usermeta find the value associated with key  _farreaches.api_key
+you may be prompted for server address, port etc. Choose
+sandbox.farreach.es
+8080
+If you are prompted for an api key then just enter nothing as it is not needed for this operation.
 
-You will need this for connecting to the wire server with the client. 
+
+
+You will need this for connecting to the wire server with the client.
 
 For eaxmple it may look like this:
 "ampcb_4497cfdb0503811e85f7eaf63533a2bf9a0e8f68154dab6f060b4a0dd4688674"
@@ -143,15 +110,15 @@ For eaxmple it may look like this:
         <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
     ...
-    ...        
-		
+    ...
+
                     <systemPropertyVariables>
     ...
     ...
                         <key> ... </key>
-						
-15) Next run: mvn test
-				
+
+6) Next run: mvn test
+
 When this is finished, the key that you need will be visible in the diagnostics screen for the plugin (It is a long hex string like this: ampcb_0cf02bdcd1218c9f5556b632640749a53946923cb26d0e90d2b9cf2300280497).
 
 ## Running the flow client shell ##
@@ -159,7 +126,7 @@ Prerequisites:
 a)amplafi-opensource-parent is required and the directory is same as amplafi-flow-client
 b)amplafi-json needs to be downloaded and installed
 
-To build: 
+To build:
 
     mvn package
 
@@ -205,7 +172,7 @@ You can also create a script file and run the script. A sample script:
     println AvailableCategoriesFlow
     flow --name=AvailableCategoriesFlow
 
-    println MessageEndPointListFlow 
+    println MessageEndPointListFlow
     flow --name=MessageEndPointListFlow --messageEndPointCompleteList=true
 
     exit
@@ -219,7 +186,7 @@ Prerequisites:
 a)amplafi-opensource-parent is required and the directory is same as amplafi-flow-client
 b)amplafi-json needs to be downloaded and installed
 
-Run: 
+Run:
 
     mvn package
 
@@ -237,32 +204,32 @@ target/amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar
 ### To call a flow ###
 
      java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -   apiv apiv1 -flow <flowname> -D<param_name>=<value> D<param_name>=<value> ...
- 
+
 ## Running Tests ##
- 
+
 Tests need to be run against a live instance of the farreaches API server.
 This can be run from the farreaches-wp-plugin project (see above) with the ant target server-run
- 
-To run tests simply run: 
- 
+
+To run tests simply run:
+
     mvn test
- 
+
 However if no tests are run you should check for test exclusions in the pom.xml under:
 
     <plugin>
-	    <artifactId>maven-surefire-plugin</artifactId>
-	         <configuration>
-					    <excludes>
+        <artifactId>maven-surefire-plugin</artifactId>
+             <configuration>
+                        <excludes>
      ...
- 
- 
+
+
  To run the tests against the local sandbox server you will need to configure the sanbox details in the test configuration section of the pom.xml, here:
- 
+
      <systemPropertyVariables>
-        <!-- place your API key here -->		                    
+        <!-- place your API key here -->
         <key>ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e</key>
         <host>http://sandbox.farreach.es</host>
-        <port>8080</port>                         
+        <port>8080</port>
      </systemPropertyVariables>
 
 ## Ignored Flows ##
@@ -273,7 +240,7 @@ So it is possible to configure the tests to ignore certain flows.
 Simply list them in comma separated form in the ignoreFlows system property which can be configured for tests in the pom.xml like this.
 
     <systemPropertyVariables>
-        <!-- List the flows that you want to ignore here  -->		                                     
+        <!-- List the flows that you want to ignore here  -->
         <ignoreFlows>PermanentApiKey,CategoriesList,GetWordpressPlugin,GetWordpressPluginInfo</ignoreFlows>
 
 
@@ -282,9 +249,9 @@ A testing Domain Specific Language (DSL) has been added to the project. This is 
 
 __________________________________________________________________________
 
-    request('HelloFlow',['param1':'dog','param2':'cat']); 
+    request('HelloFlow',['param1':'dog','param2':'cat']);
     expect("""
-    {	"validationErrors":{
+    {   "validationErrors":{
          "flow-result":{
             "flowValidationTracking":[
                {
@@ -307,11 +274,11 @@ __________________________________________________________________________
 
 That is it!
 
-request() sends an http request immediately to the specified flow with the specified parameters. 
+request() sends an http request immediately to the specified flow with the specified parameters.
 
 expect() verifies the logical content of the last response. i.e. object comparison not just string comparison.
 
-Many flow responses have random elements. There is currently a method in the DSL checkReturnedValidJson() Which fails if the return is not valid JSON. 
+Many flow responses have random elements. There is currently a method in the DSL checkReturnedValidJson() Which fails if the return is not valid JSON.
 
 The scripts are technically just a snippet of Groovy, so any groovy code and almost any Java code can also be included if needed. For example you are welcome to import other classes and use them in your test script. Sticking to Java syntax is normally fine, but groovy offers some shortcuts; for example the three double quote delimiter (""") , used above, is a multi-line string which can be very convenient for containing formatted JSON data etc.
 
@@ -320,7 +287,7 @@ The scripts are technically just a snippet of Groovy, so any groovy code and alm
 A test generator class has been added. This is a command line tool that will interrogate the server for available flows and generate DSL tests according to specific strategies. You can run it like this.
 
     java -DignoreFlows="PermanentApiKey,CategoriesList" -cp amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies org.amplafi.flow.utils.DSLTestGenerator  -key ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -strategy BogusString -out ./out/
-    
+
 Options are:
 
      -apiv <arg>           API version
@@ -343,7 +310,7 @@ The concept of a testing strategy has been added. Testing strategies are subclas
     * @author paul
     */
     public class BogusStringDataStrategy extends AbstractTestingStrategy {
-         
+
         private static final String NAME = "BogusStringData";
         /**
          * @return the name of this strategy
@@ -361,7 +328,7 @@ The concept of a testing strategy has been added. Testing strategies are subclas
                }
                return bogusDataList;
         }
-         
+
         @Override
         public void addVerification(String typicalResponse){
          writeToFileBuffer("checkReturnedValidJson()");
@@ -371,14 +338,14 @@ New testing strategies must be registered in the TestingStrategiesEnum.java so t
 
 It is easy to create more strategies to test different forms of corrupt data and more intelligent tests.
 
-Test file names are generated with the name format number_Strategy_FlowName.groovy 
+Test file names are generated with the name format number_Strategy_FlowName.groovy
 
 e.g. 0062BogusStringData_BroadcastTopicMessageEndPoints.groovy
 
 5) A TestRunner has been added. This will run all tests under src/test/resources/testscripts/**
 
-This is run from a TestNG unit test called (TestDSLScriptsBatchRunner.java) that locates the test scripts in that path and returns them from a DataProvider. This allows each test to be run individually with separate test reports. Tests are run in name sort order which is why they are created with a numerical prefix. 
- 
+This is run from a TestNG unit test called (TestDSLScriptsBatchRunner.java) that locates the test scripts in that path and returns them from a DataProvider. This allows each test to be run individually with separate test reports. Tests are run in name sort order which is why they are created with a numerical prefix.
+
 ## Plan ##
 
 I plan to implement wildcards in the expect string so that unpredictable return fields can be tested gracefully.
@@ -386,14 +353,14 @@ I plan to implement wildcards in the expect string so that unpredictable return 
 I also plan to implement the following testing strategies:
 
 CorruptParamsNameTestingStrategy,
-RandomMissingParamsTestingStrategy, 
-IncorrectEncodingTestingStrategy, 
+RandomMissingParamsTestingStrategy,
+IncorrectEncodingTestingStrategy,
 ge
 
 ========================================================================================
- 
+
 ## Suspected Errors ##
-    
+
 Flow  PermanentApiKey returns :
 (org.amplafi.flow.TestFlowTypesSandBox): Flow definition not valid JSON, JSON Error: Expected a ',' or '}' but was '{' at character 88 of {errorMessage: 'Failed to render flow state. Cause: A JSONObject text must begin with '{' but was 'b' at character 1 of bogusData'}
 
@@ -412,42 +379,42 @@ Note valid API key used.
 Returns:
 
 javax.servlet.ServletException: java.lang.reflect.UndeclaredThrowableException
-	com.amplafi.web.services.AmplafiWebRequestServicerPipelineBridge.service(AmplafiWebRequestServicerPipelineBridge.java:44)
-	$ServletRequestServicer_13b2f97e4e8.service($ServletRequestServicer_13b2f97e4e8.java)
-	org.apache.tapestry.request.DecodedRequestInjector.service(DecodedRequestInjector.java:55)
+    com.amplafi.web.services.AmplafiWebRequestServicerPipelineBridge.service(AmplafiWebRequestServicerPipelineBridge.java:44)
+    $ServletRequestServicer_13b2f97e4e8.service($ServletRequestServicer_13b2f97e4e8.java)
+    org.apache.tapestry.request.DecodedRequestInjector.service(DecodedRequestInjector.java:55)
 ...
-	com.amplafi.web.servlet.DisableSessionIdsInUrlFilter.doFilter(DisableSessionIdsInUrlFilter.java:61)
-	com.amplafi.web.servlet.LogoutFilter.doFilter(LogoutFilter.java:34)
-	com.amplafi.web.servlet.PerformanceLoggingFilter.doFilter(PerformanceLoggingFilter.java:59)
+    com.amplafi.web.servlet.DisableSessionIdsInUrlFilter.doFilter(DisableSessionIdsInUrlFilter.java:61)
+    com.amplafi.web.servlet.LogoutFilter.doFilter(LogoutFilter.java:34)
+    com.amplafi.web.servlet.PerformanceLoggingFilter.doFilter(PerformanceLoggingFilter.java:59)
 root cause
 ...
 ...
 root cause
 
 org.hibernate.TransientObjectException: object references an unsaved transient instance - save the transient instance before flushing: com.amplafi.core.messagehandling.BroadcastTopic
-	org.hibernate.engine.ForeignKeys.getEntityIdentifierIfNotUnsaved(ForeignKeys.java:242)
-	org.hibernate.type.EntityType.getIdentifier(EntityType.java:430)
-	org.hibernate.type.ManyToOneType.isDirty(ManyToOneType.java:265)
+    org.hibernate.engine.ForeignKeys.getEntityIdentifierIfNotUnsaved(ForeignKeys.java:242)
+    org.hibernate.type.EntityType.getIdentifier(EntityType.java:430)
+    org.hibernate.type.ManyToOneType.isDirty(ManyToOneType.java:265)
 ...
 ...
-	nUrlFilter.java:61)
-	com.amplafi.web.servlet.LogoutFilter.doFilter(LogoutFilter.java:34)
-	com.amplafi.web.servlet.PerformanceLoggingFilter.doFilter(PerformanceLoggingFilter.java:59)
- 
- 
- 
+    nUrlFilter.java:61)
+    com.amplafi.web.servlet.LogoutFilter.doFilter(LogoutFilter.java:34)
+    com.amplafi.web.servlet.PerformanceLoggingFilter.doFilter(PerformanceLoggingFilter.java:59)
+
+
+
  ------------------------------------------
- 
+
  0063BogusStringData_VerifyUrlOwnership.groovy
- Fails with 
+ Fails with
   java.lang.AssertionError: Invalid JSON returned: {errorMessage: 'Failed to render flow state. Cause: A JSONObject text must begin with '{' but was 'b' at character 1 of bogusData'}
-	at org.testng.Assert.fail(Assert.java:94)
- 
- 
- 
- 
- 
- 
+    at org.testng.Assert.fail(Assert.java:94)
+
+
+
+
+
+
 ---------------------------------
 ### Finally ###
 
@@ -486,7 +453,7 @@ testLoadAndRunOneScript (/home/paul/Projects/Amplafai/development/flow-client/am
 testLoadAndRunOneScript (/home/paul/Projects/Amplafai/development/flow-client/amplafi-flow-client/src/test/resources/testscripts/gen/0005BogusStringData_EnterVerificationCode.groovy)
 
  java.lang.AssertionError: Invalid JSON returned: <html><head><title>Apache Tomcat/7.0.30 - Error report</title><style><!--H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} H2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} H3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} B {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} P {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;}A {color : black;}A.name {color : black;}HR {color : #525D76;}--></style> </head><body><h1>HTTP Status 500 - </h1><HR size="1" noshade="noshade"><p><b>type</b> Status report</p><p><b>message</b> <u></u></p><p><b>description</b> <u>The server encountered an internal error that prevented it from fulfilling this request.</u></p><HR size="1" noshade="noshade"><h3>Apache Tomcat/7.0.30</h3></body></html>
-	at org.testng.Assert.fail(Assert.java:94)
+    at org.testng.Assert.fail(Assert.java:94)
 
 
 
@@ -501,15 +468,15 @@ convert log messages to log4j
 make stacks more beatiful
 
 test scenario (Deadline )
-	test client trigger reset apis keys method on server 
-	use sql to find new api key. 
-	
+    test client trigger reset apis keys method on server
+    use sql to find new api key.
+
 Priority 1: given a key that represents Super user (Deadline before end Dec.)
-	admin is farrechs super user 
-	su (act as other user) 
+    admin is farrechs super user
+    su (act as other user)
 
 
-Finally, every time on server startup Identified (readonly) keys are created for the users associated with the amplafi account ( BroadcastProvider id =1 in the providers table ) 
+Finally, every time on server startup Identified (readonly) keys are created for the users associated with the amplafi account ( BroadcastProvider id =1 in the providers table )
 
 This means that:
 wireservice starts up
