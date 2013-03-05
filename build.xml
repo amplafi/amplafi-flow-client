@@ -34,7 +34,7 @@
 
     <target name="LoadTool" depends="input-runargs" description="run the load tool use -Dargs='' for help">
         <!-- You can use exec here, depending on your needs -->
-        <java classname="org.amplafi.flow.utils.LoadTool" >
+        <java classname="org.amplafi.flow.utils.LoadTool" fork="true" clonevm="true" output="loadReport.txt" >
             <arg line="${args}"/>
             <classpath>
                 <pathelement location="${jar-name}"/>
@@ -62,9 +62,9 @@
         </java>
     </target>
 
-    <target name="GenerateAPIKey" depends="input-runargs" description="run admin tool GetApiKey script generator can set -Dcallback.host=''  for help">
+    <target name="GenerateAPIKey"  description="run admin tool GetApiKey script generator can set -Dcallback.host=''  for help">
        <property name="callback.host" value="" />
-       <antcall target="run-client">
+       <antcall target="FAdmin">
                <param name="args" value="GetApiKey ${callback.host}" />
        </antcall>
     </target>
@@ -72,7 +72,7 @@
 
     <target name="input-runargs" unless="args" description="prompts for command line arguments if necessary">
       <!-- Show usage -->
-      <input addProperty="args" message="Type the desired command line arguments:"/>
+      <input addProperty="args" message="Type the desired command line arguments (next time use -Dargs=...) "/>
     </target>
 
 
