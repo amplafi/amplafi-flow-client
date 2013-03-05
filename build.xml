@@ -1,70 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="amplafi-flow-client" default="run-local">
-	<dirname property="root-dir" file="." />
+    <dirname property="root-dir" file="." />
 
-	<property file="build.properties" />
-	<property name="tools-dir" value="${root-dir}/amplafi-tools" />
-	<property name="jar-descriptor-ref" value="jar-with-dependencies" />
+    <property file="build.properties" />
+    <property name="tools-dir" value="${root-dir}/amplafi-tools" />
+    <property name="jar-descriptor-ref" value="jar-with-dependencies" />
 
-	<taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${tools-dir}/ant-contrib-${ant-contrib-build}/ant-contrib-${ant-contrib-build}.jar" onerror="fail"/>
+    <property name="jar-name" value="${root-dir}/amplafi-flow-client/target/amplafi-flow-client-${flow-client.version}-${jar-descriptor-ref}.jar" />
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${tools-dir}/ant-contrib-${ant-contrib-build}/ant-contrib-${ant-contrib-build}.jar" onerror="fail"/>
 
     <!-- TO_HARIS : what should I set test.switches to? -->
     <!--      [echo] Executing java -jar /Users/patmoore/farreaches/amplafi-flow-client/target/amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar      -host=http://sandbox.farreach.es -port=8080 -apiv=apiv1 -flow=EnvelopeStatusesFlow -key=ampcb_d04ebc9378f32134a6d12532980a0adb36866f1baffc2acef8042e111d2aab0a  ${test.switches}
      [exec] /bin/sh: ${test.switches}: bad substitution -->
     <!-- give examples -->
-	<target name="run-client" description="Runs the CommandLineClient with options provided in build.properties.">
-		<ant dir="${tools-dir}" target="_exec">
-			<property name="_full-path-to-exec" value="java" />
-			<property name="_arg-line" value="-jar ${root-dir}/amplafi-flow-client/target/amplafi-flow-client-${flow-client.version}-${jar-descriptor-ref}.jar 
-				-host=http://${host} -port=${port} -apiv=${apiv} -flow=${flow} -key=${key} ${query.params} ${switches}" />
-		</ant>
-	</target>
+    <target name="run-client" description="Deprecated: Runs the old CommandLineClient with options provided in build.properties.">
+        <ant dir="${tools-dir}" target="_exec">
+            <property name="_full-path-to-exec" value="java" />
+            <property name="_arg-line" value="-jar ${root-dir}/amplafi-flow-client/target/amplafi-flow-client-${flow-client.version}-${jar-descriptor-ref}.jar
+                -host=http://${host} -port=${port} -apiv=${apiv} -flow=${flow} -key=${key} ${query.params} ${switches}" />
+        </ant>
+    </target>
 
-	<target name="run-local" description="Run test setup prefixed with test (i.e. using test.port, test.apiv etc.). Send the request to local server installation.">
-		<antcall target="run-client">
-			<param name="host" value="sandbox.farreach.es" />
-			<param name="port" value="${test.port}" />
-			<param name="apiv" value="${test.apiv}" />
-			<param name="flow" value="${test.flow}" />
-			<param name="key" value="${test.key}" />
-			<param name="query.params" value="${test.query.params}" />
-			<param name="switches" value="${test.switches}" />
-		</antcall>
-	</target>
+    <target name="FAdmin" depends="input-runargs" description="run the admin tool use -Dargs='' for help -Dargs='-help [script-name]' for script usage or -Dargs='-l' to list scripts">
+        <!-- You can use exec here, depending on your needs -->
+        <java classname="org.amplafi.flow.utils.AdminTool" >
+            <arg line="${args}"/>
+            <classpath>
+                <pathelement location="${jar-name}"/>
+            </classpath>
+        </java>
+    </target>
 
-	<target name="run-remote" description="Run test setup prefixed with test (i.e. using test.host, test.port etc.).">
-		<antcall target="run-client">
-			<antcall target="run-client">
-				<param name="host" value="${test.host}" />
-				<param name="port" value="${test.port}" />
-				<param name="apiv" value="${test.apiv}" />
-				<param name="flow" value="${test.flow}" />
-				<param name="key" value="${test.key}" />
-				<param name="query.params" value="${test.query.params}" />
-				<param name="switches" value="${test.switches}" />
-			</antcall>
-		</antcall>
-	</target>
+    <target name="LoadTool" depends="input-runargs" description="run the load tool use -Dargs='' for help">
+        <!-- You can use exec here, depending on your needs -->
+        <java classname="org.amplafi.flow.utils.LoadTool" >
+            <arg line="${args}"/>
+            <classpath>
+                <pathelement location="${jar-name}"/>
+            </classpath>
+        </java>
+    </target>
 
-	<!--
-		Run test setups as defined in build.properties. 
-		To create a test setup, create a set of properties for it, preceded by test.setup.<somenumber>, as in the examples in build.properties.
-	-->
-	<target name="run-tests" description="Run test setups as defined in build.properties.">
-		<propertyselector property="test.setup.list" delimiter="," match="test\.setup\.([1-9]*)" select="\0" casesensitive="false" distinct="true" />
+    <target name="Proxy" depends="input-runargs" description="run the logging proxy use -Dargs='' for help">
+        <!-- You can use exec here, depending on your needs -->
+        <java classname="org.amplafi.flow.utils.LoggingProxy" >
+            <arg line="${args}"/>
+            <classpath>
+                <pathelement location="${jar-name}"/>
+            </classpath>
+        </java>
+    </target>
 
-		<for list="${test.setup.list}" param="test.setup">
-			<sequential>
-				<antcall target="run-client">
-					<param name="host" value="${@{test.setup}.host}" />
-					<param name="port" value="${@{test.setup}.port}" />
-					<param name="apiv" value="${@{test.setup}.apiv}" />
-					<param name="flow" value="${@{test.setup}.flow}" />
-					<param name="key" value="${@{test.setup}.key}" />
-					<param name="query.params" value="${@{test.setup}.query.params}" />
-					<param name="switches" value="${@{test.setup}.switches}" />
-				</antcall>
-			</sequential>
-		</for>
-	</target>
+    <target name="TestGen" depends="input-runargs" description="run the test generator use -Dargs='' for help">
+        <!-- You can use exec here, depending on your needs -->
+        <java classname="org.amplafi.flow.utils.DSLTestGenerator" >
+            <arg line="${args}"/>
+            <classpath>
+                <pathelement location="${jar-name}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="GenerateAPIKey" depends="input-runargs" description="run admin tool GetApiKey script generator can set -Dcallback.host=''  for help">
+       <property name="callback.host" value="" />
+       <antcall target="run-client">
+               <param name="args" value="GetApiKey ${callback.host}" />
+       </antcall>
+    </target>
+
+
+    <target name="input-runargs" unless="args" description="prompts for command line arguments if necessary">
+      <!-- Show usage -->
+      <input addProperty="args" message="Type the desired command line arguments:"/>
+    </target>
+
+
+    <target name="run-local" description="Run test setup prefixed with test (i.e. using test.port, test.apiv etc.). Send the request to local server installation.">
+        <antcall target="run-client">
+            <param name="host" value="sandbox.farreach.es" />
+            <param name="port" value="${test.port}" />
+            <param name="apiv" value="${test.apiv}" />
+            <param name="flow" value="${test.flow}" />
+            <param name="key" value="${test.key}" />
+            <param name="query.params" value="${test.query.params}" />
+            <param name="switches" value="${test.switches}" />
+        </antcall>
+    </target>
+
+    <target name="run-remote" description="Run test setup prefixed with test (i.e. using test.host, test.port etc.).">
+        <antcall target="run-client">
+            <antcall target="run-client">
+                <param name="host" value="${test.host}" />
+                <param name="port" value="${test.port}" />
+                <param name="apiv" value="${test.apiv}" />
+                <param name="flow" value="${test.flow}" />
+                <param name="key" value="${test.key}" />
+                <param name="query.params" value="${test.query.params}" />
+                <param name="switches" value="${test.switches}" />
+            </antcall>
+        </antcall>
+    </target>
+
+    <!--
+        Run test setups as defined in build.properties.
+        To create a test setup, create a set of properties for it, preceded by test.setup.<somenumber>, as in the examples in build.properties.
+    -->
+    <target name="run-tests" description="Run test setups as defined in build.properties.">
+        <propertyselector property="test.setup.list" delimiter="," match="test\.setup\.([1-9]*)" select="\0" casesensitive="false" distinct="true" />
+
+        <for list="${test.setup.list}" param="test.setup">
+            <sequential>
+                <antcall target="run-client">
+                    <param name="host" value="${@{test.setup}.host}" />
+                    <param name="port" value="${@{test.setup}.port}" />
+                    <param name="apiv" value="${@{test.setup}.apiv}" />
+                    <param name="flow" value="${@{test.setup}.flow}" />
+                    <param name="key" value="${@{test.setup}.key}" />
+                    <param name="query.params" value="${@{test.setup}.query.params}" />
+                    <param name="switches" value="${@{test.setup}.switches}" />
+                </antcall>
+            </sequential>
+        </for>
+    </target>
 </project>
