@@ -34,7 +34,7 @@
 
     <target name="LoadTool" depends="input-runargs" description="run the load tool use -Dargs='' for help">
         <!-- You can use exec here, depending on your needs -->
-        <java classname="org.amplafi.flow.utils.LoadTool" fork="true" clonevm="true" output="loadReport.txt" >
+        <java classname="org.amplafi.flow.utils.LoadTool" fork="true" >
             <arg line="${args}"/>
             <classpath>
                 <pathelement location="${jar-name}"/>
