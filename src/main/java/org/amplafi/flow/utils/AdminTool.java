@@ -95,12 +95,13 @@ public class AdminTool extends UtilParent {
                     String scriptName = args[i];
                     for (ScriptDescription sd : runner.getGoodScripts()) {
                         if (sd.getName().equals(scriptName)) {
-                            if (sd.getUsage() != null && !sd.getUsage().equals("")) {
+                            printScriptUsage(sd, scriptName);
+                            /**if (sd.getUsage() != null && !sd.getUsage().equals("")) {
                                 emitOutput("Script Usage: " + sd.getUsage());
                             } else {
                                 emitOutput("Script " + scriptName +
                                            " does not have usage information");
-                            }
+                            }*/
                         }
                     }
                 }

@@ -110,9 +110,10 @@ public class TestAdminTool {
     public void testProcessCommandLineHelp() {
         String[] args = { "-help", "testScript2" };
         testHelpAdminTool.processCommandLine(args);
-        String excepted = "Script Usage: usage test";
+        String excepted = "usage test";
         List<String> logMsgList = testHelpAdminTool.getLogMsgList();
         assertEquals(1,logMsgList.size());
+System.err.println("&&&&&&&&&&&&&&&&&7777 " + logMsgList);
         assertTrue(logMsgList.contains(excepted));
     }
 
