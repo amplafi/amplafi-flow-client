@@ -14,6 +14,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.*;
+import org.amplafi.dsl.ParameterValidationException;
+import org.amplafi.dsl.ParameterUsge;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.dsl.ScriptDescription;
 import java.util.Map;
@@ -133,10 +135,11 @@ public class AdminTool extends UtilParent {
             String apiVersion = getOption(cmdOptions, API_VERSION,
                     DEFAULT_API_VERSION);
             String key = getOption(cmdOptions, API_KEY, "");
+            String scriptName = filePath;
             // Check if we are running and ad-hoc script
             if (filePath == null) {
                 if (!remainder.isEmpty()) {
-                    String scriptName = remainder.get(0);
+                    scriptName = remainder.get(0);
                     if (scriptLookup.containsKey(scriptName)) {
                         ScriptDescription sd = scriptLookup.get(scriptName);
                         filePath = sd.getPath();
@@ -153,7 +156,11 @@ public class AdminTool extends UtilParent {
             runner2.setScriptLookup(scriptLookup);
             if (filePath != null) {
                 System.out.println("call loadAndRunOneScript filePath = "+filePath);
-                runner2.loadAndRunOneScript(filePath);
+                try {
+                    runner2.loadAndRunOneScript(filePath);
+                } catch (ParameterValidationException pve) {
+                    printScriptUsage(scriptLookup.get(scriptName),scriptName);
+                }
             } else {
                 getLog().error("No script to run or not found.");
             }
@@ -166,7 +173,26 @@ public class AdminTool extends UtilParent {
         }
     }
 
+    public void printScriptUsage(ScriptDescription sd,String scriptName){
+        if (sd != null && sd.getUsage() != null && !sd.getUsage().equals("")) {
+            //emitOutput("Script Usage: ant AdminTool " + sd.getUsage());
 
+            StringBuffer sb = new StringBuffer();
+            sb.append("Script Usage: ant FAdmin -Dargs=\"" + scriptName);
+
+            if(sd.getUsageList() != null){
+                for (ParameterUsge pu : sd.getUsageList()){
+                    sb.append(" " + pu.getName() + "=<" + pu.getDescription() + "> ");
+                }
+                sb.append("\"");
+                emitOutput(sb.toString());
+            }
+            emitOutput(sd.getUsage());
+
+         } else {
+            emitOutput("Script " + scriptName +" does not have usage information");
+         }
+    }
 
 
 }

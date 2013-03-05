@@ -69,7 +69,6 @@
        </antcall>
     </target>
 
-
     <target name="input-runargs" unless="args" description="prompts for command line arguments if necessary">
       <!-- Show usage -->
       <input addProperty="args" message="Type the desired command line arguments (next time use -Dargs=...) "/>

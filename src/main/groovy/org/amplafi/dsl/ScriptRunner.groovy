@@ -261,7 +261,7 @@ public class ScriptRunner {
                         }else{
                             if(optional == false){
                                 //TODO tell user should input name=<value>
-                                throw new RuntimeException("Parameter " + name + " must be supplied.");
+                                throw new ParameterValidationException("Parameter " + name + " must be supplied.");
                             }else{
                                 if(defaultValue){
                                     paramName = name;
