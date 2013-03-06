@@ -1,0 +1,42 @@
+Most of the failures here are due to the conversion of the flows to a "callback" style.
+
+So instead of directly returning data they now send data to a callback address.
+
+These include:
+
+0011RealisticParams_BroadcastTopicMessageEndPoints.groovy
+0014RealisticParams_CategoryMessages.groovy
+0032RealisticParams_EligibleExternalServiceInstanceMapFlow.groovy
+0048RealisticParams_MessageEndPointCloudDataMapFlow.groovy
+0050RealisticParams_MessagePointEnvelopeRecordsFlow.groovy
+
+
+All of which now return the error:
+{"validation_errors":[{"code":"MissingRequiredTracking","details":["temporaryApiKey"]},{"code":"MissingRequiredTracking","details":["callbackUri"]}]}
+
+
+
+
+Solution:
+
+create new method in DSL
+asyncReqeust(flowName, [params], dataReturnProperty)
+
+This method will automatically add a callbackParam into params. With a callback uri It will then use openPort to call the flow and return the response
+
+def asyncReqeust(flowName, params){
+
+	params["callbackUri"] = "sandbox.farreach.es:1234";
+	def ret = openPort(1234, 2, {request(flowName), params) }, {request, response -> return request.getParameterMap().get(dataReturnProperty) }
+
+}
+
+
+asyncReqeust("CategoriesList", ["configuration":"abc","deleteCategories":"null","originalDeleteCategories":"null","defaultCategory":"null","fsRenderResult":"json"])
+
+
+Then: 
+
+Test genertator should also generate these requests if the flow has a parameter called callbackUri.
+
+

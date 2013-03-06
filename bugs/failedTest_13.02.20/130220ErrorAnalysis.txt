@@ -1,0 +1,102 @@
+Most of the failures here are due to the conversion of the flows to a "callback" style.
+
+So instead of directly returning data they now send data to a callback address.
+
+These include:
+
+
+0001RealisticParams_AccountCalendarInformation.groovy
+0002RealisticParams_AccountContactInformation.groovy
+0003RealisticParams_AccountExternalServiceInformation.groovy
+0004RealisticParams_AccountGeneralInformation.groovy
+0005RealisticParams_AccountLocationInformation.groovy
+0006RealisticParams_AccountMemberInformation.groovy
+0007RealisticParams_ActivateMessageEndPoint.groovy
+0008RealisticParams_ApprovedList.groovy
+0010RealisticParams_BroadcastTopicEntry.groovy
+0013RealisticParams_CategoryFlow.groovy
+0015RealisticParams_ChangePassword.groovy
+0016RealisticParams_ChangeTopicFrequency.groovy
+0017RealisticParams_ClearFlows.groovy
+0018RealisticParams_ConfigureExtServices.groovy
+0019RealisticParams_ConfigureMessagePointCategories.groovy
+0024RealisticParams_CreateMessage.groovy
+0025RealisticParams_CreateRevoke.groovy
+0026RealisticParams_DraftMessages.groovy
+0028RealisticParams_EditUser.groovy
+0030RealisticParams_EligibleDestinationMessageEndPointListFlow.groovy
+0031RealisticParams_EligibleDestinationMessageEndPointListMapFlow.groovy
+0034RealisticParams_EnterVerificationCode.groovy
+0035RealisticParams_EnvelopeStatusesFlow.groovy
+0036RealisticParams_ExternalServicesCredentials.groovy
+0037RealisticParams_FindBroadcastProviderFlow.groovy
+0038RealisticParams_FinishSignUp.groovy
+0039RealisticParams_ForgetMessageEndPoint.groovy
+0040RealisticParams_ForgotPassword.groovy
+0041RealisticParams_GeneralUserSettings.groovy
+0044RealisticParams_InactivateMessageEndPoint.groovy
+0046RealisticParams_Login.groovy
+0047RealisticParams_Logout.groovy
+0049RealisticParams_MessageEndPointListFlow.groovy
+0051RealisticParams_NewTemplate.groovy
+0052RealisticParams_OurInformation.groovy
+0053RealisticParams_PendingList.groovy
+0056RealisticParams_ResetApiKeysFlow.groovy
+
+
+
+All of which now return the error:
+{"validation_errors":[{"code":"MissingRequiredTracking","details":["temporaryApiKey"]},{"code":"MissingRequiredTracking","details":["callbackUri"]}]}
+
+
+
+
+0012RealisticParams_CategoriesList.groovy
+
+Reports error:
+
+... Removed 34 stack frames
+groovy.lang.MissingPropertyException: No such property: ServletRequestServicer_13cb268aa14 
+for class: org.amplafi.dsl.FlowTestDSL at org.codehaus.groovy.runtime.ScriptBytecodeAdapter.unwrap(ScriptBytecodeAdapter.java:50) 
+at org.codehaus.groovy.runtime.callsite.PogoGetPropertySite.getProperty(PogoGetPropertySite.java:49) 
+at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callGroovyObjectGetProperty(AbstractCallSite.java:231) 
+at Script1$_run_closure1.doCall(Script1.groovy:3) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) 
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57) 
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) 
+at java.lang.reflect.Method.invoke(Method.java:601) at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:90)
+
+
+which seems to be a bug in the test Which was expecting a exception/html stack trace.
+Calling this flow now also returns the same error as above.
+
+
+
+
+Solution:
+
+create new method in DSL
+asyncReqeust(flowName, [params], dataReturnProperty)
+
+This method will automatically add a callbackParam into params. With a callback uri It will then use openPort to call the flow and return the response
+
+def asyncReqeust(flowName, params){
+
+	params["callbackUri"] = "sandbox.farreach.es:1234";
+	def ret = openPort(1234, 2, {request(flowName), params) }, {request, response -> return request.getParameterMap().get(dataReturnProperty) } )
+
+
+
+}
+
+
+asyncReqeust("CategoriesList", ["configuration":"abc","deleteCategories":"null","originalDeleteCategories":"null","defaultCategory":"null","fsRenderResult":"json"])
+
+
+
+
+
+Then: 
+
+Test genertator should also generate these requests if the flow has a parameter called callbackUri.
+
+
