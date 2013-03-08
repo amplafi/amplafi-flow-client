@@ -224,11 +224,58 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     String request(String flowName, Map paramsMap){
         GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
-        lastRequestResponse = request.get();
+		FlowResponse response = request.sendRequest();
+		
+        lastRequestResponse = response.getResponseAsString();
         debug(lastRequestResponse);
+		
+		if (response.hasError()){
+            getLog().error(response.getErrorMessage());
+			
+			// TODO decide if we should throw exception here.
+			// will need to change lots of tests and the test generator if we do, but might be much more useful.
+        }
+		
         return lastRequestResponse;
     }
+	
+	/**
+     * The method get the request closure.
+	 * Because the closure can not be created in the asyncRequest method(maybe it is a bug in groovy).
+	 * return closure.
+	 */
+	Closure createRequestClosure(flowName, paramsMap){
+		return {requestResponse(flowName, paramsMap);}
+	}
+	
+	/**
+     * The method get the response closure.
+	 * return closure.
+	 */
+	Closure createResponseClosure(dataReturnProperty){
+		return {request, response -> 
+				return request.getParameterMap().get(dataReturnProperty);};
+	}
+	
+	/**
+     * This method will automatically add a callbackParam into params and send the request. 
+	 * With a callback uri It will then use openPort to call the flow and return the response
+     * @param flowName to call
+     * @param [params] key value map of parameters to send.
+	 * @param dataReturnProperty the property we want to return.
+     * @return response string
+     */
+    String asyncRequest(String flowName, Map<String,String> paramsMap,dataReturnProperty){
+        paramsMap["callbackUri"]="sandbox.farreach.es:1234";
 
+		def requestClosure = createRequestClosure(flowName, paramsMap);					
+
+		def requestHandleClosure = createResponseClosure(dataReturnProperty);
+		
+		def ret = openPort(1234,5, requestClosure,requestHandleClosure,flowName,paramsMap,dataReturnProperty);
+
+		return ret;
+    }
 
     /**
      * Sends a request to the named flow with the specified parameters
@@ -239,13 +286,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
     String requestPost(String flowName, Map paramsMap){
         GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
         FlowResponse response = request.post();
-		lastRequestResponse = response.getResponseAsString() ;
+		lastRequestResponse = response.getResponseAsString();
 		
         debug(lastRequestResponse);
 		if (response.hasError()){
             getLog().error(response.getErrorMessage());
         } else {
-			getLog().info(response.getResponseAsString());		
+			getLog().info(response.getResponseAsString());
 		}
         
         return lastRequestResponse;
@@ -264,6 +311,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
         if (response.hasError()){
             getLog().error(response.getErrorMessage());
+			throw new ServerError(response);
         }
         
         return response ;
@@ -277,7 +325,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     GeneralFlowRequest createGeneralFlowRequest(String flowName, Map paramsMap){
         debug("flowName ${flowName}");
         Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
-        paramsMap.each{ k,v ->
+        paramsMap.each{ k,v ->	
             requestParams.add(new BasicNameValuePair(k, v));
         }
         URI requestUri = URI.create(getRequestString());
@@ -563,8 +611,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
         return server;
         
     }
-    
-    /**
+	
+	 /**
      * The method is to open a port and listens request.
      * @param portNo is port number
      * @param timeOutSeconds is time out seconds
@@ -601,6 +649,48 @@ public class FlowTestDSL extends DescribeScriptDSL {
         } catch(InterruptedException ie) {
             ie.printStackTrace();
         } finally {
+            server.doStop();
+        }
+		return myHandler.handlerReturn;
+    }
+    
+    /**
+     * The method is to open a port and listens request.
+     * @param portNo is port number
+     * @param timeOutSeconds is time out seconds
+     * @param doNow is the request in script
+     * @param handleRequest is the handle method when recieved a request
+     */
+    public def openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest, String flowName, Map<String,String> paramsMap,String dataReturnProperty){
+        def monitor = new Object();
+        server = getServer(portNo);
+        server.setGracefulShutdown(1000);
+        MyHandler myHandler = new MyHandler(handleRequest,monitor);
+        server.setHandler(myHandler);
+        server.start();
+        doNow.delegate = this;
+        
+        //Wait for 10 seconds
+        try{
+            doNow();
+            synchronized (monitor) {
+                monitor.wait(timeOutSeconds * 1000);
+            }
+            
+            if(myHandler.getReceived() == false){
+                server.doStop();
+                fail("Server did not send any request");
+            }
+
+            if(myHandler.getHandlingError() != null){
+                fail("Error Handling Request.", myHandler.getHandlingError());
+            }
+            
+            server.doStop();
+		} catch (Exception e){	
+			server.doStop();	
+			throw e;
+         } finally {
             server.doStop();
         }
 		return myHandler.handlerReturn;
@@ -792,6 +882,18 @@ public class DescribeScriptDSL {
     String request(String flowName, Map paramsMap){
         throw new NoDescriptionException();
     }
+	
+	/**
+     * This method will automatically add a callbackParam into params and send the request. 
+	 * With a callback uri It will then use openPort to call the flow and return the response
+     * @param flowName to call
+     * @param [params] key value map of parameters to send.
+	 * @param dataReturnProperty the property we want to return.
+     * @return response string
+     */
+	String asyncRequest(String flowName, Map paramsMap,dataReturnProperty){
+		throw new NoDescriptionException();
+	}
 
     FlowResponse requestResponse(String flowName, Map paramsMap){
         throw new NoDescriptionException();

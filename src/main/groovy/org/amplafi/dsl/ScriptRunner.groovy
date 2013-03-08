@@ -206,7 +206,7 @@ public class ScriptRunner {
 
         // All the imports are prepended to the first line of the user script so error messages
         // have the correct line number in them
-        def scriptStr = """import org.amplafi.dsl.FlowTestBuilder;import org.amplafi.json.*; ${generateParams} def source = { ${valibleScript} }; return source """;
+        def scriptStr = """import org.amplafi.flow.utils.*;import org.amplafi.dsl.*;import org.amplafi.json.*; ${generateParams} def source = { ${valibleScript} }; return source """;
         scriptSb.append(scriptStr);
         def script = scriptSb.toString();
         def bindingMap = ["params":paramsmap];

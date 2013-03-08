@@ -95,7 +95,7 @@ public class GeneralFlowRequest {
          String output = null;
          try {
             FlowResponse response = sendRequest();
-            output = response.getResponseAsString() ;
+            output = response.getResponseAsString() ;	
         } catch (Exception e) {
             // Throw an exception here ?
             //e.printStackTrace();
@@ -121,7 +121,7 @@ public class GeneralFlowRequest {
     public FlowResponse sendRequest() throws IOException, ClientProtocolException {
         HttpClient client = getHttpClient();
         String requestString = getRequestString();
-        HttpGet request = new HttpGet(requestString);
+		HttpGet request = new HttpGet(requestString);
         FlowResponse response = new FlowResponse(client.execute(request));
         return response ;
     }
