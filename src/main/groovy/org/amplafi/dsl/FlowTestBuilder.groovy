@@ -311,7 +311,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
         if (response.hasError()){
             getLog().error(response.getErrorMessage());
-			throw new ServerError(response);
+// HACK : TO_PAUL : TO_DAISY what is this???			throw new ServerError(response);
         }
         
         return response ;
