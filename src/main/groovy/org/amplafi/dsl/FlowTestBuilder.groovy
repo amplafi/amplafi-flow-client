@@ -647,6 +647,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
             server.doStop();
 			
         } catch(InterruptedException ie) {
+			server.doStop();
             ie.printStackTrace();
         } finally {
             server.doStop();
