@@ -51,6 +51,7 @@ public class LoadTool extends UtilParent{
 	
 	private String runningFile = "loadTestRunning.txt";
 
+	
 
     /**
      * Process command line and run the server.
@@ -82,7 +83,6 @@ public class LoadTool extends UtilParent{
         if (!cmdOptions.hasOption(SCRIPT)  ){
             getLog().error("You must specify the script to run.");
         }
-
 
         if (cmdOptions.hasOption(HOST) && cmdOptions.hasOption(HOST_PORT) && cmdOptions.hasOption(SCRIPT)  ) {
 
@@ -130,13 +130,17 @@ public class LoadTool extends UtilParent{
             });
 
             String key =  "";
+
+			/*
             try {
-                key = getOption(cmdOptions, API_KEY, "");
+                //key = getOption(cmdOptions, API_KEY, "");
+				
             } catch (IOException ioe) {
                 getLog().error("Reading API Key", ioe);
                 return;
-            }
-
+            }*/
+			
+			//key = getPermApiKey(host,""+remotePort,"example.com", true);
 
             try {
                 runLoadTest(host, key, remotePort, scriptName,  numThreads, frequency ); // never returns
@@ -144,7 +148,7 @@ public class LoadTool extends UtilParent{
                 getLog().error("Error running proxy", ioe);
                 return;
             }
-			
+					
 			while(running){
 				if(!isFileExists()){
 					shutDown(); 
@@ -238,11 +242,10 @@ public class LoadTool extends UtilParent{
      */
     public void runLoadTest(final String host,final String key,final int port,final String scriptName,final int numThreads,final int frequency )
             throws IOException {
-        getLog().info("Running LoadTest with host=" + host + " host port=" + port + " script=" + scriptName + " numThreads=" + numThreads + " frequency=" + frequency);
+    getLog().info("Running LoadTest with host=" + host + " host port=" + port + " script=" + scriptName + " numThreads=" + numThreads + " frequency=" + frequency);
         getLog().info("Press Ctrl+C to stop");
 		
 		createFile();
-		
         for (int i=0; i<numThreads ; i++ ){
             final ThreadReport report = new ThreadReport();
             Thread thread = new Thread(new Runnable(){
@@ -253,9 +256,8 @@ public class LoadTool extends UtilParent{
                         // don't include the first run because this includes
                         // constructing gropvy runtime.
                         scriptRunner.loadAndRunOneScript(scriptName);
-
                         report.startTime = System.currentTimeMillis();
-                        while (running){
+                      while (running){
                             try {
 
                                 report.callCount++;

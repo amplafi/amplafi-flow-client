@@ -25,6 +25,7 @@ import java.util.Map;
 public class UtilParent {
     /** Standard location for admin scripts. */
     public static final String DEFAULT_COMMAND_SCRIPT_PATH = "src/main/resources/commandScripts";
+    public static final String GET_API_KEY_SCRIPT = DEFAULT_COMMAND_SCRIPT_PATH + "/GetNewPermanentKey.groovy";	
     public static final String DEFAULT_CONFIG_FILE_NAME = "fareaches.fadmin.properties";
     public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
     public static final String DEFAULT_PORT = "80";
@@ -42,14 +43,14 @@ public class UtilParent {
      */
     public String getRelativePath(String filePath) {
         String relativePath = filePath;
-		try {
-			String currentPath = new File(".").getCanonicalPath();
-			if (filePath.contains(currentPath)) {
-				relativePath = filePath.substring(currentPath.length());
-			}
-		} catch (Exception e){
-			// Do nothing
-		}
+        try {
+            String currentPath = new File(".").getCanonicalPath();
+            if (filePath.contains(currentPath)) {
+                relativePath = filePath.substring(currentPath.length());
+            }
+        } catch (Exception e){
+            // Do nothing
+        }
         return relativePath;
     }
 
@@ -116,6 +117,34 @@ public class UtilParent {
         props.setProperty(key, value);
         return value;
     }
+
+
+    /**
+     * Obtain a new api key from the host.
+     * @param host - to contact
+     * @param remotePort - to contact
+     * @param callbackHost - host that the remote host should callback to, will default to example.com
+     * @param verbose - show more detailed output.
+     */
+    protected String getPermApiKey(String host,String remotePort, String callbackHost, boolean verbose){
+
+        Map params = new HashMap();
+        params.put("callbackHost",callbackHost);
+        
+        getLog().debug("callbackHost = " + callbackHost);
+                
+        ScriptRunner runner = new ScriptRunner(host, remotePort, "apiv1", "", params, verbose);
+        
+        getLog().debug("ScriptRunner is created>>>>>>>>>>>>>>>>>>>>>>>>>> ");
+        
+        Object key = runner.loadAndRunOneScript(GET_API_KEY_SCRIPT);
+        
+        getLog().debug("ScriptRunner is running the script<<<<<<<<<<<<<<<<< ");
+        
+        return  (String)key;
+
+    }
+
 
     /**
      * Gets the configuration properties, loading it if hasn't been loaded.

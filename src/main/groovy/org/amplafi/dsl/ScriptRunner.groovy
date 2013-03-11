@@ -45,6 +45,8 @@ public class ScriptRunner {
      * Allow verbose output
      */
     private boolean verbose = false;
+    
+    private Log log = null;
 
     private static final boolean DEBUG = false;
     private static final IMPORT_REGEX = /^\s*?import (.*)$/;
@@ -138,13 +140,14 @@ public class ScriptRunner {
      * @param filePath is the full path to the script.
      */
     def loadAndRunOneScript(String filePath){
+        getLog().debug("description will be described 000000000000000000000");
         def description = describeOneScript(filePath);
-
-
+        getLog().debug("description is described 000000000000000000000");
         def file = new File(filePath);
         def script = file.getText();
+        getLog().debug("file.getText is getted 11111111111111111111111");
         def value = runScriptSource(script,true,description);
-
+        getLog().debug("runScriptSource is running now 2222222222222222222222222");
         return value;
     }
 
@@ -169,9 +172,15 @@ public class ScriptRunner {
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
+        
+        
+        
         Object closure = getClosure(sourceCode,paramsmap,description);
+        
+        getLog().info("runScriptSource getClosure 333333333333333333333");
+        
         def builder = null;
-        if(requestUriString && requestUriString!=""){
+        if(requestUriString && requestUriString!=""){            
             builder = new FlowTestBuilder(requestUriString,this,verbose);
         }else{
             builder = new FlowTestBuilder(host,port,apiVersion,key,this,verbose);
@@ -351,7 +360,6 @@ public class ScriptRunner {
      * @param filePath is the full path to the script.
      */
     public ScriptDescription describeOneScript(String filePath){
-
         def file = new File(filePath);
         def script = file.getText();
         def value =  null;
@@ -449,9 +457,9 @@ public class ScriptRunner {
     /**
      * Get the logger for this class.
      */
-    public Log getLog(){
+    public synchronized Log getLog(){
         if ( this.log == null ) {
-            this.log = LogFactory.getLog(FlowTestBuilder.class);
+            this.log = LogFactory.getLog(ScriptRunner.class);
         }
         return this.log;
     }

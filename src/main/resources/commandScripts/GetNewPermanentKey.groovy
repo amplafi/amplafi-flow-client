@@ -19,7 +19,7 @@ def key = openPort(9123,10,{
 	requestPost("PermanentApiKey", ["callbackUri":"http://${callbackHost}:9123/?action=farreaches_server_reply&apiCall=PermanentApiKey&externalUserId=1&farreachesNonce=54127ddbe5",
 									"action":"farreaches_server_reply",
 									"apiCall":"PermanentApiKey",
-									"usersList":"[{'email':'daisy@bizpoint.cn','roleType':'adm','displayName':'user','externalId':1}]",
+									"usersList":"[{'email':'test@example.com','roleType':'adm','displayName':'user','externalId':1}]",
 									"temporaryApiKey":tempApiKey
 									])
 	}
