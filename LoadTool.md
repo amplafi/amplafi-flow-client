@@ -36,7 +36,7 @@ Windows:
 
 2.Getting the test stop:
 	Open amplafi-flow-client directory in the folder.
-	Find a file named loadTestRunning.txt and delete it.
+	Find a file named LOAD_TOOL_RUNNING and delete it.
 
 3.Check the report to see how many calls the server can handle every second:
 	if you didn't set the reportFile,the report is on the screen of run test windows,you can check it there.

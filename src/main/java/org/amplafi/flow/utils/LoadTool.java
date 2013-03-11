@@ -47,11 +47,11 @@ public class LoadTool extends UtilParent{
     private String reportFile;
 
     private boolean running = true;
-	private boolean reported = false;
-	
-	private String runningFile = "loadTestRunning.txt";
+    private boolean reported = false;
+    
+    private String runningFile = "LOAD_TOOL_RUNNING";
 
-	
+    
 
     /**
      * Process command line and run the server.
@@ -123,7 +123,7 @@ public class LoadTool extends UtilParent{
             // Register shutdown handler.
             Runtime.getRuntime().addShutdownHook(new Thread(){
                 public void run() {
-					shutDown();
+                    shutDown();
                     // TODO output above to file or speadsheet
                     // TODO output time variant call data to speadsheet
                 }
@@ -131,16 +131,16 @@ public class LoadTool extends UtilParent{
 
             String key =  "";
 
-			/*
+            /*
             try {
                 //key = getOption(cmdOptions, API_KEY, "");
-				
+                
             } catch (IOException ioe) {
                 getLog().error("Reading API Key", ioe);
                 return;
             }*/
-			
-			//key = getPermApiKey(host,""+remotePort,"example.com", true);
+            
+            //key = getPermApiKey(host,""+remotePort,"example.com", true);
 
             try {
                 runLoadTest(host, key, remotePort, scriptName,  numThreads, frequency ); // never returns
@@ -148,88 +148,88 @@ public class LoadTool extends UtilParent{
                 getLog().error("Error running proxy", ioe);
                 return;
             }
-					
-			while(running){
-				if(!isFileExists()){
-					shutDown(); 
-				}
-				try{
-					Thread.sleep(1000);
-				}catch(InterruptedException e){
-					//
-				}
-			}
+                    
+            while(running){
+                if(!isFileExists()){
+                    shutDown(); 
+                }
+                try{
+                    Thread.sleep(1000);
+                }catch(InterruptedException e){
+                    //
+                }
+            }
         }
     }
-	
-	/**
-	 * The method is handle threads and put out report of each thread.
-	 */
-	 private synchronized void shutDown(){
-		if (!reported){
-			reported = true;
-			getLog().info("Generating Report. Please Wait...");
+    
+    /**
+     * The method is handle threads and put out report of each thread.
+     */
+     private synchronized void shutDown(){
+        if (!reported){
+            reported = true;
+            getLog().info("Generating Report. Please Wait...");
 
-			// signal threads to stop
-			running = false;
+            // signal threads to stop
+            running = false;
 
-			// Wait for all threads to stop
-			for (Thread t : threads){
-				try {
-					t.join();
-				} catch (InterruptedException ie){
-					getLog().error("Error",ie);
-				}
-			}
+            // Wait for all threads to stop
+            for (Thread t : threads){
+                try {
+                    t.join();
+                } catch (InterruptedException ie){
+                    getLog().error("Error",ie);
+                }
+            }
 
-			// Loop over the ThreadReports
-			int threadNum = 1;
-			double totalTime = 0;
-			double totalCalls = 0;
-			getLog().info(THICK_DIVIDER);
-			for (Thread t : threads){
-			   ThreadReport rep = threadReports.get(t);
-			   totalTime = rep.endTime - rep.startTime;
-			   getLog().info("threadNum" + threadNum + ": calls " + rep.callCount + " in " + (totalTime/1000) + "s. average = " + (rep.callCount*1000/totalTime) + " calls per second. Error count " +  rep.errorCount);
-			   totalCalls += rep.callCount;
-			   threadNum++;
-			}
-			getLog().info(THICK_DIVIDER);
-			getLog().info("Total calls in all threads=" + totalCalls + "  " + (totalCalls*1000/totalTime) +  " calls per second" );
-			getLog().info(THICK_DIVIDER);
-		}
-	 
-	 }
-	
-	
-	/**
-	 * Create a file
-	 */
-	private void createFile(){
-		try{
-			
-			File file = new File(runningFile);
-			
-			if(!file.exists()){
-				file.createNewFile();
-			}
-			
-		}catch(IOException e){
-			//
-		}
-	}
-	
-	/**
-	 * Validate if the file used for decidding the thread will run or stop is exists
-	 */
-	private boolean isFileExists(){
-		File file = new File(runningFile);
-		if(file.exists()){
-			return true;
-		}else{
-			return false;
-		}
-	}
+            // Loop over the ThreadReports
+            int threadNum = 1;
+            double totalTime = 0;
+            double totalCalls = 0;
+            getLog().info(THICK_DIVIDER);
+            for (Thread t : threads){
+               ThreadReport rep = threadReports.get(t);
+               totalTime = rep.endTime - rep.startTime;
+               getLog().info("threadNum" + threadNum + ": calls " + rep.callCount + " in " + (totalTime/1000) + "s. average = " + (rep.callCount*1000/totalTime) + " calls per second. Error count " +  rep.errorCount);
+               totalCalls += rep.callCount;
+               threadNum++;
+            }
+            getLog().info(THICK_DIVIDER);
+            getLog().info("Total calls in all threads=" + totalCalls + "  " + (totalCalls*1000/totalTime) +  " calls per second" );
+            getLog().info(THICK_DIVIDER);
+        }
+     
+     }
+    
+    
+    /**
+     * Create a file
+     */
+    private void createFile(){
+        try{
+            
+            File file = new File(runningFile);
+            
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            
+        }catch(IOException e){
+            //
+        }
+    }
+    
+    /**
+     * Validate if the file used for decidding the thread will run or stop is exists
+     */
+    private boolean isFileExists(){
+        File file = new File(runningFile);
+        if(file.exists()){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
     // Never accessed by multiple threads
     private List<Thread> threads = new ArrayList<Thread>();
@@ -244,8 +244,8 @@ public class LoadTool extends UtilParent{
             throws IOException {
     getLog().info("Running LoadTest with host=" + host + " host port=" + port + " script=" + scriptName + " numThreads=" + numThreads + " frequency=" + frequency);
         getLog().info("Press Ctrl+C to stop");
-		
-		createFile();
+        
+        createFile();
         for (int i=0; i<numThreads ; i++ ){
             final ThreadReport report = new ThreadReport();
             Thread thread = new Thread(new Runnable(){
@@ -282,7 +282,7 @@ getLog().info( "" + running);
                             }
                         }
                         report.endTime = System.currentTimeMillis();
-						
+                        
 
                     } catch (Throwable t){
 
