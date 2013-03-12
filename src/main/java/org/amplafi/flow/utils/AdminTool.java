@@ -62,8 +62,7 @@ public class AdminTool extends UtilParent {
         // this will also check for basic script compilation errors or lack of
         // description lines in script.
         ScriptRunner runner = new ScriptRunner("");
-        Map<String, ScriptDescription> scriptLookup = runner
-                .processScriptsInFolder(getComandScriptPath());
+        Map<String, ScriptDescription> scriptLookup = getScriptLookup(runner);
         if (cmdOptions.hasOption(LIST) || cmdOptions.hasOption(LISTDETAILED)) {
             // If user has asked for a list of commands then list the good
             // scripts with their
@@ -177,10 +176,8 @@ public class AdminTool extends UtilParent {
     public void printScriptUsage(ScriptDescription sd,String scriptName){
         if (sd != null && sd.getUsage() != null && !sd.getUsage().equals("")) {
             //emitOutput("Script Usage: ant AdminTool " + sd.getUsage());
-
             StringBuffer sb = new StringBuffer();
             sb.append("Script Usage: ant FAdmin -Dargs=\"" + scriptName);
-
             if(sd.getUsageList() != null){
                 for (ParameterUsge pu : sd.getUsageList()){
                     sb.append(" " + pu.getName() + "=<" + pu.getDescription() + "> ");
@@ -189,11 +186,9 @@ public class AdminTool extends UtilParent {
                 emitOutput(sb.toString());
             }
             emitOutput(sd.getUsage());
-
          } else {
             emitOutput("Script " + scriptName +" does not have usage information");
          }
     }
-
 
 }

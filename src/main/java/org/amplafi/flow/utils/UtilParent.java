@@ -25,7 +25,7 @@ import java.util.Map;
 public class UtilParent {
     /** Standard location for admin scripts. */
     public static final String DEFAULT_COMMAND_SCRIPT_PATH = "src/main/resources/commandScripts";
-    public static final String GET_API_KEY_SCRIPT = DEFAULT_COMMAND_SCRIPT_PATH + "/GetNewPermanentKey.groovy";	
+    public static final String GET_API_KEY_SCRIPT = DEFAULT_COMMAND_SCRIPT_PATH + "/GetNewPermanentKey.groovy";
     public static final String DEFAULT_CONFIG_FILE_NAME = "fareaches.fadmin.properties";
     public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
     public static final String DEFAULT_PORT = "80";
@@ -35,11 +35,10 @@ public class UtilParent {
     private String configFileName;
     private Log log;
 
-
     /**
      * Get the relative path by the absolute path.
      * @param filePath is the full path to the script.
-     * @return relative path of the file
+     * @return relative path of the file.
      */
     public String getRelativePath(String filePath) {
         String relativePath = filePath;
@@ -56,8 +55,8 @@ public class UtilParent {
 
     /**
      * Return the script parameters as a map of param name to param valye.
-     * @param remainderList is command arg list
-     * @return map of the user input params
+     * @param remainderList is command arg list.
+     * @return map of the user input params.
      */
     public Map<String, String> getParamMap(List<String> remainderList) {
         Map<String, String> map = new HashMap<String, String>();
@@ -117,7 +116,22 @@ public class UtilParent {
         props.setProperty(key, value);
         return value;
     }
+    
+    /**
+     * ScriptLookup for scriptRunner.
+     */
+    private Map<String, ScriptDescription> scriptLookup = null;
 
+    /**
+     * The method is create a map of scriptLookup.
+     * @return scriptLookup.
+     */
+    protected Map<String, ScriptDescription> getScriptLookup(ScriptRunner runner){
+        if ( scriptLookup == null ) {
+            scriptLookup = runner.processScriptsInFolder(getComandScriptPath());
+        }
+        return scriptLookup;
+    }    
 
     /**
      * Obtain a new api key from the host.
@@ -127,22 +141,15 @@ public class UtilParent {
      * @param verbose - show more detailed output.
      */
     protected String getPermApiKey(String host,String remotePort, String callbackHost, boolean verbose){
-
         Map params = new HashMap();
         params.put("callbackHost",callbackHost);
-        
-        getLog().debug("callbackHost = " + callbackHost);
-                
+        getLog().debug("UtilParent have call getPermApiKey: put callbackHost = " + callbackHost + "in params.");
         ScriptRunner runner = new ScriptRunner(host, remotePort, "apiv1", "", params, verbose);
-        
-        getLog().debug("ScriptRunner is created>>>>>>>>>>>>>>>>>>>>>>>>>> ");
-        
+        runner.setScriptLookup(getScriptLookup(runner));
+        getLog().debug("UtilParent have call getPermApiKey: setting the scriptLookup.");
         Object key = runner.loadAndRunOneScript(GET_API_KEY_SCRIPT);
-        
-        getLog().debug("ScriptRunner is running the script<<<<<<<<<<<<<<<<< ");
-        
-        return  (String)key;
-
+        getLog().debug("UtilParent have call getPermApiKey: running the script " + GET_API_KEY_SCRIPT);
+        return  key.toString();
     }
 
 

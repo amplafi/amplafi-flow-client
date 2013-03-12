@@ -6,29 +6,28 @@ description "GetPermApiKey", "Generates a new Permanent API key", [paramDef("cal
 emitOutput( "GetTempApiKey : ${callbackHost}" );
 
 // Clear current Key
-setKey("");
 
-def tempApiKey = callScript("GetTempApiKey",["apiCall":"PermanentApiKey"])[0];
+callScript("GetTempApiKey",["apiCall":"PermanentApiKey"]);
+
+def tempApiKey = getKey();
 
 println "tempApiKey = " + tempApiKey;
 
-setKey(tempApiKey);
-
 def key = openPort(9123,10,{
-	// Send Post Request
-	requestPost("PermanentApiKey", ["callbackUri":"http://${callbackHost}:9123/?action=farreaches_server_reply&apiCall=PermanentApiKey&externalUserId=1&farreachesNonce=54127ddbe5",
-									"action":"farreaches_server_reply",
-									"apiCall":"PermanentApiKey",
-									"usersList":"[{'email':'test@example.com','roleType':'adm','displayName':'user','externalId':1}]",
-									"temporaryApiKey":tempApiKey
-									])
-	}
-	, { request, response ->
-			// return response callback
-			def permanentKey = request.getParameterMap().get("permanentApiKeys")[0];
-			return new JSONObject(permanentKey).get("1");
-		}
-	)
+    // Send Post Request
+    requestPost("PermanentApiKey", ["callbackUri":"http://${callbackHost}:9123/?action=farreaches_server_reply&apiCall=PermanentApiKey&externalUserId=1&farreachesNonce=54127ddbe5",
+                                    "action":"farreaches_server_reply",
+                                    "apiCall":"PermanentApiKey",
+                                    "usersList":"[{'email':'test@example.com','roleType':'adm','displayName':'user','externalId':1}]",
+                                    "temporaryApiKey":tempApiKey
+                                    ])
+    }
+    , { request, response ->
+            // return response callback
+            def permanentKey = request.getParameterMap().get("permanentApiKeys")[0];
+            return new JSONObject(permanentKey).get("1");
+        }
+    )
 
 emitOutput( "NEW KEY IS : " + key );
 

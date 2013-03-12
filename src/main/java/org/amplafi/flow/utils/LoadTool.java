@@ -39,7 +39,10 @@ public class LoadTool extends UtilParent{
 
     private static final String THICK_DIVIDER =
     "*********************************************************************************";
-
+    
+    /**
+     * Constructor for LoadTool
+     */
     public LoadTool(){
     }
 
@@ -49,13 +52,13 @@ public class LoadTool extends UtilParent{
     private boolean running = true;
     private boolean reported = false;
     
+    //This file will be created when test is running ,and if you delete it ,the test will be stop.
+    //And the same time you will see the report of the load test.
     private String runningFile = "LOAD_TOOL_RUNNING";
-
-    
 
     /**
      * Process command line and run the server.
-     * @param args
+     * @param args.
      */
     public void processCommandLine(String[] args) {
         // Process command line options.
@@ -85,7 +88,6 @@ public class LoadTool extends UtilParent{
         }
 
         if (cmdOptions.hasOption(HOST) && cmdOptions.hasOption(HOST_PORT) && cmdOptions.hasOption(SCRIPT)  ) {
-
             int remotePort = -1;
             int numThreads = 1;
             int frequency = -1;
@@ -101,23 +103,19 @@ public class LoadTool extends UtilParent{
             String reportFile = cmdOptions.getOptionValue(REPORT);
             String scriptName = cmdOptions.getOptionValue(SCRIPT);
 
-
             try {
                 if (cmdOptions.hasOption(NUM_THREADS)){
                     numThreads = Integer.parseInt(cmdOptions.getOptionValue(NUM_THREADS));
                 }
             } catch (NumberFormatException nfe) {
                 getLog().error("numThreads should be in numeric form e.g. 10 , defaulting to 1.");
-
             }
-
             try {
                 if (cmdOptions.hasOption(FREQUENCY)){
                     frequency = Integer.parseInt(cmdOptions.getOptionValue(FREQUENCY));
                 }
             } catch (NumberFormatException nfe) {
                 getLog().error("frequency should be in numeric form e.g. 10 , defaulting to -1 = max possible.");
-
             }
 
             // Register shutdown handler.
@@ -131,16 +129,8 @@ public class LoadTool extends UtilParent{
 
             String key =  "";
 
-            /*
-            try {
-                //key = getOption(cmdOptions, API_KEY, "");
-                
-            } catch (IOException ioe) {
-                getLog().error("Reading API Key", ioe);
-                return;
-            }*/
-            
-            //key = getPermApiKey(host,""+remotePort,"example.com", true);
+            /* Get the api key automatically*/
+            key = getPermApiKey(host,""+remotePort,"example.com", true);
 
             try {
                 runLoadTest(host, key, remotePort, scriptName,  numThreads, frequency ); // never returns
@@ -148,10 +138,11 @@ public class LoadTool extends UtilParent{
                 getLog().error("Error running proxy", ioe);
                 return;
             }
-                    
+
             while(running){
                 if(!isFileExists()){
                     shutDown(); 
+                    running = false;
                 }
                 try{
                     Thread.sleep(1000);
@@ -198,12 +189,11 @@ public class LoadTool extends UtilParent{
             getLog().info("Total calls in all threads=" + totalCalls + "  " + (totalCalls*1000/totalTime) +  " calls per second" );
             getLog().info(THICK_DIVIDER);
         }
-     
      }
     
     
     /**
-     * Create a file
+     * Create a file.
      */
     private void createFile(){
         try{
@@ -213,7 +203,6 @@ public class LoadTool extends UtilParent{
             if(!file.exists()){
                 file.createNewFile();
             }
-            
         }catch(IOException e){
             //
         }
@@ -240,18 +229,24 @@ public class LoadTool extends UtilParent{
      * runs a single-threaded proxy server on
      * the specified local port. It never returns.
      */
-    public void runLoadTest(final String host,final String key,final int port,final String scriptName,final int numThreads,final int frequency )
-            throws IOException {
-    getLog().info("Running LoadTest with host=" + host + " host port=" + port + " script=" + scriptName + " numThreads=" + numThreads + " frequency=" + frequency);
+    public void runLoadTest(final String host,
+                            final String key,
+                            final int port,
+                            final String scriptName,
+                            final int numThreads,
+                            final int frequency )
+                            throws IOException {
+        getLog().info("Running LoadTest with host=" + host 
+                        + " host port=" + port + " script=" + scriptName
+                        + " numThreads=" + numThreads + " frequency=" + frequency);
         getLog().info("Press Ctrl+C to stop");
-        
+
         createFile();
         for (int i=0; i<numThreads ; i++ ){
             final ThreadReport report = new ThreadReport();
             Thread thread = new Thread(new Runnable(){
                 public void run() {
                     ScriptRunner scriptRunner = new ScriptRunner(host, ""+port, "apiv1", key);
-
                     try {
                         // don't include the first run because this includes
                         // constructing gropvy runtime.
@@ -259,20 +254,18 @@ public class LoadTool extends UtilParent{
                         report.startTime = System.currentTimeMillis();
                       while (running){
                             try {
-
                                 report.callCount++;
                                 long startTime = System.currentTimeMillis();
                                 scriptRunner.reRunLastScript();
                                 long endTime = System.currentTimeMillis();
                                 long duration = (endTime - startTime);
-getLog().info( "" + running);
+                                getLog().info( "" + running);
                                 if (frequency != -1 ){
                                     int requiredDurationMS = 1000/frequency;
                                     if (duration < requiredDurationMS){
                                         long pause = requiredDurationMS - duration;
                                         Thread.currentThread().sleep(pause);
                                     }
-
                                 }
 
                                 report.callTimes.add(duration);
@@ -282,20 +275,14 @@ getLog().info( "" + running);
                             }
                         }
                         report.endTime = System.currentTimeMillis();
-                        
-
                     } catch (Throwable t){
-
                         getLog().error("Error on first run",t);
                     }
-
                 }// End run
-
             });
             threads.add(thread);
             threadReports.put(thread, report);
         }
-
         for (Thread t : threads){
             t.start();
         }

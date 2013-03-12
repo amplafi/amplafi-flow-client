@@ -99,7 +99,7 @@ public class ScriptRunner {
     }
 
     /**
-     * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH
+     * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH.
      * @return List<String> of script paths.
      */
     public List<String> loadAndRunAllSrcipts(){
@@ -112,7 +112,7 @@ public class ScriptRunner {
     }
 
     /**
-     * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH
+     * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH.
      * @return
      */
     public List<String> findAllTestScripts(){
@@ -120,13 +120,12 @@ public class ScriptRunner {
     }
 
     /**
-     * This method finds all scripts below the specified file path
+     * This method finds all scripts below the specified file path.
      * @param search path
      * @return list of script paths
      */
     public List<String> findAllScripts(def path){
         def list = [];
-
         def dir = new File(path);
         dir.eachFileRecurse (FileType.FILES) { file ->
             list << file.getCanonicalPath();
@@ -136,18 +135,18 @@ public class ScriptRunner {
 
 
     /**
-     * Loads and runs one script specified by the file parameter
+     * Loads and runs one script specified by the file parameter.
      * @param filePath is the full path to the script.
      */
     def loadAndRunOneScript(String filePath){
-        getLog().debug("description will be described 000000000000000000000");
+        getLog().debug("loadAndRunOneScript() start to run describeOneScript() method");
         def description = describeOneScript(filePath);
-        getLog().debug("description is described 000000000000000000000");
+        getLog().debug("loadAndRunOneScript() finished to describeOneScript() method");
         def file = new File(filePath);
         def script = file.getText();
-        getLog().debug("file.getText is getted 11111111111111111111111");
+        getLog().debug("loadAndRunOneScript() start to run runScriptSource() method");
         def value = runScriptSource(script,true,description);
-        getLog().debug("runScriptSource is running now 2222222222222222222222222");
+        getLog().debug("loadAndRunOneScript() start to run runScriptSource() method");
         return value;
     }
 
@@ -160,7 +159,7 @@ public class ScriptRunner {
     }
 
     /**
-     * Runs or describes a script from source code
+     * Runs or describes a script from source code.
      * @param sourceCode
      * @param execOrDescibe - If true then execute the source code as a command script if false run
      *                         the code as a description DSL to obtain its description
@@ -172,20 +171,17 @@ public class ScriptRunner {
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
-        
-        
-        
+        getLog().debug("runScriptSource() start to get closure");
         Object closure = getClosure(sourceCode,paramsmap,description);
-        
-        getLog().info("runScriptSource getClosure 333333333333333333333");
-        
+        getLog().debug("runScriptSource() finished to get closure");
         def builder = null;
-        if(requestUriString && requestUriString!=""){            
+        if(requestUriString && requestUriString!=""){
             builder = new FlowTestBuilder(requestUriString,this,verbose);
         }else{
             builder = new FlowTestBuilder(host,port,apiVersion,key,this,verbose);
         }
-
+        getLog().debug("runScriptSource() start to get closure");
+        
         if(execOrDescribe){
             lastScript = builder.buildExe(closure);
             return lastScript();
@@ -195,11 +191,8 @@ public class ScriptRunner {
         }
     }
 
-
-
-
     /**
-     * Takes the source code string and wraps in into a valid groovy script that when run will return a closure
+     * Takes the source code string and wraps in into a valid groovy script that when run will return a closure.
      * that can be either configured to describe itself or to run as a sequence of commands.
      * @param sourceCode
      * @param paramsmap
@@ -227,7 +220,6 @@ public class ScriptRunner {
             debug("${lineNo}>${line}");
             lineNo++;
         }
-
         Object closure = shell.evaluate(script);
         return closure;
     }
@@ -259,7 +251,6 @@ public class ScriptRunner {
                         defaultValue = null;
                     }
 
-
                     //Validata paramsmap and generate params in script
                     //StringBuffer paramSb = new StringBuffer("");
                     def paramName;
@@ -289,7 +280,7 @@ public class ScriptRunner {
     }
 
     /**
-     * Creates an un-configured closure (no delegate set) from the
+     * Creates an un-configured closure (no delegate set).
      * @param scriptName
      * @param callParamsMap - map of parameters name to value
      * @return
@@ -306,7 +297,6 @@ public class ScriptRunner {
             getLog().error("Script ${scriptName} does not exist" );
             return null;
         }
-
     }
 
     /**
@@ -356,14 +346,13 @@ public class ScriptRunner {
     }
 
     /**
-     * Describes one script specified by the file parameter
+     * Describes one script specified by the file parameter.
      * @param filePath is the full path to the script.
      */
     public ScriptDescription describeOneScript(String filePath){
         def file = new File(filePath);
         def script = file.getText();
         def value =  null;
-
         try {
             value = runScriptSource(script,false,null);
         } catch (EarlyExitException eee){
@@ -379,7 +368,7 @@ public class ScriptRunner {
     }
 
      /**
-     * Get the relative path by the absolute path
+     * Get the relative path by the absolute path.
      * @param filePath is the full path to the script.
      */
     def getRelativePath(String filePath){
@@ -433,7 +422,7 @@ public class ScriptRunner {
     }
 
     /**
-     * Returns list of scripts that had errors and error description
+     * Returns list of scripts that had errors and error description.
      * @return - list of bad scripts.
      */
     public List<ScriptDescription> getScriptsWithErrors(){
