@@ -26,6 +26,7 @@ import java.util.Map;
  * for more details
  */
 public class AdminTool extends UtilParent {
+    private static final String AUTO_OBTAIN_KEY = "Auto obtain key";
 
     /**
      * Main entry point for tool.
@@ -134,7 +135,11 @@ public class AdminTool extends UtilParent {
             String port = getOption(cmdOptions, PORT, DEFAULT_PORT);
             String apiVersion = getOption(cmdOptions, API_VERSION,
                     DEFAULT_API_VERSION);
-            String key = getOption(cmdOptions, API_KEY, "");
+            String key = getOption(cmdOptions, API_KEY, AUTO_OBTAIN_KEY);
+            if (AUTO_OBTAIN_KEY.equals(key)){
+                key = getPermApiKey(host,port,null, verbose);   
+            }
+            
             String scriptName = filePath;
             // Check if we are running and ad-hoc script
             if (filePath == null) {
@@ -155,7 +160,7 @@ public class AdminTool extends UtilParent {
             ScriptRunner runner2 = new ScriptRunner(host, port, apiVersion, key, parammap, verbose);
             runner2.setScriptLookup(scriptLookup);
             if (filePath != null) {
-                System.out.println("call loadAndRunOneScript filePath = "+filePath);
+                System.out.println("call loadAndRunOneScript filePath = " + filePath);
                 try {
                     runner2.loadAndRunOneScript(filePath);
                 } catch (ParameterValidationException pve) {

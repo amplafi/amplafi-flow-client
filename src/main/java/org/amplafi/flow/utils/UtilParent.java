@@ -25,7 +25,7 @@ import java.util.Map;
 public class UtilParent {
     /** Standard location for admin scripts. */
     public static final String DEFAULT_COMMAND_SCRIPT_PATH = "src/main/resources/commandScripts";
-    public static final String GET_API_KEY_SCRIPT = DEFAULT_COMMAND_SCRIPT_PATH + "/GetNewPermanentKey.groovy";
+    private static final String GET_API_KEY_SCRIPT = "/GetNewPermanentKey.groovy";
     public static final String DEFAULT_CONFIG_FILE_NAME = "fareaches.fadmin.properties";
     public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
     public static final String DEFAULT_PORT = "80";
@@ -147,11 +147,10 @@ public class UtilParent {
         ScriptRunner runner = new ScriptRunner(host, remotePort, "apiv1", "", params, verbose);
         runner.setScriptLookup(getScriptLookup(runner));
         getLog().debug("UtilParent have call getPermApiKey: setting the scriptLookup.");
-        Object key = runner.loadAndRunOneScript(GET_API_KEY_SCRIPT);
-        getLog().debug("UtilParent have call getPermApiKey: running the script " + GET_API_KEY_SCRIPT);
+        Object key = runner.loadAndRunOneScript(getApiKeyScriptPath());
+        getLog().debug("UtilParent have call getPermApiKey: running the script " + getApiKeyScriptPath());
         return  key.toString();
     }
-
 
     /**
      * Gets the configuration properties, loading it if hasn't been loaded.
@@ -222,6 +221,14 @@ public class UtilParent {
      */
     public void setComandScriptPath(String comandScriptPath) {
         this.comandScriptPath = comandScriptPath;
+    }
+    
+     /**
+     * Gets the script for creating a new api key path for the tool.
+     * @return the path to the script for creating a new api key
+     */
+    public  String getApiKeyScriptPath() {
+        return getComandScriptPath() + GET_API_KEY_SCRIPT;   
     }
 
     /**

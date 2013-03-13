@@ -81,9 +81,11 @@ public class TestAdminTool {
         //This is test that use our own script
         String excepted1 = "     testScript2       - Just an test2 script";
         String excepted2 = "     testScript       - Just an test script";
-        assertEquals(2,logMsgList.size());
+        String excepted3 = "     GetPermApiKey       - Generates a new Permanent API key";
+        assertEquals(3,logMsgList.size());
         assertTrue(logMsgList.contains(excepted1));
         assertTrue(logMsgList.contains(excepted2));
+        assertTrue(logMsgList.contains(excepted3));
     }
 
     /**
@@ -96,11 +98,13 @@ public class TestAdminTool {
         testHelpAdminTool.processCommandLine(args);
         List<String> logMsgList = testHelpAdminTool.getLogMsgList();
         //This is test that use our own script
-        String expected1 = "     testScript       - Just an test script       - " + SEP + PATH + SEP + "testScript.groovy";
-        String expected2 = "     testScript2       - Just an test2 script       - " + SEP + PATH + SEP + "testScript2.groovy";
-        assertEquals(2,logMsgList.size());
+        String expected1 = "     GetPermApiKey       - Generates a new Permanent API key       - " + SEP + PATH + SEP + "GetNewPermanentKey.groovy";
+        String expected2 = "     testScript       - Just an test script       - " + SEP + PATH + SEP + "testScript.groovy";
+        String expected3 = "     testScript2       - Just an test2 script       - " + SEP + PATH + SEP + "testScript2.groovy";
+        assertEquals(3,logMsgList.size());
         assertEquals(expected1,logMsgList.get(0));
         assertEquals(expected2,logMsgList.get(1));
+        assertEquals(expected3,logMsgList.get(2));
     }
 
     /**
@@ -113,7 +117,6 @@ public class TestAdminTool {
         String excepted = "usage test";
         List<String> logMsgList = testHelpAdminTool.getLogMsgList();
         assertEquals(1,logMsgList.size());
-System.err.println("&&&&&&&&&&&&&&&&&7777 " + logMsgList);
         assertTrue(logMsgList.contains(excepted));
     }
 
@@ -188,7 +191,7 @@ System.err.println("&&&&&&&&&&&&&&&&&7777 " + logMsgList);
         String[] args = { "-x" };
         testHelpAdminTool.processCommandLine(args);
         String keyValue = testHelpAdminTool.getConfigProperties().getProperty("key", "");
-        String exceptedKey = "";
+        String exceptedKey = "Auto obtain key";
         String portValue = testHelpAdminTool.getConfigProperties().getProperty("port", "");
         String exceptedPort = AdminTool.DEFAULT_PORT;
         String hostValue = testHelpAdminTool.getConfigProperties().getProperty("host", "");

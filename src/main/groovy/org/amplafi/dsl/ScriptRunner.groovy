@@ -141,7 +141,7 @@ public class ScriptRunner {
     def loadAndRunOneScript(String filePath){
         getLog().debug("loadAndRunOneScript() start to run describeOneScript() method");
         def description = describeOneScript(filePath);
-        getLog().debug("loadAndRunOneScript() finished to describeOneScript() method");
+        getLog().debug("loadAndRunOneScript() finished describeOneScript() method " + description );
         def file = new File(filePath);
         def script = file.getText();
         getLog().debug("loadAndRunOneScript() start to run runScriptSource() method");
@@ -171,7 +171,7 @@ public class ScriptRunner {
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
-        getLog().debug("runScriptSource() start to get closure");
+        getLog().debug("runScriptSource() start to get closure #########################paramsmap = " + paramsmap);
         Object closure = getClosure(sourceCode,paramsmap,description);
         getLog().debug("runScriptSource() finished to get closure");
         def builder = null;
@@ -226,11 +226,13 @@ public class ScriptRunner {
 
     def generateParams(ScriptDescription description, Map<String,String> paramsmap){
         StringBuffer paramsSb = new StringBuffer("");
-        //TODO get current script description
+        getLog().debug("generateParams() for: " + description + " " + paramsmap);
         if(description){
             def usageList = description.getUsageList();
             if(usageList){
+                getLog().debug("generateParams() for usage list: " + usageList);  
                 for(ParameterUsge paramUsage : usageList){
+                    getLog().debug("generateParams() for paramUsage: " + paramUsage);  
                     def name;
                     def optional;
                     def defaultValue;
@@ -250,32 +252,35 @@ public class ScriptRunner {
                     }else{
                         defaultValue = null;
                     }
-
+                    getLog().debug("generateParams() name=${name} optional=${optional} defaultValue=${defaultValue}");  
                     //Validata paramsmap and generate params in script
                     //StringBuffer paramSb = new StringBuffer("");
                     def paramName;
                     def paramValue;
-                        if(paramsmap.containsKey(name)){
-                            paramName = name;
-                            paramValue = paramsmap.get(name)
+                    if(paramsmap != null && paramsmap.containsKey(name) && paramsmap.get(name)){
+                        getLog().debug("generateParams() parameters contain ${name}");  
+                        paramName = name;
+                        paramValue = paramsmap.get(name)
+                    }else{
+                        getLog().debug("generateParams() parameters don't contain ${name}");  
+                        if(optional == false){
+                            //TODO tell user should input name=<value>
+                            throw new ParameterValidationException("Parameter " + name + " must be supplied.");
                         }else{
-                            if(optional == false){
-                                //TODO tell user should input name=<value>
-                                throw new ParameterValidationException("Parameter " + name + " must be supplied.");
-                            }else{
-                                if(defaultValue){
-                                    paramName = name;
-                                    paramValue = defaultValue;
-                                }
+                            if(defaultValue){
+                                paramName = name;
+                                paramValue = defaultValue;
                             }
                         }
-                        if(paramName&&paramValue){
-                            paramsSb.append("def " + paramName + " = \""+ paramValue + "\";");
-                        }
+                        getLog().debug("generateParams() final values ${paramName}=${paramValue}");  
+                    }
+                    if(paramName&&paramValue){
+                        paramsSb.append("def " + paramName + " = \""+ paramValue + "\";");
+                    }
                 }
             }
         }
-
+        getLog().debug("generateParams() returns : " + paramsSb.toString());  
         return paramsSb.toString();
     }
 
@@ -350,21 +355,25 @@ public class ScriptRunner {
      * @param filePath is the full path to the script.
      */
     public ScriptDescription describeOneScript(String filePath){
-        def file = new File(filePath);
-        def script = file.getText();
-        def value =  null;
         try {
-            value = runScriptSource(script,false,null);
-        } catch (EarlyExitException eee){
-            value = eee.desc;
-            value.path = filePath;
-        } catch (NoDescriptionException nde){
-            value = new ScriptDescription(hasErrors:true, errorMesg:"No Description Defined", path:filePath);
-        } catch (MultipleCompilationErrorsException mceee){
-            value = new ScriptDescription(hasErrors:true, errorMesg:"Compilation Errors + ${mceee.getMessage()}", path:filePath);
-            mceee.printStackTrace();
+            def file = new File(filePath);
+            def script = file.getText();
+            def value =  null;
+            try {
+                value = runScriptSource(script,false,null);
+            } catch (EarlyExitException eee){
+                value = eee.desc;
+                value.path = filePath;
+            } catch (NoDescriptionException nde){
+                value = new ScriptDescription(hasErrors:true, errorMesg:"No Description Defined", path:filePath);
+            } catch (MultipleCompilationErrorsException mceee){
+                value = new ScriptDescription(hasErrors:true, errorMesg:"Compilation Errors + ${mceee.getMessage()}", path:filePath);
+                mceee.printStackTrace();
+            }
+            return value;
+        } catch (Exception e){
+            e.printStackTrace();
         }
-        return value;
     }
 
      /**
