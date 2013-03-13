@@ -171,7 +171,7 @@ public class ScriptRunner {
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
-        getLog().debug("runScriptSource() start to get closure #########################paramsmap = " + paramsmap);
+        getLog().debug("runScriptSource() start to get closure");
         Object closure = getClosure(sourceCode,paramsmap,description);
         getLog().debug("runScriptSource() finished to get closure");
         def builder = null;
