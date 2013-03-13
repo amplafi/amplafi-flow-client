@@ -838,8 +838,12 @@ public class DescribeScriptDSL {
         String newLine = System.getProperty("line.separator");
         StringBuffer usageSb = new StringBuffer(newLine);
         for(ParameterUsge paramUsage : usages){
+        
+
+        
             if(paramUsage.getName()&& paramUsage.getDescription()){
-                usageSb.append(paramUsage.getName() + " = " +"<" +paramUsage.getDescription() + ">");
+                usageSb.append(sprintf('%-15s = <%-15s>', paramUsage.getName(), paramUsage.getDescription()));
+                // usageSb.append(paramUsage.getName() + " = " +"<" +paramUsage.getDescription() + ">");
                 if(paramUsage.getOptional()){
                     usageSb.append(" , optional");
                 }else{

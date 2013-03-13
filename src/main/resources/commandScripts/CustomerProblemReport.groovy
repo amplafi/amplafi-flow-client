@@ -18,8 +18,18 @@ String usage =
     "  externalApiMaxReturn=<number>  The maximum number of the log entries that you want to return";
 
  
-description "CustomerProblemReport", "This tool is used to report and identify the customer problem", "${usage}";
-
+//description "CustomerProblemReport", "This tool is used to report and identify the customer problem", "${usage}";
+description "CustomerProblemReport", """This tool is used to report and identify the customer problem
+This CustomerProblemReport script use to help the system administrator access
+the various farreaches service configuration and user log information
+""",
+ [paramDef("verbose","To print detail json log",true,"false"),
+  paramDef("userEmail","The user that you want to inspect. If the userEmail is not specified. The overall report will be run",true,"test@example.cn"),
+  paramDef("fromDate","Limit the audit logs from date",true,null),
+  paramDef("toDate","Limit the audit logs to date",true,null),
+  paramDef("apiMaxReturn","The maximum number of the log entries that you want to return",true,null),
+  paramDef("externalApiMaxReturn","The maximum number of the log entries that you want to return",true,null),
+                                                                                                       ];
 
 def printHelp = { 
     printTaskInfo "CustomerProblemReport Script Help"
