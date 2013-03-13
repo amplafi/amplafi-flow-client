@@ -141,19 +141,24 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     /** This stores the last request to the server */
     private String lastRequestString = null;
-
+    
+    /** This is a prefix of a host */
+    private String PROTOCOL = "http://";
+    
     /**
      * Contains the last response from the server.
      */
     public String lastRequestResponse = null;
 
     public FlowTestDSL(String requestString, ScriptRunner runner, boolean verbose){
+        requestString = addHttpPrexBeforeString(requestString);
         this.requestUriString = requestString;
         this.runner = runner;
         this.verbose = verbose;
     }
 
     public FlowTestDSL(String host, String port, String apiVersion, String key, ScriptRunner runner, boolean verbose){
+        host = addHttpPrexBeforeString(host);
         this.host = host;
         this.port = port;
         this.apiVersion = apiVersion;
@@ -184,6 +189,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
     void setHost(String host){
+        host = addHttpPrexBeforeString(host);
         this.host = host;
     }
 
@@ -214,7 +220,18 @@ public class FlowTestDSL extends DescribeScriptDSL {
     String getKey(){
         return key;
     }
-
+    
+    /**
+     * Add a prefix of host.
+     */
+    private String addHttpPrexBeforeString(String host){
+        if(!host.contains(PROTOCOL)){
+            host = PROTOCOL + host;
+        }
+        return host;
+    }
+    
+    
     /**
      * Sends a request to the named flow with the specified parameters.
      * @param flowName to call.
@@ -440,9 +457,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
             exe.delegate = this;
             getLog().debug("callScript() about to run ${scriptName}");
             ret = exe();
-            //getLog().debug("callScript() finished running ${scriptName}");
+            getLog().debug("callScript() finished running ${scriptName}");
         }
-        //return ret;
+        return ret;
     }
 
     /**
@@ -489,6 +506,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     private String getRequestString(){
         if (requestUriString != null){
+            
             return requestUriString;
         } else {
             def postKeySep = "";
@@ -497,6 +515,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
             }
             return this.host + ":" + this.port + "/c/" + this.key   + "${postKeySep}" + this.apiVersion;
         }
+    }
+    
+    public String getRequestStringToTest(){
+        getRequestString();
     }
 
     /**
