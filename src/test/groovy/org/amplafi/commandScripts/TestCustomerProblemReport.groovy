@@ -32,6 +32,10 @@ public class TestCustomerProblemReport extends ScriptTester {
     }
 
 
+
+    /**
+     * run CustomerProblemReport with no params and verify that a usage error is raised.
+     */
     @Test
     public void runWithNoParams(){
         try {
@@ -45,6 +49,9 @@ public class TestCustomerProblemReport extends ScriptTester {
 
     }
 
+    /**
+     * run CustomerProblemReport a show a call is made to another script to get su api key.
+     */
     @Test
     public void runWithPublicUri(){
 
@@ -61,7 +68,6 @@ public class TestCustomerProblemReport extends ScriptTester {
         }
 
         runScript("CustomerProblemReport", ["publicUri":"www.acme.com"])
-
         assertTrue(createSuApiKeyCalled);
     }
 
