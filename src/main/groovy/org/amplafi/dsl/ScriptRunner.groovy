@@ -45,7 +45,7 @@ public class ScriptRunner {
      * Allow verbose output
      */
     private boolean verbose = false;
-    
+
     private Log log = null;
 
     private static final boolean DEBUG = false;
@@ -176,12 +176,12 @@ public class ScriptRunner {
         getLog().debug("runScriptSource() finished to get closure");
         def builder = null;
         if(requestUriString && requestUriString!=""){
-            builder = new FlowTestBuilder(requestUriString,this,verbose);
+            builder = getFlowTestBuilder(requestUriString,this,verbose);
         }else{
-            builder = new FlowTestBuilder(host,port,apiVersion,key,this,verbose);
+            builder = getFlowTestBuilder(host,port,apiVersion,key,this,verbose);
         }
         getLog().debug("runScriptSource() start to get closure");
-        
+
         if(execOrDescribe){
             lastScript = builder.buildExe(closure);
             return lastScript();
@@ -189,6 +189,20 @@ public class ScriptRunner {
             lastScript = builder.buildDesc(closure);
             return lastScript();
         }
+    }
+
+    /**
+     * To be overriden in tests
+     */
+    def getFlowTestBuilder(requestUriString,runner,verbose){
+        return new FlowTestBuilder(requestUriString,this,verbose);
+    }
+
+    /**
+     * To be overriden in tests
+     */
+    def getFlowTestBuilder(host,port,apiVersion,key,runner,verbose){
+        return new FlowTestBuilder(host,port,apiVersion,key,this,verbose);
     }
 
     /**
@@ -217,22 +231,33 @@ public class ScriptRunner {
         GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
         def lineNo = 1;
         script.split("\n").each{ line ->
-            debug("${lineNo}>${line}");
+            //debug("${lineNo}>${line}");
             lineNo++;
         }
-        Object closure = shell.evaluate(script);
+
+        String scriptName = "script";
+        if ( description){
+            scriptName = description.name;
+        }
+
+        Object closure = shell.evaluate(script,scriptName);
         return closure;
     }
 
+    /**
+     * Generate the block of code at the start of a script that defines/initializes the parameters
+     * and report missing params.
+     */
     def generateParams(ScriptDescription description, Map<String,String> paramsmap){
         StringBuffer paramsSb = new StringBuffer("");
         getLog().debug("generateParams() for: " + description + " " + paramsmap);
         if(description){
             def usageList = description.getUsageList();
+
             if(usageList){
-                getLog().debug("generateParams() for usage list: " + usageList);  
+                getLog().debug("generateParams() for usage list: " + usageList);
                 for(ParameterUsge paramUsage : usageList){
-                    getLog().debug("generateParams() for paramUsage: " + paramUsage);  
+                    getLog().debug("generateParams() for paramUsage: " + paramUsage);
                     def name;
                     def optional;
                     def defaultValue;
@@ -252,35 +277,40 @@ public class ScriptRunner {
                     }else{
                         defaultValue = null;
                     }
-                    getLog().debug("generateParams() name=${name} optional=${optional} defaultValue=${defaultValue}");  
+                    getLog().debug("generateParams() name=${name} optional=${optional} defaultValue=${defaultValue}");
                     //Validata paramsmap and generate params in script
                     //StringBuffer paramSb = new StringBuffer("");
                     def paramName;
                     def paramValue;
                     if(paramsmap != null && paramsmap.containsKey(name) && paramsmap.get(name)){
-                        getLog().debug("generateParams() parameters contain ${name}");  
+                        getLog().debug("generateParams() parameters contain ${name}");
                         paramName = name;
                         paramValue = paramsmap.get(name)
                     }else{
-                        getLog().debug("generateParams() parameters don't contain ${name}");  
+                        getLog().debug("generateParams() parameters don't contain ${name}");
                         if(optional == false){
                             //TODO tell user should input name=<value>
-                            throw new ParameterValidationException("Parameter " + name + " must be supplied.");
+                            throw new ParameterValidationException("Parameter ${name} must be supplied. Format is: ${name}=<${paramUsage.description}>");
                         }else{
                             if(defaultValue){
                                 paramName = name;
                                 paramValue = defaultValue;
                             }
                         }
-                        getLog().debug("generateParams() final values ${paramName}=${paramValue}");  
+                        getLog().debug("generateParams() final values ${paramName}=${paramValue}");
                     }
                     if(paramName&&paramValue){
                         paramsSb.append("def " + paramName + " = \""+ paramValue + "\";");
+                    } else {
+
+                        if(name){
+                            paramsSb.append("def " + name + " = null ;");
+                        }
                     }
                 }
             }
         }
-        getLog().debug("generateParams() returns : " + paramsSb.toString());  
+        getLog().debug("generateParams() returns : " + paramsSb.toString());
         return paramsSb.toString();
     }
 

@@ -3,18 +3,18 @@
 import java.util.HashMap
 
 String newLine = System.getProperty("line.separator");
-String usage = 
-    "CustomerProblemReport Script Help" + newLine + 
-    "This CustomerProblemReport script use to help the system administrator access" + newLine + 
-    "the various farreaches service configuration and user log information" + newLine + 
-    "Params" + newLine + 
-    "  verbose=<true/false>  To print detail json log" + newLine + 
+String usage =
+    "CustomerProblemReport Script Help" + newLine +
+    "This CustomerProblemReport script use to help the system administrator access" + newLine +
+    "the various farreaches service configuration and user log information" + newLine +
+    "Params" + newLine +
+    "  verbose=<true/false>  To print detail json log" + newLine +
     "  userEmail=<userEmail>  The user that you want to inspect. If the userEmail is not specified. The overall report will be run" + newLine  + newLine +
     "  fromDate=<yyyy/MM/dd>  Limit the audit logs from date" + newLine +
     "  toDate=<yyyy/MM/dd>  Limit the audit logs to date" + newLine +
-    
-    "  apiMaxReturn=<apiMaxReturn>  The maximum number of the log entries that you want to return"+ newLine + newLine + 
-    
+
+    "  apiMaxReturn=<apiMaxReturn>  The maximum number of the log entries that you want to return"+ newLine + newLine +
+
     "  externalApiMaxReturn=<number>  The maximum number of the log entries that you want to return";
 
 description "CustomerProblemReport", """This tool is used to report and identify the customer problem
@@ -27,10 +27,9 @@ description "CustomerProblemReport", """This tool is used to report and identify
       paramDef("toDate","Limit the audit logs to date",true,null),
       paramDef("apiMaxReturn","The maximum number of the log entries that you want to return",true,1000),
       paramDef("externalApiMaxReturn","The maximum number of the log entries that you want to return",true,1000),
-      paramDef("publicUri","The public uri",true,null),
-      paramDef("apiKey","The api key",true,null)];
+      paramDef("publicUri","The public uri",false,null)];
 
-def printHelp = { 
+def printHelp = {
     printTaskInfo "CustomerProblemReport Script Help"
     println usage
 }
@@ -43,18 +42,18 @@ def addMessageEndPointToMap = {
     def extServiceUsername = entry.opt("extServiceUsername") ;
     def extServiceUserFullName = entry.opt("extServiceUserFullName") ;
     meps[mepId] = [
-        "mepId": mepId, "publicUri": publicUri2, "externalServiceDefinition": externalServiceDefinition, 
+        "mepId": mepId, "publicUri": publicUri2, "externalServiceDefinition": externalServiceDefinition,
         "extServiceUsername": extServiceUsername, "extServiceUserFullName": extServiceUserFullName
     ];
 }
 
-def getMessageEndPoints = { 
+def getMessageEndPoints = {
     apiKey1 ->
     setApiVersion("apiv1");
     setKey(apiKey1);
-    
+
     request("MessageEndPointList", ["fsRenderResult":"json", "messageEndPointCompleteList": "true"]);
-    
+
     def meps = [:] ;
     def entries = getResponseData();
     for(entry in entries) {
@@ -63,7 +62,7 @@ def getMessageEndPoints = {
     return meps;
 }
 
-def printMessageEndPoint = { 
+def printMessageEndPoint = {
     mep ->
     println "MEP ID:           " + mep['mepId'] ;
     println "External Service: " + mep['externalServiceDefinition'] ;
@@ -72,7 +71,7 @@ def printMessageEndPoint = {
     println "Full Name:        " + mep['extServiceUserFullName'] ;
 }
 
-def printMessageEndPoints = { 
+def printMessageEndPoints = {
     meps ->
     printTaskInfo "Message End Points"
     def first = true ;
@@ -88,38 +87,38 @@ def printMessageEndPoints = {
 
 try {
 
-    def suApiKey = getKey() ;  
+    def suApiKey = getKey() ;
     // UserRoles flow has been removed
-    callScript("UserRoles",["apiKey": suApiKey, "publicUri": publicUri]); 
+    // callScript("UserRoles",["apiKey": suApiKey, "publicUri": publicUri]);
 
-    //def apiKey = null ;
+    def apiKey = null ;
     if(publicUri != null) {
         // call other script and get return value.
         // CreateSuApiKey flow has been removed
         apiKey = callScript("CreateSuApiKey",["publicUri":publicUri,"userEmail":userEmail]);
-    } else {  
+    } else {
         apiKey = suApiKey ;
     }
     if(apiKey == null) {
         return ;
     }
-   
+
     // This is a global settig that will effect subsequent scripts
     setKey(apiKey);
-    
+
     callScript("AvailableCategories");//flow does not exists.
-     
+
     // call other script
     callScript("AvailableExternalServices");//flow does not exists.
-    
+
     def meps = getMessageEndPoints(apiKey) ;
-    
+
     printMessageEndPoints(meps) ;
-    
-    callScript("ApiRequestAuditEntryLog",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate, "maxReturn": apiMaxReturn]); ApiRequestAuditEntriesFlow does not exists. 
+
+    callScript("ApiRequestAuditEntryLog",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate, "maxReturn": apiMaxReturn]); ApiRequestAuditEntriesFlow does not exists.
 
     callScript("ExternalApiMethodCallLog",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate, "maxReturn": externalApiMaxReturn]);//ExternalApiMethodCallAuditEntries does not exists.
-  
+
     callScript("UserPost",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate]);//BroadcastEnvelopes does not exists.
 } catch(Throwable ex) {
     println "Error: " + ex.getMessage() ;
