@@ -1,25 +1,8 @@
-description "ApiRequestAuditEntryLog", "ApiRequestAuditEntry Log", "apiKey=key, fromDate=date, toDate=date, maxReturn=number";
+description "ApiRequestAuditEntryLog", "ApiRequestAuditEntry Log", [paramDef("apiKey","",false,null),
+                                                                    paramDef("fromDate","",true,null),
+                                                                    paramDef("toDate","",true,null),
+                                                                    paramDef("maxReturn","",true,1000)];
 
-
-def apiKey = null ;
-if (params && params["apiKey"]) {
-    apiKey = params['apiKey'] ;
-}
-
-def fromDate = null ;
-if (params && params["fromDate"]) {
-    fromDate = params['fromDate'] ;
-}
-
-def toDate = null ;
-if (params && params["toDate"]) {
-    toDate = params['toDate'] ;
-}
-
-def maxReturn = "1000"
-if (params && params["maxReturn"]) {
-    maxReturn = params["maxReturn"] ;
-}
 
 def toAmplafiJSONCalendar = { 
     dateString -> 

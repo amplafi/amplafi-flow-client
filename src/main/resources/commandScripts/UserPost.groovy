@@ -1,5 +1,6 @@
-description "UserPost", "User Post", "apiKey=key, fromDate=date, toDate=date";
-
+description "UserPost", "User Post", [paramDef("apiKey","",false,null),
+                                      paramDef("fromDate","",true,null),
+                                      paramDef("toDate","",true,null)];
 
 def toAmplafiJSONCalendar = { 
     dateString -> 
@@ -10,16 +11,16 @@ def toAmplafiJSONCalendar = {
 }
 
 def getUserPostInfo = {
-    apiKey, fromDate, toDate->
+    apiKey1, fromDate1, toDate1->
     
     setApiVersion("suv1");
-    setKey(apiKey);
+    setKey(apiKey1);
     def reqParams = ["fsRenderResult":"json"] ;
-    if(fromDate != null) {
-        reqParams["fromDate"] = toAmplafiJSONCalendar(fromDate) ;
+    if(fromDate1 != null) {
+        reqParams["fromDate1"] = toAmplafiJSONCalendar(fromDate1) ;
     }
-    if(toDate != null) {
-        reqParams["toDate"] = toAmplafiJSONCalendar(toDate) ;
+    if(toDate1 != null) {
+        reqParams["toDate1"] = toAmplafiJSONCalendar(toDate1) ;
     }
     
     def response = requestResponse("BroadcastEnvelopes", reqParams);
@@ -200,21 +201,6 @@ def printUserPostInfo = { entries->
         }
         println "\n" ;
     }
-}
-
-def apiKey = null ;
-if (params && params["apiKey"]) {
-    apiKey = params['apiKey'] ;
-}
-
-def fromDate = null ;
-if (params && params["fromDate"]) {
-    fromDate = params['fromDate'] ;
-}
-
-def toDate = null ;
-if (params && params["toDate"]) {
-    toDate = params['toDate'] ;
 }
 
 def userPostInfos = getUserPostInfo(apiKey, fromDate, toDate) ;

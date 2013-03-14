@@ -1,6 +1,7 @@
-description "CreateSuApiKey", "Generates a new SU API key", "userEmail=<admin email> publicUri=<customerUri>";
+//description "CreateSuApiKey", "Generates a new SU API key", "userEmail=<admin email> publicUri=<customerUri>";
+description "CreateSuApiKey", "Generates a new SU API key", [paramDef("userEmail","admin email",false,"admin@amplafi.com",),paramDef("publicUri","customerUri",true,null)];
 
-
+/*
 def userEmail = "admin@amplafi.com" ;
 if (params && params["userEmail"]) {
     userEmail = params["userEmail"] ;
@@ -10,7 +11,7 @@ def publicUri = null ;
 if (params && params["publicUri"]) {
     publicUri = params["publicUri"] ;
 }
-
+*/
 
 printTaskInfo "Create the temporaty api key for the customer " + publicUri ;
 setApiVersion("suv1");

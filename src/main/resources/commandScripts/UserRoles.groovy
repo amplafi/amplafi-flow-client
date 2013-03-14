@@ -1,15 +1,4 @@
-description "UserRoles", "User Roles", "apiKey=apiKey, publicUri=publicUri";
-
-def apiKey = null ;
-if (params && params["apiKey"]) {
-    apiKey = params['apiKey'] ;
-}
-
-def publicUri = null ;
-if (params && params["publicUri"]) {
-    publicUri = params["publicUri"] ;
-}
-
+description "UserRoles", "User Roles", [paramDef("apiKey","",false,null),paramDef("publicUri","",false,null)];
 
 setApiVersion("suv1");
 setKey(apiKey);
