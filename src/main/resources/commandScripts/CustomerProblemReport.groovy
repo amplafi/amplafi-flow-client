@@ -92,7 +92,7 @@ try {
     // UserRoles flow has been removed
     callScript("UserRoles",["apiKey": suApiKey, "publicUri": publicUri]); 
 
-    def apiKey = null ;
+    //def apiKey = null ;
     if(publicUri != null) {
         // call other script and get return value.
         // CreateSuApiKey flow has been removed
