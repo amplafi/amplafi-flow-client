@@ -14,6 +14,10 @@ import org.amplafi.dsl.ScriptDescription;
  */
 public class ScriptTester {
 
+    def static log(msg){
+        println msg;
+    }
+
     def execDSLMock;
     def execDescribeMock;
     ScriptRunner runner;
@@ -30,27 +34,121 @@ public class ScriptTester {
 
     def getExecDSLSpy(){
         if ( !execDSLMock){
+
             FlowTestDSL real = new FlowTestDSL("",runner, true);
-            execDSLMock = new SpyFlowTestDSL();
+            execDSLMock = new Spy();
             execDSLMock.real = real;
             // some methods should not be mocked
+
         }
         return execDSLMock;
     }
 
-    private class SpyFlowTestDSL {
-        def methods = [:]
+
+    // Groovy mocking is as ugly as easymock
+    // and mockito has problems.
+    // If you want to pass through calls to a real object set it to real
+    // To set up an expectation on x.myMethod(123) simply call x.expect_myMethod(123).andDo{ param -> assert param == 123 }
+    // or                          x.expect_myMethod(123).andThrow = new Exception("bad cats")
+    // or                          x.expect_myMethod(123).andReturn = cats
+    //
+    private class Spy  implements GroovyInterceptable {
+        def methods = [:];
+        def callCount = 0;
+        def expectedCalls = [];
+
         def real;
+        public static final String EXPECT = "expect_";
 
         def invokeMethod(String name, args) {
+
+            def realMethodName = name;
+
+            if (name == "verify" ) {
+                def metaMethod = metaClass.getMetaMethod(name, args)
+                def result = metaMethod.invoke(this, args)
+                return;
+            }
+
+            if (name.startsWith(EXPECT) ) {
+
+                realMethodName = name.replaceFirst(EXPECT, "");
+                def expectation = new ExpectedCall(methodName:realMethodName, params:args );
+
+                expectedCalls << expectation;
+
+                //
+                methods[realMethodName] = expectation;
+                return expectation;
+            }
+
+            // Have we set up an expectation for this method?
             if (methods[name]){
-                methods[name](args);
+                // if yes then get current call.
+
+                if (callCount >= expectedCalls.size()){
+                    fail("Received too many calls on spy. call number ${callCount+1} received call to ${name}(${args})")
+                }
+
+                def expected = expectedCalls[callCount]
+
+                if (expected.methodName == name){
+                    expected.called = true;
+                    callCount++;
+                    assertEquals(args,expected.params,"Parameters to method ${name} call ${callCount} differ from expected: ")
+                    if (expected.andThrow) {
+                        throw expected.andThrow;
+                    } else if (expected.andReturn) {
+                        return expected.andReturn;
+                    } else if(expected.andDoC){
+                        expected.andDoC(args);
+                    } else if (expected.andPassThrough){
+                        if (real){
+                            def metaMethod = real.metaClass.getMetaMethod(name, args)
+                            metaMethod.invoke(real, args)
+                        } else {
+                            fail("No real object set for call to  ${name} with params ${args}")
+                        }
+                    }
+
+                } else {
+                    fail("Unexpected call to ${name} with params ${args}")
+                }
+
             } else {
-                def metaMethod = real.metaClass.getMetaMethod(name, args)
-                metaMethod.invoke(real, args)
+                if (real){
+                    def metaMethod = real.metaClass.getMetaMethod(name, args)
+                    metaMethod.invoke(real, args)
+                } else {
+                    fail("No real object set for call to  ${name} with params ${args}")
+                }
             }
         }
+
+        def verify(){
+            expectedCalls.each{
+                if (!it.called){
+                    fail("No call recived on ${it.methodName} with params ${it.params}")
+                }
+            }
+        }
+
+        public class ExpectedCall {
+            def called = false;
+            def methodName;
+            def params;
+            def andThrow;
+            def andReturn;
+            def andPassThrough;
+            def andDoC; // closure
+            def andDo(Closure c){
+                andDoC = c;
+            }
+
+        }
    }
+
+
 
     class MyInterceptor implements Interceptor{
         def methods = [:];
@@ -172,4 +270,6 @@ public class ScriptTester {
 
 
 }
+
+
 

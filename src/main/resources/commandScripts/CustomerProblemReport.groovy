@@ -115,12 +115,13 @@ try {
 
     printMessageEndPoints(meps) ;
 
-    callScript("ApiRequestAuditEntryLog",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate, "maxReturn": apiMaxReturn]); ApiRequestAuditEntriesFlow does not exists.
+    callScript("ApiRequestAuditEntryLog",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate, "maxReturn": apiMaxReturn]);
 
-    callScript("ExternalApiMethodCallLog",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate, "maxReturn": externalApiMaxReturn]);//ExternalApiMethodCallAuditEntries does not exists.
+    callScript("ExternalApiMethodCallLog",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate, "maxReturn": externalApiMaxReturn]);
 
     callScript("UserPost",["apiKey": apiKey, "fromDate": fromDate, "toDate": toDate]);//BroadcastEnvelopes does not exists.
 } catch(Throwable ex) {
+
     println "Error: " + ex.getMessage() ;
     if(verbose) {
         ex.printStackTrace();
