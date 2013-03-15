@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.amplafi</groupId>
         <artifactId>amplafi-opensource-parent</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
         <relativePath>../amplafi-opensource-parent/pom.xml</relativePath>
     </parent>
 
@@ -21,7 +21,7 @@
     </scm>
     
     <properties>
-    <jettyVersion>7.2.0.v20101020</jettyVersion>
+    <jettyVersion>8.1.10.v20130312</jettyVersion>
   </properties>
 
     <dependencies>
