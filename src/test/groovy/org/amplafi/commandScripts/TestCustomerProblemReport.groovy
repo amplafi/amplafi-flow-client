@@ -34,8 +34,6 @@ public class TestCustomerProblemReport extends ScriptTester {
         super.tearDown();
     }
 
-
-
     /**
      * run CustomerProblemReport with no params and verify that a usage error is raised.
      */
@@ -80,7 +78,7 @@ public class TestCustomerProblemReport extends ScriptTester {
         // Set up expected calls
         //
 
-        // When callScript method is called with param "CreateSuApiKey"  we return null;
+        // When callScript method is called with param "CreateSuApiKey"  we return a dummy key;
         dslSpy.expect_callScript("CreateSuApiKey",["publicUri":"www.acme.com","userEmail":"admin@amplafi.com"]).andReturn = "DUMMY_SU_API_KEY";
         dslSpy.expect_setKey("DUMMY_SU_API_KEY");
         dslSpy.expect_callScript("AvailableCategories");
@@ -133,10 +131,11 @@ public class TestCustomerProblemReport extends ScriptTester {
         // Set up expected calls
         //
 
-        // When callScript method is called with param "CreateSuApiKey"  we return null;
+        // When callScript method is called with param "CreateSuApiKey"  we return dumy key;
         dslSpy.expect_callScript("CreateSuApiKey",["publicUri":"www.acme.com","userEmail":"admin@amplafi.com"]).andReturn = "DUMMY_SU_API_KEY";
         dslSpy.expect_setKey("DUMMY_SU_API_KEY");
         dslSpy.expect_callScript("AvailableCategories");
+        // when this is called throw an exception.
         dslSpy.expect_callScript("AvailableExternalServices").andThrow = new Exception("Deliberate exception in test");
 
         runScript("CustomerProblemReport", ["publicUri":"www.acme.com"])
