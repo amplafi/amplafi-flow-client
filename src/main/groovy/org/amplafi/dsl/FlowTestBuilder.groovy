@@ -506,7 +506,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     private String getRequestString(){
         if (requestUriString != null){
-            
             return requestUriString;
         } else {
             def postKeySep = "";

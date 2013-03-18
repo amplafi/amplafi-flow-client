@@ -34,7 +34,7 @@ public class GeneralFlowRequest {
     private String flowName;
     private String queryString;
     private HttpClient httpClient;
-	private Collection<NameValuePair> parameters;
+    private Collection<NameValuePair> parameters;
 
     /**
      * @param requestUri is expected to have everything accept the queryString
@@ -54,7 +54,7 @@ public class GeneralFlowRequest {
         this.requestUri = requestUri;
         this.flowName = flowName;
         queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");
-		this.parameters = parameters;
+        this.parameters = parameters;
     }
 
     /**
@@ -95,33 +95,33 @@ public class GeneralFlowRequest {
          String output = null;
          try {
             FlowResponse response = sendRequest();
-            output = response.getResponseAsString() ;	
+            output = response.getResponseAsString() ;
         } catch (Exception e) {
             // Throw an exception here ?
             //e.printStackTrace();
         }
         return output;
     }
-	
-	/**
-	 * Send post request 
-	 */
-	public FlowResponse post() throws IOException, ClientProtocolException {
+    
+    /**
+     * Send post request 
+     */
+    public FlowResponse post() throws IOException, ClientProtocolException {
         HttpClient client = getHttpClient();
         String requestString = getRequestString();
         HttpPost request = new HttpPost(getFullUri());
-		
-		request.setEntity(new UrlEncodedFormEntity(parameters));
-		
+        
+        request.setEntity(new UrlEncodedFormEntity(parameters));
+        
         FlowResponse response = new FlowResponse(client.execute(request));
-        return response;	
-	}
-	
+        return response;
+    }
+    
 
     public FlowResponse sendRequest() throws IOException, ClientProtocolException {
         HttpClient client = getHttpClient();
         String requestString = getRequestString();
-		HttpGet request = new HttpGet(requestString);
+        HttpGet request = new HttpGet(requestString);
         FlowResponse response = new FlowResponse(client.execute(request));
         return response ;
     }

@@ -7,11 +7,14 @@ emitOutput( "GetTempApiKey : ${callbackHost}" );
 
 // Clear current Key
 
-callScript("GetTempApiKey",["apiCall":"PermanentApiKey"]);
+def tempApiKey = callScript("GetTempApiKey",["apiCall":"PermanentApiKey"]);
 
-def tempApiKey = getKey();
 
-println "tempApiKey = " + tempApiKey;
+//def tempApiKey = getKey();
+
+emitOutput("tempApiKey = " + tempApiKey);
+
+setKey(tempApiKey);
 
 def key = openPort(9123,10,{
     // Send Post Request
