@@ -5,6 +5,19 @@ During development it is normal to use a local server running on port 8080 and t
 
 To make any API calls you will need an API key. This will be generated the first time the wordpress plugin connects to the server. So you will need to install wordpress and the farreaches-wp-plugin to do this.
 To do that should follow the instructions at https://github.com/farreaches/farreaches-wp-plugin
+## API structure
+ * Api has two entry points for clients to use: /api and /public
+ * Calls to /api are required to be authenticated
+ * To authenticate a call to /api entry point a client must supply a valid api key in Authorization header
+ * There is a third entry point -- /su -- which can be used by Amplafi employees to call some customer support flows. All calls to the entry point must be signed by a valid key (the key must belong to an Amplafi employee with a role at least as poverful as CUSTOMER_SUPPORT).
+
+### /public entry point flows
+Calls to flows on the entry point can be unathorized, in fact any authorization data supplied will be ignored by the entry point.
+The entry point has only 3 flows at the moment: 
+ * GetWordpressPluginInfo - exposes info about latest plugin version available
+ * GetWordpressPlugin - let's clients to download latest plugin
+ * TemporaryApiKey - returns a key which can be used to obtain a permanent api key by making a request (signed with the key) to the /api endpoint. 
+
 
 ## API response parsing
 Following is the description of how API is supposed to work. If you see different behavior, that is a bug; please report or fix it.
