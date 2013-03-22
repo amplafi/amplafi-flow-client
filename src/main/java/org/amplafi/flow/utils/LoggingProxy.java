@@ -140,15 +140,15 @@ public class LoggingProxy {
      * @param remotePort is remote port
      * @param localPort is local port
      */
-    public void runServer(String host, int remoteport, int localport)
+    public void runServer(String host, int remotePort, int localPort)
         throws IOException {
         // Print a start-up message
         getLog().info(
-                "Starting proxy for " + host + ":" + remoteport + " on port "
-                        + localport);
+                "Starting proxy for " + host + ":" + remotePort + " on port "
+                        + localPort);
         // And start running the server
         // Create a ServerSocket to listen for connections with
-        ServerSocket ss = new ServerSocket(localport);
+        ServerSocket ss = new ServerSocket(localPort);
         final byte[] request = new byte[1024];
         byte[] reply = new byte[4096];
         while (true) {
@@ -162,12 +162,12 @@ public class LoggingProxy {
                 // If we cannot connect to the server, send an error to the
                 // client, disconnect, and continue waiting for connections.
                 try {
-                    server = new Socket(host, remoteport);
+                    server = new Socket(host, remotePort);
                 } catch (IOException e) {
                     PrintWriter out = new PrintWriter(streamToClient);
                     getLog().info(
                             "Proxy server cannot connect to " + host + ":"
-                                    + remoteport + ":\n" + e + "\n");
+                                    + remotePort + ":\n" + e + "\n");
                     out.flush();
                     client.close();
                     continue;

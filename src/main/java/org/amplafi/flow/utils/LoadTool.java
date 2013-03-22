@@ -58,7 +58,7 @@ public class LoadTool extends UtilParent{
 
     /**
      * Process command line and run the server.
-     * @param args.
+     * @param args
      */
     public void processCommandLine(String[] args) {
         // Process command line options.
