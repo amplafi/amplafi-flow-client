@@ -15,7 +15,7 @@ def msgEndPointList = requestPost("MessageEndPointList",["messageEndPointTypes":
                                                      "messageEndPointCompleteList":"true"]);//TODO:externalServiceDefinition is not found.
                                                      
                                                      
-def msgEndPointList = requestPost("ActivateMessageEndPoint",["messageEndPoint":"mep_0"]);////TODO:externalServiceDefinition is not found.
+def activeMsgEndPointList = requestPost("ActivateMessageEndPoint",["messageEndPoint":"mep_0"]);////TODO:externalServiceDefinition is not found.
 
 emitOutput( "msgEndPointList : " + msgEndPointList );
                                                    
