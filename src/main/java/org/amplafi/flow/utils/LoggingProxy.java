@@ -1,9 +1,27 @@
 package org.amplafi.flow.utils;
 
-import java.io.*;
-import java.net.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.API_KEY;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.API_VERSION;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.HOST;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.PORT;
+import static org.amplafi.flow.utils.LoggingProxyCommandLineOptions.CLIENT_PORT;
+import static org.amplafi.flow.utils.LoggingProxyCommandLineOptions.HOST_PORT;
+import static org.amplafi.flow.utils.LoggingProxyCommandLineOptions.OUT_FILE;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONException;
@@ -11,20 +29,6 @@ import org.amplafi.json.JSONObject;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.internal.runners.statements.Fail;
-
-import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.API_KEY;
-import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.API_VERSION;
-import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.HOST;
-import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.OUTPATH;
-import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.PORT;
-import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.STRATEGY;
-import static org.amplafi.flow.utils.LoggingProxyCommandLineOptions.*;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 /*import javax.servlet.DispatcherType;
  import org.eclipse.jetty.servlets.ProxyServlet.Transparent;
