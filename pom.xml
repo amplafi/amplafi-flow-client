@@ -38,15 +38,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymockclassextension</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>${log4j-build}</version>
         </dependency>
 
         <dependency>
@@ -66,17 +59,16 @@
             <artifactId>httpclient</artifactId>
         </dependency>
 
-        <dependency>
-             <groupId>net.oauth.core</groupId>
-             <artifactId>oauth</artifactId>
-            <version>20100527</version>
+		<dependency>
+            <groupId>org.amplafi</groupId>
+            <artifactId>amplafi-flow-core</artifactId>
+            <version>${amplafi-flow-build}</version>
         </dependency>
+
         <dependency>
             <groupId>org.amplafi</groupId>
             <artifactId>amplafi-json</artifactId>
             <version>${amplafi-json-build}</version>
-            <type>jar</type>
-
         </dependency>
 
         <dependency>
@@ -95,31 +87,23 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>properties-maven-plugin</artifactId>
-            <version>1.0-alpha-2</version>
-        </dependency>
         
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty-util</artifactId>
             <version>6.1.26</version>
         </dependency>
-    
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>3.0-alpha-1</version>
-        </dependency>
 
-        <dependency>
+		<dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>maven-jetty-plugin</artifactId>
             <version>6.1.26</version>
         </dependency>
-         
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
 
     </dependencies>
     <build>
@@ -251,13 +235,6 @@
               </configuration>
             </plugin>
 
- 	<plugin>
-        <!-- This plugin is needed for the servlet example -->
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty-maven-plugin</artifactId>
-        <version>${jettyVersion}</version>
-      </plugin>
-      
         </plugins>
     </build>
     <profiles>
