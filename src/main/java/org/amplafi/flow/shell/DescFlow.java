@@ -11,10 +11,10 @@ import org.amplafi.json.JSONObject;
  * @author Tuan Nguyen
  */
 public class DescFlow extends Action {
-    static String USAGE = 
+    static String USAGE =
         "Usage: \n"+
         "  desc --name=FlowName --param1=<value> --param2=<value>\n" ;
-    
+
     public void exec(Console c, ShellContext context, String args) throws Exception {
         Map<String, String> options = Command.parseOptions(args);
         String fullUri = buildBaseUriString(context) ;
@@ -22,7 +22,7 @@ public class DescFlow extends Action {
         if(flowName == null) {
             c.printf(USAGE) ;
         } else {
-            GeneralFlowRequest request = new GeneralFlowRequest(URI.create(fullUri), flowName, fsRenderResult, describe);
+            GeneralFlowRequest request = new GeneralFlowRequest(null, null, flowName, fsRenderResult, describe);
             String result = request.get();
             JSONObject jsonObject = new JSONObject(result ) ;
             c.printf("%1s%n", jsonObject.toString(2));

@@ -36,6 +36,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.amplafi.flow.utils.GenerationException;
 import org.amplafi.flow.utils.GeneralFlowRequest;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import groovy.lang.GroovyShell;
@@ -164,7 +165,7 @@ public abstract class AbstractTestingStrategy {
 
     /**
      * Adds an expected return to the test.
-     * 
+     *
      * @param json - the expected json data
      */
     public final void addExpect(String json) {
@@ -229,7 +230,7 @@ public abstract class AbstractTestingStrategy {
 
     /**
      * Generate standard ignore list in file.
-     * 
+     *
      * @param json1 is the json data in first request
      * @param json2 is the json data in second request
      */
@@ -262,7 +263,7 @@ public abstract class AbstractTestingStrategy {
         return ignoreList;
     }
 
-//    
+//
 //    private void writeIngnoresToFile(List<String> ingnoreList, String flow) {
 //        try {
 //            File file = new File("StandarIgnoreList.groovy");
@@ -288,7 +289,7 @@ public abstract class AbstractTestingStrategy {
 //                    sep = ",";
 //                }
 //                sb.append("]");
-//                
+//
 //                sb.append(");");
 //            }
 //            fileWriter.write(sb.toString());
@@ -302,7 +303,7 @@ public abstract class AbstractTestingStrategy {
 //            e.printStackTrace();
 //        }
 //    }
-//    
+//
 //
 //    public void writeReturnRetToIngnoresFile() {
 //        System.out.println("###########wirte return");
@@ -323,7 +324,7 @@ public abstract class AbstractTestingStrategy {
 
     /**
      * Compare of two JSONObjects.
-     * 
+     *
      * @param json1 is the json data in first request
      * @param json2 is the json data in second request
      * @param currentPath is the current property path
@@ -391,8 +392,8 @@ public abstract class AbstractTestingStrategy {
      * @param requestUriString - base request url
      * @throws GenerationException if a problem occurs with test generation.
      */
-    public void generateTestForActivity(String flow,
-            JSONObject activityDefinition, String requestUriString)
+    public void generateTestForActivity(String flow, String key,
+            JSONObject activityDefinition, FarReachesServiceInfo service)
         throws GenerationException {
         assertNotNull(
                 activityDefinition,
@@ -406,7 +407,7 @@ public abstract class AbstractTestingStrategy {
         // add the json response parameter
         parametersPopulatedWithBogusData.add(RENDER_AS_JSON);
         addRequest(flow, parametersPopulatedWithBogusData);
-        addVerification(callFlowForTypicalData(requestUriString, flow,
+        addVerification(callFlowForTypicalData(service, key, flow,
                 parametersPopulatedWithBogusData));
     }
 
@@ -417,11 +418,13 @@ public abstract class AbstractTestingStrategy {
      * @param parametersPopulatedWithBogusData - data to send. -
      * @return the request string.
      */
-    public String callFlowForTypicalData(String requestUriString, String flow,
+    public String callFlowForTypicalData(FarReachesServiceInfo service, String key, String flow,
             Collection<NameValuePair> parametersPopulatedWithBogusData) {
-        URI requestUri = URI.create(requestUriString);
-        GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flow,
-                parametersPopulatedWithBogusData);
+
+        GeneralFlowRequest request = new GeneralFlowRequest(service,
+                                                                 key,
+                                                                 flow,
+                                                                 parametersPopulatedWithBogusData);
         return request.get();
     }
 

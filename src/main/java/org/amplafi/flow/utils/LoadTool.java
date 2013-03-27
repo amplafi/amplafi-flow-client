@@ -11,7 +11,7 @@ import org.amplafi.dsl.ScriptRunner;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import static org.amplafi.flow.utils.LoadToolCommandLineOptions.*;
 import java.util.EnumSet;
 
@@ -39,7 +39,7 @@ public class LoadTool extends UtilParent{
 
     private static final String THICK_DIVIDER =
     "*********************************************************************************";
-    
+
     /**
      * Constructor for LoadTool
      */
@@ -51,7 +51,7 @@ public class LoadTool extends UtilParent{
 
     private boolean running = true;
     private boolean reported = false;
-    
+
     //This file will be created when test is running ,and if you delete it ,the test will be stop.
     //And the same time you will see the report of the load test.
     private String runningFile = "LOAD_TOOL_RUNNING";
@@ -129,11 +129,13 @@ public class LoadTool extends UtilParent{
 
             String key =  "";
 
+            final FarReachesServiceInfo service = new FarReachesServiceInfo(host, ""+remotePort, "apiv1");
+
             /* Get the api key automatically*/
-            key = getPermApiKey(host,""+remotePort,"example.com", true);
+            key = getPermApiKey(service,null, true);
 
             try {
-                runLoadTest(host, key, remotePort, scriptName,  numThreads, frequency ); // never returns
+                runLoadTest(service, key, scriptName,  numThreads, frequency ); // never returns
             } catch (IOException ioe) {
                 getLog().error("Error running proxy", ioe);
                 return;
@@ -141,7 +143,7 @@ public class LoadTool extends UtilParent{
 
             while(running){
                 if(!isFileExists()){
-                    shutDown(); 
+                    shutDown();
                     running = false;
                 }
                 try{
@@ -152,7 +154,7 @@ public class LoadTool extends UtilParent{
             }
         }
     }
-    
+
     /**
      * The method is handle threads and put out report of each thread.
      */
@@ -190,16 +192,16 @@ public class LoadTool extends UtilParent{
             getLog().info(THICK_DIVIDER);
         }
      }
-    
-    
+
+
     /**
      * Create a file.
      */
     private void createFile(){
         try{
-            
+
             File file = new File(runningFile);
-            
+
             if(!file.exists()){
                 file.createNewFile();
             }
@@ -207,7 +209,7 @@ public class LoadTool extends UtilParent{
             //
         }
     }
-    
+
     /**
      * Validate if the file used for decidding the thread will run or stop is exists
      */
@@ -229,15 +231,15 @@ public class LoadTool extends UtilParent{
      * runs a single-threaded proxy server on
      * the specified local port. It never returns.
      */
-    public void runLoadTest(final String host,
+    public void runLoadTest(final FarReachesServiceInfo service,
                             final String key,
-                            final int port,
                             final String scriptName,
                             final int numThreads,
                             final int frequency )
                             throws IOException {
-        getLog().info("Running LoadTest with host=" + host 
-                        + " host port=" + port + " script=" + scriptName
+
+        getLog().info("Running LoadTest with host="
+                        + " host port=" +  " script=" + scriptName
                         + " numThreads=" + numThreads + " frequency=" + frequency);
         getLog().info("Press Ctrl+C to stop");
 
@@ -246,7 +248,7 @@ public class LoadTool extends UtilParent{
             final ThreadReport report = new ThreadReport();
             Thread thread = new Thread(new Runnable(){
                 public void run() {
-                    ScriptRunner scriptRunner = new ScriptRunner(host, ""+port, "apiv1", key);
+                    ScriptRunner scriptRunner = new ScriptRunner(service,key);
                     try {
                         // don't include the first run because this includes
                         // constructing gropvy runtime.

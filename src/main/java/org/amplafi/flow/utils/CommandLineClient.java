@@ -15,7 +15,7 @@ import org.apache.commons.cli.ParseException;
 /**
  * TODO: remove this class and its dependencies. Replace by Shell
  * A shell to manage the wireservice.
- * 
+ *
  * @author Tuan
  * @author Haris Osmanagic
  */
@@ -23,15 +23,15 @@ public class CommandLineClient implements Runnable {
     private static final int INDENTATION_LEVEL = 5;
 
     private String apiKey;
-    
+
     private FarReachesServiceInfo serviceInfo;
     private FlowRequestDescription flowRequestDescription;
     private boolean isTutorial;
     private boolean doFormatOutput;
-    
+
     public static void main(String[] args) {
         CommandLineClientOptions cmdOptions = null;
-        
+
         try {
             cmdOptions = new CommandLineClientOptions(args);
         } catch (ParseException e) {
@@ -39,21 +39,21 @@ public class CommandLineClient implements Runnable {
             e.printStackTrace();
             System.exit(1);
         }
-        
+
         if (args.length == 0 || cmdOptions.hasOption(HELP) ) {
             cmdOptions.printHelp();
-            
+
             System.exit(0);
         }
 
         String apiKey = cmdOptions.getOptionValue(API_KEY);
-        
+
         FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(
                 cmdOptions.getOptionValue(HOST),
                 cmdOptions.getOptionValue(PORT),
                 cmdOptions.getOptionValue(API_VERSION));
-        
-        FlowRequestDescription flowRequestDescription = new FlowRequestDescription(cmdOptions.getOptionValue(FLOW), 
+
+        FlowRequestDescription flowRequestDescription = new FlowRequestDescription(cmdOptions.getOptionValue(FLOW),
                 cmdOptions.hasOption(DESCRIBE), cmdOptions.getOptionProperties(PARAMS));
 
         CommandLineClient client = new CommandLineClient(apiKey, serviceInfo, flowRequestDescription, cmdOptions.hasOption(FORMAT), cmdOptions.hasOption(TUTORIAL));
@@ -73,22 +73,22 @@ public class CommandLineClient implements Runnable {
     private String buildBaseUriString() {
         String fullUri;
         if (!this.isTutorial){
-            fullUri =  this.serviceInfo.getHost()  
+            fullUri =  this.serviceInfo.getHost()
                     + ":" + this.serviceInfo.getPort() + "/c/"
-                    + this.apiKey 
-                    + "/" + this.serviceInfo.getApiVersion(); 
-                    
+                    + this.apiKey
+                    + "/" + this.serviceInfo.getApiVersion();
+
         } else {
-             fullUri =  this.serviceInfo.getHost()  + 
-             ":" + this.serviceInfo.getPort() + 
+             fullUri =  this.serviceInfo.getHost()  +
+             ":" + this.serviceInfo.getPort() +
              "/tutorial/flow";
-                    
+
         }
         return fullUri;
     }
-    
+
     public void run() {
-        GeneralFlowRequest flowRequest = new GeneralFlowRequest(URI.create(buildBaseUriString()), this.flowRequestDescription.getFlowName(), this.flowRequestDescription.getParameters());;
+        GeneralFlowRequest flowRequest = new GeneralFlowRequest(serviceInfo, this.apiKey, this.flowRequestDescription.getFlowName(), this.flowRequestDescription.getParameters());
         JsonConstruct result = null;
         if (flowRequestDescription.isDescribe() && flowRequestDescription.getFlowName() == null) {
             result = flowRequest.listFlows();
@@ -116,13 +116,13 @@ public class CommandLineClient implements Runnable {
 
     private JsonConstruct toJsonConstruct(String string) {
         JsonConstruct json = null;
-        
+
         try {
             json = new JSONObject(string);
         } catch (JSONException e) {
             json = new JSONArray<String>(string);
         }
-        
+
         return json;
     }
 }

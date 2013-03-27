@@ -18,6 +18,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 
 /**
  * The development server needs to be running for this test class to work.<br>
@@ -36,7 +37,7 @@ import static org.testng.Assert.*;
  */
 public class TestFlowTypes {
 
-    private static final String requestUriString = "http://localhost:8080";
+    private static final FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo("localhost", "8080", "apiv1");
 
     private static final String jsonParamaterKey = "parameters";
 
@@ -80,7 +81,7 @@ public class TestFlowTypes {
     public Object[][] getListOfFlows() {
         debug("@@@ List of flows " );
         //get list of flow types, currently this returns null because no api key is set.
-        List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString), null)).listFlows().asList();
+        List<String> flowList = (new GeneralFlowRequest(serviceInfo,null, null)).listFlows().asList();
 
         debug("@@@ List of flows " + flowList);
 
@@ -112,9 +113,9 @@ public class TestFlowTypes {
      * Verify that request return non-null non-empty string.
      */
     public void testFlowDefinition_resultString() {
-		System.err.println("Sending request to " + requestUriString);
+        System.err.println("Sending request to " + serviceInfo);
         String messageStart = "Returned FlowDefinition for " + flow + " ";
-        flowDefinitionResult = new GeneralFlowRequest(URI.create(requestUriString), flow).describeFlowRaw();
+        flowDefinitionResult = new GeneralFlowRequest(serviceInfo,"apikey", flow).describeFlowRaw();
         assertNotNull(flowDefinitionResult);
         assertFalse(flowDefinitionResult.trim().equals(""), messageStart + "was an empty String");
     }
@@ -193,8 +194,7 @@ public class TestFlowTypes {
         //add the json response parameter
         parametersPopulatedWithBogusData.add(renderAsJson);
 
-        URI requestUri = URI.create(requestUriString);
-        GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flow, parametersPopulatedWithBogusData);
+        GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo, "apikey",flow, parametersPopulatedWithBogusData);
         jsonResultWhenAllParametersAreStringsResult = request.get();
     }
 

@@ -7,7 +7,7 @@ import org.amplafi.dsl.DescribeScriptDSL;
 import org.amplafi.flow.utils.UtilParent;
 import groovy.mock.interceptor.*
 import org.amplafi.dsl.ScriptDescription;
-
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 /**
  * This class offer features for testing DSL scripts, such as:
  * mocking calls to the server and to other scripts.
@@ -21,8 +21,10 @@ public class ScriptTester {
     def execDSLMock;
     def execDescribeMock;
     ScriptRunner runner;
-    public void init(){
+    FarReachesServiceInfo serviceInfo;
 
+    public void init(){
+        serviceInfo = new FarReachesServiceInfo("_host_","_port_","_api_");
     }
 
     public void tearDown(){
@@ -35,7 +37,7 @@ public class ScriptTester {
     def getExecDSLSpy(){
         if ( !execDSLMock){
 
-            FlowTestDSL real = new FlowTestDSL("",runner, true);
+            FlowTestDSL real = new FlowTestDSL(serviceInfo,runner, true);
             execDSLMock = new Spy();
             execDSLMock.real = real;
             // some methods should not be mocked
@@ -81,6 +83,7 @@ public class ScriptTester {
                 methods[realMethodName] = expectation;
                 return expectation;
             }
+ScriptTester.log("SPY CAUGHT: ${name}(${args})")
 
             // Have we set up an expectation for this method?
             if (methods[name]){
@@ -196,9 +199,10 @@ public class ScriptTester {
     }
 
     def runScript(String scriptName, Map params){
-        runner = new TinkerableScriptRunner(params);
+        runner = new TinkerableScriptRunner(serviceInfo,params);
 
         Map<String, ScriptDescription> scriptLookup = getScriptLookup(runner);
+println scriptLookup;
         Object ret = null;
         if (scriptLookup[scriptName]){
             runner.setScriptLookup(scriptLookup);
@@ -211,24 +215,24 @@ public class ScriptTester {
 
 
     private class TinkerableScriptRunner extends ScriptRunner{
-        TinkerableScriptRunner(params){
-             super( "",  "", "", "",  params, true);
+        TinkerableScriptRunner(serviceInfo,params){
+             super(serviceInfo, "key",  params, true);
         }
 
         /**
          * Configure for describing script
          */
         @Override
-        def getFlowTestBuilder(requestUriString,runner,verbose){
-            return new TinkerableFlowTestBuilder();
+        def getFlowTestBuilder(serviceInfo,runner,verbose){
+            return new TinkerableFlowTestBuilder(serviceInfo);
         }
 
         /**
          * Configure for running script
          */
         @Override
-        def getFlowTestBuilder(host,port,apiVersion,key,runner,verbose){
-            return new TinkerableFlowTestBuilder();
+        def getFlowTestBuilder(serviceInfo,key,runner,verbose){
+            return new TinkerableFlowTestBuilder(serviceInfo);
         }
 
     }
@@ -238,8 +242,8 @@ public class ScriptTester {
         /**
          * Constructor for tests
          */
-        public TinkerableFlowTestBuilder(){
-            super(null, null, false);
+        public TinkerableFlowTestBuilder(serviceInfo){
+            super(serviceInfo, null, false);
         }
 
 

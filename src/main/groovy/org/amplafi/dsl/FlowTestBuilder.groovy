@@ -1,4 +1,5 @@
 package org.amplafi.dsl;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.flow.utils.GeneralFlowRequest;
 import org.amplafi.flow.utils.FlowResponse;
 import org.apache.http.NameValuePair;
@@ -20,6 +21,7 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 
 /**
  * This class defines a simple DSL for sending reqests to the amplafi wire server
@@ -54,10 +56,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class FlowTestBuilder {
 
-    private String requestUriString;
-    private String host;
-    private String port;
-    private String apiVersion;
+    private FarReachesServiceInfo serviceInfo;
     private String key;
     private ScriptRunner runner;
     private boolean verbose = false;
@@ -65,8 +64,8 @@ public class FlowTestBuilder {
     /**
      * Constructor for tests
      */
-    public FlowTestBuilder(String requestUriString, ScriptRunner runner, boolean verbose){
-        this.requestUriString = requestUriString;
+    public FlowTestBuilder(FarReachesServiceInfo serviceInfo, ScriptRunner runner, boolean verbose){
+        this.serviceInfo = serviceInfo;
         this.runner = runner;
         this.verbose = verbose;
     }
@@ -74,21 +73,15 @@ public class FlowTestBuilder {
     /**
      * Constructor for tools
      */
-    public FlowTestBuilder(String host, String port, String apiVersion, String key, ScriptRunner runner, boolean verbose){
-        this.requestUriString = requestUriString;
-        this.host = host;
-        this.port = port;
-        this.apiVersion = apiVersion;
+    public FlowTestBuilder(FarReachesServiceInfo serviceInfo, String key, ScriptRunner runner, boolean verbose){
+        this.serviceInfo =serviceInfo;
         this.key = key;
         this.runner = runner;
         this.verbose = verbose;
     }
 
      public FlowTestBuilder(String host, String port, String apiVersion, String key, List<String> paramArray){
-        this.requestUriString = requestUriString;
-        this.host = host;
-        this.port = port;
-        this.apiVersion = apiVersion;
+        this.serviceInfo = new FarReachesServiceInfo( host, port, apiVersion);
         this.key = key;
     }
 
@@ -96,10 +89,10 @@ public class FlowTestBuilder {
      * Configure the closure to be runnaable
      */
     public buildExe(Closure c){
-        if (requestUriString != null){
-            c.delegate = new FlowTestDSL(requestUriString, runner, verbose);
+        if (serviceInfo != null){
+            c.delegate = new FlowTestDSL(serviceInfo, runner, verbose);
         } else {
-            c.delegate = new FlowTestDSL(host, port, apiVersion, key, runner, verbose);
+            c.delegate = new FlowTestDSL(serviceInfo, key, runner, verbose);
         }
         c.setResolveStrategy(Closure.DELEGATE_FIRST)
         return c;
@@ -137,31 +130,26 @@ public class FlowTestDSL extends DescribeScriptDSL {
     //private List<String> ignoreList = new ArrayList<String>();
 
     /** This stores the base uri including the host,port,apikey */
-    private String requestUriString = null;
+    private FarReachesServiceInfo serviceInfo = null;
 
     /** This stores the last request to the server */
-    private String lastRequestString = null;
-    
-    /** This is a prefix of a host */
-    private String PROTOCOL = "http://";
-    
+    private String lastRequestString = "";
+
+
+
     /**
      * Contains the last response from the server.
      */
     public String lastRequestResponse = null;
 
-    public FlowTestDSL(String requestString, ScriptRunner runner, boolean verbose){
-        requestString = addHttpPrexBeforeString(requestString);
-        this.requestUriString = requestString;
+    public FlowTestDSL(FarReachesServiceInfo requestString, ScriptRunner runner, boolean verbose){
+        this.serviceInfo =  requestString;
+        this.lastRequestString = "";
         this.runner = runner;
         this.verbose = verbose;
     }
 
-    public FlowTestDSL(String host, String port, String apiVersion, String key, ScriptRunner runner, boolean verbose){
-        host = addHttpPrexBeforeString(host);
-        this.host = host;
-        this.port = port;
-        this.apiVersion = apiVersion;
+    public FlowTestDSL(FarReachesServiceInfo requestString, String key, ScriptRunner runner, boolean verbose){
         this.key = key;
         this.runner = runner;
         this.verbose = verbose;
@@ -169,7 +157,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     public void description (String name, String description){
         this.name = name;
-        this.description = description;        
+        this.description = description;
     }
 
     public void description (String name, String description, String usage){
@@ -177,13 +165,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
         this.name = name;
         this.description = description;
     }
-    
+
     public void description (String name, String description, List<ParameterUsge> usages){
         this.name = name;
         this.description = description;
         this.usages = usages;
     }
-     
+
     public ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue){
         return new ParameterUsge(name,description,optional,defaultValue);
     }
@@ -220,18 +208,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
     String getKey(){
         return key;
     }
-    
-    /**
-     * Add a prefix of host.
-     */
-    private String addHttpPrexBeforeString(String host){
-        if(!host.contains(PROTOCOL)){
-            host = PROTOCOL + host;
-        }
-        return host;
-    }
-    
-    
+
+
+
+
     /**
      * Sends a request to the named flow with the specified parameters.
      * @param flowName to call.
@@ -249,9 +229,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
             // will need to change lots of tests and the test generator if we do, but might be much more useful.
         }
         return lastRequestResponse;
-        
+
     }
-    
+
     /**
      * The method get the request closure.
      * Because the closure can not be created in the asyncRequest method(maybe it is a bug in groovy).
@@ -260,18 +240,18 @@ public class FlowTestDSL extends DescribeScriptDSL {
     Closure createRequestClosure(flowName, paramsMap){
         return {requestResponse(flowName, paramsMap);}
     }
-    
+
     /**
      * The method get the response closure.
      * return closure.
      */
     Closure createResponseClosure(dataReturnProperty){
-        return {request, response -> 
+        return {request, response ->
                 return request.getParameterMap().get(dataReturnProperty);};
     }
-    
+
     /**
-     * This method will automatically add a callbackParam into params and send the request. 
+     * This method will automatically add a callbackParam into params and send the request.
      * With a callback uri It will then use openPort to call the flow and return the response.
      * @param flowName to call.
      * @param [params] key value map of parameters to send.
@@ -333,8 +313,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
         paramsMap.each{ k,v ->
             requestParams.add(new BasicNameValuePair(k, v));
         }
-        URI requestUri = URI.create(getRequestString());
-        GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flowName, requestParams);
+
+        serviceInfo.setApiVersion(getApiVersion());
+        GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo, this.key, flowName, requestParams);
         debug(requestParams.toString());
         lastRequestString = request.getRequestString();
         if(verbose){
@@ -504,9 +485,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
     /**
      * @return pre-configured request string of constructs one if needed.
      */
-    private String getRequestString(){
-        if (requestUriString != null){
-            return requestUriString;
+/*    public String getRequestString(){
+        if (serviceInfo != null){
+            return serviceInfo;
         } else {
             def postKeySep = "";
             if ( this.key != null && this.key != ""){
@@ -514,11 +495,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
             }
             return this.host + ":" + this.port + "/c/" + this.key   + "${postKeySep}" + this.apiVersion;
         }
-    }
-    
-    public String getRequestStringToTest(){
-        getRequestString();
-    }
+    }*/
+
 
     /**
      * method to compare the actual jsonObject return to us with our expected, and can ignore some compared things,return true when they are the same.
@@ -560,7 +538,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
         if(expectedNames == null || actualNames == null){
             fail("After Calling ${lastRequestString}.Response did not match expected names:" + newLine
-                + "expected names was " + expectedNames + newLine 
+                + "expected names was " + expectedNames + newLine
                 + "but the actual names was "+ actualNames + newLine
                 + "expected data was " + expected + newLine
                 + "but the actual data was "+ actual);
@@ -613,7 +591,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
         return isEqual;
     }
-    
+
     def server = null;
     def currentPort = 0;
     public Server getServer(int portNo){
@@ -621,9 +599,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
             server = new Server(portNo);
         }
         return server;
-        
+
     }
-    
+
      /**
      * The method is to open a port and listens request.
      * @param portNo is port number.
@@ -640,7 +618,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
         getLog().debug("openPort() start server on port ${portNo} ");
         server.start();
         doNow.delegate = this;
-        
+
         //Wait for 10 seconds
         try{
             getLog().debug("openPort() about to run doNow() closure for port ${portNo}");
@@ -741,7 +719,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def setApiKey(String tempApiKey){
         this.tempApiKey=tempApiKey;
     }
-    
+
     /**
      * @param msg is message to debug log.
      */
@@ -780,7 +758,7 @@ public class DescribeScriptDSL {
     private static final boolean DEBUG = false;
 
     /** This stores the base uri including the host,port,apikey */
-    private String requestUriString;
+    private String serviceInfo;
 
     /** This stores the last request to the server */
     private String lastRequestString;
@@ -825,7 +803,7 @@ public class DescribeScriptDSL {
         // This pevents the other commands in the script fom being executed.
         throw new EarlyExitException(scriptDescription);
     }
-    
+
     /**
      * The description of the name.
      *@param name - the name to description.
@@ -837,9 +815,9 @@ public class DescribeScriptDSL {
         String newLine = System.getProperty("line.separator");
         StringBuffer usageSb = new StringBuffer(newLine);
         for(ParameterUsge paramUsage : usages){
-        
 
-        
+
+
             if(paramUsage.getName()&& paramUsage.getDescription()){
                 usageSb.append(sprintf('%-15s = <%-15s>', paramUsage.getName(), paramUsage.getDescription()));
                 // usageSb.append(paramUsage.getName() + " = " +"<" +paramUsage.getDescription() + ">");
@@ -879,7 +857,7 @@ public class DescribeScriptDSL {
     }
 
     /**
-     * This method will automatically add a callbackParam into params and send the request. 
+     * This method will automatically add a callbackParam into params and send the request.
      * With a callback uri It will then use openPort to call the flow and return the response.
      * @param flowName to call.
      * @param [params] key value map of parameters to send.
@@ -952,7 +930,7 @@ public class DescribeScriptDSL {
     def callScript(String scriptName){
         throw new NoDescriptionException();
     }
-    
+
     def getscriptDescription(){
         return scriptDescription;
     }
@@ -982,7 +960,7 @@ public class DescribeScriptDSL {
         }
         return this.log;
     }
-    
+
     /**
      * This method returns a ParameterUsge.
      * @param name is name of the param.

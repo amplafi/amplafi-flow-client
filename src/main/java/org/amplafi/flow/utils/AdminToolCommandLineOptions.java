@@ -12,7 +12,8 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
 
     // command line switch used to specify which API key we want to use
     public static final String API_KEY = "key";
-    public static final String FLOW = "flow";
+    public static final String FLOWS = "flows";
+    public static final String DESCRIBE = "describe";
     public static final String HOST = "host";
     public static final String PORT = "port";
     public static final String API_VERSION = "apiv";
@@ -31,36 +32,38 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
     }
 
     /**
-     * Initialise the options. 
+     * Initialise the options.
      */
     protected Options initOptions() {
         //Options options = super.initOptions();
         Options options = new Options();
         options.addOption(LIST, false, "List In-built Scripts");
+        options.addOption(FLOWS, false, "List all Flows");
+        options.addOption(DESCRIBE, true, "Describe Flow");
         options.addOption(LISTDETAILED, false, "List In-built Scripts and show all scripts path");
         options.addOption(API_KEY, true, "API key");
         options.addOption(HOST, true, "Host address");
-        options.addOption(API_VERSION, true, "API version");			
+        options.addOption(API_VERSION, true, "API version");
         options.addOption(PORT, true, "Service port");
         options.addOption(NOCACHE, false, "Don't use cached server credentials");
         options.addOption(FILE_PATH, true, "Ad-hoc script File Path");
         options.addOption(VERBOSE, false, "print request url");
-		options.addOption(HELP, false, "print script usage");
-        
-                
+        options.addOption(HELP, false, "print script usage");
+
+
         /*options.addOption(OptionBuilder.withArgName("property=value").
                 hasArgs(2).
                     withValueSeparator().
                         withDescription("Specify query .").create("D"));*/
-        
+
         return options;
     }
-    
+
     public void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp(getPrinter(formatter), options);
     }
-    
+
     private String getPrinter(HelpFormatter formatter){
 
         String newline = formatter.getNewLine();

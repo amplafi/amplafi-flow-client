@@ -4,11 +4,12 @@
 description "GetTempApiKey", "Generates a new API key", [paramDef("callbackHost","The host to callback to",true,"example.com"),
                                                      paramDef("apiCall","The api that we want to use. e.g. PermanentApiKey",false,"-")];
 
+setApiVersion("public");
 emitOutput( "GetTempApiKey : ${callbackHost}  ${apiCall} " );
 
 // Clear current Key
-//setKey("");
 
+//setApiVersion("api");
 def key = openPort(9123, 10,{
     // Send Post Request
     requestPost("TemporaryApiKey", ["callbackUri":"http://${callbackHost}:9123/",
@@ -29,7 +30,7 @@ def key = openPort(9123, 10,{
 
 emitOutput( "NEW TEMP KEY IS : " + key );
 
-//set temp key as a apiKey for a permenant key request. 
+//set temp key as a apiKey for a permenant key request.
 //setKey(key);
 
 return key;

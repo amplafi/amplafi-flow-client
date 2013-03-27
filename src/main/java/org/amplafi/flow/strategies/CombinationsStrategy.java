@@ -20,6 +20,7 @@ import org.amplafi.json.JSONObject;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.amplafi.flow.utils.GenerationException;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 
 /**
  * This strategy produces tests that simply send in bogus String data.
@@ -46,8 +47,9 @@ public class CombinationsStrategy extends AbstractTestingStrategy {
      */
     @Override
     public void generateTestForActivity(String flow,
+                                         String key,
                                         JSONObject activityDefinition,
-                                        String requestUriString) throws GenerationException {
+                                        FarReachesServiceInfo requestUriString) throws GenerationException {
 
         assertNotNull(activityDefinition,
             "flowDefinition was null, The test should depend on"

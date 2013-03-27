@@ -9,6 +9,7 @@ import org.amplafi.json.JSONObject;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.amplafi.flow.utils.GenerationException;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 
 public class RealisticParamsStrategy extends AbstractTestingStrategy {
 
@@ -38,7 +39,9 @@ public class RealisticParamsStrategy extends AbstractTestingStrategy {
      * @throws GenerationException if a problem occurs with test generation.
      */
     public void generateTestForActivity(String flow,
-            JSONObject activityDefinition, String requestUriString)
+                                          String key,
+                                         JSONObject activityDefinition,
+                                         FarReachesServiceInfo requestUriString)
                     throws GenerationException {
         assertNotNull(activityDefinition,
             "flowDefinition was null, The test should depend on"
@@ -50,11 +53,11 @@ public class RealisticParamsStrategy extends AbstractTestingStrategy {
                 = generateRealisticParameters(requestParameters);
         parametersPopulatedWithRealParamData.add(RENDER_AS_JSON);
         addRequest(flow, parametersPopulatedWithRealParamData);
-        String json = callFlowForTypicalData(requestUriString,flow, parametersPopulatedWithRealParamData);
-        String json2 = callFlowForTypicalData(requestUriString,flow, parametersPopulatedWithRealParamData);
+        String json = callFlowForTypicalData(requestUriString,key, flow, parametersPopulatedWithRealParamData);
+        String json2 = callFlowForTypicalData(requestUriString,key, flow, parametersPopulatedWithRealParamData);
         Set<String> ignores = generateStandarIgnoreList(json, json2, flow);
         addExpectWithIgnoredPaths(json, flow,ignores);
-        
+
     }
 
     /**

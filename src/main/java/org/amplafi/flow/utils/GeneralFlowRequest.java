@@ -22,6 +22,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 /**
  * A class providing common methods for querying FarReaches service using HTTP.
  *
@@ -30,28 +31,31 @@ public class GeneralFlowRequest {
     private static final NameValuePair fsRenderResult = new BasicNameValuePair("fsRenderResult", "json");
     private static final NameValuePair describe = new BasicNameValuePair("describe",null);
     public static final String APPLICATION_ZIP = "application/zip";
-    private URI requestUri;
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    private FarReachesServiceInfo serviceInfo;
     private String flowName;
+    private String apiKey;
     private String queryString;
     private HttpClient httpClient;
     private Collection<NameValuePair> parameters;
 
     /**
-     * @param requestUri is expected to have everything accept the queryString
+     * @param serviceInfo is expected to have everything accept the queryString
      * @param params is the parameters of the request
      * @param flowName is name of the flow
      */
-    public GeneralFlowRequest(URI requestUri, String flowName, NameValuePair... params) {
-        this(requestUri, flowName, Arrays.asList(params));
+    public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey, String flowName, NameValuePair... params) {
+        this(serviceInfo, null ,flowName, Arrays.asList(params));
     }
 
     /**
-     * @param requestUri is expected to have everything accept the queryString
+     * @param serviceInfo is expected to have everything accept the queryString
      * @param parameters is the parameters of the request
      * @param flowName is name of the flow
      */
-    public GeneralFlowRequest(URI requestUri, String flowName, Collection<NameValuePair> parameters) {
-        this.requestUri = requestUri;
+    public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey, String flowName, Collection<NameValuePair> parameters) {
+        this.apiKey = apiKey;
+        this.serviceInfo = serviceInfo;
         this.flowName = flowName;
         queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");
         this.parameters = parameters;
@@ -61,7 +65,7 @@ public class GeneralFlowRequest {
      * @return List strings representing flowtypes
      */
     public JSONArray<String> listFlows() {
-        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(this.requestUri, null, fsRenderResult, describe);
+        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(this.serviceInfo, null ,null, fsRenderResult, describe);
         String responseString = generalFlowRequest.get();
         return new JSONArray<String>(responseString);
     }
@@ -78,15 +82,15 @@ public class GeneralFlowRequest {
      * @return request response string
      */
     public String describeFlowRaw(){
-        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(requestUri, flowName, fsRenderResult, describe);
+        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(serviceInfo,apiKey ,flowName, fsRenderResult, describe);
         return generalFlowRequest.get();
     }
-
+/*
     public  List<String> getFuzzInputResponse(){
         String responseString = this.get();
         return new JSONArray<String>(responseString).asList();
     }
-
+*/
     /**
       * This method actually send the http request represented by this object.
       * @return request response string.
@@ -102,26 +106,32 @@ public class GeneralFlowRequest {
         }
         return output;
     }
-    
+
     /**
-     * Send post request 
+     * Send post request
      */
     public FlowResponse post() throws IOException, ClientProtocolException {
         HttpClient client = getHttpClient();
         String requestString = getRequestString();
         HttpPost request = new HttpPost(getFullUri());
-        
+        if (apiKey != null){
+            request.setHeader(AUTHORIZATION_HEADER,apiKey);
+        }
         request.setEntity(new UrlEncodedFormEntity(parameters));
-        
+
         FlowResponse response = new FlowResponse(client.execute(request));
         return response;
     }
-    
+
 
     public FlowResponse sendRequest() throws IOException, ClientProtocolException {
         HttpClient client = getHttpClient();
         String requestString = getRequestString();
+System.err.println(" " + requestString);
         HttpGet request = new HttpGet(requestString);
+        if (apiKey != null){
+            request.setHeader(AUTHORIZATION_HEADER,apiKey);
+        }
         FlowResponse response = new FlowResponse(client.execute(request));
         return response ;
     }
@@ -130,7 +140,7 @@ public class GeneralFlowRequest {
      * @return the full url
      */
     private String getFullUri() {
-        return flowName != null ? (requestUri + "/" + flowName) : requestUri.toString();
+        return flowName != null ? (serviceInfo.getRequestString() + "/" + flowName) : serviceInfo.getRequestString();
     }
 
     /**
@@ -147,3 +157,4 @@ public class GeneralFlowRequest {
         return httpClient;
     }
 }
+

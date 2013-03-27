@@ -16,6 +16,8 @@ emitOutput("tempApiKey = " + tempApiKey);
 
 setKey(tempApiKey);
 
+setApiVersion("api");
+
 def key = openPort(9123,10,{
     // Send Post Request
     requestPost("PermanentApiKey", ["callbackUri":"http://${callbackHost}:9123/?action=farreaches_server_reply&apiCall=PermanentApiKey&externalUserId=1&farreachesNonce=54127ddbe5",
@@ -39,7 +41,7 @@ def key = openPort(9123,10,{
             return new JSONObject(permanentKey).get("1");
         }
     )
-    
+
 setKey(key);
 
 emitOutput( "NEW KEY IS : " + key );

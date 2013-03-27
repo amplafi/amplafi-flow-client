@@ -13,10 +13,10 @@ import org.apache.http.message.BasicNameValuePair;
  * @author Tuan Nguyen
  */
 public class ExecFlow extends Action {
-    static String USAGE = 
+    static String USAGE =
         "Usage: \n"+
         "  flow --name=FlowName --param1=<value> --param2=<value>\n" ;
-    
+
     public void exec(Console c, ShellContext context, String args) throws Exception {
         Map<String, String> options = Command.parseOptions(args);
         String fullUri = buildBaseUriString(context) ;
@@ -32,7 +32,7 @@ public class ExecFlow extends Action {
                 params[index] = new BasicNameValuePair(entry.getKey(), entry.getValue()) ;
                 index++ ;
             }
-            GeneralFlowRequest request = new GeneralFlowRequest(URI.create(fullUri), flowName, params);
+            GeneralFlowRequest request = new GeneralFlowRequest(null,null, flowName, params);
             String result = request.get();
             if(!result.startsWith("{")) {
                 result = "{\"result\": " + result + "}" ;
@@ -41,7 +41,7 @@ public class ExecFlow extends Action {
                 JSONObject jsonObject = new JSONObject(result ) ;
                 c.printf("%1s%n", jsonObject.toString(2));
             } catch(Throwable t) {
-               System.out.println(result); 
+               System.out.println(result);
             }
         }
     }

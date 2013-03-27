@@ -15,7 +15,7 @@ public class TutorialFlow extends Action {
         Map<String, String> options = Command.parseOptions(args);
         String fullUri = tutorialUriString(context) ;
         String flowName = options.get("name") ;
-        GeneralFlowRequest request = new GeneralFlowRequest(URI.create(fullUri), flowName, fsRenderResult);
+        GeneralFlowRequest request = new GeneralFlowRequest(null, null, flowName, fsRenderResult);
         String result = request.get();
         if(!result.startsWith("{")) {
             result = "{\"result\": " + result + "}" ;
@@ -23,7 +23,7 @@ public class TutorialFlow extends Action {
         JSONObject jsonObject = new JSONObject(result ) ;
         c.printf("%1s%n", jsonObject.toString(2));
     }
-    
+
     public String getHelpInstruction() {
         return "Run the tutorial flow." ;
     }

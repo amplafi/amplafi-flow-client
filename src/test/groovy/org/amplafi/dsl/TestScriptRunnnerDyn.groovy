@@ -13,12 +13,13 @@ import org.testng.annotations.Test;
 import org.amplafi.dsl.ScriptDescription;
 import org.amplafi.dsl.EarlyExitException;
 import org.amplafi.dsl.ParameterUsge;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 
 /**
  * This is a test for the TestScriptRunner itself, not the wire server
  */
 public class TestScriptRunnerDyn {
-    
+
     private def instance = null;
     private String host;
     private String port;
@@ -27,7 +28,7 @@ public class TestScriptRunnerDyn {
     private Map<String,String> paramsmap;
     private boolean verbose = true;
     private static final NL = System.getProperty("line.separator");
-    
+
     @BeforeMethod
     public void setUp(){
 
@@ -51,26 +52,26 @@ public class TestScriptRunnerDyn {
 expected  [ param1 = <test param1 > , required , defaultValue = 100 param2 = <test param2 > , optional , defaultValue = 100 param3 = <test param3 > , optional , defaultValue = 100 ]
 but found [ param1 = <test param1 > , required , defaultValue = 100 param2 = <test param2 > , optional , defaultValue = 100 param3 = <test param3 > , optional , defaultValue = 100 ]*/
     //This test tests script description method.
-    @Test 
+    @Test
     public void testDescribeScript(){
         def testScript1 = """
         description "Test1", "Description1", [paramDef("param1","test param1",false,"100"),
                                     paramDef("param2","test param2",true,"100"),
                                     paramDef("param3","test param3",true,"100")]
-                                    
+
         return "hello from test1";
         """
         ScriptDescription desc = null;
         try {
-
-            instance = new ScriptRunner(host, port, apiVersion,key, paramsmap,verbose)
+            FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(host, port, apiVersion,key);
+            instance = new ScriptRunner(serviceInfo,key, paramsmap,verbose);
             def returnValue = instance.runScriptSource(testScript1, false, null);
-            
+
             fail("Expected an Early Exit Exception which didn't happen");
         } catch (EarlyExitException eee){
             desc = eee.desc;
         }
-        
+
         assertFalse(desc.hasErrors);
         assertNull(desc.errorMesg);
         assertNull(desc.errorMesg);
@@ -84,15 +85,15 @@ param2          = <test param2    > , optional , defaultValue = 100
 param3          = <test param3    > , optional , defaultValue = 100
 """ as String);*/
     }
-    
+
     //This test tests script runner with no param input.
-    @Test 
+    @Test
     public void testRunScriptWithNoParamInput(){
         def testScript2 = """
         description "Test2", "Description2", [paramDef("param1","test param1",true,100),
                                     paramDef("param2","test param2",true,500),
                                     paramDef("param3","test param3",true,300)]
-                                    
+
         return "---param1 : \${param1} ---param2 : \${param2} ---param3 : \${param3}";
         """
         ScriptDescription desc = new ScriptDescription();
@@ -108,8 +109,8 @@ param3          = <test param3    > , optional , defaultValue = 100
         usageList.add(parameterUsge3);
         desc.usageList = usageList;
         try {
-
-            instance = new ScriptRunner(host, port, apiVersion,key, paramsmap,verbose)	
+            FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(host, port, apiVersion,key);
+            instance = new ScriptRunner(serviceInfo,key, paramsmap,verbose);
             def returnValue = instance.runScriptSource(testScript2, true, desc);
             assertEquals(returnValue,"---param1 : 100 ---param2 : 500 ---param3 : 300");
 
@@ -119,9 +120,9 @@ param3          = <test param3    > , optional , defaultValue = 100
         String generateParams = "def param1 = 100;def param2 = 500;def param3 = 300;"
         def scriptStr = """import org.amplafi.dsl.FlowTestBuilder;import org.amplafi.json.*; ${generateParams} def source = { ${testScript2} }; return source """;
     }
-    
+
     //This test tests script runner with params input.
-    @Test 
+    @Test
     public void testRunScriptWithParamInput(){
         paramsmap = ["param1":888,"param2":999];
 
@@ -130,7 +131,7 @@ param3          = <test param3    > , optional , defaultValue = 100
         description "Test3", "Description3", [paramDef("param1","test param1",true,100),
                                     paramDef("param2","test param2",true,500),
                                     paramDef("param3","test param3",true,300)]
-                                    
+
         return "---param1 : \${param1} ---param2 : \${param2} ---param3 : \${param3}";
         """
         ScriptDescription desc = new ScriptDescription();
@@ -146,7 +147,9 @@ param3          = <test param3    > , optional , defaultValue = 100
         usageList.add(parameterUsge3);
         desc.usageList = usageList;
         try {
-            instance = new ScriptRunner(host, port, apiVersion,key, paramsmap,verbose)
+
+            FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(host, port, apiVersion,key);
+            instance = new ScriptRunner(serviceInfo,key, paramsmap,verbose)
             def returnValue = instance.runScriptSource(testScript3, true, desc);
             assertEquals(returnValue,"---param1 : 888 ---param2 : 999 ---param3 : 300");
 
@@ -154,17 +157,17 @@ param3          = <test param3    > , optional , defaultValue = 100
             desc = eee.desc;
         }
     }
-    
+
     //This test tests script runner with params which is optional.
-    @Test 
+    @Test
     public void testRunScriptWithParamRequired(){
         paramsmap = ["param1":666];
         def testScript4 = """
         description "Test4", "Description4", [paramDef("param1","test param1",true,100),
                                     paramDef("param2","test param2",true,500),
                                     paramDef("param3","test param3",true,300)]
-                                    
-        return "---param1 : \${param1} ---param2 : \${param2} ---param3 : \${param3}"; 
+
+        return "---param1 : \${param1} ---param2 : \${param2} ---param3 : \${param3}";
         """
         ScriptDescription desc = new ScriptDescription();
         desc.name = "Test4";
@@ -179,26 +182,27 @@ param3          = <test param3    > , optional , defaultValue = 100
         usageList.add(parameterUsge3);
         desc.usageList = usageList;
         try {
-            instance = new ScriptRunner(host, port, apiVersion,key, paramsmap,verbose)
+            FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(host, port, apiVersion,key);
+            instance = new ScriptRunner(serviceInfo,key, paramsmap,verbose)
             def returnValue = instance.runScriptSource(testScript4, true, desc);
-            
+
             assertEquals(returnValue,"---param1 : 666 ---param2 : 500 ---param3 : 300");
-            
+
         } catch (EarlyExitException eee){
             desc = eee.desc;
         }
     }
-    
+
     //This test tests script runner with params which is required.
-    @Test 
+    @Test
     public void testRunScriptWithNoParamRequired(){
 
         def testScript5 = """
         description "Test5", "Description5", [paramDef("param1","test param1",true,100),
                                     paramDef("param2","test param2",true,500),
                                     paramDef("param3","test param3",true,300)]
-                                    
-        return "---param1 : \${param1} ---param2 : \${param2} ---param3 : \${param3}"; 
+
+        return "---param1 : \${param1} ---param2 : \${param2} ---param3 : \${param3}";
         """
         ScriptDescription desc = new ScriptDescription();
         desc.name = "Test5";
@@ -213,20 +217,20 @@ param3          = <test param3    > , optional , defaultValue = 100
         usageList.add(parameterUsge3);
         desc.usageList = usageList;
         try {
-
-            instance = new ScriptRunner(host, port, apiVersion,key, paramsmap,verbose)
+            FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(host, port, apiVersion,key);
+            instance = new ScriptRunner(serviceInfo,key, paramsmap,verbose)
             try {
                 def returnValue = instance.runScriptSource(testScript5, true, desc);
                 fail("RuntimeException an Early Exit Exception which didn't happen");
             } catch (RuntimeException eee){
-                
+
             }
-            
+
         } catch (EarlyExitException eee){
             desc = eee.desc;
         }
 
     }
-    
-    
+
+
 }

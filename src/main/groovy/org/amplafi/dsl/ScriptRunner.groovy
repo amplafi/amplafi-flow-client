@@ -1,4 +1,5 @@
 package org.amplafi.dsl;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import groovy.io.FileType;
 import org.amplafi.flow.utils.GeneralFlowRequest;
 import java.util.HashMap;
@@ -15,10 +16,8 @@ import org.codehaus.groovy.control.MultipleCompilationErrorsException
  */
 public class ScriptRunner {
 
-    private String requestUriString;
-    private String host;
-    private String port;
-    private String apiVersion;
+    private FarReachesServiceInfo serviceInfo;
+
     private String key;
 
     /** Allows re-running of last script */
@@ -60,10 +59,10 @@ public class ScriptRunner {
     /**
      * Constructs a script runner with a standard request string
      * Mostly used in tests
-     * @param requestUriString
+     * @param serviceInfo
      */
-    public ScriptRunner(String requestUriString){
-        this.requestUriString = requestUriString;
+    public ScriptRunner(FarReachesServiceInfo serviceInfo){
+        this.serviceInfo = serviceInfo;
     }
 
     /**
@@ -73,10 +72,8 @@ public class ScriptRunner {
      * @param apiVersion - e.g. apiv1
      * @param key - Api Key string
      */
-    public ScriptRunner(String host, String port, String apiVersion, String key){
-        this.host = host;
-        this.port = port;
-        this.apiVersion = apiVersion;
+    public ScriptRunner(FarReachesServiceInfo serviceInfo, String key){
+        this.serviceInfo = serviceInfo;
         this.key = key;
     }
     /**
@@ -89,10 +86,8 @@ public class ScriptRunner {
      * @param paramsmap - map of paramname to param value
      * @param verbose - print verbose output.
      */
-    public ScriptRunner(String host, String port, String apiVersion, String key, Map<String,String> paramsmap, boolean verbose){
-        this.host = host;
-        this.port = port;
-        this.apiVersion = apiVersion;
+    public ScriptRunner(FarReachesServiceInfo serviceInfo, String key, Map<String,String> paramsmap, boolean verbose){
+        this.serviceInfo = serviceInfo;
         this.key = key;
         this.paramsmap = paramsmap;
         this.verbose = verbose;
@@ -175,10 +170,10 @@ public class ScriptRunner {
         Object closure = getClosure(sourceCode,paramsmap,description);
         getLog().debug("runScriptSource() finished to get closure");
         def builder = null;
-        if(requestUriString && requestUriString!=""){
-            builder = getFlowTestBuilder(requestUriString,this,verbose);
+        if(serviceInfo && serviceInfo!=""){
+            builder = getFlowTestBuilder(serviceInfo,this,verbose);
         }else{
-            builder = getFlowTestBuilder(host,port,apiVersion,key,this,verbose);
+            builder = getFlowTestBuilder(serviceInfo,key,this,verbose);
         }
         getLog().debug("runScriptSource() start to get closure");
 
@@ -194,15 +189,15 @@ public class ScriptRunner {
     /**
      * To be overriden in tests
      */
-    def getFlowTestBuilder(requestUriString,runner,verbose){
-        return new FlowTestBuilder(requestUriString,this,verbose);
+    def getFlowTestBuilder(serviceInfo,runner,verbose){
+        return new FlowTestBuilder(serviceInfo,this,verbose);
     }
 
     /**
      * To be overriden in tests
      */
-    def getFlowTestBuilder(host,port,apiVersion,key,runner,verbose){
-        return new FlowTestBuilder(host,port,apiVersion,key,this,verbose);
+    def getFlowTestBuilder(serviceInfo,key,runner,verbose){
+        return new FlowTestBuilder(serviceInfo,key,this,verbose);
     }
 
     /**
@@ -227,7 +222,7 @@ public class ScriptRunner {
         def script = scriptSb.toString();
         def bindingMap = ["params":paramsmap];
         Binding binding = new Binding(bindingMap);
-        binding.setVariable("requestUriString",requestUriString);
+        binding.setVariable("serviceInfo",serviceInfo);
         GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
         def lineNo = 1;
         script.split("\n").each{ line ->

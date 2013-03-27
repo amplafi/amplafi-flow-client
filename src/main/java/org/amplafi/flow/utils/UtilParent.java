@@ -18,7 +18,7 @@ import static org.amplafi.flow.utils.AdminToolCommandLineOptions.*;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.dsl.ScriptDescription;
 import java.util.Map;
-
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 /**
  * Common functions and constants that several utility tools may need.
  */
@@ -29,7 +29,7 @@ public class UtilParent {
     public static final String DEFAULT_CONFIG_FILE_NAME = "fareaches.fadmin.properties";
     public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
     public static final String DEFAULT_PORT = "80";
-    public static final String DEFAULT_API_VERSION = "apiv1";
+    public static final String DEFAULT_API_VERSION = "api";
     private Properties configProperties;
     private String comandScriptPath;
     private String configFileName;
@@ -116,7 +116,7 @@ public class UtilParent {
         props.setProperty(key, value);
         return value;
     }
-    
+
     /**
      * ScriptLookup for scriptRunner.
      */
@@ -131,7 +131,7 @@ public class UtilParent {
             scriptLookup = runner.processScriptsInFolder(getComandScriptPath());
         }
         return scriptLookup;
-    }    
+    }
 
     /**
      * Obtain a new api key from the host.
@@ -140,15 +140,18 @@ public class UtilParent {
      * @param callbackHost - host that the remote host should callback to, will default to example.com
      * @param verbose - show more detailed output.
      */
-    protected String getPermApiKey(String host,String remotePort, String callbackHost, boolean verbose){
+    protected String getPermApiKey(FarReachesServiceInfo service, String callbackHost, boolean verbose){
         Map params = new HashMap();
         params.put("callbackHost",callbackHost);
         getLog().debug("UtilParent have call getPermApiKey: put callbackHost = " + callbackHost + "in params.");
-        ScriptRunner runner = new ScriptRunner(host, remotePort, "apiv1", "", params, verbose);
+        ScriptRunner runner = new ScriptRunner(service, "", params, verbose);
         runner.setScriptLookup(getScriptLookup(runner));
         getLog().debug("UtilParent have call getPermApiKey: setting the scriptLookup.");
         Object key = runner.loadAndRunOneScript(getApiKeyScriptPath());
         getLog().debug("UtilParent have call getPermApiKey: running the script " + getApiKeyScriptPath());
+
+        getProperties().setProperty(API_KEY, key.toString());
+
         return  key.toString();
     }
 
@@ -222,13 +225,13 @@ public class UtilParent {
     public void setComandScriptPath(String comandScriptPath) {
         this.comandScriptPath = comandScriptPath;
     }
-    
+
      /**
      * Gets the script for creating a new api key path for the tool.
      * @return the path to the script for creating a new api key
      */
     public  String getApiKeyScriptPath() {
-        return getComandScriptPath() + GET_API_KEY_SCRIPT;   
+        return getComandScriptPath() + GET_API_KEY_SCRIPT;
     }
 
     /**

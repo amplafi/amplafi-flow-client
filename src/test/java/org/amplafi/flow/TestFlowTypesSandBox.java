@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.amplafi.flow.utils.GeneralFlowRequest;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONException;
 import org.amplafi.json.JSONObject;
@@ -42,7 +43,7 @@ public class TestFlowTypesSandBox {
     /**
      * These static variables are overridden in the static initializer below.
      */
-    private static String requestUriString;
+    private static FarReachesServiceInfo serviceInfo;
 
     private static String apiKey = "dummyKey";
 
@@ -77,6 +78,8 @@ public class TestFlowTypesSandBox {
      */
     static Set<String> ignoredFlows;
 
+
+
     /*
      * Obtain the system properties for the test These may be set up in the pom.xml or passed in
      * from the command line with -D options.
@@ -86,10 +89,10 @@ public class TestFlowTypesSandBox {
         String host = System.getProperty(HOST_PROPERTY_KEY ,"sandbox.farreach.es");
         String port = System.getProperty(PORT_PROPERTY_KEY,"8080");
 
-        requestUriString = host + ":" + port + "/c/" + apiKey   + "/apiv1";
+        serviceInfo = new FarReachesServiceInfo(host, port, "apiv1");
 
         String ignoredFlowsStr = System.getProperty("ignoreFlows","");
-		System.err.println("Will ignore flows" + ignoredFlowsStr);
+        System.err.println("Will ignore flows" + ignoredFlowsStr);
         String[] ignoredFlowsArr = ignoredFlowsStr.split(",");
         ignoredFlows = new HashSet<String>(Arrays.asList(ignoredFlowsArr));
 
@@ -119,7 +122,7 @@ public class TestFlowTypesSandBox {
     public Object[][] getListOfFlows() {
 
         //Get list of supported flow types from server.
-        List<String> flowList = (new GeneralFlowRequest(URI.create(requestUriString), null, renderAsJson)).listFlows().asList();
+        List<String> flowList = (new GeneralFlowRequest(serviceInfo,apiKey, null, renderAsJson)).listFlows().asList();
 
         Object[][] listOfFlowTypes = null;
         // If the size of the flowlist is less than 2 then it implies an error has occured.
@@ -169,11 +172,11 @@ public class TestFlowTypesSandBox {
      * @return The string containing the flow definition JSON data for the current flow.
      */
     public String testFlowDefinitionResultString() {
-        debug("Sending request to " + requestUriString);
+        debug("Sending request to " + serviceInfo);
         String messageStart = "Returned FlowDefinition for " + flow + " ";
         String flowDefinitionResult = null;
         try {
-            flowDefinitionResult = new GeneralFlowRequest(URI.create(requestUriString), flow).describeFlowRaw();
+            flowDefinitionResult = new GeneralFlowRequest(serviceInfo,apiKey, flow).describeFlowRaw();
             assertNotNull(flowDefinitionResult, CONFIG_ERROR_MSG);
             assertFalse(flowDefinitionResult.trim().equals(""), messageStart + "was an empty String");
         } catch (IllegalArgumentException iae) {
@@ -237,8 +240,7 @@ public class TestFlowTypesSandBox {
                     }
                 } else {
                      // flow has no activities or parameters so we can just call it directly
-                    URI requestUri = URI.create(requestUriString);
-                    GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flow);
+                    GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo,apiKey, flow);
                     testFlowParametersSetWithStringsResultJson(request.get());
                 }
             }
@@ -320,8 +322,7 @@ public class TestFlowTypesSandBox {
         //add the json response parameter
         parametersPopulatedWithBogusData.add(renderAsJson);
 
-        URI requestUri = URI.create(requestUriString);
-        GeneralFlowRequest request = new GeneralFlowRequest(requestUri, flow, parametersPopulatedWithBogusData);
+        GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo,apiKey, flow, parametersPopulatedWithBogusData);
         return request.get();
     }
 

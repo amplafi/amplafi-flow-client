@@ -3,7 +3,7 @@ package org.amplafi.flow;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 /**
  * Provides convenient access to the system properties used by wire server
  * tests.
@@ -37,7 +37,7 @@ public final class TestGenerationProperties {
     /**
      * @return the requestUriString
      */
-    public String getRequestUriString() {
+    public FarReachesServiceInfo getRequestUriString() {
         return requestUriString;
     }
 
@@ -58,7 +58,7 @@ public final class TestGenerationProperties {
     /**
      * These static variables are overridden in the static initializer below.
      */
-    private String requestUriString;
+    private FarReachesServiceInfo requestUriString;
 
     /**
      * The api key for the wire server.
@@ -99,7 +99,7 @@ public final class TestGenerationProperties {
         String host = System.getProperty(HOST_PROPERTY_KEY,
                 "sandbox.farreach.es");
         String port = System.getProperty(PORT_PROPERTY_KEY, "8080");
-        requestUriString = host + ":" + port + "/c/" + apiKey + "/apiv1";
+        requestUriString = new FarReachesServiceInfo( host, port, "apiv1");
         String ignoredFlowsStr = System.getProperty("ignoreFlows", "");
         String[] ignoredFlowsArr = ignoredFlowsStr.split(",");
         ignoredFlows = new HashSet<String>(Arrays.asList(ignoredFlowsArr));

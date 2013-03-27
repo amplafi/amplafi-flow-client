@@ -18,6 +18,9 @@ import org.amplafi.dsl.ParameterValidationException;
 import org.amplafi.dsl.ParameterUsge;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.dsl.ScriptDescription;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
+import org.amplafi.json.JSONArray;
+import org.amplafi.json.JSONObject;
 import java.util.Map;
 
 /**
@@ -27,6 +30,7 @@ import java.util.Map;
  */
 public class AdminTool extends UtilParent {
     private static final String AUTO_OBTAIN_KEY = "Auto obtain key";
+    private static final String PUBLIC_API = "public";
 
     /**
      * Main entry point for tool.
@@ -58,11 +62,13 @@ public class AdminTool extends UtilParent {
             cmdOptions.printHelp();
             return;
         }
+
+
         String list = cmdOptions.getOptionValue(LIST);
         // Obtain a list of script descriptions from the script runner
         // this will also check for basic script compilation errors or lack of
         // description lines in script.
-        ScriptRunner runner = new ScriptRunner("");
+        ScriptRunner runner = new ScriptRunner(null);
         Map<String, ScriptDescription> scriptLookup = getScriptLookup(runner);
         if (cmdOptions.hasOption(LIST) || cmdOptions.hasOption(LISTDETAILED)) {
             // If user has asked for a list of commands then list the good
@@ -135,11 +141,26 @@ public class AdminTool extends UtilParent {
             String port = getOption(cmdOptions, PORT, DEFAULT_PORT);
             String apiVersion = getOption(cmdOptions, API_VERSION,
                     DEFAULT_API_VERSION);
+            final FarReachesServiceInfo service = new FarReachesServiceInfo(host, port, apiVersion);
+
             String key = getOption(cmdOptions, API_KEY, AUTO_OBTAIN_KEY);
-            if (AUTO_OBTAIN_KEY.equals(key)){
-                key = getPermApiKey(host,port,null, verbose);   
+            if (!PUBLIC_API.equals(apiVersion) && AUTO_OBTAIN_KEY.equals(key)){
+                key = getPermApiKey(service,null, verbose);
+            } else {
+                key = null;
             }
-            
+
+            if (cmdOptions.hasOption(FLOWS)){
+                listFlows(cmdOptions,key,service);
+                return;
+            }
+
+            if (cmdOptions.hasOption(DESCRIBE)){
+                String flow = cmdOptions.getOptionValue(DESCRIBE);
+                descFlow(cmdOptions,key,flow,service);
+                return;
+            }
+
             String scriptName = filePath;
             // Check if we are running and ad-hoc script
             if (filePath == null) {
@@ -157,7 +178,8 @@ public class AdminTool extends UtilParent {
             // Is verbose switched on?
             // run the script
             System.out.println("--------------------------------------------------------");
-            ScriptRunner runner2 = new ScriptRunner(host, port, apiVersion, key, parammap, verbose);
+
+            ScriptRunner runner2 = new ScriptRunner(service, key, parammap, verbose);
             runner2.setScriptLookup(scriptLookup);
             if (filePath != null) {
                 System.out.println("call loadAndRunOneScript filePath = " + filePath);
@@ -194,6 +216,18 @@ public class AdminTool extends UtilParent {
          } else {
             emitOutput("Script " + scriptName +" does not have usage information");
          }
+    }
+
+    public void listFlows( AdminToolCommandLineOptions cmdOptions,String key, FarReachesServiceInfo service ){
+        GeneralFlowRequest request = new GeneralFlowRequest(service, key, null);
+        JSONArray<String> flows = request.listFlows();
+        emitOutput(flows.toString());
+    }
+
+    public void descFlow( AdminToolCommandLineOptions cmdOptions,String key, String flowName, FarReachesServiceInfo service ){
+        GeneralFlowRequest request = new GeneralFlowRequest(service, key, flowName);
+        JSONObject flows = request.describeFlow();
+        emitOutput(flows.toString(4));
     }
 
 }

@@ -198,7 +198,8 @@ public class TestAdminTool {
         String exceptedHost = AdminTool.DEFAULT_HOST;
         String apivValue = testHelpAdminTool.getConfigProperties().getProperty("apiv", "");
         String exceptedApiv = AdminTool.DEFAULT_API_VERSION;
-        assertEquals(exceptedKey,keyValue);
+        // returned from ./src/test/resources/testscripts/junitTestScript/GetNewPermanentKey.groovy
+        assertEquals("Dummy_key",keyValue);
         assertEquals(exceptedPort,portValue);
         assertEquals(exceptedHost,hostValue);
         assertEquals(exceptedApiv,apivValue);
