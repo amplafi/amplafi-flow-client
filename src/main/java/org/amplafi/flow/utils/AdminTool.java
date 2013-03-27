@@ -31,6 +31,7 @@ import java.util.Map;
 public class AdminTool extends UtilParent {
     private static final String AUTO_OBTAIN_KEY = "Auto obtain key";
     private static final String PUBLIC_API = "public";
+    private boolean verbose = false;
 
     /**
      * Main entry point for tool.
@@ -133,7 +134,7 @@ public class AdminTool extends UtilParent {
     private void runScript(String filePath,
                            Map<String, ScriptDescription> scriptLookup,
                            AdminToolCommandLineOptions cmdOptions) {
-        boolean verbose = cmdOptions.hasOption(VERBOSE);
+        verbose = cmdOptions.hasOption(VERBOSE);
         List<String> remainder = cmdOptions.getRemainingOptions();
         try {
             // Get script options if needed
@@ -144,8 +145,11 @@ public class AdminTool extends UtilParent {
             final FarReachesServiceInfo service = new FarReachesServiceInfo(host, port, apiVersion);
 
             String key = getOption(cmdOptions, API_KEY, AUTO_OBTAIN_KEY);
-            if (!PUBLIC_API.equals(apiVersion) && AUTO_OBTAIN_KEY.equals(key)){
-                key = getPermApiKey(service,null, verbose);
+            if (!PUBLIC_API.equals(apiVersion)){
+
+                if ( AUTO_OBTAIN_KEY.equals(key)){
+                    key = getPermApiKey(service,null, verbose);
+                }
             } else {
                 key = null;
             }
@@ -219,14 +223,28 @@ public class AdminTool extends UtilParent {
     }
 
     public void listFlows( AdminToolCommandLineOptions cmdOptions,String key, FarReachesServiceInfo service ){
+        emitOutput("Using Key  >" + key);
         GeneralFlowRequest request = new GeneralFlowRequest(service, key, null);
         JSONArray<String> flows = request.listFlows();
+        if(verbose){
+            emitOutput("");
+            emitOutput(" Sent Request: " + request.getRequestString() );
+            emitOutput(" With key: " + request.getApiKey() );
+            emitOutput("");
+        }
         emitOutput(flows.toString());
+
     }
 
     public void descFlow( AdminToolCommandLineOptions cmdOptions,String key, String flowName, FarReachesServiceInfo service ){
         GeneralFlowRequest request = new GeneralFlowRequest(service, key, flowName);
         JSONObject flows = request.describeFlow();
+        if(verbose){
+            emitOutput("");
+            emitOutput(" Sent Request: " + request.getRequestString() );
+            emitOutput(" With key: " + request.getApiKey() );
+            emitOutput("");
+        }
         emitOutput(flows.toString(4));
     }
 

@@ -321,6 +321,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
         if(verbose){
             emitOutput("");
             emitOutput(" Sent Request: " + request.getRequestString() );
+            emitOutput(" With key: " + request.getApiKey() );
             emitOutput("");
         }
         return request;

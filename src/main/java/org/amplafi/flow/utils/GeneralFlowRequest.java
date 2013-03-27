@@ -44,8 +44,8 @@ public class GeneralFlowRequest {
      * @param params is the parameters of the request
      * @param flowName is name of the flow
      */
-    public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey, String flowName, NameValuePair... params) {
-        this(serviceInfo, null ,flowName, Arrays.asList(params));
+    public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKeyp, String flowName, NameValuePair... params) {
+        this(serviceInfo, apiKeyp ,flowName, Arrays.asList(params));
     }
 
     /**
@@ -65,7 +65,7 @@ public class GeneralFlowRequest {
      * @return List strings representing flowtypes
      */
     public JSONArray<String> listFlows() {
-        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(this.serviceInfo, null ,null, fsRenderResult, describe);
+        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(this.serviceInfo, apiKey ,null, fsRenderResult, describe);
         String responseString = generalFlowRequest.get();
         return new JSONArray<String>(responseString);
     }
@@ -127,8 +127,9 @@ public class GeneralFlowRequest {
     public FlowResponse sendRequest() throws IOException, ClientProtocolException {
         HttpClient client = getHttpClient();
         String requestString = getRequestString();
-System.err.println(" " + requestString);
+
         HttpGet request = new HttpGet(requestString);
+
         if (apiKey != null){
             request.setHeader(AUTHORIZATION_HEADER,apiKey);
         }
@@ -141,6 +142,10 @@ System.err.println(" " + requestString);
      */
     private String getFullUri() {
         return flowName != null ? (serviceInfo.getRequestString() + "/" + flowName) : serviceInfo.getRequestString();
+    }
+
+    public String getApiKey(){
+        return apiKey;
     }
 
     /**

@@ -44,6 +44,6 @@ def key = openPort(9123,10,{
 
 setKey(key);
 
-emitOutput( "NEW KEY IS : " + key );
+emitOutput( "NEW PERMANENT KEY IS : " + key );
 
 return key;
