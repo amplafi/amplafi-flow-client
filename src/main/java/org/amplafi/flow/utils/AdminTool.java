@@ -69,7 +69,7 @@ public class AdminTool extends UtilParent {
         // Obtain a list of script descriptions from the script runner
         // this will also check for basic script compilation errors or lack of
         // description lines in script.
-        ScriptRunner runner = new ScriptRunner(null);
+        ScriptRunner runner = new ScriptRunner(null,null);
         Map<String, ScriptDescription> scriptLookup = getScriptLookup(runner);
         if (cmdOptions.hasOption(LIST) || cmdOptions.hasOption(LISTDETAILED)) {
             // If user has asked for a list of commands then list the good
@@ -145,6 +145,7 @@ public class AdminTool extends UtilParent {
             final FarReachesServiceInfo service = new FarReachesServiceInfo(host, port, apiVersion);
 
             String key = getOption(cmdOptions, API_KEY, AUTO_OBTAIN_KEY);
+System.out.println("1-------------------------- key -------------------------" + key);
             if (!PUBLIC_API.equals(apiVersion)){
 
                 if ( AUTO_OBTAIN_KEY.equals(key)){
@@ -153,7 +154,7 @@ public class AdminTool extends UtilParent {
             } else {
                 key = null;
             }
-
+System.out.println("2-------------------------- key -------------------------" + key);
             if (cmdOptions.hasOption(FLOWS)){
                 listFlows(cmdOptions,key,service);
                 return;
@@ -181,7 +182,7 @@ public class AdminTool extends UtilParent {
             Map<String, String> parammap = getParamMap(remainder);
             // Is verbose switched on?
             // run the script
-            System.out.println("--------------------------------------------------------");
+            System.out.println("-------------------------------------------------------- " + key);
 
             ScriptRunner runner2 = new ScriptRunner(service, key, parammap, verbose);
             runner2.setScriptLookup(scriptLookup);

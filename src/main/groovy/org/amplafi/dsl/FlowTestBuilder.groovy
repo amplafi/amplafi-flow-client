@@ -89,7 +89,7 @@ public class FlowTestBuilder {
      * Configure the closure to be runnaable
      */
     public buildExe(Closure c){
-        if (serviceInfo != null){
+        if (key == null){
             c.delegate = new FlowTestDSL(serviceInfo, runner, verbose);
         } else {
             c.delegate = new FlowTestDSL(serviceInfo, key, runner, verbose);
@@ -150,6 +150,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
     public FlowTestDSL(FarReachesServiceInfo requestString, String key, ScriptRunner runner, boolean verbose){
+        this.serviceInfo =  requestString;
         this.key = key;
         this.runner = runner;
         this.verbose = verbose;
@@ -774,6 +775,14 @@ public class DescribeScriptDSL {
 
     public String getKey(){
     }
+
+    String getApiVersion(){
+    }
+
+    void setApiVersion(String apiVersion){
+
+    }
+
 
     /**
      * The description of the name.

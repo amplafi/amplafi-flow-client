@@ -13,6 +13,7 @@ public class LoadToolCommandLineOptions extends AbstractCommandLineClientOptions
     // command line switch used to specify which API key we want to use
     public static final String HOST = "host";
     public static final String HOST_PORT = "hostPort";
+    public static final String KEY = "key";
     public static final String VERBOSE = "verbose";
     public static final String REPORT = "reportFile";
     public static final String SCRIPT = "script";
@@ -36,6 +37,7 @@ public class LoadToolCommandLineOptions extends AbstractCommandLineClientOptions
 
         options.addOption(HOST, true, "Host address.");
         options.addOption(HOST_PORT, true, "Host Port.");
+        options.addOption(KEY, true, "API key.");
         options.addOption(REPORT, true, "File to write report to. Otherwise will write to screen");
         options.addOption(SCRIPT, true, "Test script to run.");
         options.addOption(NUM_THREADS, true, "Number of concurrent Threads.");
@@ -58,4 +60,6 @@ public class LoadToolCommandLineOptions extends AbstractCommandLineClientOptions
     }
 
 }
+
+
 

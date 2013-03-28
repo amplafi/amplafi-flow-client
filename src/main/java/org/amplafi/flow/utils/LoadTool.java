@@ -127,15 +127,17 @@ public class LoadTool extends UtilParent{
                 }
             });
 
-            String key =  "";
+            String key = cmdOptions.getOptionValue(KEY);;
 
             final FarReachesServiceInfo service = new FarReachesServiceInfo(host, ""+remotePort, "apiv1");
 
-            /* Get the api key automatically*/
-            key = getPermApiKey(service,null, true);
+            if (key == null) {
+                /* Get the api key automatically*/
+                key = getPermApiKey(service,null, true);
+            }
 
             try {
-                runLoadTest(service, key, scriptName,  numThreads, frequency ); // never returns
+                runLoadTest(service, key, scriptName,  numThreads, frequency, cmdOptions.hasOption(VERBOSE) ); // never returns
             } catch (IOException ioe) {
                 getLog().error("Error running proxy", ioe);
                 return;
@@ -190,6 +192,14 @@ public class LoadTool extends UtilParent{
             getLog().info(THICK_DIVIDER);
             getLog().info("Total calls in all threads=" + totalCalls + "  " + (totalCalls*1000/totalTime) +  " calls per second" );
             getLog().info(THICK_DIVIDER);
+
+
+            getLog().info("Error Report "  );
+            getLog().info(THICK_DIVIDER);
+            for (Thread t : threads){
+               ThreadReport rep = threadReports.get(t);
+                getLog().info(rep.errors);
+            }
         }
      }
 
@@ -235,7 +245,8 @@ public class LoadTool extends UtilParent{
                             final String key,
                             final String scriptName,
                             final int numThreads,
-                            final int frequency )
+                            final int frequency,
+                            final boolean verbose)
                             throws IOException {
 
         getLog().info("Running LoadTest with host="
@@ -249,6 +260,7 @@ public class LoadTool extends UtilParent{
             Thread thread = new Thread(new Runnable(){
                 public void run() {
                     ScriptRunner scriptRunner = new ScriptRunner(service,key);
+                    scriptRunner.setVerbose(verbose);
                     try {
                         // don't include the first run because this includes
                         // constructing gropvy runtime.
@@ -261,7 +273,6 @@ public class LoadTool extends UtilParent{
                                 scriptRunner.reRunLastScript();
                                 long endTime = System.currentTimeMillis();
                                 long duration = (endTime - startTime);
-                                getLog().info( "" + running);
                                 if (frequency != -1 ){
                                     int requiredDurationMS = 1000/frequency;
                                     if (duration < requiredDurationMS){

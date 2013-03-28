@@ -43,7 +43,7 @@ public class ScriptRunner {
     /**
      * Allow verbose output
      */
-    private boolean verbose = false;
+    def boolean verbose = false;
 
     private Log log = null;
 
@@ -61,9 +61,10 @@ public class ScriptRunner {
      * Mostly used in tests
      * @param serviceInfo
      */
-    public ScriptRunner(FarReachesServiceInfo serviceInfo){
-        this.serviceInfo = serviceInfo;
-    }
+//    public ScriptRunner(FarReachesServiceInfo serviceInfo){
+//println "############  In scrip2 runner " + key
+//        this.serviceInfo = serviceInfo;
+//    }
 
     /**
      * Constructs a Script runner with individual parameters that can be overridden in scripts.
@@ -170,10 +171,10 @@ public class ScriptRunner {
         Object closure = getClosure(sourceCode,paramsmap,description);
         getLog().debug("runScriptSource() finished to get closure");
         def builder = null;
-        if(serviceInfo && serviceInfo!=""){
-            builder = getFlowTestBuilder(serviceInfo,this,verbose);
-        }else{
+        if(key && key!=""){
             builder = getFlowTestBuilder(serviceInfo,key,this,verbose);
+        }else{
+            builder = getFlowTestBuilder(serviceInfo,this,verbose);
         }
         getLog().debug("runScriptSource() start to get closure");
 
@@ -226,15 +227,15 @@ public class ScriptRunner {
         GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
         def lineNo = 1;
         script.split("\n").each{ line ->
-            //debug("${lineNo}>${line}");
+            debug("${lineNo}>${line}");
             lineNo++;
         }
 
         String scriptName = "script";
-        if ( description){
+        if ( description?.name){
             scriptName = description.name;
         }
-
+        debug("scriptName = ${scriptName}");
         Object closure = shell.evaluate(script,scriptName);
         return closure;
     }
