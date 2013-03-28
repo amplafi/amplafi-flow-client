@@ -16,7 +16,7 @@ public class TestScriptRunner {
 
     @BeforeTest
     public void setup(){
-        instance = new ScriptRunner(TestGenerationProperties.getInstance().getRequestUriString());
+        instance = new ScriptRunner(TestGenerationProperties.getInstance().getRequestUriString(),null);
     }
 
     @AfterTest
@@ -24,20 +24,20 @@ public class TestScriptRunner {
         instance = null;
     }
 
-    @Test 
+    @Test
     public void touchTest() throws Exception{
-        
+
         String script = "println('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFf'); \n " +
                     " request('HelloFlow',['cat':'dog','hippo':'pig']);" ;
         instance.runScriptSource(script,true,null);
     }
 
-    @Test 
+    @Test
     public void testLoadAndRunOneScript(){
         instance.loadAndRunOneScript(DEFAULT_SCRIPT_PATH + "/1example.groovy");
     }
 
-    @Test 
+    @Test
     public void testLoadAndRunAllSrcipts(){
         instance.loadAndRunAllSrcipts();
     }

@@ -227,7 +227,7 @@ public class ScriptRunner {
         GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
         def lineNo = 1;
         script.split("\n").each{ line ->
-            debug("${lineNo}>${line}");
+            //debug("${lineNo}>${line}");
             lineNo++;
         }
 

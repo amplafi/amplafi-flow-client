@@ -15,24 +15,24 @@ import org.testng.annotations.Test;
  * This is a test for the TestScriptRunner itself, not the wire server
  */
 public class TestDSLScriptsBatchRunner {
-    
+
     private ScriptRunner runner = null;
-    
+
     private String currentScriptName = "";
-    
+
     /**
      * This factory will be called repeatedly to generate test instances for each of the flows
      * supported by the server.
      */
     public TestDSLScriptsBatchRunner() {
-        runner  = new ScriptRunner(TestGenerationProperties.getInstance().getRequestUriString());
+        runner  = new ScriptRunner(TestGenerationProperties.getInstance().getRequestUriString(),null);
     }
 
     @Override
     public String toString() {
         return currentScriptName;
     }
-    
+
     /**
      * Provides all script names for testing
      *
@@ -40,7 +40,7 @@ public class TestDSLScriptsBatchRunner {
      */
     @DataProvider(name = "scripts-list")
     public Object[][] getListOfTestScripts() {
-        ScriptRunner runner  = new ScriptRunner(TestGenerationProperties.getInstance().getRequestUriString());
+        ScriptRunner runner  = new ScriptRunner(TestGenerationProperties.getInstance().getRequestUriString(),null);
 
         //Get list of supported flow types from server.
         List<String> scriptList = runner.findAllTestScripts();
@@ -59,25 +59,25 @@ public class TestDSLScriptsBatchRunner {
         }
         return arrayOfScripts;
     }
-    
+
     @BeforeTest
     public void setup(){
-        
+
     }
-    
+
     @AfterTest
     public void tearDown(){
-    }	
-    
+    }
+
     /**
      * This test will be run once for each of the scripts in the src/test/resources/testscripts folder
      */
     @Test(dataProvider = "scripts-list")
     public void testLoadAndRunOneScript(String script){
         currentScriptName = script;
-        runner.loadAndRunOneScript(script);	
+        runner.loadAndRunOneScript(script);
     }
 
-    
+
 
 }

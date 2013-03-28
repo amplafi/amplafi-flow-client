@@ -145,7 +145,7 @@ public class AdminTool extends UtilParent {
             final FarReachesServiceInfo service = new FarReachesServiceInfo(host, port, apiVersion);
 
             String key = getOption(cmdOptions, API_KEY, AUTO_OBTAIN_KEY);
-System.out.println("1-------------------------- key -------------------------" + key);
+
             if (!PUBLIC_API.equals(apiVersion)){
 
                 if ( AUTO_OBTAIN_KEY.equals(key)){
@@ -154,7 +154,7 @@ System.out.println("1-------------------------- key -------------------------" +
             } else {
                 key = null;
             }
-System.out.println("2-------------------------- key -------------------------" + key);
+
             if (cmdOptions.hasOption(FLOWS)){
                 listFlows(cmdOptions,key,service);
                 return;
@@ -182,7 +182,6 @@ System.out.println("2-------------------------- key -------------------------" +
             Map<String, String> parammap = getParamMap(remainder);
             // Is verbose switched on?
             // run the script
-            System.out.println("-------------------------------------------------------- " + key);
 
             ScriptRunner runner2 = new ScriptRunner(service, key, parammap, verbose);
             runner2.setScriptLookup(scriptLookup);
