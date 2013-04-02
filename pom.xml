@@ -59,7 +59,7 @@
             <artifactId>httpclient</artifactId>
         </dependency>
 
-		<dependency>
+        <dependency>
             <groupId>org.amplafi</groupId>
             <artifactId>amplafi-flow-core</artifactId>
             <version>${amplafi-flow-build}</version>
@@ -90,11 +90,11 @@
         
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-            <version>6.1.26</version>
+            <artifactId>jetty</artifactId>
+            <version>7.0.0.pre5</version>
         </dependency>
 
-		<dependency>
+        <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>maven-jetty-plugin</artifactId>
             <version>6.1.26</version>
