@@ -20,10 +20,6 @@
         <developerConnection>scm:git:${github-base}${project.artifactId}.git</developerConnection>
     </scm>
     
-    <properties>
-    <jettyVersion>8.1.10.v20130312</jettyVersion>
-  </properties>
-
     <dependencies>
 
         <dependency>
@@ -38,8 +34,8 @@
         </dependency>
 
         <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
         </dependency>
 
         <dependency>
