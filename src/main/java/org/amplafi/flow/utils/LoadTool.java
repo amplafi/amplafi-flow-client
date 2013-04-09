@@ -255,12 +255,14 @@ public class LoadTool extends UtilParent{
         getLog().info("Press Ctrl+C to stop");
 
         createFile();
+        final ScriptRunner scriptRunner = new ScriptRunner(service,key);
+        scriptRunner.setVerbose(verbose);
+        
         for (int i=0; i<numThreads ; i++ ){
             final ThreadReport report = new ThreadReport();
             Thread thread = new Thread(new Runnable(){
                 public void run() {
-                    ScriptRunner scriptRunner = new ScriptRunner(service,key);
-                    scriptRunner.setVerbose(verbose);
+                    
                     try {
                         // don't include the first run because this includes
                         // constructing gropvy runtime.

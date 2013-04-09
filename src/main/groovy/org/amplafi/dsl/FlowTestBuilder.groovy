@@ -134,7 +134,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     /** This stores the last request to the server */
     private String lastRequestString = "";
-
+    
+    /**
+     * This is used for data sharing between load tests.
+     */
+    private static stash = [:];
 
 
     /**
@@ -720,6 +724,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     def setApiKey(String tempApiKey){
         this.tempApiKey=tempApiKey;
+    }
+
+    /**
+     * For sharing data between load tests
+     */
+    def getStash(){
+        stash;
     }
 
     /**

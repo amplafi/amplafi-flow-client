@@ -29,16 +29,43 @@ if(ids!=null){
     }
     
 }else{
-    //get external_id from external_identifier_tracking
-    
-    def sql = Sql.newInstance("jdbc:mysql://localhost:3306/amplafi", dbUserName,dbPwd, "com.mysql.jdbc.Driver");
-    
-    sql.eachRow("select distinct external_id from external_identifier_tracking where base_uri='//example.com/'") { row ->
-    
-        def external_id = row.EXTERNAL_ID;
-        externalContentIds = externalContentIds + "[" + external_id + ",\"msg\"],";
-    
+    // if ( cache does not have ids )
+    if(!getStash()['data']){
+        
+        // put data in cache
+        synchronized(Sql.class){
+        
+            if(!getStash()['data']){
+            
+                //get external_id from external_identifier_tracking
+                
+                def sql = Sql.newInstance("jdbc:mysql://localhost:3306/amplafi", dbUserName,dbPwd, "com.mysql.jdbc.Driver");
+                
+                sql.eachRow("select distinct external_id from external_identifier_tracking where base_uri='//example.com/'") { row ->
+                
+                    def external_id = row.EXTERNAL_ID;
+                    
+                    externalContentIds = externalContentIds + "[" + external_id + ",\"msg\"],";
+                    
+                }
+                
+                getStash()['data'] =externalContentIds;
+                //println "#########################get data from database !!!!!!!!!!!!!!!!!!!!";
+            }
+            
+            externalContentIds = getStash()['data'];
+            
+        }
+        
+        
+        
+    }else{
+        // else use data in cache
+        externalContentIds = getStash()['data'];
+        
+        //println "#########################get data from cache####################";
     }
+    
 }
 
 externalContentIds = externalContentIds.substring(0, externalContentIds.length()-1);//remove the last comma
