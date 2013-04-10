@@ -181,16 +181,29 @@ public class LoadTool extends UtilParent{
             int threadNum = 1;
             double totalTime = 0;
             double totalCalls = 0;
+            double totalErrors = 0;
             getLog().info(THICK_DIVIDER);
             for (Thread t : threads){
                ThreadReport rep = threadReports.get(t);
                totalTime = rep.endTime - rep.startTime;
-               getLog().info("threadNum" + threadNum + ": calls " + rep.callCount + " in " + (totalTime/1000) + "s. average = " + (rep.callCount*1000/totalTime) + " calls per second. Error count " +  rep.errorCount);
+               double callsPerSecond = 0;
+                if (totalTime > 0){
+                    callsPerSecond = (rep.callCount*1000/totalTime);
+                }
+
+               getLog().info("threadNum" + threadNum + ": calls " + rep.callCount + " in " + (totalTime/1000) + "s. average = " + (callsPerSecond) + " calls per second. Error count " +  rep.errorCount);
                totalCalls += rep.callCount;
+               totalErrors += rep.errorCount;
                threadNum++;
             }
             getLog().info(THICK_DIVIDER);
-            getLog().info("Total calls in all threads=" + totalCalls + "  " + (totalCalls*1000/totalTime) +  " calls per second" );
+
+            double totalCallsPerSecond = 0;
+            if (totalTime > 0){
+                totalCallsPerSecond = (totalCalls*1000/totalTime);
+            }
+
+            getLog().info("Total calls in all threads=" + totalCalls + "  " + (totalCallsPerSecond) +  " calls per second.  total errors " + totalErrors );
             getLog().info(THICK_DIVIDER);
 
 
@@ -257,12 +270,12 @@ public class LoadTool extends UtilParent{
         createFile();
         final ScriptRunner scriptRunner = new ScriptRunner(service,key);
         scriptRunner.setVerbose(verbose);
-        
+
         for (int i=0; i<numThreads ; i++ ){
             final ThreadReport report = new ThreadReport();
             Thread thread = new Thread(new Runnable(){
                 public void run() {
-                    
+
                     try {
                         // don't include the first run because this includes
                         // constructing gropvy runtime.
