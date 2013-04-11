@@ -17,6 +17,7 @@ public class LoadToolCommandLineOptions extends AbstractCommandLineClientOptions
     public static final String VERBOSE = "verbose";
     public static final String REPORT = "reportFile";
     public static final String SCRIPT = "script";
+    public static final String TEST_PLAN = "testPlan";
     public static final String NUM_THREADS = "numThreads";
     public static final String FREQUENCY = "frequency";
     public static final String HELP = "help";
@@ -40,6 +41,7 @@ public class LoadToolCommandLineOptions extends AbstractCommandLineClientOptions
         options.addOption(KEY, true, "API key.");
         options.addOption(REPORT, true, "File to write report to. Otherwise will write to screen");
         options.addOption(SCRIPT, true, "Test script to run.");
+        options.addOption(TEST_PLAN, true, "Test Plan File.");
         options.addOption(NUM_THREADS, true, "Number of concurrent Threads.");
         options.addOption(FREQUENCY, true, "Max Frequency per thread (e.g. 100 per second) -1 is max possible.");
         options.addOption(VERBOSE, false, "More verbose output.");

@@ -1,10 +1,17 @@
 package org.amplafi.flow.utils;
 import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.net.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.amplafi.dsl.ScriptRunner;
@@ -14,6 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import static org.amplafi.flow.utils.LoadToolCommandLineOptions.*;
 import java.util.EnumSet;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Tool for load testing the wire server.
@@ -55,7 +64,9 @@ public class LoadTool extends UtilParent{
     //This file will be created when test is running ,and if you delete it ,the test will be stop.
     //And the same time you will see the report of the load test.
     private String runningFile = "LOAD_TOOL_RUNNING";
-
+    
+    private int frequency;
+    
     /**
      * Process command line and run the server.
      * @param args
@@ -90,7 +101,7 @@ public class LoadTool extends UtilParent{
         if (cmdOptions.hasOption(HOST) && cmdOptions.hasOption(HOST_PORT) && cmdOptions.hasOption(SCRIPT)  ) {
             int remotePort = -1;
             int numThreads = 1;
-            int frequency = -1;
+            frequency = -1;
 
             try {
                 remotePort = Integer.parseInt(cmdOptions.getOptionValue(HOST_PORT));
@@ -100,22 +111,32 @@ public class LoadTool extends UtilParent{
             }
 
             String host = cmdOptions.getOptionValue(HOST);
-            String reportFile = cmdOptions.getOptionValue(REPORT);
+            reportFile = cmdOptions.getOptionValue(REPORT);
             String scriptName = cmdOptions.getOptionValue(SCRIPT);
-
-            try {
-                if (cmdOptions.hasOption(NUM_THREADS)){
-                    numThreads = Integer.parseInt(cmdOptions.getOptionValue(NUM_THREADS));
+            
+            List<Map<String,Integer>> listMap = new ArrayList<Map<String,Integer>>();
+            
+            hasPlanTest = cmdOptions.hasOption(TEST_PLAN);
+            
+            if(hasPlanTest){
+                
+                listMap = getParamsInTestPlan(cmdOptions.getOptionValue(TEST_PLAN));
+                
+            }else{
+                try {
+                    if (cmdOptions.hasOption(NUM_THREADS)){
+                        numThreads = Integer.parseInt(cmdOptions.getOptionValue(NUM_THREADS));
+                    }
+                } catch (NumberFormatException nfe) {
+                    getLog().error("numThreads should be in numeric form e.g. 10 , defaulting to 1.");
                 }
-            } catch (NumberFormatException nfe) {
-                getLog().error("numThreads should be in numeric form e.g. 10 , defaulting to 1.");
-            }
-            try {
-                if (cmdOptions.hasOption(FREQUENCY)){
-                    frequency = Integer.parseInt(cmdOptions.getOptionValue(FREQUENCY));
+                try {
+                    if (cmdOptions.hasOption(FREQUENCY)){
+                        frequency = Integer.parseInt(cmdOptions.getOptionValue(FREQUENCY));
+                    }
+                } catch (NumberFormatException nfe) {
+                    getLog().error("frequency should be in numeric form e.g. 10 , defaulting to -1 = max possible.");
                 }
-            } catch (NumberFormatException nfe) {
-                getLog().error("frequency should be in numeric form e.g. 10 , defaulting to -1 = max possible.");
             }
 
             // Register shutdown handler.
@@ -127,7 +148,7 @@ public class LoadTool extends UtilParent{
                 }
             });
 
-            String key = cmdOptions.getOptionValue(KEY);;
+            String key = cmdOptions.getOptionValue(KEY);
 
             final FarReachesServiceInfo service = new FarReachesServiceInfo(host, ""+remotePort, "apiv1");
 
@@ -137,23 +158,62 @@ public class LoadTool extends UtilParent{
             }
 
             try {
-                runLoadTest(service, key, scriptName,  numThreads, frequency, cmdOptions.hasOption(VERBOSE) ); // never returns
+            
+                if(hasPlanTest){
+                    if ( listMap != null ){
+                        int planNum = listMap.get(listMap.size()-1).get("planNum");
+                        
+                        for(int i=0;i<listMap.size()-1;i++){
+                            running = true;
+                            reported = false;
+                            
+                            numThreads = (Integer)listMap.get(i).get("numThreads");
+                            frequency = (Integer)listMap.get(i).get("frequency");
+                            runLoadTest(service, key, scriptName,  numThreads, frequency, cmdOptions.hasOption(VERBOSE) ); // never returns
+                            //after a given time should stop the test.one way is delete the running file,another is control key press "ctrl+c"?
+                            
+                            startTestEndTimer(10);
+                            
+                            while(running){
+                               
+                                try{
+                                    Thread.sleep(1000);
+                                }catch(InterruptedException e){
+                                    //
+                                }
+                            }
+                            
+                            if (!running){
+                                shutDown();
+                            }
+                            
+                            
+                            //automatically generate csv formatting testing report.there maybe has a report file,that once a test end will add a new report record.
+                        }
+                    }
+                }else{
+                    runLoadTest(service, key, scriptName,  numThreads, frequency, cmdOptions.hasOption(VERBOSE) ); // never returns
+                    
+                     while(running){
+                        if(!isFileExists(runningFile)){
+                            shutDown();
+                            running = false;
+                        }
+                        try{
+                            Thread.sleep(1000);
+                        }catch(InterruptedException e){
+                            //
+                        }
+                    }
+                }
+                    
             } catch (IOException ioe) {
                 getLog().error("Error running proxy", ioe);
+                
                 return;
             }
-
-            while(running){
-                if(!isFileExists()){
-                    shutDown();
-                    running = false;
-                }
-                try{
-                    Thread.sleep(1000);
-                }catch(InterruptedException e){
-                    //
-                }
-            }
+            
+           
         }
     }
 
@@ -182,6 +242,7 @@ public class LoadTool extends UtilParent{
             double totalTime = 0;
             double totalCalls = 0;
             double totalErrors = 0;
+             Set errSet = new HashSet();
             getLog().info(THICK_DIVIDER);
             for (Thread t : threads){
                ThreadReport rep = threadReports.get(t);
@@ -195,6 +256,8 @@ public class LoadTool extends UtilParent{
                totalCalls += rep.callCount;
                totalErrors += rep.errorCount;
                threadNum++;
+               
+               errSet.addAll(rep.errors);
             }
             getLog().info(THICK_DIVIDER);
 
@@ -205,44 +268,130 @@ public class LoadTool extends UtilParent{
 
             getLog().info("Total calls in all threads=" + totalCalls + "  " + (totalCallsPerSecond) +  " calls per second.  total errors " + totalErrors );
             getLog().info(THICK_DIVIDER);
+            
 
-
-            getLog().info("Error Report "  );
+            getLog().info("Error Report ");
             getLog().info(THICK_DIVIDER);
+           
             for (Thread t : threads){
                ThreadReport rep = threadReports.get(t);
                 getLog().info(rep.errors);
             }
+
+            try{
+                writeCsvReport(frequency,threadNum,totalTime/1000,totalCalls,totalCallsPerSecond,totalErrors,errSet);
+            }catch(Exception ie){
+                getLog().error("Error",ie);
+            }
+            
+            threads.clear();
+            threadReports.clear();
         }
      }
+     
+    /**
+     * This method is generate a csv report when running test automatically with test plan.
+     */
+     private void writeCsvReport(int frequency,
+                                int threadNum,
+                                double totalTime,
+                                double totalCalls,
+                                double totalCallsPerSecond,
+                                double totalErrors,
+                                Set errorSet) throws IOException{
+        Object err = "";
+        if(!errorSet.isEmpty()){ 
+            Iterator it = errorSet.iterator();
+            while(it.hasNext()){
+                err = it.next();
+            }
+        }
+                    
+        StringBuilder sb = new StringBuilder();
+        sb.append((frequency*(threadNum-1)) + ",");
+        sb.append(frequency + ",");
+        sb.append((threadNum-1) + ",");
+        sb.append(totalCalls + ",");
+        sb.append(totalCallsPerSecond + ",");
+        sb.append(totalErrors + ",");
+        sb.append((double)((totalCalls-totalErrors)/totalCalls)*100.0000 + "%,");
+        sb.append(totalTime + ",");
+        sb.append(err);
+        if(!isFileExists(reportFile)){
+            createFile(reportFile);
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(reportFile), true));
+            bw.write("total attempted calls per second,frequency,numThreads,Total calls in all threads,calls per second,total errors,% of Successful Calls,Duration of test,remarks");
+            bw.newLine();
+            bw.close();
+        }
+        
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(reportFile), true));
+            bw.write(sb.toString());
+            bw.newLine();
+            bw.close();
+        } catch (Exception ie) {
+            getLog().error("Error",ie);
+        }
+     
+     }
 
+    private void stopTest(){
+        running = false;
+    }
 
     /**
      * Create a file.
      */
-    private void createFile(){
+    private void createFile(String fileName){
         try{
 
-            File file = new File(runningFile);
+            File file = new File(fileName);
 
             if(!file.exists()){
                 file.createNewFile();
             }
-        }catch(IOException e){
-            //
+        }catch(IOException ie){
+            getLog().error("Error",ie);
         }
     }
 
     /**
      * Validate if the file used for decidding the thread will run or stop is exists
      */
-    private boolean isFileExists(){
-        File file = new File(runningFile);
+    private boolean isFileExists(String fileName){
+        System.out.println("############# fileName =" + fileName);
+        File file = new File(fileName);
         if(file.exists()){
             return true;
         }else{
             return false;
         }
+     
+    }
+    
+    /**
+     * Delete the file after a given time.
+     * @param fileName is the file to delete.
+     * @param time :after time in seconds after the test will stop
+     */
+    public void startTestEndTimer(int time){
+        //Long currentTime = System.currentTimeMillis();
+        //Long deleteTime = currentTime + time*60*1000;
+        try{
+            long delay = time*1000;
+            Timer timer = new Timer(true);
+            
+            timer.schedule(new TimerTask(){
+                  public void run(){
+                        stopTest();
+                  }}, delay);
+            
+        }catch(Exception ie){
+            ie.printStackTrace();
+            getLog().error("Error",ie);
+        }
+              
     }
 
     // Never accessed by multiple threads
@@ -261,13 +410,12 @@ public class LoadTool extends UtilParent{
                             final int frequency,
                             final boolean verbose)
                             throws IOException {
-
         getLog().info("Running LoadTest with host="
                         + " host port=" +  " script=" + scriptName
                         + " numThreads=" + numThreads + " frequency=" + frequency);
         getLog().info("Press Ctrl+C to stop");
 
-        createFile();
+        createFile(runningFile);
         final ScriptRunner scriptRunner = new ScriptRunner(service,key);
         scriptRunner.setVerbose(verbose);
 
@@ -275,7 +423,6 @@ public class LoadTool extends UtilParent{
             final ThreadReport report = new ThreadReport();
             Thread thread = new Thread(new Runnable(){
                 public void run() {
-
                     try {
                         // don't include the first run because this includes
                         // constructing gropvy runtime.
@@ -304,6 +451,7 @@ public class LoadTool extends UtilParent{
                         }
                         report.endTime = System.currentTimeMillis();
                     } catch (Throwable t){
+                        t.printStackTrace();
                         getLog().error("Error on first run",t);
                     }
                 }// End run
@@ -315,6 +463,60 @@ public class LoadTool extends UtilParent{
             t.start();
         }
     }
+    
+    private boolean hasPlanTest = true;
+    
+    /**
+     * This method is read the params in the test plan file.Now is just handle frequency and numThreads.
+     */
+    public List<Map<String,Integer>> getParamsInTestPlan(String planFileName){
+        List<Map<String,Integer>> listMap = new ArrayList<Map<String,Integer>>();
+        
+        if(!isFileExists(planFileName)){
+            getLog().error("ERROR: Test Plan File" + planFileName + " does not exist.");
+            return listMap;
+        }
+        
+        
+        String paramName1 = "";
+        String paramName2 = "";
+        Integer lineNum = 1;
+        String readoneline = "";
+        try{
+           FileReader fr = new FileReader(planFileName);
+           BufferedReader br = new BufferedReader(fr);
+           while((readoneline = br.readLine()) != null){
+                String[] param = readoneline.split(",");
+                System.err.println("read on line " + readoneline );
+                if(param != null && lineNum == 1){
+                    paramName1 = param[0];
+                    paramName2 = param[1];
+                }    
+                if(lineNum >1){
+                    Map<String,Integer> map = new HashMap<String,Integer>();
+                    map.put(paramName1,Integer.parseInt(param[0]));
+                    map.put(paramName2,Integer.parseInt(param[1]));
+                    listMap.add(map);
+                }
+                lineNum++;
+            }
+           
+           if(lineNum>1){
+                Map<String,Integer> map = new HashMap<String,Integer>();
+                map.put("planNum",lineNum-2);
+                listMap.add(map);
+            }
+            
+            br.close();
+            fr.close();
+           
+        }catch(IOException ie){
+            getLog().error("Error",ie);
+        }
+        
+        return listMap;
+    }
+
 
     /**
      * Get the logger for this class.
