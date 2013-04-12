@@ -19,7 +19,8 @@ Method 2:Running ant command:
   -numThreads <arg>   Number of concurrent Threads.
   -reportFile <arg>   File to write report to. Otherwise will write to screen.
   -script <arg>       Test script to run.
-  -verbose            More verbose output.   
+  -verbose            More verbose output.
+  -testPlan           Test Plan File.
 
 
 ### Simple Usage ###
@@ -28,11 +29,19 @@ Windows:
     Open windows cmd.
     Open amplafi-flow-client directory.
     Running ant LoadTool.
+    
     Then you should see the prompts below:
         input-runargs:
         [input] Type the desired command line arguments (next time use -Dargs=...)
+    
     Then enter the args like this(other args are optional,these are requried)(the args's value is not fixed):
-        -host http://sandbox.farreach.es -hostPort 8080 -numThreads 8 -script test.groovy
+        
+        For example:
+        
+        run one test once,and finally print the report on the command so you can get them.
+            -host sandbox.farreach.es -hostPort 8080 -numThreads 8 -script test.groovy
+        or run one test with different numThreads and frequency in testPlan one by one,and finally obtain the report to the reportFile.
+            -host sandbox.farreach.es -hostPort 8080 -script test.groovy -testPlan testPlan.txt -reportFile report.csv
 
 
 2.Getting the test stop:
@@ -43,5 +52,6 @@ Windows:
     if you didn't set the reportFile,the report is on the screen of run test windows,you can check it there.
     else you can check it in the reportFile.
 
+4.It now has numThreads and frequency params
 
 // premature optimisation is the root of all evil
