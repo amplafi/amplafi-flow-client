@@ -23,7 +23,7 @@ import static org.amplafi.flow.utils.LoadToolCommandLineOptions.*;
 import java.util.EnumSet;
 import java.util.Timer;
 import java.util.TimerTask;
-
+import java.lang.management.ManagementFactory;
 /**
  * Tool for load testing the wire server.
  * @author paul
@@ -67,12 +67,14 @@ public class LoadTool extends UtilParent{
     private String runningFile = "LOAD_TOOL_RUNNING";
     
     private int frequency;
+    private String[] commandLine;
     
     /**
      * Process command line and run the server.
      * @param args
      */
     public void processCommandLine(String[] args) {
+        commandLine = args;
         // Process command line options.
         LoadToolCommandLineOptions cmdOptions = null;
         try {
@@ -286,7 +288,7 @@ public class LoadTool extends UtilParent{
             }
 
             try{
-                writeCsvReport(frequency,threadNum,totalTime/1000,totalCalls,totalCallsPerSecond,totalErrors,errSet);
+                writeCsvReport(frequency,threadNum,totalTime/1000,totalCalls,totalCallsPerSecond,totalErrors,errSet,commandLine);
             }catch(Exception ie){
                 getLog().error("Error",ie);
             }
@@ -305,7 +307,8 @@ public class LoadTool extends UtilParent{
                                 double totalCalls,
                                 double totalCallsPerSecond,
                                 double totalErrors,
-                                Set errorSet) throws IOException{
+                                Set errorSet,
+                                String[] args) throws IOException{
         Object err = "";
         if(!errorSet.isEmpty()){ 
             Iterator it = errorSet.iterator();
@@ -328,9 +331,25 @@ public class LoadTool extends UtilParent{
         }
         sb.append(totalTime + ",");
         sb.append(err);
+        
         if(!isFileExists(reportFile)){
             createFile(reportFile);
+                                                    
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(reportFile), true));
+
+            StringBuffer commandLine = new StringBuffer("'ant LoadTest -Dargs=\"");
+            
+            for (String arg : args){
+                commandLine.append(arg);
+                commandLine.append(" ");
+            }
+            commandLine.append("\"'");
+
+            bw.write("'" + getSystemInfo() + "'");
+            bw.newLine();
+            bw.write(commandLine.toString());
+            bw.newLine();
+            bw.newLine();
             bw.write("total attempted calls per second,frequency,numThreads,Total calls in all threads,calls per second,total errors,% of Successful Calls,Duration of test,remarks");
             bw.newLine();
             bw.close();
@@ -346,6 +365,15 @@ public class LoadTool extends UtilParent{
         }
      
      }
+
+    private String getSystemInfo(){
+        String systemInfo = "Client details. applies to server if running against localhost. os architecture " + System.getProperty("os.arch") + ". os name: "
+                                    + System.getenv("os.name") + ". os version: " 
+                                        + System.getenv("os.version") + ". num processors     "
+                                             +  ManagementFactory.getOperatingSystemMXBean().getAvailableProcessors() + ". System load average for last minute of test "
+                                                +  ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage() + ". Free Memory " + Runtime.getRuntime().freeMemory();;
+        return systemInfo;
+    }
 
     private void stopTest(){
         running = false;
