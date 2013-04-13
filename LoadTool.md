@@ -20,6 +20,7 @@ Method 2:Running ant command:
   -reportFile <arg>   File to write report to. Otherwise will write to screen.
   -script <arg>       Test script to run.
   -verbose            More verbose output.
+  -duration           Only used with test plan. Sets the duration of each stage.
   -testPlan           Test Plan File.
 
 
@@ -57,14 +58,26 @@ frequency,numThreads
 4,8
 
 A standard test plan can be found src/test/resources/loadTests/loadTestPlan4To4096TequestsPerSecond.csv
-This plan ramps up the number of requests per second from 4 to 4096 
+This plan ramps up the number of requests per second from 4 to 4096
 
+Note the report.csv will be appended to with each test run in the plan so if you quit early you won't lose the report data up to that point.
 
-Each test will be run for 45 seconds with the specified parameters.
+Each test will be run for 45 seconds (or the specified -duration) with the specified parameters.
 Note for tests with a high number of threads it may take a long time for the reports to be produced
 because those thread may be waiting oun a large number of responses fro the server. 
 
+
+Example
+
+ant LoadTest -Dargs="--host sandbox.farreach.es -hostPort 8080 -script src/test/resources/loadTests/loadTestMep.groovy -testPlan src/test/resources/loadTests/loadTestPlan4To4096RequestsPerSecond.csv -reportFile report.csv"
+
+or with durations of 60 secods for each stage:
+
+ant LoadTool -Dargs="--host sandbox.farreach.es -hostPort 8080 -script src/test/resources/loadTests/loadTestMep.groovy -testPlan src/test/resources/loadTests/loadTestPlan4To4096RequestsPerSecond.csv -duration 60 -reportFile report.csv"
+
 3.Getting the test stop:
+    When running the tool from 'ant' control+C will kill it before report can be generated so use the following method instead:
+    
     Open amplafi-flow-client directory in the folder.
     Find a file named LOAD_TOOL_RUNNING and delete it.
 

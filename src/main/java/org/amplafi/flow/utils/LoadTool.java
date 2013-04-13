@@ -29,6 +29,7 @@ import java.util.TimerTask;
  * @author paul
  */
 public class LoadTool extends UtilParent{
+    private static final int DEFAULT_TEST_DURATION_SECS = 45;
     /**
      * Main method for proxy server.
      * See TestGenerationProxyCommandLineOptions for usage.
@@ -101,6 +102,7 @@ public class LoadTool extends UtilParent{
         if (cmdOptions.hasOption(HOST) && cmdOptions.hasOption(HOST_PORT) && cmdOptions.hasOption(SCRIPT)  ) {
             int remotePort = -1;
             int numThreads = 1;
+            int duration = DEFAULT_TEST_DURATION_SECS;
             frequency = -1;
 
             try {
@@ -121,6 +123,10 @@ public class LoadTool extends UtilParent{
             if(hasPlanTest){
                 
                 listMap = getParamsInTestPlan(cmdOptions.getOptionValue(TEST_PLAN));
+
+                if (cmdOptions.hasOption(DURATION)){
+                    duration = Integer.parseInt(cmdOptions.getOptionValue(DURATION));
+                }
                 
             }else{
                 try {
@@ -172,7 +178,7 @@ public class LoadTool extends UtilParent{
                             runLoadTest(service, key, scriptName,  numThreads, frequency, cmdOptions.hasOption(VERBOSE) ); // never returns
                             //after a given time should stop the test.one way is delete the running file,another is control key press "ctrl+c"?
                             
-                            startTestEndTimer(10);
+                            startTestEndTimer(duration);
                             
                             while(running){
                                
@@ -208,6 +214,7 @@ public class LoadTool extends UtilParent{
                 }
                     
             } catch (IOException ioe) {
+                ioe.printStackTrace();
                 getLog().error("Error running proxy", ioe);
                 
                 return;
@@ -314,7 +321,11 @@ public class LoadTool extends UtilParent{
         sb.append(totalCalls + ",");
         sb.append(totalCallsPerSecond + ",");
         sb.append(totalErrors + ",");
-        sb.append((double)((totalCalls-totalErrors)/totalCalls)*100.0000 + "%,");
+        if (totalCalls > 0){
+            sb.append((double)((totalCalls-totalErrors)/totalCalls)*100.0000 + "%,");
+        } else {
+            sb.append("0%,");
+        }
         sb.append(totalTime + ",");
         sb.append(err);
         if(!isFileExists(reportFile)){
@@ -416,8 +427,6 @@ public class LoadTool extends UtilParent{
         getLog().info("Press Ctrl+C to stop");
 
         createFile(runningFile);
-        final ScriptRunner scriptRunner = new ScriptRunner(service,key);
-        scriptRunner.setVerbose(verbose);
 
         for (int i=0; i<numThreads ; i++ ){
             final ThreadReport report = new ThreadReport();
@@ -426,9 +435,12 @@ public class LoadTool extends UtilParent{
                     try {
                         // don't include the first run because this includes
                         // constructing gropvy runtime.
+                        final ScriptRunner scriptRunner = new ScriptRunner(service,key);
+                        scriptRunner.setVerbose(verbose);
+                        
                         scriptRunner.loadAndRunOneScript(scriptName);
                         report.startTime = System.currentTimeMillis();
-                      while (running){
+                        while (running){
                             try {
                                 report.callCount++;
                                 long startTime = System.currentTimeMillis();

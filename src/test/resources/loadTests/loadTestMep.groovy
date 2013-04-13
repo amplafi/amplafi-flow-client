@@ -1,4 +1,4 @@
-
+description "test MessageEndPointList","Load test script", []
 
 //println "In script " + getKey()
 
