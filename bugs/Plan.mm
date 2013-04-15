@@ -84,7 +84,9 @@
 </node>
 <node TEXT="Question how to link a lest to a version of the server when we can&apos;t build from source." ID="ID_845979304" CREATED="1361330318677" MODIFIED="1361330352862"/>
 </node>
-<node TEXT="Obtain APIKey automatically????" ID="ID_405734552" CREATED="1361926557842" MODIFIED="1361926591537"/>
+<node TEXT="Obtain APIKey automatically????" ID="ID_405734552" CREATED="1361926557842" MODIFIED="1365989495187">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node TEXT="Documentation" POSITION="right" ID="ID_54566777" CREATED="1361329702687" MODIFIED="1361329707255">
 <node TEXT="How to set up poweredbypulse for groovy" ID="ID_1967255841" CREATED="1361329708019" MODIFIED="1361342828817" BACKGROUND_COLOR="#ff9c9c">
@@ -95,11 +97,15 @@
 </node>
 <node TEXT="How to run regression tests." ID="ID_203979375" CREATED="1361330527498" MODIFIED="1361342828844" BACKGROUND_COLOR="#ff9c9c"/>
 <node TEXT="Running the Logging Proxy" ID="ID_1167519617" CREATED="1361926222386" MODIFIED="1361926244531"/>
-<node TEXT="Running the LoadTool" ID="ID_423703853" CREATED="1361926245169" MODIFIED="1361926289941"/>
+<node TEXT="Running the LoadTool" ID="ID_423703853" CREATED="1361926245169" MODIFIED="1365989507375">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node TEXT="Testing Admin Tool And DSL" POSITION="left" ID="ID_1850217554" CREATED="1361329344880" MODIFIED="1361329357992">
 <node TEXT="Unit Tests For FlowTestDSL" ID="ID_775525918" CREATED="1361329511105" MODIFIED="1361329542868"/>
-<node TEXT="Test harness for testing DSL scripts e.g. mocking calls to server and simulating responses." ID="ID_1464996551" CREATED="1361329549896" MODIFIED="1361342864931" BACKGROUND_COLOR="#ff9c9c"/>
+<node TEXT="Test harness for testing DSL scripts e.g. mocking calls to server and simulating responses." ID="ID_1464996551" CREATED="1361329549896" MODIFIED="1365988174593" BACKGROUND_COLOR="#ff9c9c">
+<icon BUILTIN="button_ok"/>
+</node>
 <node TEXT="Should Print Server Response on Error" ID="ID_425100561" CREATED="1362101783193" MODIFIED="1363136824281">
 <icon BUILTIN="button_ok"/>
 <node TEXT="Response Handling" ID="ID_1317043521" CREATED="1362102324797" MODIFIED="1363136827015">
@@ -109,7 +115,9 @@
 </node>
 </node>
 </node>
-<node TEXT="If you miss the protocol it should default to http." ID="ID_1029895252" CREATED="1362101813764" MODIFIED="1362101837129"/>
+<node TEXT="If you miss the protocol it should default to http." ID="ID_1029895252" CREATED="1362101813764" MODIFIED="1365988180125">
+<icon BUILTIN="button_ok"/>
+</node>
 <node TEXT="If you get a parameter wrong it should print the usage." ID="ID_542250780" CREATED="1362101843908" MODIFIED="1363137007265">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -125,12 +133,14 @@
 </node>
 </node>
 <node TEXT="Bug Fixes" POSITION="left" ID="ID_890202894" CREATED="1361329486157" MODIFIED="1361329492098">
-<node TEXT="Set amplafi-flow-client issues list" ID="ID_124901727" CREATED="1361329823505" MODIFIED="1361329843591"/>
+<node TEXT="See amplafi-flow-client issues list" ID="ID_124901727" CREATED="1361329823505" MODIFIED="1365988277500"/>
 </node>
 <node TEXT="Load Testing" POSITION="left" ID="ID_1604087441" CREATED="1361926454901" MODIFIED="1361926460909">
 <node TEXT="Run some real test scripts from the load tool?" ID="ID_533643103" CREATED="1361926461921" MODIFIED="1361926517836"/>
 <node TEXT="https://github.com/amplafi/amplafi-flow-client/wiki/Single-Site-Load-Testing-Plan" ID="ID_743723633" CREATED="1363136755953" MODIFIED="1363136773218"/>
 </node>
-<node TEXT="Remove use of external scripts: no .sh only ant targets" POSITION="right" ID="ID_1821842168" CREATED="1361912481545" MODIFIED="1361912499052"/>
+<node TEXT="Remove use of external scripts: no .sh only ant targets" POSITION="right" ID="ID_1821842168" CREATED="1361912481545" MODIFIED="1361912499052">
+<node TEXT="Still have problem where tool asks for use input" ID="ID_1463692520" CREATED="1365992605203" MODIFIED="1365992629000"/>
+</node>
 </node>
 </map>
