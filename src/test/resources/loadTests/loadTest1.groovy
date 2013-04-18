@@ -25,6 +25,7 @@ if(ids!=null){
     for(def id:idArray){
     
         externalContentIds = externalContentIds + "[" + id + ",\"msg\"],";
+        
     
     }
     
@@ -41,7 +42,7 @@ if(ids!=null){
                 
                 def sql = Sql.newInstance("jdbc:mysql://localhost:3306/amplafi", dbUserName,dbPwd, "com.mysql.jdbc.Driver");
                 
-                sql.eachRow("select distinct external_id from external_identifier_tracking where base_uri='//example.com/'") { row ->
+                sql.eachRow("select distinct external_id from external_identifier_tracking where base_uri='//daisy.com/'") { row ->
                 
                     def external_id = row.EXTERNAL_ID;
                     
@@ -49,9 +50,12 @@ if(ids!=null){
                     
                 }
                 
+                sql.close();
+                
                 getStash()['data'] =externalContentIds;
-                //println "#########################get data from database !!!!!!!!!!!!!!!!!!!!";
+                println "#########################get data from database !!!!!!!!!!!!!!!!!!!!";
             }
+            
             
             externalContentIds = getStash()['data'];
             
@@ -68,17 +72,54 @@ if(ids!=null){
     
 }
 
-externalContentIds = externalContentIds.substring(0, externalContentIds.length()-1);//remove the last comma
+//externalContentIds = externalContentIds.substring(0, externalContentIds.length()-1);//remove the last comma
 
 externalContentIds = externalContentIds + "]";
 
 
-//println "externalContentIds = " + externalContentIds;
+println "externalContentIds = " + externalContentIds;
 
 //send param externalContentIds fixed.
 //def response = requestResponse( "EnvelopeStatusList" , ["externalContentIds": """[[43,\"msg\"],[41,\"msg\"],[39,\"msg\"],[37,\"msg\"],[35,\"msg\"],[31,\"msg\"],[29,\"msg\"],[27,\"msg\"],[25,\"msg\"],[23,\"msg\"],[21,\"msg\"],[18,\"msg\"],[16,\"msg\"],[4,\"msg\"],[1,\"msg\"]]"""]);
 
+
+
 def response = requestResponse( "EnvelopeStatusList" , ["externalContentIds": externalContentIds]);
+
+/*
+
+{
+    "flowTitle": "message:EnvelopeStatusList",
+    "activities": [{
+        "activity": "FA",
+        "activityTitle": "message:flow.activity.f-a.title",
+        "invisible": true,
+        "finishing": false,
+        "parameters": [
+            {
+                "name": "broadcastEnvelopes",
+                "type": "List",
+                "req": "optional"
+            },
+            {
+                "name": "externalContentId",
+                "type": "JSONArray",
+                "req": "optional"
+            },
+            {
+                "name": "externalContentIds",
+                "type": "List",
+                "req": "optional"
+            },
+            {
+                "name": "messageEndPointTypes",
+                "type": "List",
+                "req": "optional"
+            }
+        ]
+    }]
+}
+*/
 
 if(response.hasError()){
     throw new Exception(response.getErrorMessage());

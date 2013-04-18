@@ -57,7 +57,7 @@ public class LoadTool extends UtilParent{
     }
 
     /** File to write the test report to. If null write to screen. */
-    private String reportFile;
+    private String reportFile = "";
 
     private boolean running = true;
     private boolean reported = false;
@@ -286,13 +286,14 @@ public class LoadTool extends UtilParent{
                ThreadReport rep = threadReports.get(t);
                 getLog().info(rep.errors);
             }
-
-            try{
-                writeCsvReport(frequency,threadNum,totalTime/1000,totalCalls,totalCallsPerSecond,totalErrors,errSet,commandLine);
-            }catch(Exception ie){
-                getLog().error("Error",ie);
-            }
             
+            if(reportFile != ""){
+                try{
+                    writeCsvReport(frequency,threadNum,totalTime/1000,totalCalls,totalCallsPerSecond,totalErrors,errSet,commandLine);
+                }catch(Exception ie){
+                    getLog().error("Error",ie);
+                }
+            }
             threads.clear();
             threadReports.clear();
         }
