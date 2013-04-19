@@ -1,0 +1,6 @@
+Tasks To Do when We Have a Minute
+=================================
+
+
+1. Make a load test to run with all requests successful for a few hours. See what happens.
+2. Run a load test so that there are a lot of failures and then stop it. Next run again at low load to see if system recovers.
