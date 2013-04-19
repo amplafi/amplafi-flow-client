@@ -17,6 +17,7 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
     public static final String HOST = "host";
     public static final String PORT = "port";
     public static final String API_VERSION = "apiv";
+    public static final String CALLBACK_HOST = "callBackHost";
     public static final String LIST = "l";
     public static final String LISTDETAILED = "L";
     public static final String NOCACHE = "x";
@@ -42,8 +43,9 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
         options.addOption(DESCRIBE, true, "Describe Flow");
         options.addOption(LISTDETAILED, false, "List In-built Scripts and show all scripts path");
         options.addOption(API_KEY, true, "API key");
+        options.addOption(API_KEY, true, "API key");
         options.addOption(HOST, true, "Host address");
-        options.addOption(API_VERSION, true, "API version");
+        options.addOption(CALLBACK_HOST, true, "API version");
         options.addOption(PORT, true, "Service port");
         options.addOption(NOCACHE, false, "Don't use cached server credentials");
         options.addOption(FILE_PATH, true, "Ad-hoc script File Path");
