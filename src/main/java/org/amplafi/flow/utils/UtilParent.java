@@ -103,7 +103,7 @@ public class UtilParent {
             String prefValue = props.getProperty(key, "");
             if (cmdOptions.hasOption(NOCACHE) || prefValue.equals("")) {
                 // prompt the user for the option
-                System.out.print("Please, Enter : " + key
+                emitOutput("Please, Enter : " + key
                         + " ( Enter defaults to: " + defaultVal + ") ");
                 value = getUserInput(key);
                 if ("".equals(value)) {
