@@ -15,6 +15,8 @@ import groovy.sql.Sql;
  * you run this with something like:  
  * 
  * FAdmin.bat dbRelationships fromTable=message_points toTable=users username=amplafi password=amplafi schema=amplafi
+ *
+ * or with the ant target
  * 
  * and it outputs something like:
  * 
@@ -94,14 +96,15 @@ public class PathFinder {
 		def to = lookup[toTableName];
 		
 		def successfulPaths = [];
-		searchRec(from,to, [], successfulPaths);
+		searchRec(from,to, new Path(), successfulPaths);
 		
 		successfulPaths.sort{ path ->
 			path.size();
 		}
 			
 		println "Paths :"
-		successfulPaths.each{ path ->
+		successfulPaths.each{ pathObj ->
+            def steps = pathObj.steps;
 			println "Path :"
 			
 			StringBuffer briefPath = new StringBuffer();
@@ -110,15 +113,15 @@ public class PathFinder {
 			def conditions = [] as Set;
 			
 			
-			for (int i = 0; i< path.size(); i++){
+			for (int i = 0; i< steps.size(); i++){
 				
-				TableNode currentStep = path[i];
+				TableNode currentStep = steps[i];
 				briefPath << "${currentStep.name} "
 				detailPath << "${currentStep.name} "
 				tables << currentStep.name;
 		
-				if (path.size() > i + 1){
-					TableNode nextStep = path[i + 1];
+				if (steps.size() > i + 1){
+					TableNode nextStep = steps[i + 1];
 
 					if (currentStep != nextStep){	
 						def linkDetail = currentStep.linksDetail[nextStep.name];
@@ -163,17 +166,18 @@ public class PathFinder {
 	 * @param sucessfullPaths - when a path hits the target it is moved to this list of lists.
 	 * @return
 	 */
-	def searchRec(TableNode from, TableNode to, currentPath, sucessfullPaths){
-		from.visited = true;
-		currentPath << from;
+	def searchRec(TableNode from, TableNode to, Path currentPath, sucessfullPaths){
+		currentPath.lookup.add(from);
+        
+		currentPath.steps << from;
 		from.linksTo.each{ linksTo ->
 			if (linksTo == to ){
-				currentPath << linksTo; 
+				currentPath.steps << linksTo; 
 				sucessfullPaths << currentPath;
 				return;
 			}
 			
-			if (!linksTo.visited){
+			if (!currentPath.lookup.contains(linksTo)){
 				searchRec(linksTo, to, currentPath.clone(), sucessfullPaths);
 			}
 			
@@ -181,12 +185,12 @@ public class PathFinder {
 
 		from.linksFrom.each{ linksFrom ->
 			if (linksFrom == to ){
-				currentPath << linksFrom;
+				currentPath.steps << linksFrom;
 				sucessfullPaths << currentPath;
 				return;
 			}
 			
-			if (!linksFrom.visited){
+			if (!linksFrom.lookup.contains(linksTo)){
 				searchRec(linksFrom, to, currentPath.clone(), sucessfullPaths)
 			}
 		}
@@ -216,6 +220,7 @@ public class PathFinder {
 			println "########### Table ${tb.name} References ############"
 			// list all the tables this table references. 
 			sql.eachRow("""select TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME from KEY_COLUMN_USAGE where TABLE_SCHEMA = ${schema} AND TABLE_NAME = ${tb.name};""") { row ->
+                println "      ${row}  "
 				if (row.REFERENCED_TABLE_NAME != null){
 				    println "      ${row.REFERENCED_TABLE_NAME}.${row.REFERENCED_COLUMN_NAME}  "
 					def referenced = lookup[row.REFERENCED_TABLE_NAME];
@@ -276,10 +281,23 @@ public class TableNode {
 	def linksFrom = [];
 	
 	def linksDetail = [:]
-	
-	def visited = false
+
+}
 
-
+/**
+ * Represents a path between TableNodes
+ * Is basically an array of TableNodes with a set of the same nodes to
+ * facilitate checking for loops.
+ */
+public class Path {
+    def steps = [];
+    def lookup = [] as Set;
+    public Object clone(){
+        def o = new Path();
+        o.steps = this.steps.clone();
+        o.lookup = this.lookup.clone();
+        return o;
+    }
 }
 
 /**
