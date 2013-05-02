@@ -96,10 +96,10 @@ public class PathFinder {
         def to = lookup[toTableName];
         
         def successfulPaths = [];
-        searchRec(from,to, [], successfulPaths);
+        searchRec(from,to, new Path(), successfulPaths);
         
         successfulPaths.sort{ path ->
-            path.size();
+            path.steps.size();
         }
             
         println "Paths :"
@@ -112,15 +112,15 @@ public class PathFinder {
             def conditions = [] as Set;
             
             
-            for (int i = 0; i< path.size(); i++){
+            for (int i = 0; i< path.steps.size(); i++){
                 
-                TableNode currentStep = path[i];
+                TableNode currentStep = path.steps[i];
                 briefPath << "${currentStep.name} "
                 detailPath << "${currentStep.name} "
                 tables << currentStep.name;
         
-                if (path.size() > i + 1){
-                    TableNode nextStep = path[i + 1];
+                if (path.steps.size() > i + 1){
+                    TableNode nextStep = path.steps[i + 1];
 
                     if (currentStep != nextStep){	
                         def linkDetail = currentStep.linksDetail[nextStep.name];
@@ -143,55 +143,59 @@ public class PathFinder {
                 }
 
             }
+            
+            String exampleSql = exampleSelect(tables,conditions);
+            
             println briefPath;
             println "__________________________________________________";
             
             println detailPath;
             println "++++++++++++++++ Example select +++++++++++++++++++";
             println "";
-            println  exampleSelect(tables,conditions)
+            println exampleSql;
             println "";
             println "#####################################################################################";
         }
 
-        println "Done"
-    }
-    
-    /**
-     * Reccursive search the network of tables to find paths
-     * @param from
-     * @param to
-     * @param currentPath - just and array of table nodes.
-     * @param sucessfullPaths - when a path hits the target it is moved to this list of lists.
-     * @return
-     */
-    def searchRec(TableNode from, TableNode to, currentPath, sucessfullPaths){
-        from.visited = true;
-        currentPath << from;
-        from.linksTo.each{ linksTo ->
-            if (linksTo == to ){
-                currentPath << linksTo; 
-                sucessfullPaths << currentPath;
-                return;
-            }
-            
-            if (!linksTo.visited){
-                searchRec(linksTo, to, currentPath.clone(), sucessfullPaths);
-            }
-            
-        }
+		println "Done"
+	}
+	
+	/**
+	 * Reccursive search the network of tables to find paths
+	 * @param from
+	 * @param to
+	 * @param currentPath - just and array of table nodes.
+	 * @param sucessfullPaths - when a path hits the target it is moved to this list of lists.
+	 * @return
+	 */
+	def searchRec(TableNode from, TableNode to, Path currentPath, sucessfullPaths){
+		currentPath.lookup.add(from);
+        
+		currentPath.steps << from;
+		from.linksTo.each{ linksTo ->
+			if (linksTo == to ){
+				currentPath.steps << linksTo; 
+				sucessfullPaths << currentPath;
+				return;
+			}
+			
+			if (!currentPath.lookup.contains(linksTo)){
+				searchRec(linksTo, to, currentPath.clone(), sucessfullPaths);
+			}
+			
+		}
 
-        from.linksFrom.each{ linksFrom ->
-            if (linksFrom == to ){
-                currentPath << linksFrom;
-                sucessfullPaths << currentPath;
-                return;
-            }
-            
-            if (!linksFrom.visited){
-                searchRec(linksFrom, to, currentPath.clone(), sucessfullPaths)
-            }
-        }
+		from.linksFrom.each{ linksFrom ->
+			if (linksFrom == to ){
+				currentPath.steps << linksFrom;
+				sucessfullPaths << currentPath;
+				return;
+			}
+			
+			if (!currentPath.lookup.contains(linksFrom)){
+				searchRec(linksFrom, to, currentPath.clone(), sucessfullPaths)
+			}
+		}
 
     }
     
@@ -208,34 +212,35 @@ public class PathFinder {
         }
     }
 
-    /**
-     * Construct a network of relationships between the tables. 
-     * @return
-     */
-    def listRelationships(){
-        // loop over all the tables and find the tables that reference them	
-        tables.each{ tb ->
-            println "########### Table ${tb.name} References ############"
-            // list all the tables this table references. 
-            sql.eachRow("""select TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME from KEY_COLUMN_USAGE where TABLE_SCHEMA = ${schema} AND TABLE_NAME = ${tb.name};""") { row ->
-                if (row.REFERENCED_TABLE_NAME != null){
-                    println "      ${row.REFERENCED_TABLE_NAME}.${row.REFERENCED_COLUMN_NAME}  "
-                    def referenced = lookup[row.REFERENCED_TABLE_NAME];
-                    if (referenced == null){
-                        throw new Exception("how is table " + row.REFERENCED_TABLE_NAME + "not in the lookup?")
-                    }
-                    
-                    def detail = new LinkDetail(tb.name,row.COLUMN_NAME,referenced.name,row.REFERENCED_COLUMN_NAME );
-                                
-                    tb.linksTo << referenced;
-                    tb.linksDetail[row.REFERENCED_TABLE_NAME] = detail;  
-                    
-                    referenced.linksFrom << tb; 
-                    referenced.linksDetail[tb.name] = detail;
-                }
-            } 
-        }
-    }
+	/**
+	 * Construct a network of relationships between the tables. 
+	 * @return
+	 */
+	def listRelationships(){
+		// loop over all the tables and find the tables that reference them	
+		tables.each{ tb ->
+			println "########### Table ${tb.name} References ############"
+			// list all the tables this table references. 
+			sql.eachRow("""select TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME from KEY_COLUMN_USAGE where TABLE_SCHEMA = ${schema} AND TABLE_NAME = ${tb.name};""") { row ->
+                println "      ${row}  "
+				if (row.REFERENCED_TABLE_NAME != null){
+				    println "      ${row.REFERENCED_TABLE_NAME}.${row.REFERENCED_COLUMN_NAME}  "
+					def referenced = lookup[row.REFERENCED_TABLE_NAME];
+					if (referenced == null){
+						throw new Exception("how is table " + row.REFERENCED_TABLE_NAME + "not in the lookup?")
+					}
+					
+					def detail = new LinkDetail(tb.name,row.COLUMN_NAME,referenced.name,row.REFERENCED_COLUMN_NAME );
+								
+					tb.linksTo << referenced;
+					tb.linksDetail[row.REFERENCED_TABLE_NAME] = detail;  
+					
+					referenced.linksFrom << tb; 
+					referenced.linksDetail[tb.name] = detail;
+				}
+			} 
+		}
+	}
 
     def String exampleSelect(tables,conditions){
         def sb = new StringBuffer();
@@ -267,19 +272,21 @@ public class PathFinder {
     
 }
 
+def executeExampleSelectSql(){
+    
+}
+
 /**
  * Class represeting a table
  */ 
 @TupleConstructor
 public class TableNode {
 
-    def name;
-    def linksTo = [];
-    def linksFrom = [];
-    
-    def linksDetail = [:]
-    
-    def visited = false
+	def name;
+	def linksTo = [];
+	def linksFrom = [];
+	
+	def linksDetail = [:]
 
 
 }
@@ -295,7 +302,8 @@ public class Path {
     public Object clone(){
         def o = new Path();
         o.steps = this.steps.clone();
-        o.lookup = this.lookup.clone();
+        //o.lookup = this.lookup.clone();
+          o.lookup = this.lookup;
         return o;
     }
 }
