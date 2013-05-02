@@ -15,6 +15,8 @@ import groovy.sql.Sql;
  * you run this with something like:  
  * 
  * FAdmin.bat dbRelationships fromTable=message_points toTable=users username=amplafi password=amplafi schema=amplafi
+ *
+ * or with the ant target
  * 
  * and it outputs something like:
  * 
@@ -277,9 +279,25 @@ public class TableNode {
     
     def linksDetail = [:]
     
-    def visited = false
+    def visited = false
 
 
+}
+
+/**
+ * Represents a path between TableNodes
+ * Is basically an array of TableNodes with a set of the same nodes to
+ * facilitate checking for loops.
+ */
+public class Path {
+    def steps = [];
+    def lookup = [] as Set;
+    public Object clone(){
+        def o = new Path();
+        o.steps = this.steps.clone();
+        o.lookup = this.lookup.clone();
+        return o;
+    }
 }
 
 /**
