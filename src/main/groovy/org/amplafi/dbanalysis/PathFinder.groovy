@@ -270,11 +270,13 @@ public class PathFinder {
         return sb.toString();
     }
     
-}
+    def executeExampleSelectSql(){
+    
+    }
 
-def executeExampleSelectSql(){
     
 }
+
 
 /**
  * Class represeting a table
