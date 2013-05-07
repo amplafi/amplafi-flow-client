@@ -50,6 +50,7 @@ public class PathFinder {
     def schema
     def username
     def password 
+    private static final int MAX_PATH_LENGTH = 5;
     
     /* Consider tables to be nodes in a network */
     def tables = []
@@ -58,12 +59,14 @@ public class PathFinder {
     
     /* Groovy sql object */
     private def sql
+    private def sqlTargetSchema
     
     def PathFinder(schema,username,password){
         this.schema = schema;
         this.username = username;
         this.password = password;
         sql = Sql.newInstance("jdbc:mysql://localhost:3306/information_schema", username,password, "com.mysql.jdbc.Driver");
+        sqlTargetSchema  = Sql.newInstance("jdbc:mysql://localhost:3306/" + schema, username,password, "com.mysql.jdbc.Driver");
     }
     
     /**
@@ -139,12 +142,17 @@ public class PathFinder {
                             conditions << "${linkDetail.fromTableNode}.${linkDetail.columnName} = ${linkDetail.toTableNode}.${linkDetail.toTableColumn}"
                         }
                     }
-
                 }
-
             }
             
             String exampleSql = exampleSelect(tables,conditions);
+            def resultNum = executeExampleSelectSql(exampleSql);
+            
+            def querySet = [];
+            if (resultNum > 0){
+                querySet << ["sql":exampleSql,"recordNum":resultNum];
+            }
+           
             
             println briefPath;
             println "__________________________________________________";
@@ -154,6 +162,12 @@ public class PathFinder {
             println "";
             println exampleSql;
             println "";
+            println "++++++++++++++++ Most Promsing Queries +++++++++++++++++++";
+            querySet.each{ query ->
+                println query["sql"];
+                println query["recordNum"];
+            }
+            
             println "#####################################################################################";
         }
 
@@ -170,32 +184,33 @@ public class PathFinder {
 	 */
 	def searchRec(TableNode from, TableNode to, Path currentPath, sucessfullPaths){
 		currentPath.lookup.add(from);
-        
-		currentPath.steps << from;
-		from.linksTo.each{ linksTo ->
-			if (linksTo == to ){
-				currentPath.steps << linksTo; 
-				sucessfullPaths << currentPath;
-				return;
-			}
-			
-			if (!currentPath.lookup.contains(linksTo)){
-				searchRec(linksTo, to, currentPath.clone(), sucessfullPaths);
-			}
-			
-		}
+        if (currentPath.steps.size() < MAX_PATH_LENGTH) {
+            currentPath.steps << from;
+            from.linksTo.each{ linksTo ->
+                if (linksTo == to ){
+                    currentPath.steps << linksTo; 
+                    sucessfullPaths << currentPath;
+                    return;
+                }
+                
+                if (!currentPath.lookup.contains(linksTo)){
+                    searchRec(linksTo, to, currentPath.clone(), sucessfullPaths);
+                }
+                
+            }
 
-		from.linksFrom.each{ linksFrom ->
-			if (linksFrom == to ){
-				currentPath.steps << linksFrom;
-				sucessfullPaths << currentPath;
-				return;
-			}
-			
-			if (!currentPath.lookup.contains(linksFrom)){
-				searchRec(linksFrom, to, currentPath.clone(), sucessfullPaths)
-			}
-		}
+            from.linksFrom.each{ linksFrom ->
+                if (linksFrom == to ){
+                    currentPath.steps << linksFrom;
+                    sucessfullPaths << currentPath;
+                    return;
+                }
+                
+                if (!currentPath.lookup.contains(linksFrom)){
+                    searchRec(linksFrom, to, currentPath.clone(), sucessfullPaths)
+                }
+            }
+        }
 
     }
     
@@ -270,8 +285,12 @@ public class PathFinder {
         return sb.toString();
     }
     
-    def executeExampleSelectSql(){
-    
+    def executeExampleSelectSql(String query){
+        def result = sqlTargetSchema.rows(query);
+        def resultNum = result.size();
+        println "resultNum = " + resultNum;
+        
+        return resultNum;
     }
 
     
@@ -304,8 +323,8 @@ public class Path {
     public Object clone(){
         def o = new Path();
         o.steps = this.steps.clone();
-        //o.lookup = this.lookup.clone();
-          o.lookup = this.lookup;
+        o.lookup = this.lookup.clone();
+        //  o.lookup = this.lookup;
         return o;
     }
 }
