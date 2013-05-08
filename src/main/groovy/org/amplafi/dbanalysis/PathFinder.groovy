@@ -104,7 +104,9 @@ public class PathFinder {
         successfulPaths.sort{ path ->
             path.steps.size();
         }
-            
+         
+        def querySet = [];        
+   
         println "Paths :"
         successfulPaths.each{ path ->
             println "Path :"
@@ -113,7 +115,8 @@ public class PathFinder {
             StringBuffer detailPath = new StringBuffer();
             def tables = [] as Set;
             def conditions = [] as Set;
-            
+
+    
             
             for (int i = 0; i< path.steps.size(); i++){
                 
@@ -148,7 +151,7 @@ public class PathFinder {
             String exampleSql = exampleSelect(tables,conditions);
             def resultNum = executeExampleSelectSql(exampleSql);
             
-            def querySet = [];
+
             if (resultNum > 0){
                 querySet << ["sql":exampleSql,"recordNum":resultNum];
             }
@@ -160,15 +163,23 @@ public class PathFinder {
             println detailPath;
             println "++++++++++++++++ Example select +++++++++++++++++++";
             println "";
-            println exampleSql;
+            //println exampleSql;
             println "";
-            println "++++++++++++++++ Most Promsing Queries +++++++++++++++++++";
-            querySet.each{ query ->
-                println query["sql"];
-                println query["recordNum"];
-            }
+     
             
             println "#####################################################################################";
+        }
+
+
+        querySet.sort{ query ->
+            query["recordNum"];
+        }
+
+       println "++++++++++++++++ Most Promsing Queries +++++++++++++++++++";
+        querySet.each{ query ->
+            println query["sql"];
+            println "Number of results " + query["recordNum"];
+            println "--------------------------------------------";
         }
 
 		println "Done"
@@ -288,8 +299,6 @@ public class PathFinder {
     def executeExampleSelectSql(String query){
         def result = sqlTargetSchema.rows(query);
         def resultNum = result.size();
-        println "resultNum = " + resultNum;
-        
         return resultNum;
     }
 
