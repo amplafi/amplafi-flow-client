@@ -1,7 +1,7 @@
 --
 -- Display the list of user emails that have not posted this week
 --
-/*
+
 select user_emails.*,
            	    providers.*,
                 roles.*
@@ -9,19 +9,19 @@ from providers,
     roles,
     users,
     user_emails
-where  roles.OWNING_BP = providers.id
-and   roles.user = users.id
-and   user_emails.user = users.id
-and   providers.id not in (select distinct owning_bp
+where  roles.OWNING_BP = providers.ID
+and   roles.USER = users.ID
+and   user_emails.USER = users.ID
+and   providers.ID not in (select distinct OWNING_BP
                            from broadcast_messages 
                            where
-                                broadcast_messages.pub_date > date_add(now(),interval - 7 day)
-                           and  broadcast_messages.pub_date < now() )
-group by user_emails.id;
-*/
+                                broadcast_messages.PUB_DATE > date_add(now(),interval - 7 day)
+                           and  broadcast_messages.PUB_DATE < now() )
+group by user_emails.ID;
 
 
 
+/*
 select USER_EMAILS.*,
        PROVIDERS.*,
        ROLES.*
@@ -38,3 +38,4 @@ and   PROVIDERS.ID not in (select distinct OWNING_BP
                                 BROADCAST_MESSAGES.PUB_DATE > date_add(now(),interval - 7 day)
                            and  BROADCAST_MESSAGES.PUB_DATE < now() )
 group by USER_EMAILS.ID;
+*/
