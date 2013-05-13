@@ -3,10 +3,10 @@
 --
 
 
-select providers.* 
-from providers
-where providers.ID not in (select distinct OWNING_BP
-                           from broadcast_messages 
+select PROVIDERS.* 
+from PROVIDERS
+where PROVIDERS.ID not in (select distinct OWNING_BP
+                           from BROADCAST_MESSAGES 
                            where
-                                broadcast_messages.PUB_DATE > date_add(now(),interval - 7 day)
-                           and  broadcast_messages.PUB_DATE < now() );
+                                BROADCAST_MESSAGES.PUB_DATE > date_add(now(),interval - 7 day)
+                           and  BROADCAST_MESSAGES.PUB_DATE < now() );

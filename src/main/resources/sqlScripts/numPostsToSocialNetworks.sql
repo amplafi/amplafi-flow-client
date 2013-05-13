@@ -12,18 +12,18 @@ union  select count(*) ,  "Stripe Posts" as "Social Network" from MESSAGE_POINTS
  
 
 select  COUNT(*),
-        broadcast_provider_url.ROOT_URL,
-        message_points.URL,
-        broadcast_messages.PUBLIC_URL
-from  broadcast_provider_url,
-      providers,
-      broadcast_messages,
-      message_point_envelope,
-      message_points
-where providers.PROVIDER_URL = broadcast_provider_url.ID
-and broadcast_messages.OWNING_BP = providers.ID
-and message_point_envelope.BROADCAST_MESSAGE = broadcast_messages.ID
-and message_point_envelope.MESSAGE_POINT = message_points.ID
-and message_points.POINT_TYPE = "MEP"
-Group by broadcast_provider_url.ROOT_URL;
+        BROADCAST_PROVIDER_URL.ROOT_URL,
+        MESSAGE_POINTS.URL,
+        BROADCAST_MESSAGES.PUBLIC_URL
+from  BROADCAST_PROVIDER_URL,
+      PROVIDERS,
+      BROADCAST_MESSAGES,
+      MESSAGE_POINT_ENVELOPE,
+      MESSAGE_POINTS
+where PROVIDERS.PROVIDER_URL = BROADCAST_PROVIDER_URL.ID
+and BROADCAST_MESSAGES.OWNING_BP = PROVIDERS.ID
+and MESSAGE_POINT_ENVELOPE.BROADCAST_MESSAGE = BROADCAST_MESSAGES.ID
+and MESSAGE_POINT_ENVELOPE.MESSAGE_POINT = MESSAGE_POINTS.ID
+and MESSAGE_POINTS.POINT_TYPE = "MEP"
+Group by BROADCAST_PROVIDER_URL.ROOT_URL;
  
