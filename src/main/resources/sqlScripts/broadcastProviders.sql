@@ -30,14 +30,57 @@ So if a BP signed up at midnight 4 May 2013 the first day is  4 May 2013. If a B
 
 */
 
+//query cohort and bps Group by week of createDate
+select week( CREATE_TIME) as cohort, count(*) as BPsCounts,
+     CREATE_TIME, year(CREATE_TIME) as year,
+     DATE_SUB(  DATE_ADD(MAKEDATE( year(CREATE_TIME), 1),
+        INTERVAL week( CREATE_TIME) WEEK),
+        INTERVAL WEEKDAY(DATE_ADD(MAKEDATE( year(CREATE_TIME), 1), INTERVAL week( CREATE_TIME) WEEK)
+     ) -1 DAY) as Tuesday
+from PROVIDERS
+Group by cohort Order by CREATE_TIME ;
 
-select week( CREATE_TIME) as cohort, count(*) as BPsCounts, 
+
+
+
+//avg post on tuesday  query average number posts created in first day
+/*
+select distinct A.cohort,A.BPsCounts,B.POSTSCounts, B.POSTSCounts/A.BPsCounts aveg from
+
+(select week( CREATE_TIME) as cohort, count(*)  as BPsCounts,
      CREATE_TIME, year(CREATE_TIME) as year,
      DATE_SUB(  DATE_ADD(MAKEDATE( year(CREATE_TIME), 1),
         INTERVAL week( CREATE_TIME) WEEK),
         INTERVAL WEEKDAY(    DATE_ADD(MAKEDATE( year(CREATE_TIME), 1), INTERVAL week( CREATE_TIME) WEEK)
      ) -1 DAY) as Tuesday
+<<<<<<< Updated upstream
   
 from PROVIDERS
 Group by cohort Order by CREATE_TIME ;
+=======
+from PROVIDERS
+where DAYOFWEEK(CREATE_TIME)=3
+Group by cohort Order by CREATE_TIME) A,
 
+(select week( bm.PUB_DATE) as cohort, count(*)  as POSTSCounts,
+     bm.PUB_DATE, year(bm.PUB_DATE) as year,
+     DATE_SUB(  DATE_ADD(MAKEDATE( year(bm.PUB_DATE), 1),
+        INTERVAL week( bm.PUB_DATE) WEEK),
+        INTERVAL WEEKDAY(DATE_ADD(MAKEDATE( year(bm.PUB_DATE), 1), INTERVAL week( bm.PUB_DATE) WEEK)
+     ) -1 DAY) as Tuesday
+from broadcast_messages bm
+where DAYOFWEEK(bm.PUB_DATE)=3
+Group by cohort Order by bm.PUB_DATE) B
+>>>>>>> Stashed changes
+
+
+
+//query min post in first day
+select week( PROVIDERS.CREATE_TIME) as cohort, sum(case when PROVIDERS.ID=bm.OWNING_BP then 1 else 0 end) count
+from PROVIDERS ,broadcast_messages bm
+where DAYOFWEEK(PROVIDERS.CREATE_TIME)=3
+and DAYOFWEEK(bm.PUB_DATE)=3
+Group by cohort;
+ 
+
+*/

@@ -357,29 +357,28 @@ ON day6.cohort = day7.cohort
 */
 select day1.cohort, day1.year, day1.week, day1.day1min, day1.day1avg, day1.day1max, day2.day2min, day2.day2avg, day2.day2max, day3.day3min, day3.day3avg, day3.day3max ,day4.day4min, day4.day4avg, day4.day4max ,day5.day5min, day5.day5avg, day5.day5max from
     ( select cohort, year, week, min(post_count) "day1min", avg(post_count) "day1avg", max(post_count) "day1max", null "day2min", null "day2avg", null "day2max", null "day3min", null "day3avg", null "day3max",null "day4min", null "day4avg", null "day4max",null "day5min", null "day5avg", null "day5max" from
-        (Select *, count(*) post_count from 
-            (Select ProviderSignup.cohort ,
+        (Select *, count(*) post_count from
+            (Select ProviderSignup.cohort,
                     ProviderSignup.year,
                     ProviderSignup.week,
-                    DATEDIFF(PostsDate.post_date,ProviderSignup.CREATE_TIME ) as post_day,
+                    DATEDIFF(PostsDate.post_date,ProviderSignup.CREATE_TIME) as post_day,
                     ProviderSignup.CREATE_TIME,
                     ProviderSignup.provider_id,
                     PostsDate.post_date
-            From 
+            From
                 (select (year(CREATE_TIME) * 52) + week( CREATE_TIME) cohort,
                     week( CREATE_TIME) as week,
                     PROVIDERS.ID provider_id,
-                     CREATE_TIME,
+                    CREATE_TIME,
                     year(CREATE_TIME) as year
                 from PROVIDERS) ProviderSignup
             join
                 (select bm.OWNING_BP provider_id,
-                    bm.PUB_DATE post_date
+                        bm.PUB_DATE post_date
                 from BROADCAST_MESSAGES bm) PostsDate
-            on  ProviderSignup.provider_id = PostsDate.provider_id
+            on ProviderSignup.provider_id = PostsDate.provider_id
             and DATEDIFF(PostsDate.post_date,ProviderSignup.CREATE_TIME ) < 7) as CohortPosts
             group by cohort, provider_id, post_day) post_counts
-
         where
             post_day = 0
         group by cohort ) day1
@@ -407,7 +406,6 @@ LEFT OUTER JOIN
         on  ProviderSignup.provider_id = PostsDate.provider_id
         and DATEDIFF(PostsDate.post_date,ProviderSignup.CREATE_TIME ) < 7) as CohortPosts
         group by cohort, provider_id, post_day) post_counts
-
     where
         post_day = 1
     group by cohort) day2
@@ -415,7 +413,7 @@ ON day1.cohort = day2.cohort
 LEFT OUTER JOIN     
     (select cohort, year, week, null "day1min", null "day1avg", null "day1max", min(post_count) "day2min", avg(post_count) "day2avg", max(post_count) "day2max", null "day3min", null "day3avg", null "day3max",null "day4min", null "day4avg", null "day4max",null "day5min", null "day5avg", null "day5max" from
         (Select *, count(*) post_count from 
-        (Select ProviderSignup.cohort ,
+        (Select ProviderSignup.cohort,
                 ProviderSignup.year,
                 ProviderSignup.week,
                 DATEDIFF(PostsDate.post_date,ProviderSignup.CREATE_TIME ) as post_day,
@@ -480,7 +478,7 @@ LEFT OUTER JOIN
                 ProviderSignup.CREATE_TIME,
                 ProviderSignup.provider_id,
                 PostsDate.post_date
-        From 
+            From 
                 (select (year(CREATE_TIME) * 52) + week( CREATE_TIME) cohort,
                     week( CREATE_TIME) as week,
                     PROVIDERS.ID provider_id,

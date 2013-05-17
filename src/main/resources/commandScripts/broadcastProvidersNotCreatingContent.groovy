@@ -15,6 +15,6 @@ description "bpNotCreatingContent", "Script for finding flow broadcastProviders 
 setApiVersion("su");
 
 
-def response = request("broadcastProvidersNotCreatingContent",["numberOfDays":numberOfDays]);
+def response = request("BroadcastProvidersNotCreatingContent",["numberOfDays":numberOfDays]);
 
-println response;
+//println response;
