@@ -5,7 +5,7 @@
 /*
 Given a message externalId and a broadcast provider uri return:
 
-all MESSAGE_POINT_ENVELOPE  
+all MESSAGE_POINT_ENVELOPE
 all the BROADCAST_MESSAGE_FRAGMENTS
 Look at the error messages and we need to figure out what happened with the bad messages.
 
@@ -14,8 +14,8 @@ Look at the error messages and we need to figure out what happened with the bad 
 
 select MPE.*,bmf.*
 from MESSAGE_POINT_ENVELOPE mpe,BROADCAST_MESSAGES bm,PROVIDERS p,BROADCAST_MESSAGE_FRAGMENTS bmf
-where mpe.EXTERNAL_ID = 1
-and p.PROVIDER_URL = 4
+where mpe.EXTERNAL_ID = :mpeId
+and p.PROVIDER_URL = :providerId
 and mpe.BROADCAST_MESSAGE=bm.ID
 and bmf.FRAGMENT_OWNER = bm.ID
 and bm.OWNING_BP=P.ID
