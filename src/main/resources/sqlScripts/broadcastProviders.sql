@@ -38,6 +38,6 @@ select week( CREATE_TIME) as cohort, count(*) as BPsCounts,
         INTERVAL WEEKDAY(    DATE_ADD(MAKEDATE( year(CREATE_TIME), 1), INTERVAL week( CREATE_TIME) WEEK)
      ) -1 DAY) as Tuesday
   
-from Providers
+from PROVIDERS
 Group by cohort Order by CREATE_TIME ;
 
