@@ -11,6 +11,12 @@ To do that should follow the instructions at https://github.com/farreaches/farre
  * To authenticate a call to /api entry point a client must supply a valid api key in Authorization header
  * There is a third entry point -- /su -- which can be used by Amplafi employees to call some customer support flows. All calls to the entry point must be signed by a valid key (the key must belong to an Amplafi employee with a role at least as poverful as CUSTOMER_SUPPORT).
 
+## How to call /su api flows
+ * start with a customer service api_key
+    In CALLBACKS table,set SERVICE_KEY=su,LOGON_ROLE_TYPE=id,INACTIVE=null
+ * run command to see the flow list under su :ant FAdmin -Dargs="-flows"
+ * to see flow's parameters ,run command :ant FAdmin -Dargs="-describe flowName"
+
 ### /public entry point flows
 Calls to flows on the entry point can be unathorized, in fact any authorization data supplied will be ignored by the entry point.
 The entry point has only 3 flows at the moment: 
