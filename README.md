@@ -216,7 +216,7 @@ target/amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar
 
 ### To call a flow ###
 
-     java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -   apiv apiv1 -flow <flowname> -D<param_name>=<value> D<param_name>=<value> ...
+     java -jar amplafi-flow-client-0.9.4-SNAPSHOT-jar-with-dependencies.jar -key <api_key>  -host http://sandbox.farreach.es -port 8080 -apiv apiv1 -flow <flowname> -D<param_name>=<value> D<param_name>=<value> ...
 
 ## Running Tests ##
 
