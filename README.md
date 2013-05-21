@@ -13,7 +13,7 @@ To do that should follow the instructions at https://github.com/farreaches/farre
 
 ## How to call /su api flows
  * start with a customer service api_key
-    In CALLBACKS table,set SERVICE_KEY=su,LOGON_ROLE_TYPE=id,INACTIVE=null
+    In CALLBACKS table,set SERVICE_KEY=su,INACTIVE=null
  * run command to see the flow list under su :ant FAdmin -Dargs="-flows"
  * to see flow's parameters ,run command :ant FAdmin -Dargs="-describe flowName"
 
