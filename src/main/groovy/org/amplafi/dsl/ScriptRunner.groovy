@@ -122,10 +122,14 @@ public class ScriptRunner {
      */
     public List<String> findAllScripts(def path){
         def list = [];
-        def dir = new File(path);
-        dir.eachFileRecurse (FileType.FILES) { file ->
-            list << file.getCanonicalPath();
-        }
+		try {
+	        def dir = new File(path);
+	        dir.eachFileRecurse (FileType.FILES) { file ->
+	            list << file.getCanonicalPath();
+	        }
+		} catch (FileNotFoundException fnfe){
+			getLog().error("WARNING: Can't find scripts folder, you must checkout farreaches-customer-service-client into the parent directory.");
+		}
         return list.sort();
     }
 

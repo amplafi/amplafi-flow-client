@@ -23,10 +23,10 @@ public class Shell {
             String apiVersion = commandParser.getOption(ShellCommandParser.API_VERSION, "apiv1"); ;
             String scriptFile = commandParser.getOption(ShellCommandParser.SCRIPT, null);
             commandParser.printHelp(); 
-            if(apiKey == null) {
+      /*      if(apiKey == null) {
                 console.printf("\n\nERROR: The api key parameter is mandatory\n\n") ;
                 System.exit(0) ;
-            }
+            }*/
             ShellContext context = new ShellContext() ;
             context.setApiKey(apiKey) ;
             context.setHost(host) ;

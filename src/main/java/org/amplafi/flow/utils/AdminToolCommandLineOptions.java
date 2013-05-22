@@ -24,6 +24,7 @@ public class AdminToolCommandLineOptions extends AbstractCommandLineClientOption
     public static final String FILE_PATH = "f";
     public static final String VERBOSE = "verbose";
     public static final String HELP = "help";
+    public static final String VIEWAS = "viewAs";
 
     /**
      * Constructor see AdminTool.md document for parameter string formats.
