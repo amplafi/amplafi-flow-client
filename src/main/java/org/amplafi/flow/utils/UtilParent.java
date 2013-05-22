@@ -24,7 +24,7 @@ import org.amplafi.flow.definitions.FarReachesServiceInfo;
  */
 public class UtilParent {
     /** Standard location for admin scripts. */
-    public static final String DEFAULT_COMMAND_SCRIPT_PATH = "src/main/resources/commandScripts";
+    public static final String DEFAULT_COMMAND_SCRIPT_PATH = "../farreaches-customer-service-client/src/main/resources/commandScripts";
     private static final String GET_API_KEY_SCRIPT = "/GetNewPermanentKey.groovy";
     public static final String DEFAULT_CONFIG_FILE_NAME = "fareaches.fadmin.properties";
     public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
