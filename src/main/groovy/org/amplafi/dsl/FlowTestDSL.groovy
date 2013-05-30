@@ -364,6 +364,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def callScript(String scriptName){
         callScript(scriptName,[:]);
     }
+	
+	def runSnippet(String sourceCode) {
+		runner.runScriptSource(sourceCode,true,null);
+	}
 
     /**
      * Get response data.
