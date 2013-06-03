@@ -322,6 +322,11 @@ public class ScriptRunner {
      */
     public def createClosure(String scriptName,Map<String,String> callParamsMap){
         def filePath = getScriptPath(scriptName);
+		
+		if(filePath == null){
+			filePath = scriptName;
+		}
+	
         ScriptDescription sd = describeOneScript(filePath);
         if(filePath){
             def file = new File(filePath);

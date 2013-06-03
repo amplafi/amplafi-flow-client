@@ -55,6 +55,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     private static stash = [:];
 
+	private Integer httpStatusCode = 200;
 
     /**
      * Contains the last response from the server.
@@ -133,12 +134,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * Sends a request to the named flow with the specified parameters.
      * @param flowName to call.
      * @param paramsMap key value map of parameters to send.
-     * @return response string.
+     * @return response string
      */
     String request(String flowName, Map paramsMap){
         GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
         FlowResponse response = request.sendRequest();
         lastRequestResponse = response.getResponseAsString();
+		httpStatusCode = response.getHttpStatusCode();
         debug(lastRequestResponse);
         if (response.hasError()){
             getLog().error(response.getErrorMessage());
@@ -172,7 +174,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param flowName to call.
      * @param [params] key value map of parameters to send.
      * @param dataReturnProperty the property we want to return.
-     * @return response string
+     * @return response string.
      */
     String asyncRequest(String flowName, Map<String,String> paramsMap,dataReturnProperty){
         paramsMap["callbackUri"]="sandbox.farreach.es:1234";
@@ -399,6 +401,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
             getLog().error("Invalid JSON Returned: " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
         }
     }
+	
+	def getHttpStatusCode(){
+		return httpStatusCode;
+	}
 
     /**
      * @return pre-configured request string of constructs one if needed.
