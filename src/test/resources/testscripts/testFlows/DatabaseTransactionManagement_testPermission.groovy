@@ -3,7 +3,7 @@ import static org.testng.Assert.*;
 def old_key = getKey();
 def old_apiVersion = getApiVersion();
 
-def  key = callScript("..\\farreaches-customer-service-client\\src\\main\\resources\\commandScripts\\GetCusServicerKey.groovy");
+def  key = callScript("..\\farreaches-customer-service-client\\src\\main\\resources\\commandScripts\\GetCusServiceKey.groovy");
 
 setKey(key);
 setApiVersion('su');
