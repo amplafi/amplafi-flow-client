@@ -37,26 +37,26 @@ public class UserShell{
 		commandList << new Cmd(){
 			def name = ["listAdmin","la"];
 			def run = { bits -> list()	};
-			def desc = "show all available adminTool command scripts.";
+			def desc = "Show all available AdminTool command scripts.";
 		}
 		
 		commandList << new Cmd(){
 			def name = ["call","c"];
 			def run = { bits -> callScript(bits)};
-			def desc = "Call admin tool script."
-			def usage = """runs a FAdmin tool script you specified. For example:
+			def desc = "Call AdminTool script."
+			def usage = """For example:
 call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamilies.com """
 		}
 		commandList << new Cmd(){
 			def name = ["exit","quit","q"];
 			def run = { bits -> exit();};
-			def desc = "Exits."
+			def desc = "Exit."
 		}
 		
 		commandList << new Cmd(){
 			def name = ["help","?"];
 			def run = { bits -> help(bits);};
-			def desc = "Shows help."
+			def desc = "Shows help for each command."
 			def usage = """ ${name[0]} or ${name[0]} <command> """
 		}
 		
@@ -64,7 +64,18 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 			def name = ["rungroovy","g"];
 			def run = { bits -> runGroovy(bits);};
 			def desc = "Runs any groovy code in the current environment. including DSL commands"
-			def usage = "${name[0]} println 'hello'"
+			def usage ="""${name[0]} println 'hello'
+or
+${name[1]} g getKey()
+
+Use listDsl to get a list of methods.
+"""
+		}
+		
+		commandList << new Cmd(){
+			def name = ["listDsl","ld"];
+			def run = { bits -> listDsl(bits);};
+			def desc = "List all the methods in the dsl"
 		}
 		
 	}
@@ -154,7 +165,7 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 			try{
 				response = dsl.callScript(bits[1],params);
 			}catch(Exception ex){
-				ex.printStackTrace();
+				log "Error, " + ex.getMessage();
 			}
 		}
 	 }
@@ -169,7 +180,12 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 			 sb << bits[i] + " ";
 		 }
 		 String str = sb.toString();
-		 dsl.runSnippet(str);
+		 
+		 try{
+			 log "returns: " + dsl.runSnippet(str);
+		 }catch(Exception ex){
+			 log "Error, " + ex.getMessage();
+		 }
 	 }
 	
 	 /**
@@ -180,13 +196,33 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 	 }
 	
 	 /**
+	  * List all the methods in the dsl
+	  */
+	 private listDsl(def bits){
+		 log "######################################################################";
+		 log "Use rungroovy (g) to call these methods as groovy code:";
+		 log "These methods are all located in ${dsl.class}";
+		 log "See AdminTool.md for more details. ";
+		 log "######################################################################";
+		 def methods = dsl.metaClass.methods;
+	
+		 methods.each{
+			 if (it.getDeclaringClass().theClass == dsl.class){
+				 log """${it.name}(${it.parameterTypes.name.join(', ')}) returns ${it.returnType.name} """
+			 }
+		   }
+			 	 
+		
+	 }
+	 
+	 /**
 	  * Print help on the named shell command or admin script 
 	  * @param bits - command line as array of strings
 	  */
 	 private void help(def bits){
 	 	if (bits==null || bits.size() <= 1){
 			 commandList.each{ c ->
-				log("${c.name}	- ${c.desc}"); 
+				log(String.format('%1$-20s      -      %2$-20s', c.name, c.desc));
 			 } 
 		 }
 		 
