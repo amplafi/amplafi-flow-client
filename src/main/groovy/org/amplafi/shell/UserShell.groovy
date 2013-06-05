@@ -128,6 +128,7 @@ Use listDsl to get a list of methods.
 	  * List all the admin tool scripts with their descriptions 	 
 	  */
 	 private void list(){
+		 log("Scripts are all in ${UtilParent.DEFAULT_COMMAND_SCRIPT_PATH}");
 		 for (ScriptDescription sd : getAdminScripts()) {
 			 log(String.format('%1$-35s      -      %2$-100s', sd.getName(), sd.getDescription()));
 		 }
