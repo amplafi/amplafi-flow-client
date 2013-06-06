@@ -3,6 +3,8 @@ package org.amplafi.shell;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.LIST;
 
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import groovy.transform.Canonical;
 import org.amplafi.dsl.FlowTestDSL;
@@ -35,6 +37,13 @@ public class UserShell{
 		this.dsl = dsl;
 		
 		commandList << new Cmd(){
+			def name = ["help","?"];
+			def run = { bits -> help(bits);};
+			def desc = "Shows help for each command."
+			def usage = """ ${name[0]} or ${name[0]} <command> """
+		}
+		
+		commandList << new Cmd(){
 			def name = ["listAdmin","la"];
 			def run = { bits -> list()	};
 			def desc = "Show all available AdminTool command scripts.";
@@ -47,18 +56,8 @@ public class UserShell{
 			def usage = """For example:
 call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamilies.com """
 		}
-		commandList << new Cmd(){
-			def name = ["exit","quit","q"];
-			def run = { bits -> exit();};
-			def desc = "Exit."
-		}
-		
-		commandList << new Cmd(){
-			def name = ["help","?"];
-			def run = { bits -> help(bits);};
-			def desc = "Shows help for each command."
-			def usage = """ ${name[0]} or ${name[0]} <command> """
-		}
+
+
 		
 		commandList << new Cmd(){
 			def name = ["rungroovy","g"];
@@ -75,8 +74,15 @@ Use listDsl to get a list of methods.
 		commandList << new Cmd(){
 			def name = ["listDsl","ld"];
 			def run = { bits -> listDsl(bits);};
-			def desc = "List all the methods in the dsl"
+			def desc = "List all the methods in the DSL"
 		}
+		
+		commandList << new Cmd(){
+			def name = ["exit","quit","q"];
+			def run = { bits -> exit();};
+			def desc = "Exit."
+		}
+		
 		
 	}
 	
@@ -111,6 +117,7 @@ Use listDsl to get a list of methods.
 	 
 	 /** Admin script cache */
 	 private List<ScriptDescription> adminScripts = null;
+	 
 	 /**
 	  * Gets a cached list of admin scripts
 	  * @return
@@ -132,7 +139,6 @@ Use listDsl to get a list of methods.
 		 for (ScriptDescription sd : getAdminScripts()) {
 			 log(String.format('%1$-35s      -      %2$-100s', sd.getName(), sd.getDescription()));
 		 }
-		 
 	 }
 	 
 	 /**
@@ -242,7 +248,14 @@ ${(c?.usage != null) ? c?.usage:"None"}
 				if (sd){
 					printScriptUsage(sd);
 				} else {
-					log "Not an admin script."
+					log "Not an admin script. Checking DSL functions"
+					
+					def methods = dsl.metaClass.methods;
+					
+					def meth = methods.find{it -> it.name.toLowerCase() == command.toLowerCase() }
+					
+					printJavaDocForMethod(meth);
+					
 				}
 			 }
 		 } 
@@ -285,6 +298,68 @@ ${(c?.usage != null) ? c?.usage:"None"}
 			 this.log = LogFactory.getLog(UserShell.class);
 		 }
 		 return this.log;
+	 }
+	 
+	 
+	 
+	 private void printJavaDocForMethod(MetaMethod m){
+		 String source = locateDSLSource();
+		 def returnType = m.returnType.name.substring(m.returnType.name.lastIndexOf('.'));
+		 
+		 def patterStr = null;
+		 if ( m.returnType == Object ){
+			 patterStr = "def ${m.name}\\(.*\\)";
+		 } else {
+		 // m.returnType.name0
+		 	patterStr = "${returnType} ${m.name}\\(.*\\)";
+		 }
+		 
+		 println "Pattern is ${patterStr}";
+		 
+		 Pattern p = Pattern.compile(patterStr);
+		 Matcher matcher = p.matcher(source);
+		 
+		 int lastStart = 0;
+		 int lastEnd = 0;
+		 while (matcher.find()){
+			 int start = matcher.start();
+			 int end = matcher.end();
+			 
+			 // Find bounds for java doc
+			 String preceding = source.substring(lastEnd, end);
+			 int precedingStart = preceding.lastIndexOf('}');
+			 if (precedingStart == -1){
+				 precedingStart = preceding.lastIndexOf('{');
+			 }
+			 
+			 if (precedingStart == -1){
+				 log "Unable to determine start of javadoc.";
+			 }
+			 
+			 String javadocSection = preceding.substring(precedingStart);
+			 log javadocSection;
+		 
+			 
+			 lastStart = start;
+			 lastEnd = end;
+		 }
+		 
+	 }
+	 
+	 /**
+	  * TODO change this after I sure this idea works.
+	  * @return - the source code of FlowTestDSL
+	  */
+	 private String locateDSLSource(){
+		 String basePath = "./src/main/groovy/";
+		 String name = FlowTestDSL.class.name;
+		 name = name.replace(".", "/");
+		 String sourcePath = basePath + name + ".groovy";
+		 
+		 def file = new File(sourcePath);
+		 def source = file.getText();
+		   
+		 return source;
 	 }
 }
 
