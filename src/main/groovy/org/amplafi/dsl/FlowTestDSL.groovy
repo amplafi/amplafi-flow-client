@@ -76,56 +76,113 @@ public class FlowTestDSL extends DescribeScriptDSL {
         this.verbose = verbose;
     }
 
+	/**
+	 * Describes a script 
+	 * @param name
+	 * @param description
+	 */
     public void description (String name, String description){
         this.name = name;
         this.description = description;
     }
 
+	/**
+	 * Describes a script usage
+	 * @param name
+	 * @param description
+	 * @param usage
+	 */
     public void description (String name, String description, String usage){
         this.usage = usage;
         this.name = name;
         this.description = description;
     }
 
+	/**
+	 * describes a script usage
+	 * @param name
+	 * @param description
+	 * @param usages
+	 */
     public void description (String name, String description, List<ParameterUsge> usages){
         this.name = name;
         this.description = description;
         this.usages = usages;
     }
 
+	/**
+	 * Defines a script parameter
+	 * @param name
+	 * @param description
+	 * @param optional
+	 * @param defaultValue
+	 * @return
+	 */
     public ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue){
         return new ParameterUsge(name,description,optional,defaultValue);
     }
 
+	/**
+	 * set host for requests.
+	 * @param host
+	 */
     void setHost(String host){
         host = addHttpPrexBeforeString(host);
         this.host = host;
     }
 
+	/**
+	 * set port
+	 * @param port
+	 */
     void setPort(String port){
         this.port = port;
     }
 
+	/**
+	 * Set api version
+	 * @param apiVersion
+	 */
     void setApiVersion(String apiVersion){
         this.apiVersion = apiVersion;
     }
 
+	/**
+	 * Set api key 
+	 * @param key
+	 */
     void setKey(String key){
         this.key = key;
     }
 
+	/**
+	 * Get current host for requets. 
+	 * @return
+	 */
     String getHost(){
         return host;
     }
 
+	/**
+	 * get current port for requests
+	 * @return
+	 */
     String getPort(){
         return port;
     }
 
+	/**
+	 * get current api version
+	 * @return
+	 */
     String getApiVersion(){
         return apiVersion;
     }
 
+	/**
+	 * get current api key
+	 * @return
+	 */
     String getKey(){
         return key;
     }
@@ -289,7 +346,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
     /**
-     * Pretty Prints Last Response.
+     * Throws exception if response has an error.
+     * @param response  
      */
     def checkError(FlowResponse response){
         if(response.hasError()) {
@@ -306,6 +364,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
         emitOutput(getResponseData().toString(4));
     }
 
+	
     def printTaskInfo(info){
         emitOutput "\n";
         emitOutput THICK_DIVIDER;
@@ -313,6 +372,14 @@ public class FlowTestDSL extends DescribeScriptDSL {
         emitOutput THICK_DIVIDER;
     }
 
+	/**
+	 * Prints data in table  format. 
+	 * @param entries
+	 * @param tabularTmpl
+	 * @param headers
+	 * @param keyPaths
+	 * @return
+	 */
     def printTabular(entries, tabularTmpl, headers, keyPaths){
         emitOutput sprintf(tabularTmpl, headers);
         emitOutput THIN_DIVIDER;
@@ -327,6 +394,14 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
     }
 
+	/**
+	 * Prints a map in table form. 
+	 * @param map
+	 * @param tabularTmpl
+	 * @param headers
+	 * @param keys
+	 * @return
+	 */
     def printTabularMap(map, tabularTmpl, headers, keys){
         emitOutput sprintf(tabularTmpl, headers);
         emitOutput THIN_DIVIDER;
@@ -367,8 +442,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
         callScript(scriptName,[:]);
     }
 	
+	/**
+	 * Runs a snippet of groovy code in the context of this FlowTestDSL session.
+	 * @param sourceCode
+	 * @return
+	 */
 	def runSnippet(String sourceCode) {
-		runner.runScriptSource(sourceCode,true,null);
+		runner.runScriptSourceInContext(sourceCode, null, this);
 	}
 
     /**
@@ -402,6 +482,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
         }
     }
 	
+	/**
+	 * Gets the last http status code
+	 * @return
+	 */
 	def getHttpStatusCode(){
 		return httpStatusCode;
 	}
@@ -516,7 +600,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
     def server = null;
+   
     def currentPort = 0;
+	/**
+	 * Gets a jetty server instance for the port. 
+	 * @param portNo
+	 * @return
+	 */
     public Server getServer(int portNo){
         if(server == null || currentPort != portNo){
             server = new Server(portNo);
@@ -634,6 +724,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
     /**
+     * Don't Use this. use setKey() instead.
      * The method is set api key.
      * @param tempApiKey.
      */

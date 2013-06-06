@@ -28,6 +28,7 @@ public class UserShell{
 	char[] passwd;
 	boolean running = true;
 	private List<Cmd> commandList = [];
+	private Map<String,DSLHelp> dslDoc = null;
 	
 	/**
 	 * Constructor 
@@ -39,7 +40,7 @@ public class UserShell{
 		commandList << new Cmd(){
 			def name = ["help","?"];
 			def run = { bits -> help(bits);};
-			def desc = "Shows help for each command."
+			def desc = "Shows help for each command, script and DSL method."
 			def usage = """ ${name[0]} or ${name[0]} <command> """
 		}
 		
@@ -62,12 +63,23 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 		commandList << new Cmd(){
 			def name = ["rungroovy","g"];
 			def run = { bits -> runGroovy(bits);};
-			def desc = "Runs any groovy code in the current environment. including DSL commands"
+			def desc = "Runs any groovy code in the current environment. including DSL methods."
 			def usage ="""${name[0]} println 'hello'
 or
-${name[1]} g getKey()
+${name[1]} getKey()
 
-Use listDsl to get a list of methods.
+To store the response from a Groovy statement use the "stash" map e.g.
+
+>${name[1]} stash["a"] = 7
+returns: 7
+
+>${name[1]} stash["a"] + 3
+returns: 10
+
+Or 
+>${name[1]} stash["oldKey"] = getKey()
+
+Use listDsl to get a list of DSL methods.
 """
 		}
 		
@@ -85,6 +97,8 @@ Use listDsl to get a list of methods.
 		
 		
 	}
+	
+	def divider = "--------------------------------";
 	
 	/**
 	 * Runs the command loop
@@ -104,6 +118,7 @@ Use listDsl to get a list of methods.
 					 Cmd cmd = commandList.find {it.name.find{it2 -> it2.toLowerCase() == command } != null};
 					 
 					 if (cmd != null){
+						 log divider;
 						 cmd.run(bits);
 	
 					 } else {
@@ -139,6 +154,8 @@ Use listDsl to get a list of methods.
 		 for (ScriptDescription sd : getAdminScripts()) {
 			 log(String.format('%1$-35s      -      %2$-100s', sd.getName(), sd.getDescription()));
 		 }
+		 log("Run a script with 'call <scriptname> [params]' or 'c <scriptname> [params]' ");
+		 log("Get script usage with 'help <scriptname>'");
 	 }
 	 
 	 /**
@@ -155,7 +172,7 @@ Use listDsl to get a list of methods.
 			try{
 				response = dsl.callScript(bits[1]);
 			}catch(Exception ex){
-				ex.printStackTrace();
+				log ex.getMessage();
 			}
 		 }else{
 			for(int i = 2;i<bits.size();i++){
@@ -175,6 +192,7 @@ Use listDsl to get a list of methods.
 				log "Error, " + ex.getMessage();
 			}
 		}
+		dsl.stash["LAST_RETURN"] = response;
 	 }
 	 
 	 /**
@@ -211,15 +229,35 @@ Use listDsl to get a list of methods.
 		 log "These methods are all located in ${dsl.class}";
 		 log "See AdminTool.md for more details. ";
 		 log "######################################################################";
-		 def methods = dsl.metaClass.methods;
-	
-		 methods.each{
-			 if (it.getDeclaringClass().theClass == dsl.class){
-				 log """${it.name}(${it.parameterTypes.name.join(', ')}) returns ${it.returnType.name} """
-			 }
-		   }
-			 	 
+		 buildDSLHelp();
+		 
+		 dslDoc.each{k,v ->
+			 def summ = v.summary != null ? v.summary : "No Doc."
+			 log(String.format('%1$-35s      -      %2$-100s', k + "(..)", summ));
+		 }
 		
+		 log("Run this methods as groovy statements: g <statement>");
+		 log("Help can give more info on 'g' or each of the methods.");
+	 }
+	 
+	 private void buildDSLHelp(){
+		 if (dslDoc == null){
+			 log "Building DSL Help."
+			 dslDoc = new HashMap<String,DSLHelp>();
+			 
+			 def methods = dsl.metaClass.methods;
+			 
+			  methods.each{
+				  
+				  if (it.getDeclaringClass().theClass == dsl.class){
+					  DSLHelp dslHelp = new DSLHelp();
+					  dslHelp.method = """${it.name}(${it.parameterTypes.name.join(', ')}) returns ${it.returnType.name} """;
+					   
+					  parseJavaDocForMethod(it,dslHelp);
+					  dslDoc[it.name] = dslHelp;
+				  }
+			  }
+		 }
 	 }
 	 
 	 /**
@@ -253,8 +291,11 @@ ${(c?.usage != null) ? c?.usage:"None"}
 					def methods = dsl.metaClass.methods;
 					
 					def meth = methods.find{it -> it.name.toLowerCase() == command.toLowerCase() }
-					
-					printJavaDocForMethod(meth);
+					if (meth != null){
+						printJavaDocForMethod(meth);
+					} else {
+						log "Not a DSL function. Giving up."
+					}
 					
 				}
 			 }
@@ -280,6 +321,7 @@ ${(c?.usage != null) ? c?.usage:"None"}
 		  } else {
 			 log("Script does not have usage information");
 		  }
+		  log "See AdminTool.md for more details. (Maybe)";
 	 }
 	 
 	 /**
@@ -300,21 +342,55 @@ ${(c?.usage != null) ? c?.usage:"None"}
 		 return this.log;
 	 }
 	 
-	 
-	 
+	 /**
+	  * Prints the method javadoc for one method
+	  * @param m
+	  */
 	 private void printJavaDocForMethod(MetaMethod m){
+		 DSLHelp help = null;
+		 if (dslDoc == null){
+			 help = new DSLHelp();
+			 parseJavaDocForMethod(m,help);
+		 } else {
+		 	help = dslDoc[m.name];
+		 }
+		 
+		 if (help.full){
+			 log help.full;
+		 } else {
+		 	if (help.summary){
+				 log help.summary;
+			 }
+		 	log "No Doc."
+			log help.method;
+		 }
+		 log "";
+		 log "Call this method as groovy code with: g ${m.name}(...)"
+		 log "See 'help g' for some handy tricks."
+		 
+	 }
+	 
+	 private void parseJavaDocForMethod(MetaMethod m,DSLHelp help){
 		 String source = locateDSLSource();
-		 def returnType = m.returnType.name.substring(m.returnType.name.lastIndexOf('.'));
+		 if (source == null){
+			 return;
+		 }
+
+		 
+		 def returnType = ""; 
+		 
+		 if (m.returnType.name.contains(".")){
+			 returnType = m.returnType.name.substring(m.returnType.name.lastIndexOf('.'));
+		 } else {
+		 	returnType = m.returnType.name
+		 }
 		 
 		 def patterStr = null;
 		 if ( m.returnType == Object ){
 			 patterStr = "def ${m.name}\\(.*\\)";
 		 } else {
-		 // m.returnType.name0
 		 	patterStr = "${returnType} ${m.name}\\(.*\\)";
 		 }
-		 
-		 println "Pattern is ${patterStr}";
 		 
 		 Pattern p = Pattern.compile(patterStr);
 		 Matcher matcher = p.matcher(source);
@@ -333,33 +409,75 @@ ${(c?.usage != null) ? c?.usage:"None"}
 			 }
 			 
 			 if (precedingStart == -1){
-				 log "Unable to determine start of javadoc.";
+				 log "Unable to determine start of javadoc for method " + m.name;
 			 }
 			 
 			 String javadocSection = preceding.substring(precedingStart);
-			 log javadocSection;
-		 
+			 help.full = javadocSection;
+			 
+			 def lines = javadocSection.readLines();
+			 for (String line : lines){
+				 if (line =~ /\\*.*[a-zA-Z]/){
+					 if (line != null){
+						 help.summary = "" + line.replaceAll("  " , "").replace('*', "").replace('\t', "") + "..." ;
+					 }
+					 break;	
+				 }
+			 }
+
+
 			 
 			 lastStart = start;
 			 lastEnd = end;
 		 }
 		 
+		 if (help.summary == null){
+	 		 if (m.name.startsWith("get") || m.name.startsWith("is")){
+				  help.summary = "  Property getter.";
+			 }
+			 if (m.name.startsWith("set")){
+				  help.summary = "  Property setter.";
+			 }
+		  }
+		  
+		  if (help.full == null){
+			 if (m.name.startsWith("get")){
+			     help.full = "Property getter.";
+			 }
+			 
+			 if (m.name.startsWith("set")){
+			     help.full = "Property setter.";
+			 }
+		  }
+	   
+		  if (help.full == null || help.summary == null){
+			  println "############# " + patterStr;
+		  }
 	 }
 	 
+	 String dslSource = null; 
 	 /**
 	  * TODO change this after I sure this idea works.
 	  * @return - the source code of FlowTestDSL
 	  */
 	 private String locateDSLSource(){
-		 String basePath = "./src/main/groovy/";
-		 String name = FlowTestDSL.class.name;
-		 name = name.replace(".", "/");
-		 String sourcePath = basePath + name + ".groovy";
+
+		 if (dslSource == null){
+			 String basePath = "./src/main/groovy/";
+			 String name = FlowTestDSL.class.name;
+			 name = name.replace(".", "/");
+			 String sourcePath = basePath + name + ".groovy";
+			 
+			 try {
+				 def file = new File(sourcePath);
+				 dslSource = file.getText();
+			 } catch (Exception e){
+			 	log "Can't find DSL source code in " + sourcePath;
+			 }
+			   
+		 }
+		return dslSource;
 		 
-		 def file = new File(sourcePath);
-		 def source = file.getText();
-		   
-		 return source;
 	 }
 }
 
@@ -372,4 +490,14 @@ public interface Cmd {
 	def run; // run closure
 	def desc; // basic description 
 	def usage; // usage examples
+}
+
+/**
+ * Stores dsl javadoc
+ * @author daisy
+ */
+public class DSLHelp{
+	def method;
+	def summary;
+	def full;
 }
