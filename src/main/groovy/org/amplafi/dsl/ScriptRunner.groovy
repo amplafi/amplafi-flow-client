@@ -191,6 +191,31 @@ public class ScriptRunner {
         }
     }
 
+	/**
+	 * Runs or describes a script from source code.
+	 * @param sourceCode
+
+	 * @return The groovy closure (Why?)
+	 * @throws NoDescriptionException - Thrown if the description DSL does not find a description directive
+	 * @throws EarlyExitException - thrown to prevent the description dsl from running any commands.
+	 */
+	def runScriptSourceInContext(String sourceCode, ScriptDescription description, FlowTestDSL dsl) throws NoDescriptionException, EarlyExitException{
+		// The script code must be pre-processed to add the contents of the file
+		// into a call to FlowTestBuil der.build then the processed script is run
+		// with the GroovyShell.
+		getLog().debug("runScriptSourceInContext() start to get closure");
+		Closure closure = getClosure(sourceCode,paramsmap,description);
+		getLog().debug("runScriptSourceInContext() finished to get closure");
+
+		getLog().debug("runScriptSourceInContext() start to get closure");
+
+		closure.delegate = dsl;
+		closure.setResolveStrategy(Closure.DELEGATE_FIRST)
+		
+		return closure();
+	
+	}
+	
     /**
      * To be overriden in tests
      */
