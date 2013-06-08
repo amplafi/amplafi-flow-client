@@ -14,6 +14,14 @@ import org.amplafi.dsl.ParameterUsge;
 import org.amplafi.flow.utils.UtilParent;
 import org.apache.commons.logging.Log;
 import groovy.transform.CompileStatic;
+import jline.console.ConsoleReader;
+import jline.console.completer.Completer;
+import jline.console.completer.FileNameCompleter;
+import jline.console.completer.StringsCompleter;
+import jline.console.history.MemoryHistory;
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import java.awt.event.KeyEvent;
 
 @Canonical 
 /**
@@ -48,6 +56,7 @@ public class UserShell{
 			def name = ["listAdmin","la"];
 			def run = { bits -> list()	};
 			def desc = "Show all available AdminTool command scripts.";
+			def usage ="${name[0]}"
 		}
 		
 		commandList << new Cmd(){
@@ -87,12 +96,14 @@ Use listDsl to get a list of DSL methods.
 			def name = ["listDsl","ld"];
 			def run = { bits -> listDsl(bits);};
 			def desc = "List all the methods in the DSL"
+			def usage ="""${name[0]}"""
 		}
 		
 		commandList << new Cmd(){
 			def name = ["exit","quit","q"];
 			def run = { bits -> exit();};
 			def desc = "Exit."
+			def usage ="""${name[0]}"""
 		}
 		
 		
@@ -100,36 +111,59 @@ Use listDsl to get a list of DSL methods.
 	
 	def divider = "--------------------------------";
 	
+	private PrintWriter out; 
 	/**
 	 * Runs the command loop
 	 */
 	 public void runCommand(){
-		 if ((console = System.console()) != null) {
-			 while (running) {
-				 String commandLine = console.readLine(PROMPT, new Date());
-		 
-				 commandLine = commandLine.trim();
-				 String[]  bits = commandLine.split(" ");
-	 
-				 if (bits.size() > 0){
-					 def command = bits[0];
-					 command = command.toLowerCase();
-					 
-					 Cmd cmd = commandList.find {it.name.find{it2 -> it2.toLowerCase() == command } != null};
-					 
-					 if (cmd != null){
-						 log divider;
-						 cmd.run(bits);
+		 try {
+			 final ConsoleReader reader = new ConsoleReader();
+			 reader.setHistoryEnabled(true);
+			 reader.setHistory(new MemoryHistory());
+			 
+			 reader.addTriggeredAction((char)KeyEvent.VK_UP, new ActionListener (){
+				 public void actionPerformed(ActionEvent e){
+					reader.getHistory().previous(); 
+				 }
+			 });
+			 
+			 
 	
-					 } else {
-					 	log("Command not found. Try help");
-					 }
-				}
-				
-			 }
-		 }
+			 reader.setPrompt("> ");
+			 
+		//	 if ((console = System.console()) != null) {
+				 out = new PrintWriter(reader.getOutput());
+				 
+
+				 while (running) {
+					 String commandLine = reader.readLine();
+					 commandLine = commandLine.trim();
+					 String[]  bits = commandLine.split(" ");
+		 
+					 if (bits.size() > 0){
+						 def command = bits[0];
+						 command = command.toLowerCase();
+						 
+						 Cmd cmd = commandList.find {it.name.find{it2 -> it2.toLowerCase() == command } != null};
+						 
+						 if (cmd != null){
+							 log divider;
+							 cmd.run(bits);
+		
+						 } else {
+						 	log("Command not found. Try help");
+						 }
+					}
+					
+				 }
+			// }
+							 
+		} catch(Exception e){
+			log e.message;
+			e.printStackTrace();
+		} 
 	 }
-	 
+	 	 
 	 /** Admin script cache */
 	 private List<ScriptDescription> adminScripts = null;
 	 
@@ -167,14 +201,16 @@ Use listDsl to get a list of DSL methods.
 		 
 		 def params = [:];
 		 if(bits.size() == 1){
-			log("Please specify the script to run");
+			log("Please specify the script to run,user command (listAdmin or la) to see the scripts list");
 		 }else if(bits.size() == 2){
+		 	checkForGroovy(bits);
 			try{
 				response = dsl.callScript(bits[1]);
 			}catch(Exception ex){
 				log ex.getMessage();
 			}
 		 }else{
+		 	checkForGroovy(bits);
 			for(int i = 2;i<bits.size();i++){
 				def param = bits[i];
 				def paramSplit = param.split("=");
@@ -193,6 +229,15 @@ Use listDsl to get a list of DSL methods.
 			}
 		}
 		dsl.stash["LAST_RETURN"] = response;
+	 }
+	 
+	 private void checkForGroovy(def bits){
+		 def m = bits.find{it -> ((String)it).contains("(")}
+		 if (m != null){
+			 log("Looks like you are running groovy code. You should use 'g' to do that.");
+			 log("Calling Admin scripts doesn't normally need brackets. Trying Anyway (Expect an error).");
+			 log("");
+		 }
 	 }
 	 
 	 /**
@@ -329,7 +374,11 @@ ${(c?.usage != null) ? c?.usage:"None"}
 	  * @param msg
 	  */
 	 public void log(String msg){
-		 println msg;
+		 if (out){
+			 out.println msg;
+		 } else {
+		 	println msg;
+		 }
 	 }
 	 
 	 /**
