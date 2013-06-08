@@ -22,9 +22,22 @@
         </ant>
     </target>
 
-    <target name="FAdmin" depends="input-runargs" description="run the admin tool use -Dargs='' for help -Dargs='-help [script-name]' for script usage or -Dargs='-l' to list scripts">
+    <target name="FAdmin-debug">
+        <echo message="Running admin tool for debugger attachment. In eclipse, go to debug configurations... then use port 1043. If connection fails when you press 'debug', you have done something wrong. Wait until the program says it is waiting for debugger attachment before activating the debug configuration"/>
+        <echo message="You might have to add the source to the debug configuration if you don't have amplafi-flow-client as a java project <Bruno: happened to me>. Just add the src folder inside amplafi-flow-client to the debug configuration source file. Do the same with farreaches-customer-service-client"/>
+        <antcall target="_FAdmin">
+            <param name="jvm-opts" value="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1043"/>
+        </antcall>
+    </target>
+    <target name="FAdmin">
+        <antcall target="_FAdmin">
+            <param name="jvm-opts" value=""/>
+        </antcall>
+    </target>
+    <target name="_FAdmin" depends="input-runargs" description="run the admin tool use -Dargs='' for help -Dargs='-help [script-name]' for script usage or -Dargs='-l' to list scripts">
         <!-- You can use exec here, depending on your needs -->
-        <java classname="org.amplafi.flow.utils.AdminTool" >
+        <java classname="org.amplafi.flow.utils.AdminTool" fork="yes">
+            <jvmarg line="${jvm-opts}"/>
             <arg line="${args}"/>
             <classpath>
                 <pathelement location="${jar-name}"/>
