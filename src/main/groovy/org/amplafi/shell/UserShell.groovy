@@ -54,7 +54,7 @@ public class UserShell{
 		}
 		
 		commandList << new Cmd(){
-			def name = ["listAdmin","la"];
+			def name = ["listadmin","la"];
 			def run = { bits -> list()	};
 			def desc = "Show all available AdminTool command scripts.";
 			def usage ="${name[0]}"
@@ -94,7 +94,7 @@ Use listDsl to get a list of DSL methods.
 		}
 		
 		commandList << new Cmd(){
-			def name = ["listDsl","ld"];
+			def name = ["listdsl","ld"];
 			def run = { bits -> listDsl(bits);};
 			def desc = "List all the methods in the DSL"
 			def usage ="""${name[0]}"""
