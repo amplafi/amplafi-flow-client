@@ -45,6 +45,7 @@ public class UserShell{
 	def UserShell(FlowTestDSL dsl){
 		this.dsl = dsl;
 		
+		
 		commandList << new Cmd(){
 			def name = ["help","?"];
 			def run = { bits -> help(bits);};
@@ -117,46 +118,52 @@ Use listDsl to get a list of DSL methods.
 	 */
 	 public void runCommand(){
 		 try {
-			 final ConsoleReader reader = new ConsoleReader();
-			 reader.setHistoryEnabled(true);
-			 reader.setHistory(new MemoryHistory());
-			 
-			 reader.addTriggeredAction((char)KeyEvent.VK_UP, new ActionListener (){
-				 public void actionPerformed(ActionEvent e){
-					reader.getHistory().previous(); 
-				 }
-			 });
-			 
-			 
-	
-			 reader.setPrompt("> ");
-			 
-		//	 if ((console = System.console()) != null) {
-				 out = new PrintWriter(reader.getOutput());
+			 def reader = null;
+			 if ("\\".equals(File.separator)) {
+				 // Windows 
+				 // has its own command history an jline doesn't work
+				 console = System.console();
+				 reader = console.reader;
+				 out = new PrintWriter(console.writer(),true);
+			 } else {
+			 	 // Not Windows
+			     // use jline
+				 reader = new ConsoleReader();
+				 reader.setHistoryEnabled(true);
+				 reader.setHistory(new MemoryHistory());
 				 
-
-				 while (running) {
-					 String commandLine = reader.readLine();
-					 commandLine = commandLine.trim();
-					 String[]  bits = commandLine.split(" ");
-		 
-					 if (bits.size() > 0){
-						 def command = bits[0];
-						 command = command.toLowerCase();
-						 
-						 Cmd cmd = commandList.find {it.name.find{it2 -> it2.toLowerCase() == command } != null};
-						 
-						 if (cmd != null){
-							 log divider;
-							 cmd.run(bits);
+				 reader.addTriggeredAction((char)KeyEvent.VK_UP, new ActionListener (){
+					 public void actionPerformed(ActionEvent e){
+						reader.getHistory().previous();
+					 }
+				 });
 		
-						 } else {
-						 	log("Command not found. Try help");
-						 }
-					}
-					
-				 }
-			// }
+			 	 out = new PrintWriter(reader.getOutput());
+				 reader.setPrompt("> ");
+
+			 }
+
+			 while (running) {
+				 String commandLine = reader.readLine();
+				 commandLine = commandLine.trim();
+				 String[]  bits = commandLine.split(" ");
+	 
+				 if (bits.size() > 0){
+					 def command = bits[0];
+					 command = command.toLowerCase();
+					 
+					 Cmd cmd = commandList.find {it.name.find{it2 -> it2.toLowerCase() == command } != null};
+					 
+					 if (cmd != null){
+						 log divider;
+						 cmd.run(bits);
+	
+					 } else {
+					 	log("Command not found. Try help");
+					 }
+				}
+				
+			 }
 							 
 		} catch(Exception e){
 			log e.message;
@@ -190,6 +197,7 @@ Use listDsl to get a list of DSL methods.
 		 }
 		 log("Run a script with 'call <scriptname> [params]' or 'c <scriptname> [params]' ");
 		 log("Get script usage with 'help <scriptname>'");
+
 	 }
 	 
 	 /**
@@ -310,6 +318,7 @@ Use listDsl to get a list of DSL methods.
 	  * @param bits - command line as array of strings
 	  */
 	 private void help(def bits){
+		 
 	 	if (bits==null || bits.size() <= 1){
 			 commandList.each{ c ->
 				log(String.format('%1$-20s      -      %2$-20s', c.name, c.desc));
@@ -317,8 +326,8 @@ Use listDsl to get a list of DSL methods.
 		 }
 		 
 		 if ( bits?.size() > 1){
-			 def command = bits[1];  
-			 Cmd c = commandList.find {it.name.find{it2 -> it2.toLowerCase() == command} != null};;
+			 def command = bits[1];
+			 Cmd c = commandList.find {it.name.find{it2 -> it2.toLowerCase() == command.toLowerCase()} != null};
 			 if (c != null){
 				 log("""${c.name}	- ${c?.desc}
 USAGE:				 
@@ -500,7 +509,7 @@ ${(c?.usage != null) ? c?.usage:"None"}
 		  }
 	   
 		  if (help.full == null || help.summary == null){
-			  println "############# " + patterStr;
+			 // println "############# " + patterStr;
 		  }
 	 }
 	 

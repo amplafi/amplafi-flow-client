@@ -428,11 +428,10 @@ public class ScriptRunner {
                 value = new ScriptDescription(hasErrors:true, errorMesg:"No Description Defined", path:filePath);
             } catch (MultipleCompilationErrorsException mceee){
                 value = new ScriptDescription(hasErrors:true, errorMesg:"Compilation Errors + ${mceee.getMessage()}", path:filePath);
-                mceee.printStackTrace();
             }
             return value;
         } catch (Exception e){
-            e.printStackTrace();
+            throw e;
         }
     }
 
