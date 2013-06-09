@@ -1,5 +1,9 @@
 ## Admin Tool ##
 
+
+
+
+
 The FAdmin.sh/FAdmin.bat offers a simple and extensible framework for running scripts to query the server flows.
 Features include, a simple and clear DSL based on groovy which can be mixed with Java and groovy code to create clear and versitile scripts.
 
@@ -23,6 +27,17 @@ DSL offers pretty print and other commands.
 ### Setup ###
 
 mvn  -Dmaven.test.skip=true package
+
+
+## Shell mode ##
+
+The admin tool includes an interactive shell. 
+
+ant AdminTool -Dargs="shell"
+
+
+
+
 
 ### Command Line Options ###
 -l                    List Scripts

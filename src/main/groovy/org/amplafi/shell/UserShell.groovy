@@ -37,6 +37,7 @@ public class UserShell{
 	boolean running = true;
 	private List<Cmd> commandList = [];
 	private Map<String,DSLHelp> dslDoc = null;
+	private static final String LAST_RETURN = "LAST_RETURN"; 
 	
 	/**
 	 * Constructor 
@@ -236,7 +237,7 @@ Use listDsl to get a list of DSL methods.
 				log "Error, " + ex.getMessage();
 			}
 		}
-		dsl.stash["LAST_RETURN"] = response;
+		dsl.stash[LAST_RETURN] = response;
 	 }
 	 
 	 private void checkForGroovy(def bits){
