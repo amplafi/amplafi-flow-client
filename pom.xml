@@ -120,7 +120,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin-build}</version>
                 <configuration>
                     <compilerId>groovy-eclipse-compiler</compilerId>
                     <source>${android-java-build}</source>
@@ -167,7 +166,6 @@
 
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.3</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -192,7 +190,6 @@
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>exec-maven-plugin</artifactId>
-              <version>1.2.1</version>
               <executions>
                 <execution>
                   <goals>
