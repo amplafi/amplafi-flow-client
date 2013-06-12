@@ -24,7 +24,7 @@
 
     <target name="FAdmin-debug">
         <echo message="Running admin tool for debugger attachment. In eclipse, go to debug configurations... then use port 1043. If connection fails when you press 'debug', you have done something wrong. Wait until the program says it is waiting for debugger attachment before activating the debug configuration"/>
-        <echo message="You might have to add the source to the debug configuration if you don't have amplafi-flow-client as a java project <Bruno: happened to me>. Just add the src folder inside amplafi-flow-client to the debug configuration source file. Do the same with farreaches-customer-service-client"/>
+        <echo message="You might have to add the source to the debug configuration if you don't have amplafi-flow-client as a java project &lt;Bruno: happened to me&gt;. Just add the src folder inside amplafi-flow-client to the debug configuration source file. Do the same with farreaches-customer-service-client"/>
         <antcall target="_FAdmin">
             <param name="jvm-opts" value="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1043"/>
         </antcall>
