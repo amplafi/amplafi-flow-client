@@ -44,8 +44,8 @@ public class GeneralFlowRequest {
      * @param params is the parameters of the request
      * @param flowName is name of the flow
      */
-    public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKeyp, String flowName, NameValuePair... params) {
-        this(serviceInfo, apiKeyp ,flowName, Arrays.asList(params));
+    public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey, String flowName, NameValuePair... params) {
+        this(serviceInfo, apiKey ,flowName, Arrays.asList(params));
     }
 
     /**
