@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
-import java.lang.*;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException
 /**
  * This class contains various methods for loading and running FlowTestDSL scripts
@@ -76,7 +75,13 @@ public class ScriptRunner {
     public ScriptRunner(FarReachesServiceInfo serviceInfo, String key){
         this.serviceInfo = serviceInfo;
         this.key = key;
+        initDefaultScriptFolder();
     }
+
+	private initDefaultScriptFolder() {
+		processScriptsInFolder(getClass().getResource("/commandScripts/").getPath())
+	}
+    
     /**
      * Constructs a Script runner with individual parameters that can be overridden in scripts.
      * passes a map of parameters to the script
@@ -92,6 +97,7 @@ public class ScriptRunner {
         this.key = key;
         this.paramsmap = paramsmap;
         this.verbose = verbose;
+        initDefaultScriptFolder();
     }
 
     /**
@@ -349,7 +355,7 @@ public class ScriptRunner {
         def filePath = getScriptPath(scriptName);
 		
 		if(filePath == null){
-			filePath = scriptName;
+			filePath = getClass().getResource("/commandScripts/" + scriptName + ".groovy").getPath();
 		}
 	
         ScriptDescription sd = describeOneScript(filePath);
