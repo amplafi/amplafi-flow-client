@@ -3,6 +3,8 @@ import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import groovy.io.FileType;
 import org.amplafi.flow.utils.GeneralFlowRequest;
 import java.util.HashMap;
+
+import org.apache.commons.codec.language.bm.Languages.SomeLanguages;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.util.Map;
@@ -79,7 +81,10 @@ public class ScriptRunner {
     }
 
 	private initDefaultScriptFolder() {
-		processScriptsInFolder(getClass().getResource("/commandScripts/").getPath())
+		def commandScriptsFolder = getClass().getResource("/commandScripts/");
+        if (commandScriptsFolder) {
+            processScriptsInFolder(commandScriptsFolder.getPath());
+        }
 	}
     
     /**
@@ -355,7 +360,10 @@ public class ScriptRunner {
         def filePath = getScriptPath(scriptName);
 		
 		if(filePath == null){
-			filePath = getClass().getResource("/commandScripts/" + scriptName + ".groovy").getPath();
+			def scriptResource = getClass().getResource("/commandScripts/" + scriptName + ".groovy");
+            if (scriptResource) {
+                filePath = scriptResource.getPath();
+            }
 		}
 	
         ScriptDescription sd = describeOneScript(filePath);
