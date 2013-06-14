@@ -13,33 +13,31 @@
  */
 package org.amplafi.flow.strategies;
 
+import groovy.lang.GroovyShell;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
-import java.util.Collection;
-import java.util.Formatter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 
 import org.amplafi.flow.TestGenerationProperties;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
+import org.amplafi.flow.utils.GeneralFlowRequest;
+import org.amplafi.flow.utils.GenerationException;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONException;
 import org.amplafi.json.JSONObject;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.amplafi.flow.utils.GenerationException;
-import org.amplafi.flow.utils.GeneralFlowRequest;
-import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import groovy.lang.GroovyShell;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 /**
  * Abstract Super class for all testing strategies. This class defines methods
