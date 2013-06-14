@@ -178,7 +178,7 @@ public class ScriptRunner {
      * @throws NoDescriptionException - Thrown if the description DSL does not find a description directive
      * @throws EarlyExitException - thrown to prevent the description dsl from running any commands.
      */
-    def runScriptSource(String sourceCode, boolean execOrDescribe, ScriptDescription description) throws NoDescriptionException, EarlyExitException{
+    def runScriptSource(String sourceCode, boolean exec, ScriptDescription description) throws NoDescriptionException, EarlyExitException{
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
@@ -193,7 +193,7 @@ public class ScriptRunner {
         }
         getLog().debug("runScriptSource() start to get closure");
 
-        if(execOrDescribe){
+        if (exec) {
             lastScript = builder.buildExe(closure);
             return lastScript();
         }else{
