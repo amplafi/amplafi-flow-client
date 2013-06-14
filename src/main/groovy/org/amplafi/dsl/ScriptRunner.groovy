@@ -414,7 +414,7 @@ public class ScriptRunner {
 
         // Determine which scripts are good to run and which have errors.
         for (ScriptDescription sd : ret ){
-            if (!sd.getHasErrors()){
+            if (!sd.isHasErrors()){
                 goodScripts.add(sd);
                 scriptLookup.put(sd.getName(),sd);
             } else {
