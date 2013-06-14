@@ -648,6 +648,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
                 monitor.wait(timeOutSeconds * 1000);
             }
             if(myHandler.getReceived() == false){
+                //TO_DAISY: doStop is a protected method and is not intended to be called directly.
+                //Why're you not using stop()?
                 server.doStop();
                 fail("Server did not send any request");
             }
