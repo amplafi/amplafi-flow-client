@@ -72,8 +72,7 @@ public abstract class AbstractTestingStrategy {
      * @return the name of this strategy
      */
     public String getFileName() {
-        Formatter formatter = new Formatter();
-        return "" + formatter.format("%04d", sequence) + "" + getName() + "_"
+        return String.format("%04d", sequence) + "" + getName() + "_"
                 + currentFlow + ".groovy";
     }
 
