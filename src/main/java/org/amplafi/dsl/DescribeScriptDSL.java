@@ -88,7 +88,7 @@ public class DescribeScriptDSL {
         StringBuffer usageSb = new StringBuffer(newLine);
         for(ParameterUsage paramUsage : usages){
             if(paramUsage.getName() != null && paramUsage.getDescription() != null){
-                usageSb.append("%-15s = <%-15s>".format(paramUsage.getName(), paramUsage.getDescription()));
+                usageSb.append(String.format("%-15s = <%-15s>", paramUsage.getName(), paramUsage.getDescription()));
                 // usageSb.append(paramUsage.getName() + " = " +"<" +paramUsage.getDescription() + ">");
                 if(paramUsage.isOptional()){
                     usageSb.append(" , optional");
