@@ -227,7 +227,7 @@ public class DescribeScriptDSL {
      */
     public Log getLog(){
         if ( this.log == null ) {
-            this.log = LogFactory.getLog(FlowTestBuilder.class);
+            this.log = LogFactory.getLog(getClass());
         }
         return this.log;
     }

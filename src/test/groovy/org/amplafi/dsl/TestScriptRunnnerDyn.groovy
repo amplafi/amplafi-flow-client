@@ -118,7 +118,7 @@ param3          = <test param3    > , optional , defaultValue = 100
             desc = eee.desc;
         }
         String generateParams = "def param1 = 100;def param2 = 500;def param3 = 300;"
-        def scriptStr = """import org.amplafi.dsl.FlowTestBuilder;import org.amplafi.json.*; ${generateParams} def source = { ${testScript2} }; return source """;
+        def scriptStr = """import org.amplafi.json.*; ${generateParams} def source = { ${testScript2} }; return source """;
     }
 
     //This test tests script runner with params input.

@@ -45,7 +45,7 @@ public class TestAdminTool {
     @BeforeMethod
     public void setUp() throws Exception {
         testAppender = new TestAppender();
-        Logger.getLogger(org.amplafi.dsl.FlowTestBuilder.class).addAppender(testAppender);
+        Logger.getLogger(getClass()).addAppender(testAppender);
         userInputKey = "";
         userInputHost = "";
         userInputPort = "";
@@ -60,7 +60,7 @@ public class TestAdminTool {
      */
     @AfterMethod
     public void tearDown() throws Exception {
-        Logger.getLogger(org.amplafi.dsl.FlowTestBuilder.class).removeAllAppenders();
+        Logger.getLogger(getClass()).removeAllAppenders();
         testHelpAdminTool = null;
         userInputKey = null;
         userInputHost = null;

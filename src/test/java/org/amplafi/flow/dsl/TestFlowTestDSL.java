@@ -1,19 +1,16 @@
 package org.amplafi.flow.dsl;
 
-import static org.testng.Assert.*;
-import static org.amplafi.dsl.ScriptRunner.DEFAULT_SCRIPT_PATH;
-import org.amplafi.dsl.ScriptRunner;
-import org.amplafi.flow.TestGenerationProperties;
-import org.amplafi.flow.definitions.FarReachesServiceInfo;
-import org.amplafi.json.JSONArray;
-import org.amplafi.json.JSONException;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.amplafi.dsl.FlowTestDSL;
 import org.amplafi.json.JSONObject;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.amplafi.dsl.FlowTestBuilder;
-import org.amplafi.dsl.FlowTestDSL;
-import java.util.*;
 
 /**
  * This is a test for the TestScriptRunner itself, not the wire server
