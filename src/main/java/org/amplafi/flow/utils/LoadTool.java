@@ -446,7 +446,7 @@ public class LoadTool extends UtilParent{
     // Never accessed by multiple threads
     private List<Thread> threads = new ArrayList<Thread>();
     // Never accessed by multiple threads
-    private Map<Thread,ThreadReport> threadReports = new LinkedHashMap();
+    private Map<Thread,ThreadReport> threadReports = new LinkedHashMap<Thread, LoadTool.ThreadReport>();
 
     /**
      * runs a single-threaded proxy server on
