@@ -5,11 +5,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
+import org.amplafi.flow.utils.GenerationException;
 import org.amplafi.json.JSONObject;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.amplafi.flow.utils.GenerationException;
-import org.amplafi.flow.definitions.FarReachesServiceInfo;
 
 public class RealisticParamsStrategy extends AbstractTestingStrategy {
 

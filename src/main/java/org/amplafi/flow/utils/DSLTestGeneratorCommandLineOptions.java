@@ -1,21 +1,10 @@
 package org.amplafi.flow.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Properties;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
+import org.amplafi.flow.strategies.TestingStrategiesEnum;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.amplafi.flow.strategies.TestingStrategiesEnum;
 /**
  * This is a class used to parse options for the command line test generator.
  * 

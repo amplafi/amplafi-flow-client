@@ -1,27 +1,29 @@
 package org.amplafi.flow.utils;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.API_KEY;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.API_VERSION;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.DESCRIBE;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.FILE_PATH;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.FLOWS;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.HELP;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.HOST;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.LIST;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.LISTDETAILED;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.PORT;
+import static org.amplafi.flow.utils.AdminToolCommandLineOptions.VERBOSE;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.Properties;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.*;
-import org.amplafi.dsl.ParameterValidationException;
+import java.util.Map;
+
 import org.amplafi.dsl.ParameterUsage;
-import org.amplafi.dsl.ScriptRunner;
+import org.amplafi.dsl.ParameterValidationException;
 import org.amplafi.dsl.ScriptDescription;
+import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONObject;
-import java.util.Map;
+import org.apache.commons.cli.ParseException;
 
 /**
  * Command line interface for running scripts to communicate with the

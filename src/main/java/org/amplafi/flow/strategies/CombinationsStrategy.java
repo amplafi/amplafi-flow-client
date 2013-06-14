@@ -13,14 +13,15 @@
  */
 package org.amplafi.flow.strategies;
 
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
+import org.amplafi.flow.utils.GenerationException;
 import org.amplafi.json.JSONObject;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.amplafi.flow.utils.GenerationException;
-import org.amplafi.flow.definitions.FarReachesServiceInfo;
 
 /**
  * This strategy produces tests that simply send in bogus String data.

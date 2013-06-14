@@ -16,8 +16,9 @@ package org.amplafi.flow.strategies;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.apache.http.message.BasicNameValuePair;
+
 import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 /**
  * This strategy produces tests that send requests with impossible param names.

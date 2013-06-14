@@ -1,29 +1,38 @@
 package org.amplafi.flow.utils;
-import java.io.*;
+import static org.amplafi.flow.utils.LoadToolCommandLineOptions.DURATION;
+import static org.amplafi.flow.utils.LoadToolCommandLineOptions.FREQUENCY;
+import static org.amplafi.flow.utils.LoadToolCommandLineOptions.HOST;
+import static org.amplafi.flow.utils.LoadToolCommandLineOptions.HOST_PORT;
+import static org.amplafi.flow.utils.LoadToolCommandLineOptions.KEY;
+import static org.amplafi.flow.utils.LoadToolCommandLineOptions.NUM_THREADS;
+import static org.amplafi.flow.utils.LoadToolCommandLineOptions.REPORT;
+import static org.amplafi.flow.utils.LoadToolCommandLineOptions.SCRIPT;
+import static org.amplafi.flow.utils.LoadToolCommandLineOptions.TEST_PLAN;
+import static org.amplafi.flow.utils.LoadToolCommandLineOptions.VERBOSE;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
-import java.net.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.HashMap;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.amplafi.dsl.ScriptRunner;
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.amplafi.flow.definitions.FarReachesServiceInfo;
-import static org.amplafi.flow.utils.LoadToolCommandLineOptions.*;
-import java.util.EnumSet;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.lang.management.ManagementFactory;
 /**
  * Tool for load testing the wire server.
  * @author paul

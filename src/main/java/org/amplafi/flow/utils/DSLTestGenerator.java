@@ -1,15 +1,26 @@
 package org.amplafi.flow.utils;
 
-import java.net.URI;
+import static org.amplafi.dsl.ScriptRunner.DEFAULT_SCRIPT_PATH;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.API_KEY;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.API_VERSION;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.FLOW;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.HELP;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.HOST;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.OUTPATH;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.PORT;
+import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.STRATEGY;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.amplafi.flow.utils.GeneralFlowRequest;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
+import org.amplafi.flow.strategies.AbstractTestingStrategy;
+import org.amplafi.flow.strategies.TestingStrategiesEnum;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONException;
 import org.amplafi.json.JSONObject;
@@ -18,13 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import static org.amplafi.dsl.ScriptRunner.*;
-import static org.amplafi.flow.utils.DSLTestGeneratorCommandLineOptions.*;
-import org.amplafi.flow.strategies.AbstractTestingStrategy;
-import org.amplafi.flow.strategies.TestingStrategiesEnum;
 /**
  * This class generates tests according to a generation strategy. It may be called from the command line
  * with a single parameter which is the strategy to use test scripts are generated in the src/test/resources/testscripts

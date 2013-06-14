@@ -1,8 +1,10 @@
 package org.amplafi.flow.utils;
 
 import static org.amplafi.flow.utils.GeneralFlowRequest.APPLICATION_ZIP;
-import java.util.Map;
+
 import java.util.HashMap;
+import java.util.Map;
+
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONObject;
 import org.apache.http.Header;

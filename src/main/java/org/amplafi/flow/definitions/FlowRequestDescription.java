@@ -1,7 +1,8 @@
 package org.amplafi.flow.definitions;
 
-import org.apache.http.NameValuePair;
 import java.util.List;
+
+import org.apache.http.NameValuePair;
 
 /**
  * Describes a request to FarReaches service to execute or describe a flow.
