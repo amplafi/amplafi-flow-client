@@ -104,7 +104,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
 	 * @param description
 	 * @param usages
 	 */
-    public void description (String name, String description, List<ParameterUsge> usages){
+    public void description (String name, String description, List<ParameterUsage> usages){
         this.name = name;
         this.description = description;
         this.usages = usages;
@@ -118,8 +118,8 @@ public class FlowTestDSL extends DescribeScriptDSL {
 	 * @param defaultValue
 	 * @return
 	 */
-    public ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue){
-        return new ParameterUsge(name,description,optional,defaultValue);
+    public ParameterUsage paramDef(String name,String description,boolean optional,Object defaultValue){
+        return new ParameterUsage(name,description,optional,defaultValue);
     }
 
 	/**

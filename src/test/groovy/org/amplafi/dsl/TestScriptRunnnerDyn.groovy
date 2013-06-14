@@ -12,7 +12,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.amplafi.dsl.ScriptDescription;
 import org.amplafi.dsl.EarlyExitException;
-import org.amplafi.dsl.ParameterUsge;
+import org.amplafi.dsl.ParameterUsage;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 
 /**
@@ -100,10 +100,10 @@ param3          = <test param3    > , optional , defaultValue = 100
         desc.name = "Test2";
         desc.description = "Description2";
         desc.usage = "param1 = <test param1>" + NL + "param2 = <test param2>"+ NL +"param3 = <test param3>" +NL;
-        ParameterUsge parameterUsge1 = new ParameterUsge("param1","test param1",true,100);
-        ParameterUsge parameterUsge2 = new ParameterUsge("param2","test param2",true,500);
-        ParameterUsge parameterUsge3 = new ParameterUsge("param3","test param3",true,300);
-        List<ParameterUsge> usageList = new ArrayList<ParameterUsge>();
+        ParameterUsage parameterUsge1 = new ParameterUsage("param1","test param1",true,100);
+        ParameterUsage parameterUsge2 = new ParameterUsage("param2","test param2",true,500);
+        ParameterUsage parameterUsge3 = new ParameterUsage("param3","test param3",true,300);
+        List<ParameterUsage> usageList = new ArrayList<ParameterUsage>();
         usageList.add(parameterUsge1);
         usageList.add(parameterUsge2);
         usageList.add(parameterUsge3);
@@ -138,10 +138,10 @@ param3          = <test param3    > , optional , defaultValue = 100
         desc.name = "Test3";
         desc.description = "Description3";
         desc.usage = "param1 = <test param1>" + NL + "param2 = <test param2>"+ NL +"param3 = <test param3>" +NL;
-        ParameterUsge parameterUsge1 = new ParameterUsge("param1","test param1",true,100);
-        ParameterUsge parameterUsge2 = new ParameterUsge("param2","test param2",true,500);
-        ParameterUsge parameterUsge3 = new ParameterUsge("param3","test param3",true,300);
-        List<ParameterUsge> usageList = new ArrayList<ParameterUsge>();
+        ParameterUsage parameterUsge1 = new ParameterUsage("param1","test param1",true,100);
+        ParameterUsage parameterUsge2 = new ParameterUsage("param2","test param2",true,500);
+        ParameterUsage parameterUsge3 = new ParameterUsage("param3","test param3",true,300);
+        List<ParameterUsage> usageList = new ArrayList<ParameterUsage>();
         usageList.add(parameterUsge1);
         usageList.add(parameterUsge2);
         usageList.add(parameterUsge3);
@@ -173,10 +173,10 @@ param3          = <test param3    > , optional , defaultValue = 100
         desc.name = "Test4";
         desc.description = "Description4";
         desc.usage = "param1 = <test param1>" + NL + "param2 = <test param2>"+ NL +"param3 = <test param3>" +NL;
-        ParameterUsge parameterUsge1 = new ParameterUsge("param1","test param1",false,100);
-        ParameterUsge parameterUsge2 = new ParameterUsge("param2","test param2",true,500);
-        ParameterUsge parameterUsge3 = new ParameterUsge("param3","test param3",true,300);
-        List<ParameterUsge> usageList = new ArrayList<ParameterUsge>();
+        ParameterUsage parameterUsge1 = new ParameterUsage("param1","test param1",false,100);
+        ParameterUsage parameterUsge2 = new ParameterUsage("param2","test param2",true,500);
+        ParameterUsage parameterUsge3 = new ParameterUsage("param3","test param3",true,300);
+        List<ParameterUsage> usageList = new ArrayList<ParameterUsage>();
         usageList.add(parameterUsge1);
         usageList.add(parameterUsge2);
         usageList.add(parameterUsge3);
@@ -208,10 +208,10 @@ param3          = <test param3    > , optional , defaultValue = 100
         desc.name = "Test5";
         desc.description = "Description5";
         desc.usage = "param1 = <test param1>" + NL + "param2 = <test param2>"+ NL +"param3 = <test param3>" +NL;
-        ParameterUsge parameterUsge1 = new ParameterUsge("param1","test param1",false,100);
-        ParameterUsge parameterUsge2 = new ParameterUsge("param2","test param2",true,500);
-        ParameterUsge parameterUsge3 = new ParameterUsge("param3","test param3",true,300);
-        List<ParameterUsge> usageList = new ArrayList<ParameterUsge>();
+        ParameterUsage parameterUsge1 = new ParameterUsage("param1","test param1",false,100);
+        ParameterUsage parameterUsge2 = new ParameterUsage("param2","test param2",true,500);
+        ParameterUsage parameterUsge3 = new ParameterUsage("param3","test param3",true,300);
+        List<ParameterUsage> usageList = new ArrayList<ParameterUsage>();
         usageList.add(parameterUsge1);
         usageList.add(parameterUsge2);
         usageList.add(parameterUsge3);

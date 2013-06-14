@@ -15,7 +15,7 @@ public class DescribeScriptDSL {
     def String name;
     def String usage;
     def String description;
-    def List<ParameterUsge> usages;
+    def List<ParameterUsage> usages;
     def scriptDescription;
     private static final boolean DEBUG = false;
 
@@ -80,10 +80,10 @@ public class DescribeScriptDSL {
      *@param usage is the list of the cript usages.
      *@throw EarlyExitException  if it just need description.
      */
-     public void description (String name, String description, List<ParameterUsge> usages){
+     public void description (String name, String description, List<ParameterUsage> usages){
         String newLine = System.getProperty("line.separator");
         StringBuffer usageSb = new StringBuffer(newLine);
-        for(ParameterUsge paramUsage : usages){
+        for(ParameterUsage paramUsage : usages){
             if(paramUsage.getName()&& paramUsage.getDescription()){
                 usageSb.append(sprintf('%-15s = <%-15s>', paramUsage.getName(), paramUsage.getDescription()));
                 // usageSb.append(paramUsage.getName() + " = " +"<" +paramUsage.getDescription() + ">");
@@ -235,7 +235,7 @@ public class DescribeScriptDSL {
      * @param defaultValue is default value of the param.
      * @return a ParameterUsge.
      */
-    public ParameterUsge paramDef(String name,String description,boolean optional,Object defaultValue){
-        return new ParameterUsge(name,description,optional,defaultValue);
+    public ParameterUsage paramDef(String name,String description,boolean optional,Object defaultValue){
+        return new ParameterUsage(name,description,optional,defaultValue);
     }
 }

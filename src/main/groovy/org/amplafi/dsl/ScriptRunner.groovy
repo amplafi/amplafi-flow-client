@@ -292,7 +292,7 @@ public class ScriptRunner {
 
             if(usageList){
                 getLog().debug("generateParams() for usage list: " + usageList);
-                for(ParameterUsge paramUsage : usageList){
+                for(ParameterUsage paramUsage : usageList){
                     getLog().debug("generateParams() for paramUsage: " + paramUsage);
                     def name;
                     def optional;

@@ -15,7 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.*;
 import org.amplafi.dsl.ParameterValidationException;
-import org.amplafi.dsl.ParameterUsge;
+import org.amplafi.dsl.ParameterUsage;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.dsl.ScriptDescription;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
@@ -210,7 +210,7 @@ public class AdminTool extends UtilParent {
             StringBuffer sb = new StringBuffer();
             sb.append("Script Usage: ant FAdmin -Dargs=\"" + scriptName);
             if(sd.getUsageList() != null){
-                for (ParameterUsge pu : sd.getUsageList()){
+                for (ParameterUsage pu : sd.getUsageList()){
                     sb.append(" " + pu.getName() + "=<" + pu.getDescription() + "> ");
                 }
                 sb.append("\"");

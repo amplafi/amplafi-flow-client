@@ -10,7 +10,7 @@ import groovy.transform.Canonical;
 import org.amplafi.dsl.FlowTestDSL;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.dsl.ScriptDescription;
-import org.amplafi.dsl.ParameterUsge;
+import org.amplafi.dsl.ParameterUsage;
 import org.amplafi.flow.utils.UtilParent;
 import org.apache.commons.logging.Log;
 import groovy.transform.CompileStatic;
@@ -367,7 +367,7 @@ ${(c?.usage != null) ? c?.usage:"None"}
 			 StringBuffer sb = new StringBuffer();
 			 sb.append("Script Usage: call " + sd?.getName());
 			 if(sd.getUsageList() != null){
-				 for (ParameterUsge pu : sd.getUsageList()){
+				 for (ParameterUsage pu : sd.getUsageList()){
 					 sb.append(" " + pu.getName() + "=<" + pu?.getDescription() + "> ");
 				 }
 				 log(sb.toString());

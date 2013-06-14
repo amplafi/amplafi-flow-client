@@ -18,5 +18,5 @@ public class ScriptDescription {
 
     def String errorMesg;
     def String usage;
-    def List<ParameterUsge> usageList;
+    def List<ParameterUsage> usageList;
 }
