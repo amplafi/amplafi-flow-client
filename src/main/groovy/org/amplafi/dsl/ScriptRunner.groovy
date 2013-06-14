@@ -303,8 +303,8 @@ public class ScriptRunner {
                     }else{
                         throw new Exception("Parameter Name Not Set");
                     }
-                    if(paramUsage.getOptional()){
-                        optional = paramUsage.getOptional();
+                    if(paramUsage.isOptional()){
+                        optional = paramUsage.isOptional();
                     }else{
                         optional = false;
                     }

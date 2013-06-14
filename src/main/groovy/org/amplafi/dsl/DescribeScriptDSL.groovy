@@ -87,7 +87,7 @@ public class DescribeScriptDSL {
             if(paramUsage.getName()&& paramUsage.getDescription()){
                 usageSb.append(sprintf('%-15s = <%-15s>', paramUsage.getName(), paramUsage.getDescription()));
                 // usageSb.append(paramUsage.getName() + " = " +"<" +paramUsage.getDescription() + ">");
-                if(paramUsage.getOptional()){
+                if(paramUsage.isOptional()){
                     usageSb.append(" , optional");
                 }else{
                     usageSb.append(" , required");
