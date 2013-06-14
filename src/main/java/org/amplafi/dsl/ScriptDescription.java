@@ -21,6 +21,20 @@ public class ScriptDescription {
 
     List<ParameterUsage> usageList;
 
+    public ScriptDescription() {
+    }
+    
+    public ScriptDescription(String name, String description, String usage) {
+        this.name = name;
+        this.description = description;
+        this.usage = usage;
+    }
+
+    public ScriptDescription(String name, String description, String usage, List<ParameterUsage> usageList) {
+        this(name, description, usage);
+        this.usageList = usageList;
+    }
+
     public String getName() {
         return name;
     }

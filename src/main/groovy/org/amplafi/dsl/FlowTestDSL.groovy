@@ -306,7 +306,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param message.
      * Print a message.
      */
-    def log(msg){
+    void log(msg){
         emitOutput(msg)
     }
 
@@ -315,7 +315,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * the expected JSON.
      * @param expectedJSONData.
      */
-    def expect(String expectedJSONData){
+    void expect(String expectedJSONData){
         try{
             JSONObject expected = new JSONObject(expectedJSONData);
             JSONObject actual = new JSONObject(lastRequestResponse);
@@ -332,7 +332,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * the expected JSON.
      * @param expectedJSONData, ignorePathList.
      */
-    def expect(String expectedJSONData,List<String> ignorePathList){
+    void expect(String expectedJSONData,List<String> ignorePathList){
         try{
             JSONObject expected = new JSONObject(expectedJSONData);
             JSONObject actual = new JSONObject(lastRequestResponse);
@@ -419,7 +419,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param scriptName script name.
      * @param callParamsMap script parameters.
      */
-    def callScript(String scriptName, Map callParamsMap){
+    Object callScript(String scriptName, Map callParamsMap){
         getLog().debug("In callScript() scriptName = " + scriptName);
         def exe = runner.createClosure(scriptName,callParamsMap);
         getLog().debug("callScript created closure  for scriptName = " + scriptName);
@@ -438,7 +438,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * Call a script with no params.
      * @param scriptName script name.
      */
-    def callScript(String scriptName){
+    Object callScript(String scriptName){
         callScript(scriptName,[:]);
     }
 	

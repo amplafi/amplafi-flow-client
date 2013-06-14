@@ -1,22 +1,24 @@
 package org.amplafi.dsl;
 
-import org.amplafi.flow.utils.GeneralFlowRequest;
+import groovy.lang.Closure;
+
+import java.util.List;
+import java.util.Map;
+
 import org.amplafi.flow.utils.FlowResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import static org.testng.Assert.*;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class defines the methods that are callable within the flow test DSL.
  */
 public class DescribeScriptDSL {
-    def String name;
-    def String usage;
-    def String description;
-    def List<ParameterUsage> usages;
-    def scriptDescription;
+    String name;
+    String usage;
+    String description;
+    List<ParameterUsage> usages;
+    ScriptDescription scriptDescription;
+    
     private static final boolean DEBUG = false;
 
     /** This stores the base uri including the host,port,apikey */
@@ -29,14 +31,17 @@ public class DescribeScriptDSL {
      * Contains the last response from the server.
      */
     public String lastRequestResponse = null;
+    private Log log;
 
     public DescribeScriptDSL(){
     }
 
     public String getKey(){
+        return null;
     }
 
     String getApiVersion(){
+        return null;
     }
 
     void setApiVersion(String apiVersion){
@@ -52,7 +57,7 @@ public class DescribeScriptDSL {
     public void description (String name, String description){
         this.name = name;
         this.description = description;
-        this.scriptDescription = new ScriptDescription(name:name , description:description, usage:"" );
+        this.scriptDescription = new ScriptDescription(name, description, "");
         // This pevents the other commands in the script fom being executed.
         throw new EarlyExitException(scriptDescription);
     }
@@ -68,7 +73,7 @@ public class DescribeScriptDSL {
         this.usage = usage;
         this.name = name;
         this.description = description;
-        this.scriptDescription = new ScriptDescription(name:name , description:description, usage:usage );
+        this.scriptDescription = new ScriptDescription(name , description, usage);
         // This pevents the other commands in the script fom being executed.
         throw new EarlyExitException(scriptDescription);
     }
@@ -84,15 +89,15 @@ public class DescribeScriptDSL {
         String newLine = System.getProperty("line.separator");
         StringBuffer usageSb = new StringBuffer(newLine);
         for(ParameterUsage paramUsage : usages){
-            if(paramUsage.getName()&& paramUsage.getDescription()){
-                usageSb.append(sprintf('%-15s = <%-15s>', paramUsage.getName(), paramUsage.getDescription()));
+            if(paramUsage.getName() != null && paramUsage.getDescription() != null){
+                usageSb.append("%-15s = <%-15s>".format(paramUsage.getName(), paramUsage.getDescription()));
                 // usageSb.append(paramUsage.getName() + " = " +"<" +paramUsage.getDescription() + ">");
                 if(paramUsage.isOptional()){
                     usageSb.append(" , optional");
                 }else{
                     usageSb.append(" , required");
                 }
-                if(paramUsage.getDefaultValue()){
+                if(paramUsage.getDefaultValue() != null){
                     usageSb.append(" , defaultValue = " + paramUsage.getDefaultValue());
                 }
                 usageSb.append(newLine);
@@ -101,7 +106,7 @@ public class DescribeScriptDSL {
         this.usage =  usageSb.toString();
         this.name = name;
         this.description = description;
-        this.scriptDescription = new ScriptDescription(name:name , description:description, usage:usage, usageList:usages );
+        this.scriptDescription = new ScriptDescription(name, description, usage, usages);
         // This pevents the other commands in the script fom being executed.
         throw new EarlyExitException(scriptDescription);
      }
@@ -130,7 +135,7 @@ public class DescribeScriptDSL {
      * @param dataReturnProperty the property we want to return.
      * @return response string.
      */
-    String asyncRequest(String flowName, Map paramsMap,dataReturnProperty){
+    String asyncRequest(String flowName, Map paramsMap, String dataReturnProperty){
         throw new NoDescriptionException();
     }
 
@@ -149,7 +154,7 @@ public class DescribeScriptDSL {
      * the expected JSON.
      * @param expectedJSONData.
      */
-    def expect(String expectedJSONData){
+    void expect(String expectedJSONData){
         throw new NoDescriptionException();
     }
 
@@ -158,21 +163,21 @@ public class DescribeScriptDSL {
      * the expected JSON, ignorePathList.
      * @param expectedJSONData.
      */
-    def expect(String expectedJSONData,List<String> ignorePathList){
+    void expect(String expectedJSONData,List<String> ignorePathList){
         throw new NoDescriptionException();
     }
 
     /**
      * @param expectedJSONData.
      */
-    def checkReturnedValidJson(){
+    Object checkReturnedValidJson(){
         throw new NoDescriptionException();
     }
-
+    
     /**
      * @param expectedJSONData.
      */
-    def prettyPrintResult(){
+    void prettyPrintResult(){
         throw new NoDescriptionException();
     }
 
@@ -181,11 +186,11 @@ public class DescribeScriptDSL {
      * @param scriptName script name.
      * @param callParamsMap script parameters.
      */
-    def callScript(String scriptName, Map callParamsMap){
+    Object callScript(String scriptName, Map callParamsMap){
         throw new NoDescriptionException();
     }
 
-    public def openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
+    Object openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
         throw new NoDescriptionException();
     }
 
@@ -193,11 +198,11 @@ public class DescribeScriptDSL {
      * Call a script with no params.
      * @param scriptName script name.
      */
-    def callScript(String scriptName){
+    Object callScript(String scriptName){
         throw new NoDescriptionException();
     }
 
-    def getscriptDescription(){
+    ScriptDescription getscriptDescription(){
         return scriptDescription;
     }
 
@@ -205,7 +210,7 @@ public class DescribeScriptDSL {
      * @param message.
      * Print a message.
      */
-    def log(msg){
+    void log(Object msg){
          getLog().info(msg);
     }
 
@@ -237,5 +242,73 @@ public class DescribeScriptDSL {
      */
     public ParameterUsage paramDef(String name,String description,boolean optional,Object defaultValue){
         return new ParameterUsage(name,description,optional,defaultValue);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUsage() {
+        return usage;
+    }
+
+    public void setUsage(String usage) {
+        this.usage = usage;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<ParameterUsage> getUsages() {
+        return usages;
+    }
+
+    public void setUsages(List<ParameterUsage> usages) {
+        this.usages = usages;
+    }
+
+    public ScriptDescription getScriptDescription() {
+        return scriptDescription;
+    }
+
+    public void setScriptDescription(ScriptDescription scriptDescription) {
+        this.scriptDescription = scriptDescription;
+    }
+
+    public String getServiceInfo() {
+        return serviceInfo;
+    }
+
+    public void setServiceInfo(String serviceInfo) {
+        this.serviceInfo = serviceInfo;
+    }
+
+    public String getLastRequestString() {
+        return lastRequestString;
+    }
+
+    public void setLastRequestString(String lastRequestString) {
+        this.lastRequestString = lastRequestString;
+    }
+
+    public String getLastRequestResponse() {
+        return lastRequestResponse;
+    }
+
+    public void setLastRequestResponse(String lastRequestResponse) {
+        this.lastRequestResponse = lastRequestResponse;
+    }
+
+    public void setLog(Log log) {
+        this.log = log;
     }
 }

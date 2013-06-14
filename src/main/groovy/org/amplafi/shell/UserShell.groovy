@@ -306,7 +306,6 @@ Use listDsl to get a list of DSL methods.
 				  if (it.getDeclaringClass().theClass == dsl.class){
 					  DSLHelp dslHelp = new DSLHelp();
 					  dslHelp.method = """${it.name}(${it.parameterTypes.name.join(', ')}) returns ${it.returnType.name} """;
-					   
 					  parseJavaDocForMethod(it,dslHelp);
 					  dslDoc[it.name] = dslHelp;
 				  }

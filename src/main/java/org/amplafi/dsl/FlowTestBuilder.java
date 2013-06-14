@@ -1,10 +1,10 @@
 package org.amplafi.dsl;
 
+import groovy.lang.Closure;
+
+import java.util.List;
+
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class defines a simple DSL for sending reqests to the amplafi wire server
@@ -71,21 +71,21 @@ public class FlowTestBuilder {
     /**
      * Configure the closure to be runnaable
      */
-    public buildExe(Closure c){
+    public Closure buildExe(Closure c){
         if (key == null){
-            c.delegate = new FlowTestDSL(serviceInfo, runner, verbose);
+            c.setDelegate(new FlowTestDSL(serviceInfo, runner, verbose));
         } else {
-            c.delegate = new FlowTestDSL(serviceInfo, key, runner, verbose);
+            c.setDelegate(new FlowTestDSL(serviceInfo, key, runner, verbose));
         }
-        c.setResolveStrategy(Closure.DELEGATE_FIRST)
+        c.setResolveStrategy(Closure.DELEGATE_FIRST);
         return c;
     }
 
     /**
      * Configure the colsure to describe itself.
      */
-    public buildDesc(Closure c){
-        c.delegate = new DescribeScriptDSL();
+    public Closure buildDesc(Closure c){
+        c.setDelegate(new DescribeScriptDSL());
         return c;
     }
 

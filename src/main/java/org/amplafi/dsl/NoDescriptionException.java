@@ -1,5 +1,5 @@
 package org.amplafi.dsl;
 
-public class NoDescriptionException extends Exception {
+public class NoDescriptionException extends RuntimeException {
 
 }
