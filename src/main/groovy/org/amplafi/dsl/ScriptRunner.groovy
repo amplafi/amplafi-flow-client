@@ -1,6 +1,8 @@
 package org.amplafi.dsl;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import groovy.io.FileType;
+import groovy.lang.Closure;
+
 import org.amplafi.flow.utils.GeneralFlowRequest;
 import java.util.HashMap;
 
@@ -183,23 +185,20 @@ public class ScriptRunner {
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
         getLog().debug("runScriptSource() start to get closure");
-        Object closure = getClosure(sourceCode,paramsmap,description);
+        Closure closure = getClosure(sourceCode,paramsmap,description);
         getLog().debug("runScriptSource() finished to get closure");
-        def builder = null;
-        if(key && key!= ""){
-            builder = new FlowTestBuilder(serviceInfo,key,this,verbose);
-        }else{
-            builder = new FlowTestBuilder(serviceInfo,this,verbose);
-        }
-        getLog().debug("runScriptSource() start to get closure");
-
         if (exec) {
-            lastScript = builder.buildExe(closure);
-            return lastScript();
-        }else{
-            lastScript = builder.buildDesc(closure);
-            return lastScript();
+            if (key == null || key.equals("")){
+                closure.setDelegate(new FlowTestDSL(serviceInfo, this, verbose));
+            } else {
+                closure.setDelegate(new FlowTestDSL(serviceInfo, key, this, verbose));
+            }
+            closure.setResolveStrategy(Closure.DELEGATE_FIRST);
+        } else{
+            closure.setDelegate(new DescribeScriptDSL());
         }
+        lastScript = closure;
+        return lastScript();
     }
 
 	/**
