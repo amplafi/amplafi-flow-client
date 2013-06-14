@@ -1,31 +1,19 @@
 package org.amplafi.flow.test;
 
-import static org.amplafi.flow.utils.LoggingProxyCommandLineOptions.OUT_FILE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.amplafi.flow.utils.LoggingProxy;
-import org.amplafi.json.JSONArray;
-import org.amplafi.json.JSONException;
-import org.amplafi.json.JSONObject;
-import org.apache.log4j.spi.LoggingEvent;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import sun.reflect.*;
-
-import java.io.*;
-import java.lang.reflect.*;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
 
 /**
  * A class tests LoggingProxy.
