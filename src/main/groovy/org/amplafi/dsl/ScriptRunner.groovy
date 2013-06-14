@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.ArrayList;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException
 /**
+ * TO_DAISY: it doesn't look like this class can't be implemented in java. Why groovy?
+ * 
  * This class contains various methods for loading and running FlowTestDSL scripts
  * @author Paul
  */

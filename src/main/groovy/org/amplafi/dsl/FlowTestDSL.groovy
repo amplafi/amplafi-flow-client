@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServletResponse;
  * TO_DAISY: yet this DSL seem to expose too much to the scripts. I expected it to expose methods like:
  * request, obtain_key, etc; instead it exposes a whole bunch of stuff.. why?
  * 
+ * TO_DAISY: can we implement this class in Java? Ideally, only test and tool scripts are to be written in groovy.
+ * 
  * This class defines the methods that are callable within the flow test DSL
  */
 public class FlowTestDSL extends DescribeScriptDSL {
