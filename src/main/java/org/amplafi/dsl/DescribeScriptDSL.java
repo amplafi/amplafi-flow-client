@@ -19,8 +19,6 @@ public class DescribeScriptDSL {
     List<ParameterUsage> usages;
     ScriptDescription scriptDescription;
     
-    private static final boolean DEBUG = false;
-
     /** This stores the base uri including the host,port,apikey */
     private String serviceInfo;
 
