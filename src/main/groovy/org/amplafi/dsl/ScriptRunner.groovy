@@ -186,10 +186,10 @@ public class ScriptRunner {
         Object closure = getClosure(sourceCode,paramsmap,description);
         getLog().debug("runScriptSource() finished to get closure");
         def builder = null;
-        if(key && key!=""){
-            builder = getFlowTestBuilder(serviceInfo,key,this,verbose);
+        if(key && key!= ""){
+            builder = new FlowTestBuilder(serviceInfo,key,this,verbose);
         }else{
-            builder = getFlowTestBuilder(serviceInfo,this,verbose);
+            builder = new FlowTestBuilder(serviceInfo,this,verbose);
         }
         getLog().debug("runScriptSource() start to get closure");
 
@@ -227,20 +227,6 @@ public class ScriptRunner {
 	
 	}
 	
-    /**
-     * To be overriden in tests
-     */
-    def getFlowTestBuilder(serviceInfo,runner,verbose){
-        return new FlowTestBuilder(serviceInfo,this,verbose);
-    }
-
-    /**
-     * To be overriden in tests
-     */
-    def getFlowTestBuilder(serviceInfo,key,runner,verbose){
-        return new FlowTestBuilder(serviceInfo,key,this,verbose);
-    }
-
     /**
      * Takes the source code string and wraps in into a valid groovy script that when run will return a closure.
      * that can be either configured to describe itself or to run as a sequence of commands.
