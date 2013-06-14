@@ -41,7 +41,7 @@ public class TestAdminTool {
     @BeforeMethod
     public void setUp() throws Exception {
         testAppender = new TestAppender();
-        Logger.getLogger(getClass()).addAppender(testAppender);
+        Logger.getLogger(AdminTool.class).addAppender(testAppender);
         userInputKey = "";
         userInputHost = "";
         userInputPort = "";
@@ -56,7 +56,7 @@ public class TestAdminTool {
      */
     @AfterMethod
     public void tearDown() throws Exception {
-        Logger.getLogger(getClass()).removeAllAppenders();
+        Logger.getLogger(AdminTool.class).removeAllAppenders();
         testHelpAdminTool = null;
         userInputKey = null;
         userInputHost = null;

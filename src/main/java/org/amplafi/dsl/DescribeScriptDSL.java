@@ -5,6 +5,7 @@ import groovy.lang.Closure;
 import java.util.List;
 import java.util.Map;
 
+import org.amplafi.flow.utils.AdminTool;
 import org.amplafi.flow.utils.FlowResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -225,7 +226,7 @@ public class DescribeScriptDSL {
      */
     public Log getLog(){
         if ( this.log == null ) {
-            this.log = LogFactory.getLog(getClass());
+            this.log = LogFactory.getLog(AdminTool.class);
         }
         return this.log;
     }

@@ -1,6 +1,7 @@
 package org.amplafi.dsl;
 
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
+import org.amplafi.flow.utils.AdminTool;
 import org.amplafi.flow.utils.GeneralFlowRequest;
 import org.amplafi.flow.utils.FlowResponse;
 import org.apache.http.NameValuePair;
@@ -758,7 +759,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     public Log getLog(){
         if ( this.log == null ) {
-            this.log = LogFactory.getLog(getClass());
+            this.log = LogFactory.getLog(AdminTool.class);
         }
         return this.log;
     }
