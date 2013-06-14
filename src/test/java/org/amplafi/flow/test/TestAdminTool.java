@@ -1,23 +1,19 @@
 package org.amplafi.flow.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
 import org.amplafi.flow.utils.AdminTool;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import sun.reflect.*;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.lang.reflect.*;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
 
 /**
  * A class tests AdminTool.
