@@ -489,7 +489,7 @@ public class LoadTool extends UtilParent{
                                     int requiredDurationMS = 1000/frequency;
                                     if (duration < requiredDurationMS){
                                         long pause = requiredDurationMS - duration;
-                                        Thread.currentThread().sleep(pause);
+                                        Thread.sleep(pause);
                                     }
                                 }
 
