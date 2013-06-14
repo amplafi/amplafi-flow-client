@@ -25,6 +25,11 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
+ * TO_DAISY: what's the difference from DescribeScriptDSL? Javadoc says they do the same.
+ * 
+ * TO_DAISY: yet this DSL seem to expose too much to the scripts. I expected it to expose methods like:
+ * request, obtain_key, etc; instead it exposes a whole bunch of stuff.. why?
+ * 
  * This class defines the methods that are callable within the flow test DSL
  */
 public class FlowTestDSL extends DescribeScriptDSL {
@@ -128,6 +133,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
 	 * @param host
 	 */
     void setHost(String host){
+        //TO_DAISY: where addHttpPrexBeforeString is declared?
         host = addHttpPrexBeforeString(host);
         this.host = host;
     }

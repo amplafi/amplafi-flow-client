@@ -2,6 +2,12 @@ package org.amplafi.dsl;
 
 import java.util.List;
 
+/**
+ * TO_DAISY: Javadoc?
+ * 
+ * @author aectann
+ *
+ */
 public class ScriptDescription {
     /** Name of the script */
     String name;

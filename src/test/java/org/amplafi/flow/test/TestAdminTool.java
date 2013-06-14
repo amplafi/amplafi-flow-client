@@ -16,6 +16,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
+ * TO_DAISY: What's different from {@link AdminToolTest}? Why there are two classes?
+ * 
  * A class tests AdminTool.
  * @author Daisy
  */

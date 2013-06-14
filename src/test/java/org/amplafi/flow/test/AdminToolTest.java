@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.lang.reflect.*;
 
 /**
+ * TO_DAISY: Why there is {@link TestAdminTool}?
+ * 
  * A class tests AdminTool.
  * @author Daisy
  *

@@ -11,6 +11,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * TO_DAISY: why is this class needed? I see no real usage of the class.. instead FlowTestDSL is used everywhere.
+ * 
  * This class defines the methods that are callable within the flow test DSL.
  */
 public class DescribeScriptDSL {

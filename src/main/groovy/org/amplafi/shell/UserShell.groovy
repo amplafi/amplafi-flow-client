@@ -70,7 +70,7 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 		}
 
 
-		
+		//TO_DAISY: explain why is this command needed?
 		commandList << new Cmd(){
 			def name = ["rungroovy","g"];
 			def run = { bits -> runGroovy(bits);};

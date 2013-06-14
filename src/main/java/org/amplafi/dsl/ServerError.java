@@ -2,6 +2,12 @@ package org.amplafi.dsl;
 
 import org.amplafi.flow.utils.FlowResponse;
 
+/**
+ * TO_DAISY: Javadoc?
+ * 
+ * @author aectann
+ *
+ */
 public class ServerError extends RuntimeException {
     
     private FlowResponse response;
