@@ -69,31 +69,6 @@ public class UserShell{
 call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamilies.com """
 		}
 
-
-		//TO_DAISY: explain why is this command needed?
-		commandList << new Cmd(){
-			def name = ["rungroovy","g"];
-			def run = { bits -> runGroovy(bits);};
-			def desc = "Runs any groovy code in the current environment. including DSL methods."
-			def usage ="""${name[0]} println 'hello'
-or
-${name[1]} getKey()
-
-To store the response from a Groovy statement use the "stash" map e.g.
-
->${name[1]} stash["a"] = 7
-returns: 7
-
->${name[1]} stash["a"] + 3
-returns: 10
-
-Or 
->${name[1]} stash["oldKey"] = getKey()
-
-Use listDsl to get a list of DSL methods.
-"""
-		}
-		
 		commandList << new Cmd(){
 			def name = ["listdsl","ld"];
 			def run = { bits -> listDsl(bits);};
@@ -249,24 +224,6 @@ Use listDsl to get a list of DSL methods.
 		 }
 	 }
 	 
-	 /**
-	  * run a snippet of groovy in the current environment
-	  * @param bits - command line as array of strings
-	  */
-	 private void runGroovy(def bits){
-		 def sb = new StringBuffer();
-		 for(int i = 1;i<bits.size();i++){
-			 sb << bits[i] + " ";
-		 }
-		 String str = sb.toString();
-		 
-		 try{
-			 log "returns: " + dsl.runSnippet(str);
-		 }catch(Exception ex){
-			 log "Error, " + ex.getMessage();
-		 }
-	 }
-	
 	 /**
 	  * Exit the command loop
 	  */
