@@ -64,15 +64,14 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     public String lastRequestResponse = null;
 
-    public FlowTestDSL(FarReachesServiceInfo requestString, ScriptRunner runner, boolean verbose){
-        this.serviceInfo =  requestString;
-        this.lastRequestString = "";
+    public FlowTestDSL(FarReachesServiceInfo serviceInfo, ScriptRunner runner, boolean verbose){
+        this.serviceInfo =  serviceInfo;
         this.runner = runner;
         this.verbose = verbose;
     }
 
-    public FlowTestDSL(FarReachesServiceInfo requestString, String key, ScriptRunner runner, boolean verbose){
-        this.serviceInfo =  requestString;
+    public FlowTestDSL(FarReachesServiceInfo serviceInfo, String key, ScriptRunner runner, boolean verbose){
+        this.serviceInfo = serviceInfo;
         this.key = key;
         this.runner = runner;
         this.verbose = verbose;
