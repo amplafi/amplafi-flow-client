@@ -451,15 +451,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
         callScript(scriptName,[:]);
     }
 	
-	/**
-	 * Runs a snippet of groovy code in the context of this FlowTestDSL session.
-	 * @param sourceCode
-	 * @return
-	 */
-	def runSnippet(String sourceCode) {
-		runner.runScriptSourceInContext(sourceCode, null, this);
-	}
-
     /**
      * Get response data.
      * @return response data
