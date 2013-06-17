@@ -227,13 +227,6 @@ public class ScriptRunner {
         Binding binding = new Binding(bindingMap);
         binding.setVariable("serviceInfo",serviceInfo);
         GroovyShell shell = new GroovyShell(this.class.classLoader,binding);
-        //TO_DAISY: why the following 5 lines are even there? No debug code should be left like this.
-        def lineNo = 1;
-        script.split("\n").each{ line ->
-            //debug("${lineNo}>${line}");
-            lineNo++;
-        }
-
         String scriptName = "script";
         if ( description?.name){
             scriptName = description.name;
