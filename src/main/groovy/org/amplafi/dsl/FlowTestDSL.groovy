@@ -36,8 +36,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class FlowTestDSL extends DescribeScriptDSL {
 
-    def host;
-    def port;
     def apiVersion;
     def key;
     def ScriptRunner runner;
@@ -131,24 +129,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 
 	/**
-	 * set host for requests.
-	 * @param host
-	 */
-    void setHost(String host){
-        //TO_DAISY: where addHttpPrexBeforeString is declared?
-        host = addHttpPrexBeforeString(host);
-        this.host = host;
-    }
-
-	/**
-	 * set port
-	 * @param port
-	 */
-    void setPort(String port){
-        this.port = port;
-    }
-
-	/**
 	 * Set api version
 	 * @param apiVersion
 	 */
@@ -162,22 +142,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
 	 */
     void setKey(String key){
         this.key = key;
-    }
-
-	/**
-	 * Get current host for requets. 
-	 * @return
-	 */
-    String getHost(){
-        return host;
-    }
-
-	/**
-	 * get current port for requests
-	 * @return
-	 */
-    String getPort(){
-        return port;
     }
 
 	/**
