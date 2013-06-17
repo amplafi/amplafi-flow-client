@@ -254,7 +254,7 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 	 private void buildDSLHelp(){
 		 if (dslDoc == null){
 			 log "Building DSL Help."
-			 dslDoc = new HashMap<String,DSLHelp>();
+			 dslDoc = new TreeMap<String,DSLHelp>();
 			 
 			 def methods = dsl.metaClass.methods;
 			 
