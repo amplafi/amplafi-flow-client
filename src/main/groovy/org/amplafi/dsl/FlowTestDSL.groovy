@@ -41,14 +41,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
     def ScriptRunner runner;
     def boolean verbose;
     private Log log;
-    private static boolean DEBUG;
     private static final String THICK_DIVIDER =
     "*********************************************************************************";
     private static final String THIN_DIVIDER =
     "---------------------------------------------------------------------------------";
-    private String tempApiKey;
-    private boolean received = false;
-    //private List<String> ignoreList = new ArrayList<String>();
 
     /** This stores the base uri including the host,port,apikey */
     private FarReachesServiceInfo serviceInfo = null;
@@ -687,15 +683,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
         def getHandlingError(){
             return handlerError;
         }
-    }
-
-    /**
-     * Don't Use this. use setKey() instead.
-     * The method is set api key.
-     * @param tempApiKey.
-     */
-    def setApiKey(String tempApiKey){
-        this.tempApiKey=tempApiKey;
     }
 
     /**
