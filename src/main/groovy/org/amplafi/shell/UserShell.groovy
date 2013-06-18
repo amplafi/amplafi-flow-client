@@ -210,7 +210,6 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 				log "Error, " + ex.getMessage();
 			}
 		}
-		dsl.stash[LAST_RETURN] = response;
 	 }
 	 
 	 private void checkForGroovy(def bits){

@@ -40,11 +40,6 @@ public class FlowTestDSL extends Assert {
 
     private FarReachesServiceInfo serviceInfo = null;
 
-    /**
-     * This is used for data sharing between load tests.
-     */
-    private static Map stash = new HashMap();
-
     public FlowTestDSL(FarReachesServiceInfo serviceInfo, ScriptRunner runner) {
         this.serviceInfo = serviceInfo;
         this.runner = runner;
