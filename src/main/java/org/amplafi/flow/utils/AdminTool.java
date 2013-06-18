@@ -5,10 +5,7 @@ import static org.amplafi.flow.utils.AdminToolCommandLineOptions.API_VERSION;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.DESCRIBE;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.FILE_PATH;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.FLOWS;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.HELP;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.HOST;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.LIST;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.LISTDETAILED;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.PORT;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.VERBOSE;
 
@@ -21,7 +18,6 @@ import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONObject;
 import org.apache.commons.cli.ParseException;
-import java.io.File;
 
 /**
  * Command line interface for running scripts to communicate with the

@@ -9,7 +9,6 @@ import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONObject;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
