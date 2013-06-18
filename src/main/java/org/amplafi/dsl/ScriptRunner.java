@@ -168,9 +168,7 @@ public class ScriptRunner {
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
-        getLog().debug("runScriptSource() start to get closure");
         Closure closure = getClosure(sourceCode, paramsmap, scriptName);
-        getLog().debug("runScriptSource() finished to get closure");
         if (key == null || key.equals("")) {
             closure.setDelegate(new FlowTestDSL(serviceInfo, this));
         } else {
