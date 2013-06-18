@@ -19,6 +19,8 @@ import java.util.Map;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
+import org.testng.Assert;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,12 +36,12 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * This class defines the methods that are callable within the flow test DSL
  */
-public class FlowTestDSL extends DescribeScriptDSL {
+public class FlowTestDSL extends Assert {
 
-    def apiVersion;
-    def key;
-    def ScriptRunner runner;
-    def boolean verbose;
+    private String apiVersion;
+    private String key;
+    private ScriptRunner runner;
+    private boolean verbose;
     private Log log;
     private static final String THICK_DIVIDER =
     "*********************************************************************************";
@@ -48,21 +50,11 @@ public class FlowTestDSL extends DescribeScriptDSL {
 
     /** This stores the base uri including the host,port,apikey */
     private FarReachesServiceInfo serviceInfo = null;
-
-    /** This stores the last request to the server */
-    private String lastRequestString = "";
     
     /**
      * This is used for data sharing between load tests.
      */
     private static stash = [:];
-
-	private Integer httpStatusCode = 200;
-
-    /**
-     * Contains the last response from the server.
-     */
-    public String lastRequestResponse = null;
 
     public FlowTestDSL(FarReachesServiceInfo serviceInfo, ScriptRunner runner, boolean verbose){
         this.serviceInfo =  serviceInfo;
@@ -75,52 +67,6 @@ public class FlowTestDSL extends DescribeScriptDSL {
         this.key = key;
         this.runner = runner;
         this.verbose = verbose;
-    }
-
-	/**
-	 * Describes a script 
-	 * @param name
-	 * @param description
-	 */
-    public void description (String name, String description){
-        this.name = name;
-        this.description = description;
-    }
-
-	/**
-	 * Describes a script usage
-	 * @param name
-	 * @param description
-	 * @param usage
-	 */
-    public void description (String name, String description, String usage){
-        this.usage = usage;
-        this.name = name;
-        this.description = description;
-    }
-
-	/**
-	 * describes a script usage
-	 * @param name
-	 * @param description
-	 * @param usages
-	 */
-    public void description (String name, String description, List<ParameterUsage> usages){
-        this.name = name;
-        this.description = description;
-        this.usages = usages;
-    }
-
-	/**
-	 * Defines a script parameter
-	 * @param name
-	 * @param description
-	 * @param optional
-	 * @param defaultValue
-	 * @return
-	 */
-    public ParameterUsage paramDef(String name,String description,boolean optional,Object defaultValue){
-        return new ParameterUsage(name,description,optional,defaultValue);
     }
 
 	/**
@@ -161,36 +107,10 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param paramsMap key value map of parameters to send.
      * @return response string
      */
-    String request(String flowName, Map paramsMap){
+    FlowResponse request(String flowName, Map paramsMap){
         GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
         FlowResponse response = request.sendRequest();
-        lastRequestResponse = response.getResponseAsString();
-		httpStatusCode = response.getHttpStatusCode();
-        debug(lastRequestResponse);
-        if (response.hasError()){
-            getLog().error(response.getErrorMessage());
-            // TODO decide if we should throw exception here.
-            // will need to change lots of tests and the test generator if we do, but might be much more useful.
-        }
-        return lastRequestResponse;
-    }
-
-    /**
-     * The method get the request closure.
-     * Because the closure can not be created in the asyncRequest method(maybe it is a bug in groovy).
-     * return closure.
-     */
-    Closure createRequestClosure(flowName, paramsMap){
-        return {requestResponse(flowName, paramsMap);}
-    }
-
-    /**
-     * The method get the response closure.
-     * return closure.
-     */
-    Closure createResponseClosure(dataReturnProperty){
-        return {request, response ->
-                return request.getParameterMap().get(dataReturnProperty);};
+        return response;
     }
 
     /**
@@ -201,11 +121,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param dataReturnProperty the property we want to return.
      * @return response string.
      */
-    String asyncRequest(String flowName, Map<String,String> paramsMap,dataReturnProperty){
-        paramsMap["callbackUri"]="sandbox.farreach.es:1234";
-        def requestClosure = createRequestClosure(flowName, paramsMap);
-        def requestHandleClosure = createResponseClosure(dataReturnProperty);
-        def ret = openPort(1234,5, requestClosure,requestHandleClosure);
+    FlowResponse asyncRequest(String flowName, Map paramsMap) {
+        paramsMap["callbackUri"] = "http://example.com:1234";
+        def ret = openPort(1234,5, flowName, paramsMap);
         return ret;
     }
 
@@ -213,60 +131,14 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * Sends a request to the named flow with the specified parameters.
      * @param flowName to call.
      * @param paramsMap key value map of parameters to send.
-     * @return response string.
      */
-    String requestPost(String flowName, Map paramsMap){
-        GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
-        FlowResponse response = request.post();
-        lastRequestResponse = response.getResponseAsString();
-        debug(lastRequestResponse);
-        if (response.hasError()){
-            getLog().error(response.getErrorMessage());
-        } else {
-            getLog().info(response.getResponseAsString());
-        }
-        return lastRequestResponse;
-    }
-
-    /**
-     * Sends a request to the named flow with the specified parameters.
-     * @param flowName to call.
-     * @param paramsMap key value map of parameters to send.
-     * @return response object.
-     */
-    FlowResponse requestResponse(String flowName, Map paramsMap){
-        GeneralFlowRequest request = createGeneralFlowRequest(flowName, paramsMap);
-        FlowResponse response = request.sendRequest();
-        lastRequestResponse = response.getResponseAsString() ;
-        if (response.hasError()){
-            getLog().error(response.getErrorMessage());
-            throw new ServerError(response);
-        }
-        return response ;
-    }
-
-    /**
-     * Sends a request to the named flow with the specified parameters.
-     * @param flowName to call.
-     * @param paramsMap key value map of parameters to send.
-     */
-    GeneralFlowRequest createGeneralFlowRequest(String flowName, Map paramsMap){
-        debug("flowName ${flowName}");
+    private GeneralFlowRequest createGeneralFlowRequest(String flowName, Map paramsMap){
         Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
         paramsMap.each{ k,v ->
             requestParams.add(new BasicNameValuePair(k, v));
         }
-
         serviceInfo.setApiVersion(getApiVersion());
         GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo, this.key, flowName, requestParams);
-        debug(requestParams.toString());
-        lastRequestString = request.getRequestString();
-        if(verbose){
-            emitOutput("");
-            emitOutput(" Sent Request: " + request.getRequestString() );
-            emitOutput(" With key: " + request.getApiKey() );
-            emitOutput("");
-        }
         return request;
     }
 
@@ -274,7 +146,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param message.
      * Print a message.
      */
-    void log(msg){
+    private void log(msg){
         emitOutput(msg)
     }
 
@@ -328,12 +200,12 @@ public class FlowTestDSL extends DescribeScriptDSL {
     /**
      * Pretty Prints Last Response.
      */
-    def prettyPrintResponse(){
+    private def prettyPrintResponse(){
         emitOutput(getResponseData().toString(4));
     }
 
 	
-    def printTaskInfo(info){
+    private def printTaskInfo(info){
         emitOutput "\n";
         emitOutput THICK_DIVIDER;
         emitOutput info;
@@ -348,7 +220,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
 	 * @param keyPaths
 	 * @return
 	 */
-    def printTabular(entries, tabularTmpl, headers, keyPaths){
+    private  def printTabular(entries, tabularTmpl, headers, keyPaths){
         emitOutput sprintf(tabularTmpl, headers);
         emitOutput THIN_DIVIDER;
         for(int i = 0; i < entries.length(); i++) {
@@ -370,7 +242,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
 	 * @param keys
 	 * @return
 	 */
-    def printTabularMap(map, tabularTmpl, headers, keys){
+    private def printTabularMap(map, tabularTmpl, headers, keys){
         emitOutput sprintf(tabularTmpl, headers);
         emitOutput THIN_DIVIDER;
         for(entry in map.values()){
@@ -389,7 +261,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      */
     Object callScript(String scriptName, Map callParamsMap){
         getLog().debug("In callScript() scriptName = " + scriptName);
-        def exe = runner.createClosure(scriptName,callParamsMap);
+        def exe = runner.createClosure(scriptName, callParamsMap);
         getLog().debug("callScript created closure  for scriptName = " + scriptName);
         def ret = null;
         if(exe){
@@ -411,67 +283,13 @@ public class FlowTestDSL extends DescribeScriptDSL {
     }
 	
     /**
-     * Get response data.
-     * @return response data
-     */
-    def getResponseData(){
-        def data = null;
-        try {
-            // first assume it is a normal object.
-            data = new JSONObject(lastRequestResponse);
-        } catch (Exception e){
-            try {
-                // then see if it is an array.
-                data = new JSONArray(lastRequestResponse);
-            } catch (Exception e2){
-                fail("Invalid JSON. " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
-            }
-        }
-        return data;
-    }
-
-    /**
-     * @param expectedJSONData.
-     */
-    def checkReturnedValidJson(){
-        try {
-            getResponseData();
-        } catch (Exception e){
-            getLog().error("Invalid JSON Returned: " + " request was: " + lastRequestString + " returned: " + lastRequestResponse );
-        }
-    }
-	
-	/**
-	 * Gets the last http status code
-	 * @return
-	 */
-	def getHttpStatusCode(){
-		return httpStatusCode;
-	}
-
-    /**
-     * @return pre-configured request string of constructs one if needed.
-     */
-/*    public String getRequestString(){
-        if (serviceInfo != null){
-            return serviceInfo;
-        } else {
-            def postKeySep = "";
-            if ( this.key != null && this.key != ""){
-                postKeySep = "/";
-            }
-            return this.host + ":" + this.port + "/c/" + this.key   + "${postKeySep}" + this.apiVersion;
-        }
-    }*/
-
-    /**
      * method to compare the actual jsonObject return to us with our expected, and can ignore some compared things,return true when they are the same.
      * @param expected is expected JSONObject
      * @param actual is actual JSONObject
      * @param excludePaths is ignore list
      * @return true if the expected object is same with the actual object
      */
-    public boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths){
+    private boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths){
         def isEqual = compare(expected,actual,excludePaths,"/");
         return isEqual;
     }
@@ -484,7 +302,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param currentPath is path of the property.
      * @return true if the expected object is same with the actual object.
      */
-    public boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths, String currentPath){
+    private boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths, String currentPath){
         String newLine = System.getProperty("line.separator");
         def isEqual = false;
         // when the compared object is null,return true directly.
@@ -558,15 +376,15 @@ public class FlowTestDSL extends DescribeScriptDSL {
         return isEqual;
     }
 
-    def server = null;
+    private def server = null;
    
-    def currentPort = 0;
+    private def currentPort = 0;
 	/**
 	 * Gets a jetty server instance for the port. 
 	 * @param portNo
 	 * @return
 	 */
-    public Server getServer(int portNo){
+    private Server getServer(int portNo){
         if(server == null || currentPort != portNo){
             server = new Server(portNo);
         }
@@ -580,19 +398,18 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * @param doNow is the request in script.
      * @param handleRequest is the handle method when recieved a request.
      */
-    public def openPort(int portNo, int timeOutSeconds, Closure doNow, Closure handleRequest){
+    private FlowResponse openPort(int portNo, int timeOutSeconds, String flowName, Map parametersMap){
         def monitor = new Object();
         server = getServer(portNo);
         server.setGracefulShutdown(1000);
-        MyHandler myHandler = new MyHandler(handleRequest,monitor);
+        MyHandler myHandler = new MyHandler(monitor);
         server.setHandler(myHandler);
         getLog().debug("openPort() start server on port ${portNo} ");
         server.start();
-        doNow.delegate = this;
         //Wait for 10 seconds
         try{
             getLog().debug("openPort() about to run doNow() closure for port ${portNo}");
-            doNow();
+            request(flowName, parametersMap);
             getLog().debug("openPort() finsihed running doNow() closure for port ${portNo}");
             synchronized (monitor) {
                 monitor.wait(timeOutSeconds * 1000);
@@ -620,19 +437,17 @@ public class FlowTestDSL extends DescribeScriptDSL {
      * This class defines the handler of the client jetty server.
      */
     public class MyHandler extends AbstractHandler {
-        def Closure handleRequest;
         def monitor;
         def received = false;
         def handlerError;
-        def handlerReturn;
+        FlowResponse handlerReturn;
 
         /**
          * The method is constructor of the class.
          * @param handleRequest is handleRequest closure.
          * @param monitor is a synchronized lock.
          */
-        MyHandler(Closure handleRequest,def monitor){
-            this.handleRequest = handleRequest;
+        MyHandler(def monitor){
             this.monitor = monitor;
         }
 
@@ -654,10 +469,9 @@ public class FlowTestDSL extends DescribeScriptDSL {
             response.setContentType("text/html");
             response.setStatus(HttpServletResponse.SC_OK);
             ((Request) request).setHandled(true);
-            handleRequest.delegate = this;
             try{
                 getLog().debug("Calling script request handler");
-                handlerReturn = handleRequest(request,response);
+                handlerReturn = new FlowResponse(request);
                 getLog().debug("Returned from script request handler");
             }catch(Exception e){
                 getLog().debug("In FlowTestBuilder, MyHandler. Request handler in DSL script returned error. " + e);
@@ -687,7 +501,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     /**
      * For sharing data between load tests
      */
-    def getStash(){
+    private def getStash(){
         stash;
     }
 
@@ -701,7 +515,7 @@ public class FlowTestDSL extends DescribeScriptDSL {
     /**
      * @param msg - message to emit.
      */
-    public void emitOutput(String msg){
+    private void emitOutput(String msg){
         getLog().info(msg);
     }
 

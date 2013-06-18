@@ -16,14 +16,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.amplafi.dsl.ParameterUsage;
-import org.amplafi.dsl.ParameterValidationException;
-import org.amplafi.dsl.ScriptDescription;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONObject;
 import org.apache.commons.cli.ParseException;
+import java.io.File;
 
 /**
  * Command line interface for running scripts to communicate with the
@@ -66,75 +64,23 @@ public class AdminTool extends UtilParent {
             return;
         }
 
-
-        String list = cmdOptions.getOptionValue(LIST);
-        // Obtain a list of script descriptions from the script runner
-        // this will also check for basic script compilation errors or lack of
-        // description lines in script.
-        ScriptRunner runner = new ScriptRunner(null,null);
-        Map<String, ScriptDescription> scriptLookup = getScriptLookup(runner);
-        if (cmdOptions.hasOption(LIST) || cmdOptions.hasOption(LISTDETAILED)) {
-            // If user has asked for a list of commands then list the good
-            // scripts with their
-            // descriptions.
-            for (ScriptDescription sd : runner.getGoodScripts()) {
-                if (cmdOptions.hasOption(LIST)) {
-                    emitOutput("     " + sd.getName() + "       - "
-                            + sd.getDescription());
-                } else {
-                    emitOutput("     " + sd.getName() + "       - "
-                            + sd.getDescription() + "       - "
-                            + getRelativePath(sd.getPath()));
-                }
-            }
-            // List scripts that have errors if there are any
-            if (!runner.getScriptsWithErrors().isEmpty()) {
-                emitOutput("The following scripts have errors: ");
-            }
-            for (ScriptDescription sd : runner.getScriptsWithErrors()) {
-                emitOutput("  " + getRelativePath(sd.getPath()) + "       - "
-                        + sd.getErrorMesg());
-            }
-        } else if (cmdOptions.hasOption(HELP)) {
-            //  print usage if has option help
-            if (args.length == 1) {
-                cmdOptions.printHelp();
-            } else {
-                for (int i = 1; i < args.length; i++) {
-                    String scriptName = args[i];
-                    for (ScriptDescription sd : runner.getGoodScripts()) {
-                        if (sd.getName().equals(scriptName)) {
-                            printScriptUsage(sd, scriptName);
-                            /**if (sd.getUsage() != null && !sd.getUsage().equals("")) {
-                                emitOutput("Script Usage: " + sd.getUsage());
-                            } else {
-                                emitOutput("Script " + scriptName +
-                                           " does not have usage information");
-                            }*/
-                        }
-                    }
-                }
-            }
-        } else if (cmdOptions.hasOption(FILE_PATH)) {
+        if (cmdOptions.hasOption(FILE_PATH)) {
             // run an ad-hoc script from a file
             String filePath = cmdOptions.getOptionValue(FILE_PATH);
-            runScript(filePath, scriptLookup, cmdOptions);
+            runScript(filePath, cmdOptions);
         } else {
-            runScript(null, scriptLookup, cmdOptions);
+            runScript(null, cmdOptions);
         }
         // If the config properties were loaded, save them here.
         saveProperties();
-        return;
     }
 
     /**
      * Runs the named script.
      * @param filePath is the full path to the script
-     * @param scriptLookup is the map of ScriptDescription
      * @param cmdOptions is instance of AdminToolCommandLineOptions
      */
     private void runScript(String filePath,
-                           Map<String, ScriptDescription> scriptLookup,
                            AdminToolCommandLineOptions cmdOptions) {
         verbose = cmdOptions.hasOption(VERBOSE);
         List<String> remainder = cmdOptions.getRemainingOptions();
@@ -142,29 +88,28 @@ public class AdminTool extends UtilParent {
             // Get script options if needed
             String host = getOption(cmdOptions, HOST, DEFAULT_HOST);
             String port = getOption(cmdOptions, PORT, DEFAULT_PORT);
-            String apiVersion = getOption(cmdOptions, API_VERSION,
-                    DEFAULT_API_VERSION);
-            final FarReachesServiceInfo service = new FarReachesServiceInfo(host, port, apiVersion);
+            String apiVersion = getOption(cmdOptions, API_VERSION, DEFAULT_API_VERSION);
+            FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(host, port, apiVersion);
 
-            String key = getOption(cmdOptions, API_KEY, AUTO_OBTAIN_KEY);
+            String apiKey = getOption(cmdOptions, API_KEY, AUTO_OBTAIN_KEY);
 
             if (!PUBLIC_API.equals(apiVersion)){
 
-                if ( AUTO_OBTAIN_KEY.equals(key)){
-                    key = getPermApiKey(service,null, verbose);
+                if ( AUTO_OBTAIN_KEY.equals(apiKey)){
+                    apiKey = getPermApiKey(serviceInfo,null, verbose);
                 }
             } else {
-                key = null;
+                apiKey = null;
             }
 
             if (cmdOptions.hasOption(FLOWS)){
-                listFlows(cmdOptions,key,service);
+                listFlows(cmdOptions, apiKey, serviceInfo);
                 return;
             }
 
             if (cmdOptions.hasOption(DESCRIBE)){
                 String flow = cmdOptions.getOptionValue(DESCRIBE);
-                descFlow(cmdOptions,key,flow,service);
+                descFlow(cmdOptions, apiKey, flow, serviceInfo);
                 return;
             }
 
@@ -173,27 +118,19 @@ public class AdminTool extends UtilParent {
             if (filePath == null) {
                 if (!remainder.isEmpty()) {
                     scriptName = remainder.get(0);
-                    if (scriptLookup.containsKey(scriptName)) {
-                        ScriptDescription sd = scriptLookup.get(scriptName);
-                        filePath = sd.getPath();
-                    }
+                    filePath = scriptName;
                     remainder.remove(0);
                 }
             }
             // Get the parameter for the script itself.
-            Map<String, String> parammap = getParamMap(remainder);
+            Map<String, String> commandLineParameters = getCommandLineParameters(remainder);
+            
+            ScriptRunner runner = new ScriptRunner(serviceInfo, apiKey, commandLineParameters, verbose);
+            runner.processScriptsInFolder(getComandScriptPath());
             // Is verbose switched on?
             // run the script
-
-            ScriptRunner runner2 = new ScriptRunner(service, key, parammap, verbose);
-            runner2.setScriptLookup(scriptLookup);
             if (filePath != null) {
-                System.out.println("call loadAndRunOneScript filePath = " + filePath);
-                try {
-                    runner2.loadAndRunOneScript(filePath);
-                } catch (ParameterValidationException pve) {
-                    printScriptUsage(scriptLookup.get(scriptName),scriptName);
-                }
+                runner.loadAndRunOneScript(filePath);
             } else {
                 getLog().error("No script to run or not found.");
             }
@@ -204,24 +141,6 @@ public class AdminTool extends UtilParent {
                 getLog().error("Error: " + ioe.getMessage());
             }
         }
-    }
-
-    public void printScriptUsage(ScriptDescription sd,String scriptName){
-        if (sd != null && sd.getUsage() != null && !sd.getUsage().equals("")) {
-            //emitOutput("Script Usage: ant AdminTool " + sd.getUsage());
-            StringBuffer sb = new StringBuffer();
-            sb.append("Script Usage: ant FAdmin -Dargs=\"" + scriptName);
-            if(sd.getUsageList() != null){
-                for (ParameterUsage pu : sd.getUsageList()){
-                    sb.append(" " + pu.getName() + "=<" + pu.getDescription() + "> ");
-                }
-                sb.append("\"");
-                emitOutput(sb.toString());
-            }
-            emitOutput(sd.getUsage());
-         } else {
-            emitOutput("Script " + scriptName +" does not have usage information");
-         }
     }
 
     public void listFlows( AdminToolCommandLineOptions cmdOptions,String key, FarReachesServiceInfo service ){

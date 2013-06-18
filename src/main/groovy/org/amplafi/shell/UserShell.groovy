@@ -9,8 +9,6 @@ import java.util.regex.Matcher;
 import groovy.transform.Canonical;
 import org.amplafi.dsl.FlowTestDSL;
 import org.amplafi.dsl.ScriptRunner;
-import org.amplafi.dsl.ScriptDescription;
-import org.amplafi.dsl.ParameterUsage;
 import org.amplafi.flow.utils.UtilParent;
 import org.apache.commons.logging.Log;
 import groovy.transform.CompileStatic;
@@ -148,13 +146,13 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 	 }
 	 	 
 	 /** Admin script cache */
-	 private List<ScriptDescription> adminScripts = null;
+	 private List<File> adminScripts = null;
 	 
 	 /**
 	  * Gets a cached list of admin scripts
 	  * @return
 	  */
-	 private List<ScriptDescription> getAdminScripts(){
+	 private List<File> getAdminScripts(){
 		 if (adminScripts == null){
 			 ScriptRunner runner = dsl.runner;
 			 runner.processScriptsInFolder(UtilParent.DEFAULT_COMMAND_SCRIPT_PATH);
@@ -168,8 +166,8 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 	  */
 	 private void list(){
 		 log("Scripts are all in ${UtilParent.DEFAULT_COMMAND_SCRIPT_PATH}");
-		 for (ScriptDescription sd : getAdminScripts()) {
-			 log(String.format('%1$-35s      -      %2$-100s', sd.getName(), sd.getDescription()));
+		 for (File sd : getAdminScripts()) {
+			 log(String.format('%1$-35s      -      %2$-100s', sd.getName(), ""));
 		 }
 		 log("Run a script with 'call <scriptname> [params]' or 'c <scriptname> [params]' ");
 		 log("Get script usage with 'help <scriptname>'");
@@ -292,10 +290,10 @@ ${(c?.usage != null) ? c?.usage:"None"}
 """);
 			 } else {
 			 	log "Not a shell command. Checking admin scripts."
-				List<ScriptDescription> adminScr = getAdminScripts()
-				ScriptDescription sd = adminScr.find{ it -> it.name.toLowerCase() == command.toLowerCase()}
+				List<File> adminScr = getAdminScripts()
+				File sd = adminScr.find{ it -> it.name.toLowerCase() == command.toLowerCase()}
 				if (sd){
-					printScriptUsage(sd);
+					//printScriptUsage(sd);
 				} else {
 					log "Not an admin script. Checking DSL functions"
 					
@@ -314,27 +312,6 @@ ${(c?.usage != null) ? c?.usage:"None"}
 		 
 	 }
 	
-	 /**
-	  * Formats the usage information for an admin tool script
-	  * @param sd
-	  */
-	 private void printScriptUsage(ScriptDescription sd){
-		 if (sd != null && sd.getUsage() != null && !sd.getUsage().equals("")) {
-			 StringBuffer sb = new StringBuffer();
-			 sb.append("Script Usage: call " + sd?.getName());
-			 if(sd.getUsageList() != null){
-				 for (ParameterUsage pu : sd.getUsageList()){
-					 sb.append(" " + pu.getName() + "=<" + pu?.getDescription() + "> ");
-				 }
-				 log(sb.toString());
-			 }
-			 log(sd.getUsage());
-		  } else {
-			 log("Script does not have usage information");
-		  }
-		  log "See AdminTool.md for more details. (Maybe)";
-	 }
-	 
 	 /**
 	  * Logs to output
 	  * @param msg

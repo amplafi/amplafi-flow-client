@@ -12,10 +12,9 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 /**
  * A class providing common methods for querying FarReaches service using HTTP.
@@ -79,12 +78,7 @@ public class GeneralFlowRequest {
         GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(serviceInfo,apiKey ,flowName, fsRenderResult, describe);
         return generalFlowRequest.get();
     }
-/*
-    public  List<String> getFuzzInputResponse(){
-        String responseString = this.get();
-        return new JSONArray<String>(responseString).asList();
-    }
-*/
+
     /**
       * This method actually send the http request represented by this object.
       * @return request response string.
@@ -93,7 +87,7 @@ public class GeneralFlowRequest {
          String output = null;
          try {
             FlowResponse response = sendRequest();
-            output = response.getResponseAsString() ;
+            output = response.toString() ;
         } catch (Exception e) {
             // Throw an exception here ?
             //e.printStackTrace();
@@ -101,12 +95,8 @@ public class GeneralFlowRequest {
         return output;
     }
 
-    /**
-     * Send post request
-     */
-    public FlowResponse post() throws IOException, ClientProtocolException {
+    public FlowResponse sendRequest() throws IOException, ClientProtocolException {
         HttpClient client = getHttpClient();
-        String requestString = getRequestString();
         HttpPost request = new HttpPost(getFullUri());
         if (apiKey != null){
             request.setHeader(AUTHORIZATION_HEADER,apiKey);
@@ -115,20 +105,6 @@ public class GeneralFlowRequest {
 
         FlowResponse response = new FlowResponse(client.execute(request));
         return response;
-    }
-
-
-    public FlowResponse sendRequest() throws IOException, ClientProtocolException {
-        HttpClient client = getHttpClient();
-        String requestString = getRequestString();
-
-        HttpGet request = new HttpGet(requestString);
-
-        if (apiKey != null){
-            request.setHeader(AUTHORIZATION_HEADER,apiKey);
-        }
-        FlowResponse response = new FlowResponse(client.execute(request));
-        return response ;
     }
 
     /**
@@ -149,9 +125,9 @@ public class GeneralFlowRequest {
         return getFullUri() + "?" + queryString;
     }
 
-    public HttpClient getHttpClient(){
+    private HttpClient getHttpClient(){
         if (httpClient == null){
-            httpClient = new DefaultHttpClient();
+            httpClient = HttpClientBuilder.create().build();
         }
         return httpClient;
     }

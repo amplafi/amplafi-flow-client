@@ -16,7 +16,6 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.amplafi.dsl.ScriptDescription;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.apache.commons.logging.Log;
@@ -60,7 +59,7 @@ public class UtilParent {
      * @param remainderList is command arg list.
      * @return map of the user input params.
      */
-    public Map<String, String> getParamMap(List<String> remainderList) {
+    public Map<String, String> getCommandLineParameters(List<String> remainderList) {
         Map<String, String> map = new HashMap<String, String>();
         // On linux, options like param1=cat comes through as a single param
         // On windows they come through as 2 params.
@@ -120,22 +119,6 @@ public class UtilParent {
     }
 
     /**
-     * ScriptLookup for scriptRunner.
-     */
-    private Map<String, ScriptDescription> scriptLookup = null;
-
-    /**
-     * The method is create a map of scriptLookup.
-     * @return scriptLookup.
-     */
-    protected Map<String, ScriptDescription> getScriptLookup(ScriptRunner runner){
-        if ( scriptLookup == null ) {
-            scriptLookup = runner.processScriptsInFolder(getComandScriptPath());
-        }
-        return scriptLookup;
-    }
-
-    /**
      * Obtain a new api key from the host.
      * @param host - to contact
      * @param remotePort - to contact
@@ -147,7 +130,7 @@ public class UtilParent {
         params.put("callbackHost",callbackHost);
         getLog().debug("UtilParent have call getPermApiKey: put callbackHost = " + callbackHost + "in params.");
         ScriptRunner runner = new ScriptRunner(service, "", params, verbose);
-        runner.setScriptLookup(getScriptLookup(runner));
+        runner.processScriptsInFolder(getComandScriptPath());
         getLog().debug("UtilParent have call getPermApiKey: setting the scriptLookup.");
         Object key = runner.loadAndRunOneScript(getApiKeyScriptPath());
         getLog().debug("UtilParent have call getPermApiKey: running the script " + getApiKeyScriptPath());
