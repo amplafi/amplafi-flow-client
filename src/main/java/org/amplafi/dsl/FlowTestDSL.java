@@ -40,11 +40,6 @@ public class FlowTestDSL extends Assert {
 
     private FarReachesServiceInfo serviceInfo = null;
 
-    public FlowTestDSL(FarReachesServiceInfo serviceInfo, ScriptRunner runner) {
-        this.serviceInfo = serviceInfo;
-        this.runner = runner;
-    }
-
     public FlowTestDSL(FarReachesServiceInfo serviceInfo, String key, ScriptRunner runner) {
         this.serviceInfo = serviceInfo;
         this.key = key;

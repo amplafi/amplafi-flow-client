@@ -22,6 +22,8 @@ import org.testng.reporters.Files;
 import com.sworddance.util.NotNullIterator;
 
 /**
+ * Responsible for groovy script discovery and initialization.
+ * 
  * @author Paul
  */
 public class ScriptRunner {
@@ -145,11 +147,12 @@ public class ScriptRunner {
         }
     }
 
-    public void reRunLastScript() {
+    public Object reRunLastScript() {
         if (lastScript != null) {
-            lastScript.call();
+            return lastScript.call();
         } else {
             getLog().error("No script was previously run.");
+            return null;
         }
     }
 
@@ -169,11 +172,7 @@ public class ScriptRunner {
         // into a call to FlowTestBuil der.build then the processed script is run
         // with the GroovyShell.
         Closure closure = getClosure(sourceCode, paramsmap, scriptName);
-        if (key == null || key.equals("")) {
-            closure.setDelegate(new FlowTestDSL(serviceInfo, this));
-        } else {
-            closure.setDelegate(new FlowTestDSL(serviceInfo, key, this));
-        }
+        closure.setDelegate(new FlowTestDSL(serviceInfo, key, this));
         closure.setResolveStrategy(Closure.DELEGATE_FIRST);
         lastScript = closure;
         return lastScript.call();
@@ -217,14 +216,12 @@ public class ScriptRunner {
      */
     public Closure createClosure(String scriptName, Map<String, String> callParamsMap) {
         String filePath = getScriptPath(scriptName);
-
         if (filePath == null) {
             URL scriptResource = getClass().getResource("/commandScripts/" + scriptName + ".groovy");
             if (scriptResource != null) {
                 filePath = scriptResource.getPath();
             }
         }
-
         if (filePath != null) {
             File file = new File(filePath);
             String sourceCode;
