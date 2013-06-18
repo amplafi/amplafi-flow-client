@@ -1,18 +1,16 @@
 package org.amplafi.flow.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
 import org.amplafi.flow.utils.AdminTool;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import sun.reflect.*;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.lang.reflect.*;
 
 /**
  * TO_DAISY: Why there is {@link TestAdminTool}?
