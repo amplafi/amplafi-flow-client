@@ -195,16 +195,16 @@ public class ScriptRunner {
         scriptSb.append(getImportLines(sourceCode));
         // All the imports are prepended to the first line of the user script so error messages
         // have the correct line number in them
-        scriptSb.append("import org.amplafi.flow.utils.*;import org.amplafi.dsl.*;import org.amplafi.json.*; def source = {").append(NL);
+        scriptSb.append("import org.amplafi.flow.utils.*;import org.amplafi.dsl.*;import org.amplafi.json.*;").append(NL);
+        scriptSb.append("def init_key = { return callScript(\"GetNewPermanentKey\")}").append(NL);
+        scriptSb.append("def source = {").append(NL);
         scriptSb.append(getValidClosureCode(sourceCode));
         scriptSb.append("}; return source;");
         String script = scriptSb.toString();
-        System.out.println(script);
         Binding binding = new Binding(paramsmap);
         binding.setVariable("serviceInfo", serviceInfo);
         GroovyShell shell = new GroovyShell(ScriptRunner.class.getClassLoader(), binding);
-        Closure closure = (Closure) shell.evaluate(script, scriptName);
-        return closure;
+        return (Closure) shell.evaluate(script, scriptName);
     }
 
     /**
