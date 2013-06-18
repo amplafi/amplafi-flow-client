@@ -108,7 +108,7 @@ public class ScriptRunner {
      */
     public List<String> findAllScripts(String path) {
         List<String> list = new ArrayList<String>();
-        File dir = new File(DEFAULT_SCRIPT_PATH);
+        File dir = new File(path);
         File[] files = dir.listFiles();
         for (File file : NotNullIterator.<File> newNotNullIterator(files)) {
             try {
