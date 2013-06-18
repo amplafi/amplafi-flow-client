@@ -56,7 +56,7 @@ public class FlowTestDSL extends Assert {
      * 
      * @param key
      */
-    void setKey(String key) {
+    public void setKey(String key) {
         this.key = key;
     }
 
@@ -67,11 +67,11 @@ public class FlowTestDSL extends Assert {
      * @param paramsMap key value map of parameters to send.
      * @return response string
      */
-    FlowResponse request(String flowName, Map paramsMap) {
+    public FlowResponse request(String flowName, Map paramsMap) {
         return request(null, flowName, paramsMap);
     }
 
-    FlowResponse request(String api, String flowName, Map paramsMap) {
+    public FlowResponse request(String api, String flowName, Map paramsMap) {
         GeneralFlowRequest request = createGeneralFlowRequest(api, flowName, paramsMap);
         return request.sendRequest();
     }
@@ -84,11 +84,11 @@ public class FlowTestDSL extends Assert {
      * @param [params] key value map of parameters to send.
      * @return flow response object
      */
-    FlowResponse asyncRequest(String flowName, Map paramsMap) {
+    public FlowResponse asyncRequest(String flowName, Map paramsMap) {
         return asyncRequest(null, flowName, paramsMap);
     }
 
-    FlowResponse asyncRequest(String api, String flowName, Map paramsMap) {
+    public FlowResponse asyncRequest(String api, String flowName, Map paramsMap) {
         paramsMap.put("callbackUri", "http://example.com:1234");
         return openPort(1234, 5, api, flowName, paramsMap);
     }
@@ -226,7 +226,7 @@ public class FlowTestDSL extends Assert {
      * @param scriptName script name.
      * @param callParamsMap script parameters.
      */
-    Object callScript(String scriptName, Map callParamsMap) {
+    public Object callScript(String scriptName, Map callParamsMap) {
         getLog().debug("In callScript() scriptName = " + scriptName);
         Closure exe = (Closure) runner.createClosure(scriptName, callParamsMap);
         getLog().debug("callScript created closure  for scriptName = " + scriptName);
@@ -246,7 +246,7 @@ public class FlowTestDSL extends Assert {
      * 
      * @param scriptName script name.
      */
-    Object callScript(String scriptName) {
+    public Object callScript(String scriptName) {
         return callScript(scriptName, new HashMap<String, String>());
     }
 
@@ -435,15 +435,12 @@ public class FlowTestDSL extends Assert {
          * @param dispatch is the dispatch mode: REQUEST, FORWARD, INCLUDE, ERROR.
          */
         public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) throws IOException, ServletException {
-            getLog().debug("About to handle request");
             received = true;
             response.setContentType("text/html");
             response.setStatus(HttpServletResponse.SC_OK);
             ((Request) request).setHandled(true);
             try {
-                getLog().debug("Calling script request handler");
                 handlerReturn = new FlowResponse(request);
-                getLog().debug("Returned from script request handler");
             } catch (Exception e) {
                 getLog().debug("In FlowTestBuilder, MyHandler. Request handler in DSL script returned error. " + e);
                 handlerError = e;
