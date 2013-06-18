@@ -474,7 +474,6 @@ public class LoadTool extends UtilParent{
                         // don't include the first run because this includes
                         // constructing gropvy runtime.
                         final ScriptRunner scriptRunner = new ScriptRunner(service,key);
-                        scriptRunner.setVerbose(verbose);
 
                         scriptRunner.loadAndRunOneScript(scriptName);
                         report.startTime = System.currentTimeMillis();

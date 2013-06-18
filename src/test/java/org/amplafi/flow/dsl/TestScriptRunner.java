@@ -37,9 +37,4 @@ public class TestScriptRunner {
         instance.loadAndRunOneScript(DEFAULT_SCRIPT_PATH + "/1example.groovy");
     }
 
-    @Test
-    public void testLoadAndRunAllSrcipts(){
-        instance.loadAndRunAllSrcipts();
-    }
-
 }
