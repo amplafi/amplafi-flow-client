@@ -35,6 +35,11 @@ public class FlowResponse {
     
     private final String responseText ;
     private final int httpStatusCode;
+    
+    public FlowResponse() {
+        responseText = null;
+        httpStatusCode = 0;
+    }
 
     public FlowResponse(HttpResponse response) {
         httpStatusCode = response.getStatusLine().getStatusCode();

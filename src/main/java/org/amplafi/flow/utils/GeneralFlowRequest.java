@@ -95,15 +95,19 @@ public class GeneralFlowRequest {
         return output;
     }
 
-    public FlowResponse sendRequest() throws IOException, ClientProtocolException {
-        HttpClient client = getHttpClient();
-        HttpPost request = new HttpPost(getFullUri());
-        if (apiKey != null){
-            request.setHeader(AUTHORIZATION_HEADER,apiKey);
+    public FlowResponse sendRequest() {
+        FlowResponse response;
+        try {
+            HttpClient client = getHttpClient();
+            HttpPost request = new HttpPost(getFullUri());
+            if (apiKey != null){
+                request.setHeader(AUTHORIZATION_HEADER,apiKey);
+            }
+            request.setEntity(new UrlEncodedFormEntity(parameters));
+            response = new FlowResponse(client.execute(request));
+        } catch (IOException e) {
+            response = new FlowResponse();
         }
-        request.setEntity(new UrlEncodedFormEntity(parameters));
-
-        FlowResponse response = new FlowResponse(client.execute(request));
         return response;
     }
 

@@ -176,9 +176,9 @@ public class ScriptRunner {
         Closure closure = getClosure(sourceCode, paramsmap, scriptName)
         getLog().debug("runScriptSource() finished to get closure")
         if (key == null || key.equals("")){
-            closure.setDelegate(new FlowTestDSL(serviceInfo, this, verbose))
+            closure.setDelegate(new FlowTestDSL(serviceInfo, this))
         } else {
-            closure.setDelegate(new FlowTestDSL(serviceInfo, key, this, verbose))
+            closure.setDelegate(new FlowTestDSL(serviceInfo, key, this))
         }
         closure.setResolveStrategy(Closure.DELEGATE_FIRST)
         lastScript = closure

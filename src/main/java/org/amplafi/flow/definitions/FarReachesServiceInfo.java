@@ -26,7 +26,6 @@ public class FarReachesServiceInfo {
      * @param apiVersion e.g. apiv1
      */
     public FarReachesServiceInfo(String host, String port, String path, String apiVersion) {
-        super();
         this.host = host;
         this.port = port;
         this.path = path;
@@ -41,6 +40,13 @@ public class FarReachesServiceInfo {
      */
     public FarReachesServiceInfo(String host, String port, String apiVersion) {
         this(host, port, null, apiVersion);
+    }
+
+    public FarReachesServiceInfo(FarReachesServiceInfo other) {
+        this.host = other.host;
+        this.port = other.port;
+        this.path = other.path;
+        this.apiVersion = other.apiVersion;
     }
 
     /**
@@ -111,5 +117,9 @@ public class FarReachesServiceInfo {
         }
 
         return addHttpPrexBeforeString(this.host) + ":" + this.port + "/" + pathD + this.apiVersion;
+    }
+    
+    public FarReachesServiceInfo clone() {
+        return new FarReachesServiceInfo(this);
     }
 }

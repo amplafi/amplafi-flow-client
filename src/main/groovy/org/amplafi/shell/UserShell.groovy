@@ -456,7 +456,7 @@ ${(c?.usage != null) ? c?.usage:"None"}
 
 		 if (dslSource == null){
 			 String basePath = "./src/main/groovy/";
-			 String name = FlowTestDSL.class.name;
+			 String name = FlowTestDSL2.class.name;
 			 name = name.replace(".", "/");
 			 String sourcePath = basePath + name + ".groovy";
 			 
