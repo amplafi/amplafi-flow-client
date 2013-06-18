@@ -28,8 +28,7 @@ import org.mortbay.jetty.handler.AbstractHandler;
 import org.testng.Assert;
 
 /**
- * TO_DAISY: can we implement this class in Java? Ideally, only test and tool scripts are to be
- * written in groovy. This class defines the methods that are callable within the flow test DSL
+ *  This class defines the methods that are callable within the flow test DSL
  */
 public class FlowTestDSL extends Assert {
 
