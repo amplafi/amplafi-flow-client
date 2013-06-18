@@ -59,6 +59,10 @@ public class FlowTestDSL extends Assert {
     public void setKey(String key) {
         this.key = key;
     }
+    
+    public FlowResponse request(String flowName) {
+        return request(null, flowName, new HashMap<String, String>());
+    }
 
     /**
      * Sends a request to the named flow with the specified parameters.
