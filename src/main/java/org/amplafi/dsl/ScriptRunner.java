@@ -36,7 +36,7 @@ public class ScriptRunner {
     /**
      * Description of all scripts known to this runner.
      */
-    public Map<String, File> scriptLookup = new TreeMap<String, File>();
+    private Map<String, File> scriptLookup = new TreeMap<String, File>();
 
     /**
      * Map of param name to param value that will be passed to the scripts.
@@ -106,7 +106,7 @@ public class ScriptRunner {
      * @param search path
      * @return list of script paths
      */
-    public List<String> findAllScripts(String path) {
+    private List<String> findAllScripts(String path) {
         List<String> list = new ArrayList<String>();
         File dir = new File(path);
         File[] files = dir.listFiles();
@@ -188,7 +188,7 @@ public class ScriptRunner {
      * @param paramsmap
      * @return
      */
-    Closure getClosure(String sourceCode, Map<String, String> paramsmap, String scriptName) {
+    private Closure getClosure(String sourceCode, Map<String, String> paramsmap, String scriptName) {
         StringBuffer scriptSb = new StringBuffer();
         // Extract the import statements from the input source code and re-add them
         // to the top of the groovy program.
@@ -247,7 +247,7 @@ public class ScriptRunner {
      * @param scriptName
      * @return file path string
      */
-    String getScriptPath(String scriptName) {
+    private String getScriptPath(String scriptName) {
         String filePath = null;
         File file = scriptLookup.get(scriptName);
         if (file != null) {
@@ -279,26 +279,12 @@ public class ScriptRunner {
     }
 
     /**
-     * Get the relative path by the absolute path.
-     * 
-     * @param filePath is the full path to the script.
-     */
-    String getRelativePath(String filePath) {
-        String relativePath = filePath;
-        String currentPath = System.getProperty("user.dir");
-        if (filePath.contains(currentPath)) {
-            relativePath = filePath.substring(currentPath.length());
-        }
-        return relativePath;
-    }
-
-    /**
      * Returns the script source with import lines removed.
      * 
      * @param source - original source code.
      * @return - modified code
      */
-    String getValidClosureCode(String source) {
+    private String getValidClosureCode(String source) {
         StringBuffer sb = new StringBuffer();
         Scanner s = new Scanner(source);
         while (s.hasNextLine()) {
@@ -331,10 +317,6 @@ public class ScriptRunner {
         }
         s.close();
         return sb.toString();
-    }
-
-    public void setScriptLookup(Map<String, File> scriptLookup) {
-        this.scriptLookup = scriptLookup;
     }
 
     /**
