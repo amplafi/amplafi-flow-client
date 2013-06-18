@@ -156,7 +156,7 @@ call CreateSuApiKey userEmail=admin@amplafi.com publicUri=http://fortunatefamili
 		 if (adminScripts == null){
 			 ScriptRunner runner = dsl.runner;
 			 runner.processScriptsInFolder(UtilParent.DEFAULT_COMMAND_SCRIPT_PATH);
-			 adminScripts = runner.getGoodScripts();
+			 adminScripts = new ArrayList(runner.scriptLookup.values());
 		 }
 		 return adminScripts;
 	 }
