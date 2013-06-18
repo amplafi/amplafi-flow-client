@@ -1,6 +1,7 @@
 package org.amplafi.flow.dsl;
 
 import static org.amplafi.dsl.ScriptRunner.DEFAULT_SCRIPT_PATH;
+
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.flow.TestGenerationProperties;
 import org.testng.annotations.AfterTest;

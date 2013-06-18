@@ -1,24 +1,26 @@
 package org.amplafi.flow;
 
-import java.net.URI;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.flow.utils.GeneralFlowRequest;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONException;
 import org.amplafi.json.JSONObject;
-
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
-import static org.testng.Assert.*;
-import org.amplafi.flow.definitions.FarReachesServiceInfo;
 
 /**
  * The development server needs to be running for this test class to work.<br>
