@@ -27,6 +27,8 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.testng.Assert;
 
+import com.sworddance.util.CUtilities;
+
 /**
  *  This class defines the methods that are callable within the flow test DSL
  */
@@ -83,13 +85,27 @@ public class FlowTestDSL extends Assert {
      * @param [params] key value map of parameters to send.
      * @return flow response object
      */
-    public FlowResponse asyncRequest(String flowName, Map paramsMap) {
-        return asyncRequest(null, flowName, paramsMap);
+    public FlowResponse callbackRequest(String flowName, Map<String, String> parametersMap) {
+        return callbackRequest(null, flowName, parametersMap);
     }
 
-    public FlowResponse asyncRequest(String api, String flowName, Map paramsMap) {
-        paramsMap.put("callbackUri", "http://example.com:1234");
-        return openPort(1234, 5, api, flowName, paramsMap);
+    public FlowResponse callbackRequest(String api, String flowName, Map<String, String> parametersMap) {
+        parametersMap.put("callbackUri", "http://example.com:1234");
+        return openPort(1234, 5, api, flowName, parametersMap);
+    }
+    
+    public String obtainPermanentKey() {
+        FlowResponse response = callbackRequest("public", "TemporaryApiKey", CUtilities.<String,String> createMap("apiCall", "PermanentApiKey"));
+        String temporaryApiKey = response.get("temporaryApiKey");
+        setKey(temporaryApiKey);
+        response = callbackRequest("PermanentApiKey", CUtilities.<String, String> createMap(
+                                                    "temporaryApiKey" , temporaryApiKey,
+                                                    "usersList","[{'email':'admin@example.com','roleType':'adm','displayName':'user','externalId':1}]",
+                                                    "defaultLanguage", "en",
+                                                    "selfName", "user's Blog!",
+                                                    "completeList", "true"
+                                                    ));
+        return response.get("permanentApiKeys.1");
     }
 
     /**
