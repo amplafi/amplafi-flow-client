@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +24,8 @@ import org.amplafi.flow.utils.GeneralFlowRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
+import org.apache.http.concurrent.BasicFuture;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.message.BasicNameValuePair;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
@@ -77,6 +82,18 @@ public class FlowTestDSL extends Assert {
         return request.sendRequest();
     }
 
+    public Future<FlowResponse> requestAsync(final String flowName, final Map paramsMap) {
+        FutureTask<FlowResponse> result = new FutureTask<FlowResponse>(new Callable<FlowResponse>() {
+
+            public FlowResponse call() throws Exception {
+                return request(flowName, paramsMap);
+            }
+            
+        });
+        new Thread(result).start();
+        return result;
+    }
+    
     /**
      * This method will automatically add a callbackParam into params and send the request. With a
      * callback uri It will then use openPort to call the flow and return the response.
