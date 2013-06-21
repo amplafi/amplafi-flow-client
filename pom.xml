@@ -123,10 +123,11 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerId>groovy-eclipse-compiler</compilerId>
-                    <source>${android-java-build}</source>
-                    <target>${android-java-build}</target>
+                    <!-- set verbose to be true if you want lots of uninteresting messages -->
+                    <!-- <verbose>true</verbose> -->
+                    <source>${java-build}</source>
+                    <target>${java-build}</target>
                     <encoding>UTF-8</encoding>
-                    <!-- for when javac crashes <compilerArgument>-verbose</compilerArgument> -->
                 </configuration>
                 <dependencies>
                   <dependency>
