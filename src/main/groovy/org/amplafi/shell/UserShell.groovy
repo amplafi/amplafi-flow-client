@@ -11,7 +11,6 @@ import org.amplafi.dsl.FlowTestDSL;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.flow.utils.UtilParent;
 import org.apache.commons.logging.Log;
-import groovy.transform.CompileStatic;
 import jline.console.ConsoleReader;
 import jline.console.completer.Completer;
 import jline.console.completer.FileNameCompleter;
