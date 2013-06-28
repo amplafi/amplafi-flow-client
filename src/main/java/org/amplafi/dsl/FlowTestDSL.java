@@ -107,7 +107,8 @@ public class FlowTestDSL extends Assert {
     }
 
     public FlowResponse callbackRequest(String api, String flowName, Map<String, String> parametersMap) {
-        parametersMap.put("callbackUri", "http://example.com:1234");
+        //TODO move the hardcoded host out as configuration parameter.
+        parametersMap.put("callbackUri", "http://example.co.uk:1234");
         return openPort(1234, 5, api, flowName, parametersMap);
     }
     
