@@ -24,8 +24,6 @@ import org.amplafi.flow.utils.GeneralFlowRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
-import org.apache.http.concurrent.BasicFuture;
-import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.message.BasicNameValuePair;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
@@ -38,6 +36,8 @@ import com.sworddance.util.CUtilities;
  *  This class defines the methods that are callable within the flow test DSL
  */
 public class FlowTestDSL extends Assert {
+
+    private static final String DEFAULT_ROOT_URL = "example.co.uk";
 
     private String key;
 
@@ -107,13 +107,16 @@ public class FlowTestDSL extends Assert {
     }
 
     public FlowResponse callbackRequest(String api, String flowName, Map<String, String> parametersMap) {
-        //TODO move the hardcoded host out as configuration parameter.
-        parametersMap.put("callbackUri", "http://example.co.uk:1234");
+        return callbackRequest(DEFAULT_ROOT_URL, api, flowName, parametersMap);
+    }
+    
+    public FlowResponse callbackRequest(String rootUrl, String api, String flowName, Map<String, String> parametersMap) {
+        parametersMap.put("callbackUri", "http://" + rootUrl + ":1234");
         return openPort(1234, 5, api, flowName, parametersMap);
     }
     
-    public String obtainPermanentKey() {
-        FlowResponse response = callbackRequest("public", "TemporaryApiKey", CUtilities.<String,String> createMap("apiCall", "PermanentApiKey"));
+    public String obtainPermanentKey(String rootUrl) {
+        FlowResponse response = callbackRequest(rootUrl, "public", "TemporaryApiKey", CUtilities.<String,String> createMap("apiCall", "PermanentApiKey"));
         String temporaryApiKey = response.get("temporaryApiKey");
         setKey(temporaryApiKey);
         response = callbackRequest("PermanentApiKey", CUtilities.<String, String> createMap(
@@ -124,6 +127,10 @@ public class FlowTestDSL extends Assert {
                                                     "completeList", "true"
                                                     ));
         return response.get("permanentApiKeys.1");
+    }
+    
+    public String obtainPermanentKey() {
+        return obtainPermanentKey(DEFAULT_ROOT_URL);
     }
 
     /**
