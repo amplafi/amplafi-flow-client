@@ -78,7 +78,11 @@ public class FlowTestDSL extends Assert {
     }
 
     public FlowResponse request(String api, String flowName, Map paramsMap) {
-        GeneralFlowRequest request = createGeneralFlowRequest(api, flowName, paramsMap);
+        return request(this.key, api, flowName, paramsMap);
+    }
+    
+    public FlowResponse request(String apiKey, String api, String flowName, Map paramsMap) {
+        GeneralFlowRequest request = createGeneralFlowRequest(apiKey, api, flowName, paramsMap);
         return request.sendRequest();
     }
 
@@ -127,6 +131,36 @@ public class FlowTestDSL extends Assert {
         return result;
     }
     
+    /**
+     * Sends out "secured" request to server. Obtaining a temporary one-off key for the call first.
+     * 
+     * @param flowName
+     * @param parametersMap
+     * @return
+     */
+    public FlowResponse securedRequest(String flowName, Map<String, String> parametersMap) {
+        FlowResponse response = callbackRequest("TemporaryApiKey", CUtilities.<String,String> createMap("apiCall", flowName));
+        if (response.hasError()) {
+            return response;
+        }
+        String key = response.get("temporaryApiKey");
+        response = request(key, null, flowName, parametersMap);
+        return response;
+    }
+    
+    public Future<FlowResponse> securedRequestAsync(final String flowName, final Map<String, String> parametersMap) {
+        FutureTask<FlowResponse> result = new FutureTask<>(new Callable<FlowResponse>(){
+
+            @Override
+            public FlowResponse call() throws Exception {
+                return securedRequest(flowName, parametersMap);
+            }
+            
+        });
+        new Thread(result).start();
+        return result;
+    }
+    
     public String obtainPermanentKey(String rootUrl) {
         FlowResponse response = callbackRequest(rootUrl, "public", "TemporaryApiKey", CUtilities.<String,String> createMap("apiCall", "PermanentApiKey"));
         String temporaryApiKey = response.get("temporaryApiKey");
@@ -152,7 +186,7 @@ public class FlowTestDSL extends Assert {
      * @param flowName2
      * @param paramsMap key value map of parameters to send.
      */
-    private GeneralFlowRequest createGeneralFlowRequest(String api, String flowName, Map<String, String> paramsMap) {
+    private GeneralFlowRequest createGeneralFlowRequest(String apiKey, String api, String flowName, Map<String, String> paramsMap) {
         if (api == null) {
             api = serviceInfo.getApiVersion();
         }
@@ -163,7 +197,7 @@ public class FlowTestDSL extends Assert {
         }
         FarReachesServiceInfo serviceInfo = this.serviceInfo.clone();
         serviceInfo.setApiVersion(api);
-        GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo, this.key, flowName, requestParams);
+        GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo, apiKey, flowName, requestParams);
         return request;
     }
 
