@@ -111,8 +111,20 @@ public class FlowTestDSL extends Assert {
     }
     
     public FlowResponse callbackRequest(String rootUrl, String api, String flowName, Map<String, String> parametersMap) {
-        parametersMap.put("callbackUri", "http://" + rootUrl + ":1234");
-        return openPort(1234, 5, api, flowName, parametersMap);
+        return openPort(60, api, flowName, parametersMap, rootUrl);
+    }
+    
+    public Future<FlowResponse> callbackRequestAsync(final String flowName, final Map<String, String> parametersMap) {
+        FutureTask<FlowResponse> result = new FutureTask<>(new Callable<FlowResponse>(){
+
+            @Override
+            public FlowResponse call() throws Exception {
+                return callbackRequest(flowName, parametersMap);
+            }
+            
+        });
+        new Thread(result).start();
+        return result;
     }
     
     public String obtainPermanentKey(String rootUrl) {
@@ -384,21 +396,30 @@ public class FlowTestDSL extends Assert {
     //        return isEqual;
     //    }
 
-    private Server server = null;
-
-    private int currentPort = 0;
-
+    private static Map<Integer, Server> serverMap = new HashMap<>();
+    private static int START_PORT = 1234;
+    
     /**
-     * Gets a jetty server instance for the port.
+     * Gets a jetty server instance for a non-used port.
      * 
      * @param portNo
      * @return
      */
-    private Server getServer(int portNo) {
-        if (server == null || currentPort != portNo) {
-            server = new Server(portNo);
+    private int initServer() {
+        synchronized (serverMap) {
+            Server server = null;
+            int port = START_PORT;
+            while (serverMap.containsKey(port)) {
+                server = serverMap.get(port);
+                if (server.isStopped()) {
+                    break;
+                };
+                port++;
+            }
+            server = new Server(port);
+            serverMap.put(port, server);
+            return port;
         }
-        return server;
     }
 
     /**
@@ -409,14 +430,16 @@ public class FlowTestDSL extends Assert {
      * @param doNow is the request in script.
      * @param handleRequest is the handle method when recieved a request.
      */
-    private FlowResponse openPort(int portNo, int timeOutSeconds, String api, String flowName, Map parametersMap) {
+    private FlowResponse openPort(int timeOutSeconds, String api, String flowName, Map<String, String> parametersMap, String rootUrl) {
         Object monitor = new Object();
-        server = getServer(portNo);
+        int port = initServer();
+        Server server = serverMap.get(port);
         server.setGracefulShutdown(1000);
         MyHandler myHandler = new MyHandler(monitor);
         server.setHandler(myHandler);
         try {
             server.start();
+            parametersMap.put("callbackUri", "http://" + rootUrl + ":" + port);
             FlowResponse response = request(api, flowName, parametersMap);
             if (response.hasError()) {
                 fail("Async request failed.");
