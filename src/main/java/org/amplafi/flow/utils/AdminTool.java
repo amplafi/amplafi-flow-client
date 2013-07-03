@@ -165,4 +165,8 @@ public class AdminTool extends UtilParent {
         emitOutput(flows.toString(4));
     }
 
+	public Object getCustomerSupportScriptsAvailable() {
+		return null;
+	}
+
 }

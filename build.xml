@@ -45,6 +45,20 @@
         </java>
     </target>
 
+    <target name="shell">
+        <antcall target="_Shell">
+            <param name="jvm-opts" value=""/>
+        </antcall>
+    </target>
+    <target name="_Shell">
+        <!-- You can use exec here, depending on your needs -->
+        <java classname="org.amplafi.flow.ui.CustomerServiceShell" fork="yes">
+            <jvmarg line="${jvm-opts}"/>
+            <classpath>
+                <pathelement location="${jar-name}"/>
+            </classpath>
+        </java>
+    </target>
     <target name="LoadTool" depends="input-runargs" description="run the load tool use -Dargs='' for help">
         <echo>To stop the LoadTool please delete the file called LOAD_TOOL_RUNNING </echo>
         <!-- You can use exec here, depending on your needs -->
