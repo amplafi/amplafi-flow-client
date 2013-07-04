@@ -82,6 +82,7 @@ public class UtilParent {
         return map;
     }
 
+    // TODO Bruno clean this up
     /**
      * Gets the program options, either from the command line, from the saved
      * properties or asks the user.
@@ -90,7 +91,7 @@ public class UtilParent {
      * @param defaultVal - default value to suggest
      * @return the option value.
      * @throws IOException
-     */
+     *//*
     public String getOption(AbstractCommandLineClientOptions cmdOptions,
             String key, String defaultVal)
         throws IOException {
@@ -117,7 +118,7 @@ public class UtilParent {
         props.setProperty(key, value);
         return value;
     }
-
+*/
     /**
      * Obtain a new api key from the host.
      * @param host - to contact
@@ -239,20 +240,5 @@ public class UtilParent {
         this.configFileName = configFileName;
     }
 
-    /**
-     * @param key is the key of user input
-     * @return the value of user input
-     */
-    public String getUserInput(String key) {
-        BufferedReader consoleIn = new BufferedReader(new InputStreamReader(
-                System.in));
-        String value = "";
-        try {
-            value = consoleIn.readLine();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return value;
-    }
+    
 }

@@ -8,6 +8,8 @@ import static org.amplafi.flow.utils.AdminToolCommandLineOptions.FLOWS;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.HOST;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.PORT;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.VERBOSE;
+import groovy.lang.Binding;
+import groovy.lang.Closure;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,12 +29,10 @@ import org.apache.commons.cli.ParseException;
 public class AdminTool extends UtilParent {
     private static final String AUTO_OBTAIN_KEY = "Auto obtain key";
     private static final String PUBLIC_API = "public";
+    private Map<String,Object> scriptsAvailable = null;
+    private Binding executionContext;
     private boolean verbose = false;
 
-    /**
-     * Main entry point for tool.
-     * @param args
-     */
     public static void main(String[] args) {
         AdminTool adminTool = new AdminTool();
         for (String arg : args) {
@@ -40,12 +40,16 @@ public class AdminTool extends UtilParent {
         }
         adminTool.processCommandLine(args);
     }
-
-    /**
-     * Process command line.
-     * @param args
-     */
-    public void processCommandLine(String[] args) {
+    
+    public AdminTool(){
+    	loadScriptsAvailable();
+    	executionContext = new Binding();
+    }
+    private void loadScriptsAvailable() {
+    	
+	}
+    
+	public void processCommandLine(String[] args) {
         // Process command line options.
         AdminToolCommandLineOptions cmdOptions = null;
         try {
@@ -80,8 +84,10 @@ public class AdminTool extends UtilParent {
                            AdminToolCommandLineOptions cmdOptions) {
         verbose = cmdOptions.hasOption(VERBOSE);
         List<String> remainder = cmdOptions.getRemainingOptions();
+        /*
         try {
             // Get script options if needed
+        	// TODO fix this
             String host = getOption(cmdOptions, HOST, DEFAULT_HOST);
             String port = getOption(cmdOptions, PORT, DEFAULT_PORT);
             String apiVersion = getOption(cmdOptions, API_VERSION, DEFAULT_API_VERSION);
@@ -97,18 +103,7 @@ public class AdminTool extends UtilParent {
             } else {
                 apiKey = null;
             }
-
-            if (cmdOptions.hasOption(FLOWS)){
-                listFlows(cmdOptions, apiKey, serviceInfo);
-                return;
-            }
-
-            if (cmdOptions.hasOption(DESCRIBE)){
-                String flow = cmdOptions.getOptionValue(DESCRIBE);
-                descFlow(cmdOptions, apiKey, flow, serviceInfo);
-                return;
-            }
-
+            
             String scriptName = filePath;
             // Check if we are running and ad-hoc script
             if (filePath == null) {
@@ -136,7 +131,7 @@ public class AdminTool extends UtilParent {
             } else {
                 getLog().error("Error: " + ioe.getMessage());
             }
-        }
+        }*/
     }
 
     public void listFlows( AdminToolCommandLineOptions cmdOptions,String key, FarReachesServiceInfo service ){
@@ -153,19 +148,16 @@ public class AdminTool extends UtilParent {
 
     }
 
-    public void descFlow( AdminToolCommandLineOptions cmdOptions,String key, String flowName, FarReachesServiceInfo service ){
-        GeneralFlowRequest request = new GeneralFlowRequest(service, key, flowName);
-        JSONObject flows = request.describeFlow();
-        if(verbose){
-            emitOutput("");
-            emitOutput(" Sent Request: " + request.getRequestString() );
-            emitOutput(" With key: " + request.getApiKey() );
-            emitOutput("");
-        }
-        emitOutput(flows.toString(4));
-    }
+	public Binding getExecutionContext() {
+		return executionContext;
+	}
 
-	public Object getCustomerSupportScriptsAvailable() {
+	public void setExecutionContext(Binding context) {
+		this.executionContext = context;
+	}
+
+	public Map<String, Object> getAvailableScripts() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

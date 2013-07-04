@@ -39,8 +39,14 @@ public class ShellCommandBuilder {
 		switch(commandName){
 			case "exit":
 					return new ExitCommand(help, commandParameters);
+			case "flows":
+					return new ListFlowsCommand(help, commandParameters);
+			case "scripts":
+					return new ListScriptsCommand(help, commandParameters);
+			case "help":
+					return new HelpCommand(help, commandParameters);
 			default:
-					return new EmptyCommand(help, commandParameters);
+					return new EmptyCommand(false, commandParameters);
 		}
 	}
 
