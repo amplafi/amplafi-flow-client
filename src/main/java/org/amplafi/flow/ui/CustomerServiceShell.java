@@ -65,7 +65,4 @@ public class CustomerServiceShell {
 	void setAdminTool(AdminTool adminTool) {
 		this.adminTool = adminTool;
 	}
-	public Map<String, Object> getAvailableScripts() {
-		return getAdminTool().getAvailableScripts();
-	}
 }

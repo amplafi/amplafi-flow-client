@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.TreeMap;
 
@@ -22,7 +24,7 @@ import org.testng.reporters.Files;
 import com.sworddance.util.NotNullIterator;
 
 /**
- * Responsible for groovy script discovery and initialization.
+ * Responsible for groovy script running
  * 
  * @author Paul
  */
@@ -31,9 +33,6 @@ public class ScriptRunner {
     private FarReachesServiceInfo serviceInfo;
 
     private String key;
-
-    /** Allows re-running of last script */
-    private Closure lastScript;
 
     /**
      * Description of all scripts known to this runner.
@@ -56,27 +55,6 @@ public class ScriptRunner {
 
     /**
      * Constructs a Script runner with individual parameters that can be overridden in scripts.
-     * 
-     * @param host - host address e.g. http://www.farreach.es
-     * @param port - e.g. 80
-     * @param apiVersion - e.g. apiv1
-     * @param key - Api Key string
-     */
-    public ScriptRunner(FarReachesServiceInfo serviceInfo, String key) {
-        this.serviceInfo = serviceInfo;
-        this.key = key;
-        initDefaultScriptFolder();
-    }
-
-    private void initDefaultScriptFolder() {
-        URL commandScriptsFolder = getClass().getResource("/commandScripts/");
-        if (commandScriptsFolder != null) {
-            processScriptsInFolder(commandScriptsFolder.getPath());
-        }
-    }
-
-    /**
-     * Constructs a Script runner with individual parameters that can be overridden in scripts.
      * passes a map of parameters to the script
      * 
      * @param host - host address e.g. http://www.farreach.es
@@ -86,42 +64,27 @@ public class ScriptRunner {
      * @param paramsmap - map of paramname to param value
      * @param verbose - print verbose output.
      */
-    public ScriptRunner(FarReachesServiceInfo serviceInfo, String key, Map<String, String> paramsmap, boolean verbose) {
+    public ScriptRunner(FarReachesServiceInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
-        this.key = key;
-        this.paramsmap = paramsmap;
-        initDefaultScriptFolder();
+        //TODO BRUNO this is broken - fix 
+        this.key = null;
+        this.paramsmap = new HashMap<String, String>();
     }
 
-    /**
+    static public ScriptRunner getNewScriptRunner(Properties props){
+    	FarReachesServiceInfo fr = new FarReachesServiceInfo(
+    								props.getProperty("host"),
+    								props.getProperty("port"),
+    								props.getProperty("path"),
+    								props.getProperty("apiv"));
+    	return new ScriptRunner(fr);
+    }
+
+	/**
      * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH.
      * 
      * @return
      */
-    public List<String> findAllTestScripts() {
-        return findAllScripts(DEFAULT_SCRIPT_PATH);
-    }
-
-    /**
-     * This method finds all scripts below the specified file path.
-     * 
-     * @param search path
-     * @return list of script paths
-     */
-    private List<String> findAllScripts(String path) {
-        List<String> list = new ArrayList<String>();
-        File dir = new File(path);
-        File[] files = dir.listFiles();
-        for (File file : NotNullIterator.<File> newNotNullIterator(files)) {
-            try {
-                list.add(file.getCanonicalPath());
-            } catch (Exception e) {
-
-            }
-        }
-        Collections.sort(list);
-        return list;
-    }
 
     /**
      * Loads and runs one script specified by the file parameter.
@@ -146,16 +109,6 @@ public class ScriptRunner {
             throw new IllegalStateException(e);
         }
     }
-
-    public Object reRunLastScript() {
-        if (lastScript != null) {
-            return lastScript.call();
-        } else {
-            getLog().error("No script was previously run.");
-            return null;
-        }
-    }
-
     /**
      * Runs or describes a script from source code.
      * 
@@ -169,13 +122,12 @@ public class ScriptRunner {
      */
     public Object runScriptSource(String sourceCode, String scriptName) {
         // The script code must be pre-processed to add the contents of the file
-        // into a call to FlowTestBuil der.build then the processed script is run
+        // into a call to FlowTestBuilder.build then the processed script is run
         // with the GroovyShell.
         Closure closure = getClosure(sourceCode, paramsmap, scriptName);
         closure.setDelegate(new FlowTestDSL(serviceInfo, key, this));
         closure.setResolveStrategy(Closure.DELEGATE_FIRST);
-        lastScript = closure;
-        return lastScript.call();
+        return closure.call();
     }
 
     /**
@@ -252,29 +204,6 @@ public class ScriptRunner {
         }
         return filePath;
     }
-
-    /**
-     * Process all the scripts in the folder path and determine .
-     * 
-     * @param path
-     * @return map of all scripts and their descriptions
-     */
-    public Map<String, File> processScriptsInFolder(String path) {
-        List<File> ret = new ArrayList<File>();
-        List<String> scriptPaths = findAllScripts(path);
-        for (String scriptPath : scriptPaths) {
-            ret.add(new File(scriptPath));
-        }
-        for (File file : ret) {
-            String fileName = file.getName();
-            int postfixPosition = fileName.indexOf(".groovy");
-            if (postfixPosition > 0) {
-                scriptLookup.put(fileName.substring(0, postfixPosition), file);
-            }
-        }
-        return scriptLookup;
-    }
-
     /**
      * Returns the script source with import lines removed.
      * 

@@ -130,8 +130,7 @@ public class UtilParent {
         Map params = new HashMap();
         params.put("callbackHost",callbackHost);
         getLog().debug("UtilParent have call getPermApiKey: put callbackHost = " + callbackHost + "in params.");
-        ScriptRunner runner = new ScriptRunner(service, "", params, verbose);
-        runner.processScriptsInFolder(getComandScriptPath());
+        ScriptRunner runner = new ScriptRunner(service);
         getLog().debug("UtilParent have call getPermApiKey: setting the scriptLookup.");
         Object key = runner.loadAndRunOneScript(getApiKeyScriptPath());
         getLog().debug("UtilParent have call getPermApiKey: running the script " + getApiKeyScriptPath());

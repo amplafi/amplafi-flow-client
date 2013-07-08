@@ -452,6 +452,7 @@ public class LoadTool extends UtilParent{
      * runs a single-threaded proxy server on
      * the specified local port. It never returns.
      */
+    //TODO BRUNO make this work with refactored script runner/admin tool
     public void runLoadTest(final FarReachesServiceInfo service,
                             final String key,
                             final String scriptName,
@@ -473,15 +474,15 @@ public class LoadTool extends UtilParent{
                     try {
                         // don't include the first run because this includes
                         // constructing gropvy runtime.
-                        final ScriptRunner scriptRunner = new ScriptRunner(service,key);
+                        //final ScriptRunner scriptRunner = new ScriptRunner(service,key);
 
-                        scriptRunner.loadAndRunOneScript(scriptName);
+                        //scriptRunner.loadAndRunOneScript(scriptName);
                         report.startTime = System.currentTimeMillis();
                         while (running){
                             try {
                                 report.callCount++;
                                 long startTime = System.currentTimeMillis();
-                                scriptRunner.reRunLastScript();
+                         //       scriptRunner.reRunLastScript();
                                 long endTime = System.currentTimeMillis();
                                 long duration = (endTime - startTime);
                                 if (frequency != -1 ){

@@ -2,24 +2,27 @@ package org.amplafi.flow.utils;
 
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.API_KEY;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.API_VERSION;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.DESCRIBE;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.FILE_PATH;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.FLOWS;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.HOST;
 import static org.amplafi.flow.utils.AdminToolCommandLineOptions.PORT;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.VERBOSE;
-import groovy.lang.Binding;
-import groovy.lang.Closure;
+import groovy.lang.Script;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.json.JSONArray;
-import org.amplafi.json.JSONObject;
-import org.apache.commons.cli.ParseException;
+
+import com.sworddance.util.NotNullIterator;
 
 /**
  * Command line interface for running scripts to communicate with the
@@ -27,111 +30,77 @@ import org.apache.commons.cli.ParseException;
  * for more details
  */
 public class AdminTool extends UtilParent {
-    private static final String AUTO_OBTAIN_KEY = "Auto obtain key";
     private static final String PUBLIC_API = "public";
-    private Map<String,Object> scriptsAvailable = null;
-    private Binding executionContext;
+    private Map<String,String> scriptsAvailable = null;
+    private ScriptRunner runner;
     private boolean verbose = false;
+    private Properties props;
+    private static final Pattern scriptPattern = Pattern.compile("^(.*)\\.groovy$");
 
-    public static void main(String[] args) {
-        AdminTool adminTool = new AdminTool();
-        for (String arg : args) {
-            adminTool.getLog().debug("arg: " + arg);
-        }
-        adminTool.processCommandLine(args);
-    }
-    
     public AdminTool(){
+    	this.props = new Properties();
+    	try{
+    	this.props.load(new FileInputStream("adminTool.default.properties"));
+    	}catch(IOException e){
+    		e.printStackTrace();
+    	}
     	loadScriptsAvailable();
-    	executionContext = new Binding();
+    	runner = ScriptRunner.getNewScriptRunner(props);
     }
     private void loadScriptsAvailable() {
-    	
+    	scriptsAvailable = new HashMap<String, String>();
+        File dir = new File(props.getProperty("scripts_folder"));
+        File[] files = dir.listFiles();
+        for (File file : NotNullIterator.<File> newNotNullIterator(files)) {
+        	Matcher m = scriptPattern.matcher(file.getName());
+        	if(m.matches()) try {
+                scriptsAvailable.put(m.group(1), file.getCanonicalPath());
+            } catch (Exception e) {
+            	e.printStackTrace();
+            }
+        }
 	}
     
-	public void processCommandLine(String[] args) {
-        // Process command line options.
-        AdminToolCommandLineOptions cmdOptions = null;
-        try {
-            cmdOptions = new AdminToolCommandLineOptions(args);
-        } catch (ParseException e) {
-            getLog().error("Could not parse passed arguments, message:", e);
-            return;
-        }
-        // Print help if there has no args.
-        if (args.length == 0) {
-            cmdOptions.printHelp();
-            return;
-        }
-
-        if (cmdOptions.hasOption(FILE_PATH)) {
-            // run an ad-hoc script from a file
-            String filePath = cmdOptions.getOptionValue(FILE_PATH);
-            runScript(filePath, cmdOptions);
-        } else {
-            runScript(null, cmdOptions);
-        }
-        // If the config properties were loaded, save them here.
-        saveProperties();
+    public void runScriptName(String name){
+    	// TODO make this work
+    	
     }
-
     /**
      * Runs the named script.
      * @param filePath is the full path to the script
      * @param cmdOptions is instance of AdminToolCommandLineOptions
      */
-    private void runScript(String filePath,
-                           AdminToolCommandLineOptions cmdOptions) {
-        verbose = cmdOptions.hasOption(VERBOSE);
-        List<String> remainder = cmdOptions.getRemainingOptions();
-        /*
-        try {
-            // Get script options if needed
-        	// TODO fix this
-            String host = getOption(cmdOptions, HOST, DEFAULT_HOST);
-            String port = getOption(cmdOptions, PORT, DEFAULT_PORT);
-            String apiVersion = getOption(cmdOptions, API_VERSION, DEFAULT_API_VERSION);
-            FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(host, port, apiVersion);
+    private void runScript(String filePath) {
+        // Get script options if needed
+		String host = props.getProperty(HOST); //, DEFAULT_HOST);
+		String port = props.getProperty(PORT); //, DEFAULT_PORT);
+		String apiVersion = props.getProperty(API_VERSION); //, DEFAULT_API_VERSION);
+		FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(host, port, apiVersion);
 
-            String apiKey = getOption(cmdOptions, API_KEY, AUTO_OBTAIN_KEY);
+		String apiKey = props.getProperty(API_KEY);
 
-            if (!PUBLIC_API.equals(apiVersion)){
+		if (!PUBLIC_API.equals(apiVersion)){
 
-                if ( AUTO_OBTAIN_KEY.equals(apiKey)){
-                    apiKey = getPermApiKey(serviceInfo,null, verbose);
-                }
-            } else {
-                apiKey = null;
-            }
-            
-            String scriptName = filePath;
-            // Check if we are running and ad-hoc script
-            if (filePath == null) {
-                if (!remainder.isEmpty()) {
-                    scriptName = remainder.get(0);
-                    filePath = scriptName;
-                    remainder.remove(0);
-                }
-            }
-            // Get the parameter for the script itself.
-            Map<String, String> commandLineParameters = getCommandLineParameters(remainder);
-            
-            ScriptRunner runner = new ScriptRunner(serviceInfo, apiKey, commandLineParameters, verbose);
-            runner.processScriptsInFolder(getComandScriptPath());
-            // Is verbose switched on?
-            // run the script
-            if (filePath != null) {
-                runner.loadAndRunOneScript(filePath);
-            } else {
-                getLog().error("No script to run or not found.");
-            }
-        } catch (IOException ioe) {
-            if(verbose) {
-                getLog().error("Error: " + ioe);
-            } else {
-                getLog().error("Error: " + ioe.getMessage());
-            }
-        }*/
+		    if ( apiKey == null ){
+		        apiKey = getPermApiKey(serviceInfo,null, verbose);
+		    }
+		} else {
+		    apiKey = null;
+		}
+		
+		String scriptName = filePath;
+		// Check if we are running and ad-hoc script
+		// Get the parameter for the script itself.
+		Map<String, String> commandLineParameters = new HashMap<>();
+		
+		ScriptRunner runner = new ScriptRunner(serviceInfo); //, apiKey, commandLineParameters, verbose);
+		// Is verbose switched on?
+		// run the script
+		if (filePath != null) {
+		    runner.loadAndRunOneScript(filePath);
+		} else {
+		    getLog().error("No script to run or not found.");
+		}
     }
 
     public void listFlows( AdminToolCommandLineOptions cmdOptions,String key, FarReachesServiceInfo service ){
@@ -148,17 +117,8 @@ public class AdminTool extends UtilParent {
 
     }
 
-	public Binding getExecutionContext() {
-		return executionContext;
-	}
-
-	public void setExecutionContext(Binding context) {
-		this.executionContext = context;
-	}
-
-	public Map<String, Object> getAvailableScripts() {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String, String> getAvailableScripts() {
+		return scriptsAvailable;
 	}
 
 }
