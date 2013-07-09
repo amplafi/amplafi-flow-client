@@ -1,6 +1,5 @@
 package org.amplafi.flow.ui.command;
 
-import org.amplafi.flow.ui.CustomerServiceShell;
 import org.amplafi.flow.utils.AdminTool;
 
 public class ListFlowsCommand extends AShellCommand {

@@ -25,100 +25,114 @@ import org.apache.http.message.BasicNameValuePair;
 
 /**
  * This strategy produces tests that simply send in bogus String data.
+ * 
  * @author paul
  */
 public class CombinationsStrategy extends AbstractTestingStrategy {
 
-    private static final String NAME = "ParamCombinations";
-    private static final int MAX_GENERATED_COMBINATIONS = 10;
-    /**
-     * @return the name of this strategy
-     */
-    @Override
-    public String getName() {
-        return NAME;
-    }
+	private static final String NAME = "ParamCombinations";
+	private static final int MAX_GENERATED_COMBINATIONS = 10;
 
-    /**
-     * Generates a test for an activity.
-     * @param flow - flow name
-     * @param activityDefinition - JSON object
-     * @param requestUriString - base request url
-     * @throws GenerationException if problem occurs
-     */
-    @Override
-    public void generateTestForActivity(String flow,
-                                         String key,
-                                        JSONObject activityDefinition,
-                                        FarReachesServiceInfo requestUriString) throws GenerationException {
+	/**
+	 * @return the name of this strategy
+	 */
+	@Override
+	public String getName() {
+		return NAME;
+	}
 
-        assertNotNull(activityDefinition,
-            "flowDefinition was null, The test should depend on"
-                + " testJsonStringIsReturnedWhenRequestingTheFlowDefinition() does it?");
-        Collection<String> parameterNames = getAllParameterNames(activityDefinition);
+	/**
+	 * Generates a test for an activity.
+	 * 
+	 * @param flow
+	 *            - flow name
+	 * @param activityDefinition
+	 *            - JSON object
+	 * @param requestUriString
+	 *            - base request url
+	 * @throws GenerationException
+	 *             if problem occurs
+	 */
+	@Override
+	public void generateTestForActivity(String flow, String key,
+			JSONObject activityDefinition,
+			FarReachesServiceInfo requestUriString) throws GenerationException {
 
-        // How many combinations of being present or not are there?
-        // should be 2^parameterNames.size()
+		assertNotNull(
+				activityDefinition,
+				"flowDefinition was null, The test should depend on"
+						+ " testJsonStringIsReturnedWhenRequestingTheFlowDefinition() does it?");
+		Collection<String> parameterNames = getAllParameterNames(activityDefinition);
 
-        int totalCombinations = (int) Math.pow(2, parameterNames.size());
-        totalCombinations = (totalCombinations > MAX_GENERATED_COMBINATIONS
-                                                    ? MAX_GENERATED_COMBINATIONS : totalCombinations);
+		// How many combinations of being present or not are there?
+		// should be 2^parameterNames.size()
 
-        // Enumerate those combinations.
-        for (int combination = 0; combination < totalCombinations; combination++) {
+		int totalCombinations = (int) Math.pow(2, parameterNames.size());
+		totalCombinations = (totalCombinations > MAX_GENERATED_COMBINATIONS ? MAX_GENERATED_COMBINATIONS
+				: totalCombinations);
 
-            Collection<String> thisTestParams = new ArrayList<String>();
-            // loop over the available param names and decide whether to include them.
-            // for example combination 5 is 101 in binary so include the 1st and the 3rd parameter
-            // but not the second.
+		// Enumerate those combinations.
+		for (int combination = 0; combination < totalCombinations; combination++) {
 
-            int order = 1;
-            for (String pname : parameterNames) {
-                if ((combination & order) == order) {
-                    thisTestParams.add(pname);
-                }
-                order *= 2;
-            }
+			Collection<String> thisTestParams = new ArrayList<String>();
+			// loop over the available param names and decide whether to include
+			// them.
+			// for example combination 5 is 101 in binary so include the 1st and
+			// the 3rd parameter
+			// but not the second.
 
-            // Generate request for this combination.
-            Collection<NameValuePair> parametersPopulatedWithBogusData = generateParameters(flow, thisTestParams);
-            //add the json response parameter
-            parametersPopulatedWithBogusData.add(RENDER_AS_JSON);
+			int order = 1;
+			for (String pname : parameterNames) {
+				if ((combination & order) == order) {
+					thisTestParams.add(pname);
+				}
+				order *= 2;
+			}
 
-            addRequest(flow, parametersPopulatedWithBogusData);
+			// Generate request for this combination.
+			Collection<NameValuePair> parametersPopulatedWithBogusData = generateParameters(
+					flow, thisTestParams);
+			// add the json response parameter
+			parametersPopulatedWithBogusData.add(RENDER_AS_JSON);
 
-            //callFlowForTypicalData(requestUriString, flow, parametersPopulatedWithBogusData )
-            addVerification("");
+			addRequest(flow, parametersPopulatedWithBogusData);
 
-        }
+			// callFlowForTypicalData(requestUriString, flow,
+			// parametersPopulatedWithBogusData )
+			addVerification("");
 
-    }
+		}
 
-    /**
-     * Generates test parameters.
-     * @param flow - flow name
-     * @param parameterNames - parameter name for request
-     * @return parameters for request
-     */
-    @Override
-    public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames) {
-        String bogusData = "bogusData";
-        List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
-        for (String parameterName : parameterNames) {
-            bogusDataList.add(new BasicNameValuePair(parameterName, bogusData));
-        }
-        return bogusDataList;
-    }
+	}
 
-    @Override
-    public void addVerification(String typicalResponse) {
-        writeToFileBuffer("checkReturnedValidJson()");
-    }
+	/**
+	 * Generates test parameters.
+	 * 
+	 * @param flow
+	 *            - flow name
+	 * @param parameterNames
+	 *            - parameter name for request
+	 * @return parameters for request
+	 */
+	@Override
+	public Collection<NameValuePair> generateParameters(String flow,
+			Collection<String> parameterNames) {
+		String bogusData = "bogusData";
+		List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
+		for (String parameterName : parameterNames) {
+			bogusDataList.add(new BasicNameValuePair(parameterName, bogusData));
+		}
+		return bogusDataList;
+	}
 
-    @Override
-    public boolean shouldGenerateTest(String flowName, String flowDefinitionJson) {
-        return !flowName.contains("Wordpress");
-    }
+	@Override
+	public void addVerification(String typicalResponse) {
+		writeToFileBuffer("checkReturnedValidJson()");
+	}
 
+	@Override
+	public boolean shouldGenerateTest(String flowName, String flowDefinitionJson) {
+		return !flowName.contains("Wordpress");
+	}
 
 }

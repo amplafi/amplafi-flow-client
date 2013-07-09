@@ -3,7 +3,6 @@ package org.amplafi.flow.ui;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map;
 
 import org.amplafi.flow.ui.command.AShellCommand;
 import org.amplafi.flow.ui.command.ShellCommandBuilder;
@@ -14,22 +13,25 @@ import org.amplafi.flow.utils.AdminTool;
 public class CustomerServiceShell {
 	private AdminTool adminTool;
 	private BufferedReader reader;
-	//TODO Bruno type this properly
 	private static final String prompt = "cs>";
-	CustomerServiceShell(){
+
+	CustomerServiceShell() {
 		setAdminTool(new AdminTool());
 		setReader(new BufferedReader(new InputStreamReader(System.in)));
 	}
+
 	public static void main(String[] args) {
 		CustomerServiceShell cSShell = new CustomerServiceShell();
 		cSShell.ioLoop();
 	}
+
 	private void ioLoop() {
-		while(true){
+		while (true) {
 			AShellCommand comm = parseCommand();
 			comm.execute(getAdminTool());
 		}
 	}
+
 	private AShellCommand parseCommand() {
 		System.out.print(prompt);
 		String commandLine;
@@ -42,26 +44,29 @@ public class CustomerServiceShell {
 		}
 		return null;
 	}
-	
+
 	public String getUserInput() {
-        try {
-            String value = getReader().readLine();
-            return value;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-	
+		try {
+			String value = getReader().readLine();
+			return value;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	BufferedReader getReader() {
 		return reader;
 	}
+
 	void setReader(BufferedReader reader) {
 		this.reader = reader;
 	}
+
 	AdminTool getAdminTool() {
 		return adminTool;
 	}
+
 	void setAdminTool(AdminTool adminTool) {
 		this.adminTool = adminTool;
 	}

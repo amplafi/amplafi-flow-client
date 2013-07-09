@@ -15,124 +15,140 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+
 /**
  * A class providing common methods for querying FarReaches service using HTTP.
- *
+ * 
  */
 public class GeneralFlowRequest {
-    private static final NameValuePair fsRenderResult = new BasicNameValuePair("fsRenderResult", "json");
-    private static final NameValuePair describe = new BasicNameValuePair("describe",null);
-    public static final String APPLICATION_ZIP = "application/zip";
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-    private FarReachesServiceInfo serviceInfo;
-    private String flowName;
-    private String apiKey;
-    private String queryString;
-    private HttpClient httpClient;
-    private Collection<NameValuePair> parameters;
+	private static final NameValuePair fsRenderResult = new BasicNameValuePair(
+			"fsRenderResult", "json");
+	private static final NameValuePair describe = new BasicNameValuePair(
+			"describe", null);
+	public static final String APPLICATION_ZIP = "application/zip";
+	public static final String AUTHORIZATION_HEADER = "Authorization";
+	private FarReachesServiceInfo serviceInfo;
+	private String flowName;
+	private String apiKey;
+	private String queryString;
+	private HttpClient httpClient;
+	private Collection<NameValuePair> parameters;
 
-    /**
-     * @param serviceInfo is expected to have everything accept the queryString
-     * @param params is the parameters of the request
-     * @param flowName is name of the flow
-     */
-    public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey, String flowName, NameValuePair... params) {
-        this(serviceInfo, apiKey ,flowName, Arrays.asList(params));
-    }
+	/**
+	 * @param serviceInfo
+	 *            is expected to have everything accept the queryString
+	 * @param params
+	 *            is the parameters of the request
+	 * @param flowName
+	 *            is name of the flow
+	 */
+	public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey,
+			String flowName, NameValuePair... params) {
+		this(serviceInfo, apiKey, flowName, Arrays.asList(params));
+	}
 
-    /**
-     * @param serviceInfo is expected to have everything accept the queryString
-     * @param parameters is the parameters of the request
-     * @param flowName is name of the flow
-     */
-    public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey, String flowName, Collection<NameValuePair> parameters) {
-        this.apiKey = apiKey;
-        this.serviceInfo = serviceInfo;
-        this.flowName = flowName;
-        queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");
-        this.parameters = parameters;
-    }
+	/**
+	 * @param serviceInfo
+	 *            is expected to have everything accept the queryString
+	 * @param parameters
+	 *            is the parameters of the request
+	 * @param flowName
+	 *            is name of the flow
+	 */
+	public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey,
+			String flowName, Collection<NameValuePair> parameters) {
+		this.apiKey = apiKey;
+		this.serviceInfo = serviceInfo;
+		this.flowName = flowName;
+		queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(
+				parameters), "UTF-8");
+		this.parameters = parameters;
+	}
 
-    /**
-     * @return List strings representing flowtypes
-     */
-    public JSONArray<String> listFlows() {
-        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(this.serviceInfo, apiKey ,null, fsRenderResult, describe);
-        String responseString = generalFlowRequest.get();
-        return new JSONArray<String>(responseString);
-    }
+	/**
+	 * @return List strings representing flowtypes
+	 */
+	public JSONArray<String> listFlows() {
+		GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(
+				this.serviceInfo, apiKey, null, fsRenderResult, describe);
+		String responseString = generalFlowRequest.get();
+		return new JSONArray<String>(responseString);
+	}
 
-    /**
-     * @return JSONObject representation of all of the parameters that this flow has
-     */
-    public JSONObject describeFlow() {
-        String responseString = describeFlowRaw();
-        return new JSONObject(responseString);
-    }
+	/**
+	 * @return JSONObject representation of all of the parameters that this flow
+	 *         has
+	 */
+	public JSONObject describeFlow() {
+		String responseString = describeFlowRaw();
+		return new JSONObject(responseString);
+	}
 
-    /**
-     * @return request response string
-     */
-    public String describeFlowRaw(){
-        GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(serviceInfo,apiKey ,flowName, fsRenderResult, describe);
-        return generalFlowRequest.get();
-    }
+	/**
+	 * @return request response string
+	 */
+	public String describeFlowRaw() {
+		GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(
+				serviceInfo, apiKey, flowName, fsRenderResult, describe);
+		return generalFlowRequest.get();
+	}
 
-    /**
-      * This method actually send the http request represented by this object.
-      * @return request response string.
-      */
-    public String get() {
-         String output = null;
-         try {
-            FlowResponse response = sendRequest();
-            output = response.toString() ;
-        } catch (Exception e) {
-            // Throw an exception here ?
-            //e.printStackTrace();
-        }
-        return output;
-    }
+	/**
+	 * This method actually send the http request represented by this object.
+	 * 
+	 * @return request response string.
+	 */
+	public String get() {
+		String output = null;
+		try {
+			FlowResponse response = sendRequest();
+			output = response.toString();
+		} catch (Exception e) {
+			// Throw an exception here ?
+			// e.printStackTrace();
+		}
+		return output;
+	}
 
-    public FlowResponse sendRequest() {
-        FlowResponse response;
-        try {
-            HttpClient client = getHttpClient();
-            HttpPost request = new HttpPost(getFullUri());
-            if (apiKey != null){
-                request.setHeader(AUTHORIZATION_HEADER,apiKey);
-            }
-            request.setEntity(new UrlEncodedFormEntity(parameters));
-            response = new FlowResponse(client.execute(request));
-        } catch (IOException e) {
-            response = new FlowResponse();
-        }
-        return response;
-    }
+	public FlowResponse sendRequest() {
+		FlowResponse response;
+		try {
+			HttpClient client = getHttpClient();
+			HttpPost request = new HttpPost(getFullUri());
+			if (apiKey != null) {
+				request.setHeader(AUTHORIZATION_HEADER, apiKey);
+			}
+			request.setEntity(new UrlEncodedFormEntity(parameters));
+			response = new FlowResponse(client.execute(request));
+		} catch (IOException e) {
+			response = new FlowResponse();
+		}
+		return response;
+	}
 
-    /**
-     * @return the full url
-     */
-    private String getFullUri() {
-        return flowName != null ? (serviceInfo.getRequestString() + "/" + flowName) : serviceInfo.getRequestString();
-    }
+	/**
+	 * @return the full url
+	 */
+	private String getFullUri() {
+		return flowName != null ? (serviceInfo.getRequestString() + "/" + flowName)
+				: serviceInfo.getRequestString();
+	}
 
-    public String getApiKey(){
-        return apiKey;
-    }
+	public String getApiKey() {
+		return apiKey;
+	}
 
-    /**
-     * @return the request string
-     */
-    public String getRequestString() {
-        return getFullUri() + "?" + queryString;
-    }
+	/**
+	 * @return the request string
+	 */
+	public String getRequestString() {
+		return getFullUri() + "?" + queryString;
+	}
 
-    private HttpClient getHttpClient(){
-        if (httpClient == null){
-            httpClient = HttpClientBuilder.create().build();
-        }
-        return httpClient;
-    }
+	private HttpClient getHttpClient() {
+		if (httpClient == null) {
+			httpClient = HttpClientBuilder.create().build();
+		}
+		return httpClient;
+	}
 }
-

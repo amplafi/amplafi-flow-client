@@ -1,11 +1,9 @@
 package org.amplafi.flow.ui.command;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.amplafi.flow.ui.CustomerServiceShell;
 import org.amplafi.flow.utils.AdminTool;
 
 public class ListScriptsCommand extends AShellCommand {
@@ -21,12 +19,13 @@ public class ListScriptsCommand extends AShellCommand {
 
 	@Override
 	protected int executeCommand(AdminTool adminTool) {
-		Map<String,String> scriptsAvailable = adminTool.getAvailableScripts();
-		Iterator<Entry<String, String>> mapItem = scriptsAvailable.entrySet().iterator();
-		while(mapItem.hasNext()){
-			Map.Entry<String,String> kv = mapItem.next();
+		Map<String, String> scriptsAvailable = adminTool.getAvailableScripts();
+		Iterator<Entry<String, String>> mapItem = scriptsAvailable.entrySet()
+				.iterator();
+		while (mapItem.hasNext()) {
+			Map.Entry<String, String> kv = mapItem.next();
 			System.out.print(kv.getKey());
-			if(mapItem.hasNext())
+			if (mapItem.hasNext())
 				System.out.print("\t");
 		}
 		System.out.println();

@@ -3,14 +3,14 @@ package org.amplafi.flow.ui.command;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.amplafi.flow.ui.CustomerServiceShell;
 import org.amplafi.flow.utils.AdminTool;
 
 public class HelpCommand extends AShellCommand {
 
 	private static final Pattern optPattern = Pattern.compile("(^$)|(.+)");
+
 	protected HelpCommand(boolean setHelp, String options) {
-		super(setHelp, "help",options);
+		super(setHelp, "help", options);
 	}
 
 	@Override
@@ -24,9 +24,10 @@ public class HelpCommand extends AShellCommand {
 		String rawOpts = getOptions();
 		Matcher m = optPattern.matcher(rawOpts);
 		m.matches();
-		if(m.group(2)!= null){
-			System.out.println("Unrecognized command \"" + m.group(2) + "\". To see a list of commands type \"help\"");
-		}else{
+		if (m.group(2) != null) {
+			System.out.println("Unrecognized command \"" + m.group(2)
+					+ "\". To see a list of commands type \"help\"");
+		} else {
 			// TODO find a way to display all currently installed commands
 			System.out.println("FIXME");
 		}

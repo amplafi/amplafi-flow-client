@@ -22,32 +22,35 @@ import org.apache.http.message.BasicNameValuePair;
 
 /**
  * This strategy produces tests that simply send in bogus String data.
+ * 
  * @author paul
  */
 public class BogusStringDataStrategy extends AbstractTestingStrategy {
 
-    private static final String NAME = "BogusStringData";
-    /**
-     * @return the name of this strategy
-     */
-     @Override
-     public String getName() {
-         return NAME;
-     }
+	private static final String NAME = "BogusStringData";
 
-    @Override
-    public Collection<NameValuePair> generateParameters(String flow, Collection<String> parameterNames) {
-         String bogusData = "bogusData";
-        List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
-        for (String parameterName : parameterNames) {
-            bogusDataList.add(new BasicNameValuePair(parameterName, bogusData));
-        }
-        return bogusDataList;
-    }
+	/**
+	 * @return the name of this strategy
+	 */
+	@Override
+	public String getName() {
+		return NAME;
+	}
 
-    @Override
-    public void addVerification(String typicalResponse) {
-        writeToFileBuffer("checkReturnedValidJson()");
-    }
+	@Override
+	public Collection<NameValuePair> generateParameters(String flow,
+			Collection<String> parameterNames) {
+		String bogusData = "bogusData";
+		List<NameValuePair> bogusDataList = new ArrayList<NameValuePair>();
+		for (String parameterName : parameterNames) {
+			bogusDataList.add(new BasicNameValuePair(parameterName, bogusData));
+		}
+		return bogusDataList;
+	}
+
+	@Override
+	public void addVerification(String typicalResponse) {
+		writeToFileBuffer("checkReturnedValidJson()");
+	}
 
 }

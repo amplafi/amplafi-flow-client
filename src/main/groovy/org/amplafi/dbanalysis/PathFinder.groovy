@@ -4,7 +4,6 @@
 package org.amplafi.dbanalysis;
 import groovy.transform.Canonical;
 import groovy.transform.TupleConstructor;
-import groovy.sql.Sql;
 /**
  * @author paul 
  * Script for finding db table relationships that pat is too busy to tell us about
