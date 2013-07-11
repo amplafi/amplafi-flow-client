@@ -13,7 +13,7 @@ public class ListScriptsCommand extends AShellCommand {
 	}
 
 	@Override
-	protected String printHelp() {
+	protected String helpString() {
 		return "Lists the currently available command scripts. To execute a script use the \"exec\" command ";
 	}
 

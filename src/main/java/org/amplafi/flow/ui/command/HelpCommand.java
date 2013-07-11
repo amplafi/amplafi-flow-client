@@ -14,7 +14,7 @@ public class HelpCommand extends AShellCommand {
 	}
 
 	@Override
-	protected String printHelp() {
+	protected String helpString() {
 		return "To see the current available commands write"
 				+ " \"help\", or specify a commandthrough \"help <command>\"";
 	}

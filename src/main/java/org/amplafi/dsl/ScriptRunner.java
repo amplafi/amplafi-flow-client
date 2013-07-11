@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.TreeMap;
 
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.apache.commons.logging.Log;
@@ -32,14 +31,11 @@ public class ScriptRunner {
 	/**
 	 * Description of all scripts known to this runner.
 	 */
-	private Map<String, File> scriptLookup = new TreeMap<String, File>();
-
-	/**
-	 * Map of param name to param value that will be passed to the scripts.
-	 */
-	private Map<String, String> paramsmap;
+	private Map<String, File> scriptLookup = new HashMap<String, File>();
 
 	private Log log = null;
+
+	private BindingFactory bindingFactory;
 
 	private static final String NL = System.getProperty("line.separator");
 
@@ -65,25 +61,19 @@ public class ScriptRunner {
 	 * @param verbose
 	 *            - print verbose output.
 	 */
-	public ScriptRunner(FarReachesServiceInfo serviceInfo) {
+	public ScriptRunner(FarReachesServiceInfo serviceInfo, BindingFactory bindingFactory) {
 		this.serviceInfo = serviceInfo;
+		this.bindingFactory = bindingFactory;
 		// TODO BRUNO this is broken - fix
 		this.key = null;
-		this.paramsmap = new HashMap<String, String>();
 	}
 
-	static public ScriptRunner getNewScriptRunner(Properties props) {
+	static public ScriptRunner getNewScriptRunner(Properties props,BindingFactory bindingFactory) {
 		FarReachesServiceInfo fr = new FarReachesServiceInfo(
 				props.getProperty("host"), props.getProperty("port"),
 				props.getProperty("path"), props.getProperty("apiv"));
-		return new ScriptRunner(fr);
+		return new ScriptRunner(fr,bindingFactory);
 	}
-
-	/**
-	 * This method runs all of the scripts in the DEFAULT_SCRIPT_PATH.
-	 * 
-	 * @return
-	 */
 
 	/**
 	 * Loads and runs one script specified by the file parameter.
@@ -132,7 +122,7 @@ public class ScriptRunner {
 		// The script code must be pre-processed to add the contents of the file
 		// into a call to FlowTestBuilder.build then the processed script is run
 		// with the GroovyShell.
-		Closure closure = getClosure(sourceCode, paramsmap, scriptName);
+		Closure closure = getClosure(sourceCode, new HashMap(), scriptName);
 		closure.setDelegate(new FlowTestDSL(serviceInfo, key, this));
 		closure.setResolveStrategy(Closure.DELEGATE_FIRST);
 		return closure.call();
@@ -167,7 +157,7 @@ public class ScriptRunner {
 		scriptSb.append(getValidClosureCode(sourceCode));
 		scriptSb.append("}; return source;");
 		String script = scriptSb.toString();
-		Binding binding = new Binding(paramsmap);
+		Binding binding = bindingFactory.getNewBinding(paramsmap);
 		binding.setVariable("serviceInfo", serviceInfo);
 		GroovyShell shell = new GroovyShell(
 				ScriptRunner.class.getClassLoader(), binding);

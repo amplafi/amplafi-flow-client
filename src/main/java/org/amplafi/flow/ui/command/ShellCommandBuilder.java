@@ -36,9 +36,13 @@ public class ShellCommandBuilder {
 				help = true;
 			}
 		}
-		switch (commandName) {
+		switch (commandName.toLowerCase()) {
 		case "exit":
 			return new ExitCommand(help, commandParameters);
+		case "tokenize":
+			return new TokenizeCommand(help, commandParameters);
+		case "run":
+			return new RunScriptCommand(help, commandParameters);
 		case "flows":
 			return new ListFlowsCommand(help, commandParameters);
 		case "scripts":

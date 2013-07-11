@@ -9,7 +9,7 @@ public class ExitCommand extends AShellCommand {
 	}
 
 	@Override
-	protected String printHelp() {
+	protected String helpString() {
 		return "Exits the shell";
 	}
 

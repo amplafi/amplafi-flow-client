@@ -16,8 +16,8 @@ public class CustomerServiceShell {
 	private static final String prompt = "cs>";
 
 	CustomerServiceShell() {
-		setAdminTool(new AdminTool());
 		setReader(new BufferedReader(new InputStreamReader(System.in)));
+		setAdminTool(new AdminTool(new InteractiveBindingFactory(getReader())));
 	}
 
 	public static void main(String[] args) {

@@ -10,7 +10,7 @@ public class ListFlowsCommand extends AShellCommand {
 	}
 
 	@Override
-	protected String printHelp() {
+	protected String helpString() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -11,7 +11,7 @@ public class DescribeFlowCommand extends AShellCommand {
 	}
 
 	@Override
-	protected String printHelp() {
+	protected String helpString() {
 		// TODO Auto-generated method stub
 		return null;
 	}

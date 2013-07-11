@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.amplafi.dsl.GroovyBindingFactory;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.apache.commons.logging.Log;
@@ -132,7 +133,7 @@ public class UtilParent {
 		getLog().debug(
 				"UtilParent have call getPermApiKey: put callbackHost = "
 						+ callbackHost + "in params.");
-		ScriptRunner runner = new ScriptRunner(service);
+		ScriptRunner runner = new ScriptRunner(service,new GroovyBindingFactory());
 		getLog().debug(
 				"UtilParent have call getPermApiKey: setting the scriptLookup.");
 		Object key = runner.loadAndRunOneScript(getApiKeyScriptPath());

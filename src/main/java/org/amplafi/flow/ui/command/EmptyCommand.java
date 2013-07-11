@@ -9,7 +9,7 @@ public class EmptyCommand extends AShellCommand {
 	}
 
 	@Override
-	public String printHelp() {
+	public String helpString() {
 		return "Invalid command. Use help <command> for specific help";
 	}
 

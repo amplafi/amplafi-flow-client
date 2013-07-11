@@ -1,5 +1,10 @@
 package org.amplafi.flow.ui.command;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import org.amplafi.flow.utils.AdminTool;
 
 /*
@@ -12,21 +17,24 @@ public abstract class AShellCommand {
 	private String commandName;
 	// unparsed options that might be used however the command sees fit.
 	private String options;
-
-	protected abstract String printHelp();
+	private Collection<String> flags;
+	private Map<String,String> optionsMap;
+	protected abstract String helpString();
 
 	protected AShellCommand(boolean setHelp, String setCommandName,
 			String setOptions) {
 		help = setHelp;
 		setCommandName(setCommandName);
 		setOptions(setOptions);
+		flags = new HashSet<String>();
+		
 	}
 
 	protected abstract int executeCommand(AdminTool adminTool);
 
 	public int execute(AdminTool adminTool) {
 		if (help) {
-			System.out.println(getCommandName() + ": " + printHelp());
+			System.out.println(getCommandName() + ": " + helpString());
 			return 0;
 		} else {
 			return executeCommand(adminTool);
