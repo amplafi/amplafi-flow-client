@@ -21,13 +21,14 @@ public class TokenizeCommand extends AShellCommand {
 	@Override
 	protected int executeCommand(AdminTool adminTool) {
 		String chain = getOptions();
-		List<String> stList = ParameterTokenizer.tokenize(chain);
+		//adminTool.
+		/*List<String> stList = ParameterTokenizer.tokenize(chain);
 		int l = stList.size();
 		System.out.println(l + " tokens detected");
 		Iterator<String> it = stList.iterator();
 		for(int i =0; i< l; i++){
 			System.out.println("Token " + i + ": " + it.next());
-		}
+		}*/
 		return 0;
 	}
 

@@ -64,7 +64,6 @@ public class ScriptRunner {
 	public ScriptRunner(FarReachesServiceInfo serviceInfo, BindingFactory bindingFactory) {
 		this.serviceInfo = serviceInfo;
 		this.bindingFactory = bindingFactory;
-		// TODO BRUNO this is broken - fix
 		this.key = null;
 	}
 

@@ -36,7 +36,7 @@
     </target>
     <target name="_FAdmin" depends="input-runargs" description="run the admin tool use -Dargs='' for help -Dargs='-help [script-name]' for script usage or -Dargs='-l' to list scripts">
         <!-- You can use exec here, depending on your needs -->
-        <java classname="org.amplafi.flow.utils.AdminTool" fork="yes">
+        <java classname="org.amplafi.flow.ui.CustomerServiceShell" fork="yes">
             <jvmarg line="${jvm-opts}"/>
             <arg line="${args}"/>
             <classpath>
