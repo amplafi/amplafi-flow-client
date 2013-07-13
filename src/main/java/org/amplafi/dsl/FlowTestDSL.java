@@ -132,14 +132,14 @@ public class FlowTestDSL extends Assert {
 						"apiCall", "PermanentApiKey"));
 		String temporaryApiKey = response.get("temporaryApiKey");
 		setKey(temporaryApiKey);
-		response = callbackRequest(
+		response = callbackRequest("api",
 				"PermanentApiKey",
 				CUtilities
 						.<String, String> createMap(
 								"temporaryApiKey",
 								temporaryApiKey,
 								"usersList",
-								"[{'email':'admin@example.com','roleType':'adm','displayName':'user','externalId':1}]",
+								"[{'email':'admin@" + rootUrl + "','roleType':'adm','displayName':'user','externalId':1}]",
 								"defaultLanguage", "en", "selfName",
 								"user's Blog!", "completeList", "true"));
 		return response.get("permanentApiKeys.1");

@@ -21,7 +21,6 @@ public class TokenizeCommand extends AShellCommand {
 	@Override
 	protected int executeCommand(AdminTool adminTool) {
 		String chain = getOptions();
-		//adminTool.
 		/*List<String> stList = ParameterTokenizer.tokenize(chain);
 		int l = stList.size();
 		System.out.println(l + " tokens detected");
