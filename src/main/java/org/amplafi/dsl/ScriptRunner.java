@@ -24,8 +24,6 @@ import org.testng.reporters.Files;
  */
 public class ScriptRunner {
 
-	private FarReachesServiceInfo serviceInfo;
-
 	private String key;
 
 	/**
@@ -61,17 +59,13 @@ public class ScriptRunner {
 	 * @param verbose
 	 *            - print verbose output.
 	 */
-	public ScriptRunner(FarReachesServiceInfo serviceInfo, BindingFactory bindingFactory) {
-		this.serviceInfo = serviceInfo;
+	public ScriptRunner(BindingFactory bindingFactory) {
 		this.bindingFactory = bindingFactory;
 		this.key = null;
 	}
 
 	static public ScriptRunner getNewScriptRunner(Properties props,BindingFactory bindingFactory) {
-		FarReachesServiceInfo fr = new FarReachesServiceInfo(
-				props.getProperty("host"), props.getProperty("port"),
-				props.getProperty("path"), props.getProperty("apiv"));
-		return new ScriptRunner(fr,bindingFactory);
+		return new ScriptRunner(bindingFactory);
 	}
 
 	/**
@@ -122,7 +116,7 @@ public class ScriptRunner {
 		// into a call to FlowTestBuilder.build then the processed script is run
 		// with the GroovyShell.
 		Closure closure = getClosure(sourceCode, new HashMap(), scriptName);
-		closure.setDelegate(new FlowTestDSL(serviceInfo, key, this));
+		closure.setDelegate(bindingFactory.getDSL());
 		closure.setResolveStrategy(Closure.DELEGATE_FIRST);
 		return closure.call();
 	}
@@ -157,7 +151,6 @@ public class ScriptRunner {
 		scriptSb.append("}; return source;");
 		String script = scriptSb.toString();
 		Binding binding = bindingFactory.getNewBinding(paramsmap);
-		binding.setVariable("serviceInfo", serviceInfo);
 		GroovyShell shell = new GroovyShell(
 				ScriptRunner.class.getClassLoader(), binding);
 		return (Closure) shell.evaluate(script, scriptName);

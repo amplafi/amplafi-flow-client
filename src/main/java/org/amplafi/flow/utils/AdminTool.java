@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.amplafi.dsl.BindingFactory;
+import org.amplafi.dsl.FlowTestDSL;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.json.JSONArray;
@@ -30,6 +31,7 @@ public class AdminTool extends UtilParent {
 	private ScriptRunner runner;
 	private boolean verbose = false;
 	private Properties props;
+	private FarReachesServiceInfo serviceInfo;
 	private BindingFactory bindingFactory;
 	private static final String configFile = "fareaches.fadmin.properties";
 	private static final Pattern scriptPattern = Pattern.compile("^(.*)\\.groovy$");
@@ -39,12 +41,28 @@ public class AdminTool extends UtilParent {
 		this.props = new Properties();
 		try {
 			this.props.load(new FileInputStream(configFile));
+			try{
+				props.load(new FileInputStream(props.getProperty("keyfile")));
+			}catch(IOException e){
+				System.out.println("No keyfile found");
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("Couldn not load properties file: " + configFile + ".");
 		}
 		loadScriptsAvailable();
+		initializeServiceInfo();
+		
+		//TODO BRUNO clean up this recursive initialization mess
 		runner = ScriptRunner.getNewScriptRunner(props,bindingFactory);
+		bindingFactory.setDSL(new FlowTestDSL(serviceInfo, this.props, runner));
+	}
+
+	private void initializeServiceInfo() {
+		String host = (props.getProperty("production") == "true")? props.getProperty("productionHostUrl"):props.getProperty("testHostUrl");
+		this.serviceInfo = new FarReachesServiceInfo(
+				host , props.getProperty("port"),
+				props.getProperty("path"), props.getProperty("apiv"));
 	}
 
 	private void loadScriptsAvailable() {
@@ -79,23 +97,12 @@ public class AdminTool extends UtilParent {
 		}
 	}
 
-	public void listFlows(AdminToolCommandLineOptions cmdOptions, String key,
-			FarReachesServiceInfo service) {
-		emitOutput("Using Key  >" + key);
-		GeneralFlowRequest request = new GeneralFlowRequest(service, key, null);
-		JSONArray<String> flows = request.listFlows();
-		if (verbose) {
-			emitOutput("");
-			emitOutput(" Sent Request: " + request.getRequestString());
-			emitOutput(" With key: " + request.getApiKey());
-			emitOutput("");
-		}
-		emitOutput(flows.toString());
-
-	}
-
 	public Map<String, String> getAvailableScripts() {
 		return scriptsAvailable;
+	}
+
+	public boolean describeApi(String api) {
+		return bindingFactory.getDSL().describeApi(api);
 	}
 
 }

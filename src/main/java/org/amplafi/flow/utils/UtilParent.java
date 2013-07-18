@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.amplafi.dsl.FlowTestDSL;
 import org.amplafi.dsl.GroovyBindingFactory;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
@@ -113,38 +114,6 @@ public class UtilParent {
 	 * if ("".equals(value)) { value = defaultVal; } } else { return prefValue;
 	 * } } props.setProperty(key, value); return value; }
 	 */
-	/**
-	 * Obtain a new api key from the host.
-	 * 
-	 * @param host
-	 *            - to contact
-	 * @param remotePort
-	 *            - to contact
-	 * @param callbackHost
-	 *            - host that the remote host should callback to, will default
-	 *            to example.com
-	 * @param verbose
-	 *            - show more detailed output.
-	 */
-	protected String getPermApiKey(FarReachesServiceInfo service,
-			String callbackHost, boolean verbose) {
-		Map params = new HashMap();
-		params.put("callbackHost", callbackHost);
-		getLog().debug(
-				"UtilParent have call getPermApiKey: put callbackHost = "
-						+ callbackHost + "in params.");
-		ScriptRunner runner = new ScriptRunner(service,new GroovyBindingFactory());
-		getLog().debug(
-				"UtilParent have call getPermApiKey: setting the scriptLookup.");
-		Object key = runner.loadAndRunOneScript(getApiKeyScriptPath());
-		getLog().debug(
-				"UtilParent have call getPermApiKey: running the script "
-						+ getApiKeyScriptPath());
-
-		getProperties().setProperty(API_KEY, key.toString());
-
-		return key.toString();
-	}
 
 	/**
 	 * Gets the configuration properties, loading it if hasn't been loaded.

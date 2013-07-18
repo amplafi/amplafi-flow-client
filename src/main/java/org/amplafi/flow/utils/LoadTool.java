@@ -184,7 +184,8 @@ public class LoadTool extends UtilParent {
 
 			if (key == null) {
 				/* Get the api key automatically */
-				key = getPermApiKey(service, null, true);
+				// TODO BRUNO CLEAN UP
+				//key = getPermApiKey(service, null, true);
 			}
 
 			try {

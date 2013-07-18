@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -21,6 +22,7 @@ import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.flow.utils.AdminTool;
 import org.amplafi.flow.utils.FlowResponse;
 import org.amplafi.flow.utils.GeneralFlowRequest;
+import org.amplafi.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
@@ -37,56 +39,68 @@ import com.sworddance.util.CUtilities;
  */
 public class FlowTestDSL extends Assert {
 
-	private static final String DEFAULT_ROOT_URL = "example.co.uk";
-
-	private String key;
-
+	private String default_url;
+	private String permanentKey;
+	private String temporaryKey;
+	private String suKey;
+	private String readOnlyKey;
 	private ScriptRunner runner;
 
 	private Log log;
 
 	private FarReachesServiceInfo serviceInfo = null;
+	private String host_url;
 
-	public FlowTestDSL(FarReachesServiceInfo serviceInfo, String key,
+	public FlowTestDSL(FarReachesServiceInfo serviceInfo, Properties props,
 			ScriptRunner runner) {
 		this.serviceInfo = serviceInfo;
-		this.key = key;
 		this.runner = runner;
+		this.suKey = props.getProperty("suKey",null);
+		this.permanentKey = null;
+		this.readOnlyKey = null;
+		this.host_url = (props.getProperty("production")=="true")?props.getProperty("productionHostUrl"):props.getProperty("testHostUrl");
+		this.default_url = props.getProperty("testPluginUrl");
 	}
 
-	/**
-	 * Set api key
-	 * 
-	 * @param key
-	 */
-	public void setKey(String key) {
-		this.key = key;
+	public void setKey(String api, String key){
+		switch(api){
+		case "su": this.suKey = key;
+			break;
+		case "temporary": this.temporaryKey = key;
+			break;
+		case "permanent": this.permanentKey = key;
+			break;
+		case "readOnly": this.readOnlyKey = key;
+			break;
+		}
 	}
-
-	public FlowResponse request(String flowName) {
-		return request(null, flowName, new HashMap<String, String>());
+	
+	private String getKey(String api) {
+		switch(api){
+		case "su":
+			return this.suKey;
+		case "api":
+			if(this.readOnlyKey!=null)
+				return this.readOnlyKey;
+			else if(this.permanentKey!=null)
+				return this.permanentKey;
+			else {
+				String temp = this.temporaryKey;
+				this.temporaryKey = null;
+				return temp;
+			}
+		case "public":
+			return null;
+		}
+		return null;
 	}
-
-	/**
-	 * Sends a request to the named flow with the specified parameters.
-	 * 
-	 * @param flowName
-	 *            to call.
-	 * @param paramsMap
-	 *            key value map of parameters to send.
-	 * @return response string
-	 */
-	public FlowResponse request(String flowName, Map paramsMap) {
-		return request(null, flowName, paramsMap);
-	}
-
 	public FlowResponse request(String api, String flowName, Map paramsMap) {
 		GeneralFlowRequest request = createGeneralFlowRequest(api, flowName,
 				paramsMap);
 		return request.sendRequest();
 	}
 
-	public Future<FlowResponse> requestAsync(final String flowName,
+	/*public Future<FlowResponse> requestAsync(final String flowName,
 			final Map paramsMap) {
 		FutureTask<FlowResponse> result = new FutureTask<FlowResponse>(
 				new Callable<FlowResponse>() {
@@ -98,26 +112,11 @@ public class FlowTestDSL extends Assert {
 				});
 		new Thread(result).start();
 		return result;
-	}
-
-	/**
-	 * This method will automatically add a callbackParam into params and send
-	 * the request. With a callback uri It will then use openPort to call the
-	 * flow and return the response.
-	 * 
-	 * @param flowName
-	 *            to call.
-	 * @param [params] key value map of parameters to send.
-	 * @return flow response object
-	 */
-	public FlowResponse callbackRequest(String flowName,
-			Map<String, String> parametersMap) {
-		return callbackRequest(null, flowName, parametersMap);
-	}
+	}*/
 
 	public FlowResponse callbackRequest(String api, String flowName,
 			Map<String, String> parametersMap) {
-		return callbackRequest(DEFAULT_ROOT_URL, api, flowName, parametersMap);
+		return callbackRequest(this.default_url, api, flowName, parametersMap);
 	}
 
 	public FlowResponse callbackRequest(String rootUrl, String api,
@@ -126,12 +125,12 @@ public class FlowTestDSL extends Assert {
 		return openPort(1234, 5, api, flowName, parametersMap);
 	}
 
-	public String obtainPermanentKey(String rootUrl) {
+	public void obtainPermanentKey(String rootUrl, String email) {
 		FlowResponse response = callbackRequest(rootUrl, "public",
 				"TemporaryApiKey", CUtilities.<String, String> createMap(
 						"apiCall", "PermanentApiKey"));
 		String temporaryApiKey = response.get("temporaryApiKey");
-		setKey(temporaryApiKey);
+		setKey("temporary", temporaryApiKey);
 		response = callbackRequest("api",
 				"PermanentApiKey",
 				CUtilities
@@ -139,14 +138,10 @@ public class FlowTestDSL extends Assert {
 								"temporaryApiKey",
 								temporaryApiKey,
 								"usersList",
-								"[{'email':'admin@" + rootUrl + "','roleType':'adm','displayName':'user','externalId':1}]",
+								"[{'email':'" + email + "','roleType':'adm','displayName':'user','externalId':1}]",
 								"defaultLanguage", "en", "selfName",
 								"user's Blog!", "completeList", "true"));
-		return response.get("permanentApiKeys.1");
-	}
-
-	public String obtainPermanentKey() {
-		return obtainPermanentKey(DEFAULT_ROOT_URL);
+		this.permanentKey = response.get("permanentApiKeys.1");
 	}
 
 	/**
@@ -163,6 +158,7 @@ public class FlowTestDSL extends Assert {
 		if (api == null) {
 			api = serviceInfo.getApiVersion();
 		}
+		String selectedKey = getKey(api);
 		Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
 		Set<Entry<String, String>> entrySet = paramsMap.entrySet();
 		for (Entry<String, String> entry : entrySet) {
@@ -172,7 +168,7 @@ public class FlowTestDSL extends Assert {
 		FarReachesServiceInfo serviceInfo = this.serviceInfo.clone();
 		serviceInfo.setApiVersion(api);
 		GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo,
-				this.key, flowName, requestParams);
+				selectedKey, flowName, requestParams);
 		return request;
 	}
 
@@ -571,4 +567,16 @@ public class FlowTestDSL extends Assert {
 		}
 		return this.log;
 	}
+
+	public boolean describeApi(String api) {
+		String key = getKey(api);
+		FarReachesServiceInfo frsi = this.serviceInfo.clone();
+		frsi.setApiVersion(api);
+		GeneralFlowRequest request = new GeneralFlowRequest(frsi, key, "");
+		String flows = request.describeFlowRaw();
+		System.out.println(flows);
+		return false;
+	}
+
+
 }

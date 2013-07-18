@@ -43,6 +43,8 @@ public class ShellCommandBuilder {
 			return new TokenizeCommand(help, commandParameters);
 		case "run":
 			return new RunScriptCommand(help, commandParameters);
+		case "describe":
+			return new DescribeFlowCommand(help, commandParameters);
 		case "flows":
 			return new ListFlowsCommand(help, commandParameters);
 		case "scripts":

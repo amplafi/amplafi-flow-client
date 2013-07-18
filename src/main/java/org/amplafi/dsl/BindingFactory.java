@@ -8,4 +8,7 @@ import groovy.lang.Binding;
 // acting appropriately depending
 public interface BindingFactory {
 	public Binding getNewBinding(Map<String, String> paramsmap);
+
+	public FlowTestDSL getDSL();
+	public void setDSL(FlowTestDSL ftdsl);
 }
