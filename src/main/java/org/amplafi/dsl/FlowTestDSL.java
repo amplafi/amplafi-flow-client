@@ -2,6 +2,7 @@ package org.amplafi.dsl;
 
 import groovy.lang.Closure;
 
+import java.awt.print.Printable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -94,10 +95,10 @@ public class FlowTestDSL extends Assert {
 		}
 		return null;
 	}
-	public FlowResponse request(String api, String flowName, Map paramsMap) {
+	public JSONObject request(String api, String flowName, Map paramsMap) {
 		GeneralFlowRequest request = createGeneralFlowRequest(api, flowName,
 				paramsMap);
-		return request.sendRequest();
+		return request.sendRequest().toJSONObject();
 	}
 
 	/*public Future<FlowResponse> requestAsync(final String flowName,
@@ -577,6 +578,18 @@ public class FlowTestDSL extends Assert {
 		System.out.println(flows);
 		return false;
 	}
-
-
+	
+	// if you want to output feedback with lines, you need to avoid browsing packages (System.Out.printLn ..) 
+	// or you'll trigger the 'can't find out' thing
+	public void printLine(String string){
+		System.out.println(string);
+	}
+	
+	// A function to debug objects, sometimes it's necessary to inspect a result from the server or other calls. Just put a breakpoint
+	// here and call the function from a script passing the object to it
+	public void objectDebug(Object o){
+		int a = 1;
+		a = a+3;
+		System.out.println("Inspecting Object value");
+	}
 }
