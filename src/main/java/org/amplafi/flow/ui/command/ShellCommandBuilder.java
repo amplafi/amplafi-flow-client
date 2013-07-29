@@ -4,6 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 //class that knows all the shell commands
+//and builds them when the time comes
+//to add a command, add one keyword to the build method
 public class ShellCommandBuilder {
 
 	private static final Pattern basicCommand = Pattern

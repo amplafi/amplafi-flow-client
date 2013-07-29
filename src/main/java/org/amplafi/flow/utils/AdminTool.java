@@ -100,9 +100,8 @@ public class AdminTool extends UtilParent {
 	public Map<String, String> getAvailableScripts() {
 		return scriptsAvailable;
 	}
-
-	public boolean describeApi(String api) {
-		return bindingFactory.getDSL().describeApi(api);
+	public boolean describeFlow(String api, String flow) {
+		return bindingFactory.getDSL().describeFlow(api,flow);
 	}
 
 }

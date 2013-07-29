@@ -7,7 +7,7 @@ import org.amplafi.flow.utils.AdminTool;
 
 public class DescribeFlowCommand extends AShellCommand {
 
-	static final Pattern p = Pattern.compile("^([^\\s]*)$");
+	static final Pattern p = Pattern.compile("^([^\\s]*)\\s*([^\\s]*)$");
 	
 	protected DescribeFlowCommand(boolean setHelp, String setOptions) {
 		super(setHelp, "describeapi", setOptions);
@@ -25,8 +25,12 @@ public class DescribeFlowCommand extends AShellCommand {
 		Matcher m = p.matcher(st);
 		if(m.matches()){
 			String api = m.group(1);
-			if(!adminTool.describeApi(api))
+			String flow = m.group(2);
+			boolean success = adminTool.describeFlow(api,flow);
+			if(!success){
 				System.out.println("Invalid API. Make sure you typed it correctly, available APIs: 'public', 'api', 'su'");
+			}
+
 		}else{
 			System.out.println("Invalid Options. Usage: describe <api>");
 		}

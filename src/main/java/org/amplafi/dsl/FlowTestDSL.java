@@ -64,16 +64,22 @@ public class FlowTestDSL extends Assert {
 	}
 
 	public void setKey(String api, String key){
+		String keystring = null;
 		switch(api){
 		case "su": this.suKey = key;
+			keystring = "su";
 			break;
 		case "temporary": this.temporaryKey = key;
+			keystring = "temporary";
 			break;
 		case "permanent": this.permanentKey = key;
+			keystring = "permanent";
 			break;
 		case "readOnly": this.readOnlyKey = key;
+			keystring = "read only";
 			break;
 		}
+		System.out.println(keystring + " has been updated to " + key);
 	}
 	
 	private String getKey(String api) {
@@ -85,20 +91,21 @@ public class FlowTestDSL extends Assert {
 				return this.readOnlyKey;
 			else if(this.permanentKey!=null)
 				return this.permanentKey;
-			else {
+			else if (this.temporaryKey!=null) {
 				String temp = this.temporaryKey;
 				this.temporaryKey = null;
 				return temp;
-			}
+			}else
+				return this.suKey;
 		case "public":
 			return null;
 		}
 		return null;
 	}
-	public JSONObject request(String api, String flowName, Map paramsMap) {
+	public FlowResponse request(String api, String flowName, Map paramsMap) {
 		GeneralFlowRequest request = createGeneralFlowRequest(api, flowName,
 				paramsMap);
-		return request.sendRequest().toJSONObject();
+		return request.sendRequest();
 	}
 
 	/*public Future<FlowResponse> requestAsync(final String flowName,
@@ -567,22 +574,21 @@ public class FlowTestDSL extends Assert {
 			this.log = LogFactory.getLog(AdminTool.class);
 		}
 		return this.log;
-	}
-
-	public boolean describeApi(String api) {
+	}	
+	public boolean describeFlow(String api, String flow) {
 		String key = getKey(api);
 		FarReachesServiceInfo frsi = this.serviceInfo.clone();
 		frsi.setApiVersion(api);
-		GeneralFlowRequest request = new GeneralFlowRequest(frsi, key, "");
+		GeneralFlowRequest request = new GeneralFlowRequest(frsi, key, flow);
 		String flows = request.describeFlowRaw();
 		System.out.println(flows);
-		return false;
+		return true;
 	}
 	
 	// if you want to output feedback with lines, you need to avoid browsing packages (System.Out.printLn ..) 
 	// or you'll trigger the 'can't find out' thing
-	public void printLine(String string){
-		System.out.println(string);
+	public void pln(Object obj){
+		System.out.println(obj);
 	}
 	
 	// A function to debug objects, sometimes it's necessary to inspect a result from the server or other calls. Just put a breakpoint
@@ -592,4 +598,5 @@ public class FlowTestDSL extends Assert {
 		a = a+3;
 		System.out.println("Inspecting Object value");
 	}
+
 }

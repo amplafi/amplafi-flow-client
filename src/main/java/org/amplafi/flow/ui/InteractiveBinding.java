@@ -19,7 +19,7 @@ public class InteractiveBinding extends Binding {
 	@Override
 	public Object  getVariable(String vName) {
         if(!super.hasVariable(vName)){
-        	System.out.print("Enter value for variable " + vName + ":");
+        	System.out.print("Enter " + vName.replace('_', ' ') + ":");
         	try {
 				String vValue = reader.readLine();
 				super.setVariable(vName, vValue);

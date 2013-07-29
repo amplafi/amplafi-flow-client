@@ -26,11 +26,6 @@ import org.apache.commons.logging.LogFactory;
 public class UtilParent {
 	/** Standard location for admin scripts. */
 	public static final String DEFAULT_COMMAND_SCRIPT_PATH = "../farreaches-customer-service-client/src/main/resources/commandScripts";
-	private static final String GET_API_KEY_SCRIPT = "/GetNewPermanentKey.groovy";
-	public static final String DEFAULT_CONFIG_FILE_NAME = "fareaches.fadmin.properties";
-	public static final String DEFAULT_HOST = "http://apiv1.farreach.es";
-	public static final String DEFAULT_PORT = "80";
-	public static final String DEFAULT_API_VERSION = "api";
 	private Properties configProperties;
 	private String comandScriptPath;
 	private String configFileName;
@@ -196,7 +191,7 @@ public class UtilParent {
 	 * @return the path to the script for creating a new api key
 	 */
 	public String getApiKeyScriptPath() {
-		return getComandScriptPath() + GET_API_KEY_SCRIPT;
+		return getComandScriptPath();
 	}
 
 	/**
@@ -205,11 +200,6 @@ public class UtilParent {
 	 * @return the name of the config file
 	 */
 	public String getConfigFileName() {
-		if (configFileName != null) {
-			return configFileName;
-		} else {
-			configFileName = DEFAULT_CONFIG_FILE_NAME;
-		}
 		return configFileName;
 	}
 
