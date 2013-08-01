@@ -4,6 +4,10 @@ import groovy.lang.Binding;
 
 import java.util.Map;
 
+/**
+ * TO_BRUNO: JavaDoc needed.
+ *
+ */
 public class GroovyBindingFactory implements BindingFactory {
 
 	private FlowTestDSL flowDSL;
