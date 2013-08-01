@@ -103,6 +103,7 @@ public class FlowTestDSL extends Assert {
 		return request.sendRequest();
 	}
 
+	//TO_BRUNO: why is this one commented out?
 	/*public Future<FlowResponse> requestAsync(final String flowName,
 			final Map paramsMap) {
 		FutureTask<FlowResponse> result = new FutureTask<FlowResponse>(
