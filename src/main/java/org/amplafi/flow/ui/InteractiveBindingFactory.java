@@ -8,6 +8,10 @@ import java.util.Map;
 import org.amplafi.dsl.BindingFactory;
 import org.amplafi.dsl.FlowTestDSL;
 
+/**
+ * TO_BRUNO: javadoc needed.
+ *
+ */
 public class InteractiveBindingFactory implements BindingFactory {
 	
 	private BufferedReader bufferedReader;
