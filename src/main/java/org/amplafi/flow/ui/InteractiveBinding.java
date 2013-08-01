@@ -6,7 +6,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
 
-//this groovy binding will manually prompt the user for data whenever it is missing
+/**
+ * This groovy binding will manually prompt the user for data whenever it is missing.
+ *
+ */
 public class InteractiveBinding extends Binding {
 
 	private BufferedReader reader;
