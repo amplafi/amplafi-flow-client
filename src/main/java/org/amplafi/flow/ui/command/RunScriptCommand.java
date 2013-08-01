@@ -5,8 +5,15 @@ import java.util.regex.Pattern;
 
 import org.amplafi.flow.utils.AdminTool;
 
+/**
+ * TO_BRUNO: add javadoc.
+ *
+ */
 public class RunScriptCommand extends AShellCommand {
 
+	/**
+	 * TO_BRUNO: bad constant name. Make it descriptive.
+	 */
 	static final Pattern p = Pattern.compile("^([^\\s]*)$");
 	
 	public RunScriptCommand(String setOptions) {

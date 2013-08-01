@@ -7,6 +7,9 @@ import org.amplafi.flow.utils.AdminTool;
 
 public class HelpCommand extends AShellCommand {
 
+	/**
+	 * TO_BRUNO: use UPPERCASE and _ when naming constants.
+	 */
 	private static final Pattern optPattern = Pattern.compile("(^$)|(.+)");
 
 	private ShellCommandBuilder shellCommandBuilder;

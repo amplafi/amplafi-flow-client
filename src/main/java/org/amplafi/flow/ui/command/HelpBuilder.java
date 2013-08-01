@@ -2,6 +2,10 @@ package org.amplafi.flow.ui.command;
 
 import org.amplafi.flow.ui.InteractiveShell;
 
+/**
+ * TO_BRUNO: add javadoc.
+ *
+ */
 public class HelpBuilder implements AShellCommandBuilder {
 	
 	private ShellCommandBuilder shellCommandBuilder;

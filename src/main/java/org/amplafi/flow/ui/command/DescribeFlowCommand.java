@@ -5,6 +5,10 @@ import java.util.regex.Pattern;
 
 import org.amplafi.flow.utils.AdminTool;
 
+/**
+ * TO_BRUNO: add javadoc.
+ *
+ */
 public class DescribeFlowCommand extends AShellCommand {
 
 	static final Pattern p = Pattern.compile("^([^\\s]*)\\s*([^\\s]*)$");

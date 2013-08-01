@@ -11,6 +11,9 @@ import com.beust.jcommander.internal.Lists;
 //to add a command, add one keyword to the build method
 public class ShellCommandBuilder {
 
+	/**
+	 * TO_BRUNO: use UPPERCASE when naming constants
+	 */
 	private static final Pattern basicCommand = Pattern
 			.compile("^(([^\\s]*)\\s+(.*)|(.*))$");
 

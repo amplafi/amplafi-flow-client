@@ -6,6 +6,10 @@ import java.util.Map.Entry;
 
 import org.amplafi.flow.utils.AdminTool;
 
+/**
+ * TO_BRUNO: add javadoc.
+ *
+ */
 public class ListScriptsCommand extends AShellCommand {
 
 	public ListScriptsCommand(String options) {

@@ -1,5 +1,9 @@
 package org.amplafi.flow.ui.command;
 
+/**
+ * TO_BRUNO: add javadoc.
+ *
+ */
 public class RunScriptBuilder implements AShellCommandBuilder {
 
 	@Override
