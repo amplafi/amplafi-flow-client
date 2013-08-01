@@ -9,27 +9,31 @@ public class HelpCommand extends AShellCommand {
 
 	private static final Pattern optPattern = Pattern.compile("(^$)|(.+)");
 
-	protected HelpCommand(boolean setHelp, String options) {
-		super(setHelp, "help", options);
+	private ShellCommandBuilder shellCommandBuilder;
+	protected HelpCommand(ShellCommandBuilder scb, String options) {
+		super(options);
+		this.shellCommandBuilder = scb;
 	}
 
 	@Override
-	protected String helpString() {
-		return "To see the current available commands write"
-				+ " \"help\", or specify a commandthrough \"help <command>\"";
-	}
-
-	@Override
-	protected int executeCommand(AdminTool adminTool) {
+	public int execute(AdminTool adminTool) {
 		String rawOpts = getOptions();
 		Matcher m = optPattern.matcher(rawOpts);
 		m.matches();
 		if (m.group(2) != null) {
+			for(AShellCommandBuilder scb : shellCommandBuilder.getCommandBuilders()){
+				if(scb.getCommandName().equals(m.group(2))){
+					return scb.buildHelp("").execute(adminTool);
+				}
+			}
 			System.out.println("Unrecognized command \"" + m.group(2)
 					+ "\". To see a list of commands type \"help\"");
 		} else {
-			// TODO find a way to display all currently installed commands
-			System.out.println("FIXME");
+			System.out.println("Commands available. To run them, type the name or their number:");
+			int i = 0;
+			for(AShellCommandBuilder scb : shellCommandBuilder.getCommandBuilders()){
+				new DisplayCommand(i++ + " - " + scb.getCommandName()).execute(adminTool);
+			}			
 		}
 		return 0;
 	}

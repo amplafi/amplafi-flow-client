@@ -8,17 +8,11 @@ import org.amplafi.flow.utils.AdminTool;
 
 public class ListScriptsCommand extends AShellCommand {
 
-	public ListScriptsCommand(boolean setHelp, String options) {
-		super(setHelp, "list", options);
+	public ListScriptsCommand(String options) {
+		super(options);
 	}
-
 	@Override
-	protected String helpString() {
-		return "Lists the currently available command scripts. To execute a script use the \"exec\" command ";
-	}
-
-	@Override
-	protected int executeCommand(AdminTool adminTool) {
+	public int execute(AdminTool adminTool) {
 		Map<String, String> scriptsAvailable = adminTool.getAvailableScripts();
 		Iterator<Entry<String, String>> mapItem = scriptsAvailable.entrySet()
 				.iterator();

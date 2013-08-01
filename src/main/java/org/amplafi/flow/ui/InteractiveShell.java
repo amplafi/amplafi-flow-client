@@ -9,6 +9,12 @@ import java.io.PrintWriter;
 
 import org.amplafi.dsl.FlowTestDSL;
 import org.amplafi.flow.ui.command.AShellCommand;
+import org.amplafi.flow.ui.command.AShellCommandBuilder;
+import org.amplafi.flow.ui.command.DescribeApiOrFlowBuilder;
+import org.amplafi.flow.ui.command.ExitBuilder;
+import org.amplafi.flow.ui.command.HelpBuilder;
+import org.amplafi.flow.ui.command.ListScriptsBuilder;
+import org.amplafi.flow.ui.command.RunScriptBuilder;
 import org.amplafi.flow.ui.command.ShellCommandBuilder;
 import org.amplafi.flow.utils.AdminTool;
 import org.apache.commons.logging.Log;
@@ -16,16 +22,18 @@ import org.apache.commons.logging.LogFactory;
 
 // An entry point to load a shell and use the flow client
 // scripts easily
-public class CustomerServiceShell {
+public class InteractiveShell {
 	private AdminTool adminTool;
 	private BufferedReader reader;
 	private Log log;
+	private ShellCommandBuilder shellCommandBuilder;
 
 	private static final String prompt = "cs>";
 
-	CustomerServiceShell() {
+	public InteractiveShell() {
 		setReader(new BufferedReader(new InputStreamReader(System.in)));
 		setAdminTool(new AdminTool(new InteractiveBindingFactory(getReader())));
+		setShellCommandBuilder(new ShellCommandBuilder());
 		this.setLog(LogFactory.getLog(this.getClass()));
 		try{
 		}catch(Exception e){
@@ -34,11 +42,17 @@ public class CustomerServiceShell {
 	}
 
 	public static void main(String[] args) {
-		CustomerServiceShell cSShell = new CustomerServiceShell();
-		cSShell.ioLoop();
+		InteractiveShell is = new InteractiveShell();
+		is.addCommand(new HelpBuilder(is));
+		is.addCommand(new RunScriptBuilder());
+		is.addCommand(new ListScriptsBuilder());
+		is.addCommand(new DescribeApiOrFlowBuilder());
+		is.addCommand(new ExitBuilder());
+		is.ioLoop();
 	}
 
-	private void ioLoop() {
+	public void ioLoop() {
+		getShellCommandBuilder().build("help").execute(getAdminTool());
 		while (true) {
 			AShellCommand comm = parseCommand();
 			try{
@@ -55,7 +69,7 @@ public class CustomerServiceShell {
 		String commandLine;
 		try {
 			commandLine = getReader().readLine();
-			return ShellCommandBuilder.getBuilder().build(commandLine);
+			return getShellCommandBuilder().build(commandLine);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -95,5 +109,17 @@ public class CustomerServiceShell {
 
 	public void setLog(Log log) {
 		this.log = log;
+	}
+	
+	public void addCommand(AShellCommandBuilder commandBuilder){
+		getShellCommandBuilder().addCommand(commandBuilder);
+	}
+
+	public ShellCommandBuilder getShellCommandBuilder() {
+		return shellCommandBuilder;
+	}
+
+	public void setShellCommandBuilder(ShellCommandBuilder commandBuilder) {
+		this.shellCommandBuilder = commandBuilder;
 	}
 }

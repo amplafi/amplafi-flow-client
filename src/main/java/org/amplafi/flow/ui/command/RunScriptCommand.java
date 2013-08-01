@@ -9,19 +9,13 @@ public class RunScriptCommand extends AShellCommand {
 
 	static final Pattern p = Pattern.compile("^([^\\s]*)$");
 	
-	public RunScriptCommand(boolean setHelp, String setOptions) {
-		super(setHelp, "run", setOptions);
+	public RunScriptCommand(String setOptions) {
+		super(setOptions);
 		
 	}
-
+	
 	@Override
-	protected String helpString() {
-		return "Runs a script. Usage: \"run <scriptname>\". To find which scripts are available "
-				+ "use the \"scripts\" command.";
-	}
-
-	@Override
-	protected int executeCommand(AdminTool adminTool) {
+	public int execute(AdminTool adminTool) {
 		String st = this.getOptions();
 		Matcher m = p.matcher(st);
 		if(m.matches()){

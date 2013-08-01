@@ -2,15 +2,16 @@ package org.amplafi.flow.ui.command;
 
 import org.amplafi.flow.utils.AdminTool;
 
-public class ExitCommand extends AShellCommand {
+public class DisplayCommand extends AShellCommand {
 
-	public ExitCommand(String options) {
-		super(options);
+	public DisplayCommand(String setOptions) {
+		super(setOptions);
 	}
 
 	@Override
 	public int execute(AdminTool adminTool) {
-		System.exit(0);
+		System.out.println(getOptions());
 		return 0;
 	}
+
 }

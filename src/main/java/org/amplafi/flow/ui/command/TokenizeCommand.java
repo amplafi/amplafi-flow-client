@@ -9,17 +9,13 @@ import org.amplafi.flow.utils.ParameterTokenizer;
 public class TokenizeCommand extends AShellCommand {
 
 	protected TokenizeCommand(boolean setHelp, String setOptions) {
-		super(setHelp, "tokenize", setOptions);
+		super(setOptions);
+		//super(setHelp, "tokenize", setOptions);
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	protected String helpString() {
-		return "For testing purposes of the tokenizer";
-	}
-
-	@Override
-	protected int executeCommand(AdminTool adminTool) {
+	public int execute(AdminTool adminTool) {
 		String chain = getOptions();
 		/*List<String> stList = ParameterTokenizer.tokenize(chain);
 		int l = stList.size();

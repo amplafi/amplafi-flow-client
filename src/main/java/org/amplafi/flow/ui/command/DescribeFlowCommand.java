@@ -9,18 +9,12 @@ public class DescribeFlowCommand extends AShellCommand {
 
 	static final Pattern p = Pattern.compile("^([^\\s]*)\\s*([^\\s]*)$");
 	
-	protected DescribeFlowCommand(boolean setHelp, String setOptions) {
-		super(setHelp, "describeapi", setOptions);
+	protected DescribeFlowCommand(String setOptions) {
+		super(setOptions);
 	}
 
 	@Override
-	protected String helpString() {
-		return "Describes an API. Can be used only if you're authorized for privileged. "
-				+ "Available APIs: 'public', 'api', 'su'";
-	}
-
-	@Override
-	protected int executeCommand(AdminTool adminTool) {
+	public int execute(AdminTool adminTool) {
 		String st = this.getOptions();
 		Matcher m = p.matcher(st);
 		if(m.matches()){
