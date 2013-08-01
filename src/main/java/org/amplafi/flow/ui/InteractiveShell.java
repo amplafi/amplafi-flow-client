@@ -24,7 +24,7 @@ public class InteractiveShell {
 	private Log log;
 	private ShellCommandBuilder shellCommandBuilder;
 
-	private static final String prompt = "cs>";
+	private static final String PROMPT = "cs>";
 
 	public InteractiveShell() {
 		setReader(new BufferedReader(new InputStreamReader(System.in)));
@@ -61,7 +61,7 @@ public class InteractiveShell {
 	}
 
 	private AShellCommand parseCommand() {
-		System.out.print(prompt);
+		System.out.print(PROMPT);
 		String commandLine;
 		try {
 			commandLine = getReader().readLine();
