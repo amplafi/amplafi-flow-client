@@ -1,8 +1,8 @@
 package org.amplafi.dsl;
 
-import java.util.Map;
-
 import groovy.lang.Binding;
+
+import java.util.Map;
 
 public class GroovyBindingFactory implements BindingFactory {
 

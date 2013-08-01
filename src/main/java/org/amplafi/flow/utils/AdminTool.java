@@ -1,10 +1,5 @@
 package org.amplafi.flow.utils;
 
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.API_KEY;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.API_VERSION;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.HOST;
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.PORT;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -18,7 +13,6 @@ import org.amplafi.dsl.BindingFactory;
 import org.amplafi.dsl.FlowTestDSL;
 import org.amplafi.dsl.ScriptRunner;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
-import org.amplafi.json.JSONArray;
 
 import com.sworddance.util.NotNullIterator;
 

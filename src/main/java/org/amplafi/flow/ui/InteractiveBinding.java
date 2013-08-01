@@ -1,10 +1,10 @@
 package org.amplafi.flow.ui;
 
+import groovy.lang.Binding;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
-
-import groovy.lang.Binding;
 
 //this groovy binding will manually prompt the user for data whenever it is missing
 public class InteractiveBinding extends Binding {

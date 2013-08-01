@@ -1,9 +1,9 @@
 package org.amplafi.flow.ui;
 
+import groovy.lang.Binding;
+
 import java.io.BufferedReader;
 import java.util.Map;
-
-import groovy.lang.Binding;
 
 import org.amplafi.dsl.BindingFactory;
 import org.amplafi.dsl.FlowTestDSL;

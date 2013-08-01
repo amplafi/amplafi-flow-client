@@ -1,7 +1,5 @@
 package org.amplafi.flow.utils;
 
-import static org.amplafi.flow.utils.AdminToolCommandLineOptions.API_KEY;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,10 +11,6 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.amplafi.dsl.FlowTestDSL;
-import org.amplafi.dsl.GroovyBindingFactory;
-import org.amplafi.dsl.ScriptRunner;
-import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
