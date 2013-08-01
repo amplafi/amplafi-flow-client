@@ -6,9 +6,12 @@ import java.util.regex.Pattern;
 
 import com.beust.jcommander.internal.Lists;
 
-//class that knows all the shell commands
-//and builds them when the time comes
-//to add a command, add one keyword to the build method
+/**
+ * class that knows all the shell commands
+ * and builds them when the time comes
+ * to add a command, add one keyword to the build method
+ *
+ */
 public class ShellCommandBuilder {
 
 	/**

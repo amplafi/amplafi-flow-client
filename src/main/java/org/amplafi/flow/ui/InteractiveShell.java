@@ -16,8 +16,11 @@ import org.amplafi.flow.utils.AdminTool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-// An entry point to load a shell and use the flow client
-// scripts easily
+
+/**
+ *  An entry point to load a shell and use the flow client
+ *  scripts easily.
+ */
 public class InteractiveShell {
 	private AdminTool adminTool;
 	private BufferedReader reader;
