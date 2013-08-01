@@ -23,7 +23,6 @@ import com.sworddance.util.NotNullIterator;
 public class AdminTool extends UtilParent {
 	private Map<String, String> scriptsAvailable = null;
 	private ScriptRunner runner;
-	private boolean verbose = false;
 	private Properties props;
 	private FarReachesServiceInfo serviceInfo;
 	private BindingFactory bindingFactory;
