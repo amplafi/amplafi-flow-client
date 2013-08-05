@@ -57,7 +57,7 @@ public class InteractiveShell {
 			try{
 			comm.execute(getAdminTool());
 			}catch(Exception e){
-				getLog().error("There was a problem running the command. Look at the program error log", e);
+				getLog().error("Command failed. Exception attached next:", e);
 				System.out.println("Error in the command, look at the error logs for more info");
 			}
 		}

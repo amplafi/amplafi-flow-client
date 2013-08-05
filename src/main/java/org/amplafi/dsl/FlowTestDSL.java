@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -103,20 +106,6 @@ public class FlowTestDSL extends Assert {
 		return request.sendRequest();
 	}
 
-	//TO_BRUNO: why is this one commented out?
-	/*public Future<FlowResponse> requestAsync(final String flowName,
-			final Map paramsMap) {
-		FutureTask<FlowResponse> result = new FutureTask<FlowResponse>(
-				new Callable<FlowResponse>() {
-
-					public FlowResponse call() throws Exception {
-						return request(flowName, paramsMap);
-					}
-
-				});
-		new Thread(result).start();
-		return result;
-	}*/
 
 	public FlowResponse callbackRequest(String api, String flowName,
 			Map<String, String> parametersMap) {
@@ -562,15 +551,6 @@ public class FlowTestDSL extends Assert {
 		}
 	}
 
-	/**
-	 * Get the logger for this class.
-	 */
-	private Log getLog() {
-		if (this.log == null) {
-			this.log = LogFactory.getLog(AdminTool.class);
-		}
-		return this.log;
-	}	
 	public boolean describeFlow(String api, String flow) {
 		String key = getKey(api);
 		FarReachesServiceInfo frsi = this.serviceInfo.clone();
@@ -594,5 +574,424 @@ public class FlowTestDSL extends Assert {
 		a = a+3;
 		System.out.println("Inspecting Object value");
 	}
+	
+    private static final String DEFAULT_ROOT_URL = "example.co.uk";
 
+    private String key;
+
+    public FlowTestDSL(FarReachesServiceInfo serviceInfo, String key, ScriptRunner runner) {
+        this.serviceInfo = serviceInfo;
+        this.key = key;
+        this.runner = runner;
+    }
+    
+    public FlowResponse request(String flowName) {
+        return request(null, flowName, new HashMap<String, String>());
+    }
+
+    /**
+     * Sends a request to the named flow with the specified parameters.
+     * 
+     * @param flowName to call.
+     * @param paramsMap key value map of parameters to send.
+     * @return response string
+     */
+    public FlowResponse request(String flowName, Map paramsMap) {
+        return request(null, flowName, paramsMap);
+    }
+    public FlowResponse request(String apiKey, String api, String flowName, Map paramsMap) {
+        GeneralFlowRequest request = createGeneralFlowRequest(apiKey, api, flowName, paramsMap);
+        return request.sendRequest();
+    }
+
+    public Future<FlowResponse> requestAsync(final String flowName, final Map paramsMap) {
+        FutureTask<FlowResponse> result = new FutureTask<FlowResponse>(new Callable<FlowResponse>() {
+
+            public FlowResponse call() throws Exception {
+                return request(flowName, paramsMap);
+            }
+            
+        });
+        new Thread(result).start();
+        return result;
+    }
+    
+    /**
+     * This method will automatically add a callbackParam into params and send the request. With a
+     * callback uri It will then use openPort to call the flow and return the response.
+     * 
+     * @param flowName to call.
+     * @param [params] key value map of parameters to send.
+     * @return flow response object
+     */
+    public FlowResponse callbackRequest(String flowName, Map<String, String> parametersMap) {
+        return callbackRequest(null, flowName, parametersMap);
+    }
+    
+    
+	//TO_BRUNO: why is this one commented out?
+	// XXX (Bruno to Kostya) => I commented everything I didn't use because I was getting compilation errors and I had to start from somewhere
+    public Future<FlowResponse> callbackRequestAsync(final String flowName, final Map<String, String> parametersMap) {
+        FutureTask<FlowResponse> result = new FutureTask<>(new Callable<FlowResponse>(){
+
+            @Override
+            public FlowResponse call() throws Exception {
+                return callbackRequest(flowName, parametersMap);
+            }
+            
+        });
+        new Thread(result).start();
+        return result;
+    }
+    
+    /**
+     * Sends out "secured" request to server. Obtaining a temporary one-off key for the call first.
+     * 
+     * @param flowName
+     * @param parametersMap
+     * @return
+     */
+    public FlowResponse securedRequest(String flowName, Map<String, String> parametersMap) {
+        FlowResponse response = callbackRequest("TemporaryApiKey", CUtilities.<String,String> createMap("apiCall", flowName));
+        if (response.hasError()) {
+            return response;
+        }
+        String key = response.get("temporaryApiKey");
+        response = request(key, null, flowName, parametersMap);
+        return response;
+    }
+    
+    public Future<FlowResponse> securedRequestAsync(final String flowName, final Map<String, String> parametersMap) {
+        FutureTask<FlowResponse> result = new FutureTask<>(new Callable<FlowResponse>(){
+
+            @Override
+            public FlowResponse call() throws Exception {
+                return securedRequest(flowName, parametersMap);
+            }
+            
+        });
+        new Thread(result).start();
+        return result;
+    }
+    
+    public String obtainPermanentKey(String rootUrl) {
+        FlowResponse response = callbackRequest(rootUrl, "public", "TemporaryApiKey", CUtilities.<String,String> createMap("apiCall", "PermanentApiKey"));
+        String temporaryApiKey = response.get("temporaryApiKey");
+        setKey("temporary", temporaryApiKey);
+        response = callbackRequest("PermanentApiKey", CUtilities.<String, String> createMap(
+                                                    "temporaryApiKey" , temporaryApiKey,
+                                                    "usersList","[{'email':'admin@example.com','roleType':'adm','displayName':'user','externalId':1}]",
+                                                    "defaultLanguage", "en",
+                                                    "selfName", "user's Blog!",
+                                                    "completeList", "true"
+                                                    ));
+        return response.get("permanentApiKeys.1");
+    }
+    
+    public String obtainPermanentKey() {
+        return obtainPermanentKey(DEFAULT_ROOT_URL);
+    }
+
+    /**
+     * Sends a request to the named flow with the specified parameters.
+     * 
+     * @param flowName to call.
+     * @param flowName2
+     * @param paramsMap key value map of parameters to send.
+     */
+    private GeneralFlowRequest createGeneralFlowRequest(String apiKey, String api, String flowName, Map<String, String> paramsMap) {
+        if (api == null) {
+            api = serviceInfo.getApiVersion();
+        }
+        Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
+        Set<Entry<String, String>> entrySet = paramsMap.entrySet();
+        for (Entry<String, String> entry : entrySet) {
+            requestParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+        }
+        FarReachesServiceInfo serviceInfo = this.serviceInfo.clone();
+        serviceInfo.setApiVersion(api);
+        GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo, apiKey, flowName, requestParams);
+        return request;
+    }
+
+    // Kostya: these are used by RealisticParams* tests..
+    //    /**
+    //     * Throws a test error if the actual data returned from the server is not the same as.
+    //     * the expected JSON.
+    //     * @param expectedJSONData.
+    //     */
+    //    void expect(String expectedJSONData){
+    //        try{
+    //            JSONObject expected = new JSONObject(expectedJSONData);
+    //            JSONObject actual = new JSONObject(lastRequestResponse);
+    //            assertTrue(compare(expected,actual,null));
+    //        }catch(JSONException ex){
+    //            def expected = new JSONArray(expectedJSONData);
+    //            def actual = new JSONArray(lastRequestResponse);
+    //            assertEquals(expected, actual);
+    //        }
+    //    }
+    //
+    //    /**
+    //     * Throws a test error if the actual data returned from the server is not the same as.
+    //     * the expected JSON.
+    //     * @param expectedJSONData, ignorePathList.
+    //     */
+    //    void expect(String expectedJSONData,List<String> ignorePathList){
+    //        try{
+    //            JSONObject expected = new JSONObject(expectedJSONData);
+    //            JSONObject actual = new JSONObject(lastRequestResponse);
+    //            assertTrue(compare(expected,actual,ignorePathList));
+    //        }catch(JSONException ex){
+    //            // then see if it is an array
+    //            def expected = new JSONArray(expectedJSONData);
+    //            def actual = new JSONArray(lastRequestResponse);
+    //            assertEquals(expected, actual);
+    //        }
+    //    }
+
+    //    /**
+    //     * Throws exception if response has an error.
+    //     * @param response  
+    //     */
+    //    def checkError(FlowResponse response){
+    //        if(response.hasError()) {
+    //            String mesg = "Error in the script " + this.name + ". The response status is " + response.getHttpStatusCode() + "\n";
+    //            response.getErrorMessage();
+    //            throw new RuntimeException(mesg);
+    //        }
+    //    }
+    //
+    //    /**
+    //     * Pretty Prints Last Response.
+    //     */
+    //    private def prettyPrintResponse(){
+    //        emitOutput(getResponseData().toString(4));
+    //    }
+    //
+    //
+    //    private def printTaskInfo(info){
+    //        emitOutput "\n";
+    //        emitOutput THICK_DIVIDER;
+    //        emitOutput info;
+    //        emitOutput THICK_DIVIDER;
+    //    }
+    //
+    //    /**
+    //     * Prints data in table  format. 
+    //     * @param entries
+    //     * @param tabularTmpl
+    //     * @param headers
+    //     * @param keyPaths
+    //     * @return
+    //     */
+    //    private  def printTabular(entries, tabularTmpl, headers, keyPaths){
+    //        emitOutput sprintf(tabularTmpl, headers);
+    //        emitOutput THIN_DIVIDER; == false
+    //        for(int i = 0; i < entries.length(); i++) {
+    //            def entry = entries.get(i);
+    //            def value = new String[keyPaths.size() + 1];
+    //            value[0] = Integer.toString(i + 1);
+    //            for(int j = 0; j < value.length - 1; j++){
+    //                value[j + 1] = entry.optStringByPath(keyPaths[j]);
+    //            }
+    //            println sprintf(tabularTmpl,value);
+    //        }
+    //    }
+    //
+    //    /**
+    //     * Prints a map in table form. 
+    //     * @param map
+    //     * @param tabularTmpl
+    //     * @param headers
+    //     * @param keys
+    //     * @return
+    //     */
+    //    private def printTabularMap(map, tabularTmpl, headers, keys){
+    //        emitOutput sprintf(tabularTmpl, headers);
+    //        emitOutput THIN_DIVIDER;
+    //        for(entry in map.values()){
+    //            def value = new String[keys.size()];
+    //            for(int j = 0; j < value.length; j++){
+    //                value[j] = entry.get(keys[j]);
+    //            }
+    //            println sprintf(tabularTmpl, value);
+    //        }
+    //    }
+
+    //    /**
+    //     * method to compare the actual jsonObject return to us with our expected, and can ignore some compared things,return true when they are the same.
+    //     * @param expected is expected JSONObject
+    //     * @param actual is actual JSONObject
+    //     * @param excludePaths is ignore list
+    //     * @return true if the expected object is same with the actual object
+    //     */
+    //    private boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths){
+    //        def isEqual = compare(expected,actual,excludePaths,"/");
+    //        return isEqual;
+    //    }
+    //
+    //    /**
+    //     * method to compare the actual jsonObject return to us with our expected, and can ignore some compared things,return true when they are the same.
+    //     * @param expected is expected JSONObject.
+    //     * @param actual is actual JSONObject.
+    //     * @param excludePaths is ignore list.
+    //     * @param currentPath is path of the property.
+    //     * @return true if the expected object is same with the actual object.
+    //     */
+    //    private boolean compare(JSONObject expected, JSONObject actual, List<String> excludePaths, String currentPath){
+    //        String newLine = System.getProperty("line.separator");
+    //        def isEqual = false;
+    //        // when the compared object is null,return true directly.
+    //        if(expected == null && actual == null){
+    //            return true;
+    //        }
+    //        if(expected == null || actual == null){
+    //            fail("After Calling ${lastRequestString}.Response did not match expected:"+ newLine
+    //                    + "expected data was " + expected + newLine
+    //                    + "but the actual data was "+ actual);
+    //            return false;
+    //        }
+    //        def expectedNames = expected.names();
+    //        def actualNames = actual.names();
+    //        if(expectedNames == null && actualNames == null){
+    //            return true;
+    //        }
+    //        if(expectedNames == null || actualNames == null){
+    //            fail("After Calling ${lastRequestString}.Response did not match expected names:" + newLine
+    //                    + "expected names was " + expectedNames + newLine
+    //                    + "but the actual names was "+ actualNames + newLine
+    //                    + "expected data was " + expected + newLine
+    //                    + "but the actual data was "+ actual);
+    //            return false;
+    //        }
+    //        int i = 0;
+    //        //loops all of the property name in the object
+    //        actualNames.each { actualName ->
+    //            def expectedName = expectedNames.get(i);
+    //            def actualValue = actual.get(actualName);
+    //            def expectedValue = expected.get(expectedName);
+    //            //if no ignore compared things or current compared thing is not in the ignore,then we go to compare.
+    //            if(excludePaths == null){
+    //                excludePaths = new ArrayList<String>();
+    //                excludePaths.add("there is no ignore path");
+    //            }
+    //            if(!excludePaths.contains(currentPath)){
+    //                if(actualName.equals(expectedName)){
+    //                    if(expectedValue instanceof JSONObject && actualValue instanceof JSONObject ){
+    //                        isEqual = compare(expectedValue,actualValue,excludePaths,currentPath  + actualName + "/");
+    //                    }else{
+    //                        if (!excludePaths.contains(currentPath  + actualName + "/")){
+    //                            isEqual = actualValue.equals(expectedValue);
+    //                            if(!isEqual){
+    //                                fail("After Calling ${lastRequestString}.Response did not match expected in following path:"
+    //                                        + currentPath + newLine + actualName +":" +newLine
+    //                                        + "expected was " + expectedValue + newLine
+    //                                        + "but the actual was " + actualValue + newLine
+    //                                        + "expected data was " + expected + newLine
+    //                                        + "but the actual data was "+ actual);
+    //                            }
+    //                        }
+    //                    }
+    //                }else{
+    //                    isEqual = false;
+    //                    fail("After Calling ${lastRequestString}.Response did not match expected property name:"+ newLine
+    //                            + "expected name was "+expectedName + newLine
+    //                            + "but the actual name was " + actualName + newLine
+    //                            + "expected data was " + expected + newLine
+    //                            + "but the actual data was "+ actual);
+    //                }
+    //            }else{
+    //                isEqual = true;
+    //                return;
+    //            }
+    //            if(isEqual == false){
+    //                return;
+    //            }
+    //            i++;
+    //        }
+    //        return isEqual;
+    //    }
+
+    private static Map<Integer, Server> serverMap = new HashMap<>();
+    private static int START_PORT = 1234;
+    
+    /**
+     * Gets a jetty server instance for a non-used port.
+     * 
+     * @param portNo
+     * @return
+     */
+    private int initServer() {
+        synchronized (serverMap) {
+            Server server = null;
+            int port = START_PORT;
+            while (serverMap.containsKey(port)) {
+                server = serverMap.get(port);
+                if (server.isStopped()) {
+                    break;
+                };
+                port++;
+            }
+            server = new Server(port);
+            serverMap.put(port, server);
+            return port;
+        }
+    }
+
+    /**
+     * The method is to open a port and listens request.
+     * 
+     * @param portNo is port number.
+     * @param timeOutSeconds is time out seconds.
+     * @param doNow is the request in script.
+     * @param handleRequest is the handle method when recieved a request.
+     */
+    private FlowResponse openPort(int timeOutSeconds, String api, String flowName, Map<String, String> parametersMap, String rootUrl) {
+        Object monitor = new Object();
+        int port = initServer();
+        Server server = serverMap.get(port);
+        server.setGracefulShutdown(1000);
+        MyHandler myHandler = new MyHandler(monitor);
+        server.setHandler(myHandler);
+        try {
+            server.start();
+            parametersMap.put("callbackUri", "http://" + rootUrl + ":" + port);
+            FlowResponse response = request(api, flowName, parametersMap);
+            if (response.hasError()) {
+                fail("Async request failed.");
+            } else {
+                synchronized (monitor) {
+                    monitor.wait(timeOutSeconds * 1000);
+                }
+                if (!myHandler.getReceived()) {
+                    server.stop();
+                    fail("Server did not send any request");
+                }
+                if (myHandler.getHandlingError() != null) {
+                    fail("Error Handling Request.", myHandler.getHandlingError());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                server.stop();
+            } catch (Exception e) {
+
+            }
+        }
+        return myHandler.handlerReturn;
+    }
+
+
+    /**
+     * Get the logger for this class.
+     */
+    private Log getLog() {
+        if (this.log == null) {
+            this.log = LogFactory.getLog(AdminTool.class);
+        }
+        return this.log;
+    }
 }
