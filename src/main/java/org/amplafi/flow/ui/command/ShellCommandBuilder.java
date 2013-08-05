@@ -14,20 +14,17 @@ import com.beust.jcommander.internal.Lists;
  */
 public class ShellCommandBuilder {
 
-	/**
-	 * TO_BRUNO: use UPPERCASE when naming constants
-	 */
-	private static final Pattern basicCommand = Pattern
+	private static final Pattern BASIC_COMMAND = Pattern
 			.compile("^(([^\\s]*)\\s+(.*)|(.*))$");
 
-	private List<AShellCommandBuilder> commandBuilders = Lists.newArrayList();
+	private List<AbstractShellCommandBuilder> commandBuilders = Lists.newArrayList();
 	public ShellCommandBuilder(){
 	}
-	public void addCommand(AShellCommandBuilder commandBuilder){
+	public void addCommand(AbstractShellCommandBuilder commandBuilder){
 		getCommandBuilders().add(commandBuilder);
 	}
 	public AShellCommand build(String commandLine) {
-		Matcher m = basicCommand.matcher(commandLine);
+		Matcher m = BASIC_COMMAND.matcher(commandLine);
 		m.matches();
 		String commandName, commandParameters;
 		boolean help = false;
@@ -44,7 +41,7 @@ public class ShellCommandBuilder {
 		}
 		String commandname = commandName.toLowerCase();
 		//build commands by name
-		for(AShellCommandBuilder builder: getCommandBuilders()){
+		for(AbstractShellCommandBuilder builder: getCommandBuilders()){
 			if(commandname.equals(builder.getCommandName()))
 				if(!help)
 					return builder.buildCommand(commandParameters);
@@ -55,7 +52,7 @@ public class ShellCommandBuilder {
 		if(isInteger(commandName)){
 			int commandNumber = Integer.parseInt(commandName);
 			if(commandNumber < getCommandBuilders().size()){
-				AShellCommandBuilder ascb = getCommandBuilders().get(commandNumber);
+				AbstractShellCommandBuilder ascb = getCommandBuilders().get(commandNumber);
 				if(!help)
 					return ascb.buildCommand(commandParameters);
 				else
@@ -85,10 +82,10 @@ public class ShellCommandBuilder {
 			return new EmptyCommand(false, commandParameters);
 		}*/
 	}
-	public List<AShellCommandBuilder> getCommandBuilders() {
+	public List<AbstractShellCommandBuilder> getCommandBuilders() {
 		return commandBuilders;
 	}
-	public void setCommandBuilders(List<AShellCommandBuilder> commandBuilders) {
+	public void setCommandBuilders(List<AbstractShellCommandBuilder> commandBuilders) {
 		this.commandBuilders = commandBuilders;
 	}
 	

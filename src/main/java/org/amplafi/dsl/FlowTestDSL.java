@@ -31,6 +31,7 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.testng.Assert;
 
+import com.beust.jcommander.internal.Maps;
 import com.sworddance.util.CUtilities;
 
 /**
@@ -44,6 +45,7 @@ public class FlowTestDSL extends Assert {
 	private String suKey;
 	private String readOnlyKey;
 	private ScriptRunner runner;
+	private Map<String,String> inValues;
 
 	private Log log;
 
@@ -53,6 +55,7 @@ public class FlowTestDSL extends Assert {
 	public FlowTestDSL(FarReachesServiceInfo serviceInfo, Properties props,
 			ScriptRunner runner) {
 		this.serviceInfo = serviceInfo;
+		this.inValues = Maps.newHashMap();
 		this.runner = runner;
 		this.suKey = props.getProperty("suKey",null);
 		this.permanentKey = null;
@@ -559,7 +562,7 @@ public class FlowTestDSL extends Assert {
 		String flows = request.describeFlowRaw();
 		System.out.println(flows);
 		return true;
-	}
+	}	
 	
 	// if you want to output feedback with lines, you need to avoid browsing packages (System.Out.printLn ..) 
 	// or you'll trigger the 'can't find out' thing
@@ -983,8 +986,6 @@ public class FlowTestDSL extends Assert {
         }
         return myHandler.handlerReturn;
     }
-
-
     /**
      * Get the logger for this class.
      */

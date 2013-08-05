@@ -4,9 +4,11 @@ import groovy.lang.Binding;
 
 import java.util.Map;
 
+
 /**
- * TO_BRUNO: JavaDoc needed.
- *
+ * @author bfv
+ * A binding factory for plain groovy bindings to be used outside the customer service
+ * shell
  */
 public class GroovyBindingFactory implements BindingFactory {
 

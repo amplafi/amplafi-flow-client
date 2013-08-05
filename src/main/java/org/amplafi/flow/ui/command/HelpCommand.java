@@ -10,7 +10,7 @@ public class HelpCommand extends AShellCommand {
 	/**
 	 * TO_BRUNO: use UPPERCASE and _ when naming constants.
 	 */
-	private static final Pattern optPattern = Pattern.compile("(^$)|(.+)");
+	private static final Pattern OPT_PATTERN = Pattern.compile("(^$)|(.+)");
 
 	private ShellCommandBuilder shellCommandBuilder;
 	protected HelpCommand(ShellCommandBuilder scb, String options) {
@@ -21,10 +21,10 @@ public class HelpCommand extends AShellCommand {
 	@Override
 	public int execute(AdminTool adminTool) {
 		String rawOpts = getOptions();
-		Matcher m = optPattern.matcher(rawOpts);
+		Matcher m = OPT_PATTERN.matcher(rawOpts);
 		m.matches();
 		if (m.group(2) != null) {
-			for(AShellCommandBuilder scb : shellCommandBuilder.getCommandBuilders()){
+			for(AbstractShellCommandBuilder scb : shellCommandBuilder.getCommandBuilders()){
 				if(scb.getCommandName().equals(m.group(2))){
 					return scb.buildHelp("").execute(adminTool);
 				}
@@ -34,7 +34,7 @@ public class HelpCommand extends AShellCommand {
 		} else {
 			System.out.println("Commands available. To run them, type the name or their number:");
 			int i = 0;
-			for(AShellCommandBuilder scb : shellCommandBuilder.getCommandBuilders()){
+			for(AbstractShellCommandBuilder scb : shellCommandBuilder.getCommandBuilders()){
 				new DisplayCommand(i++ + " - " + scb.getCommandName()).execute(adminTool);
 			}			
 		}

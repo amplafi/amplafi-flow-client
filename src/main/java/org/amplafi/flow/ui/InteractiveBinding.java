@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * This groovy binding will manually prompt the user for data whenever it is missing.
+ * @author bfv
+ * This groovy binding will manually prompt the user for data whenever it is missing. As with all bindings, groovy takes care of using it.
  *
  */
 public class InteractiveBinding extends Binding {

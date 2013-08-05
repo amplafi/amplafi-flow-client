@@ -8,8 +8,11 @@ import java.util.Map;
 import org.amplafi.dsl.BindingFactory;
 import org.amplafi.dsl.FlowTestDSL;
 
+
 /**
- * TO_BRUNO: javadoc needed.
+ * @author bfv
+ * The interactive binding is related to the user shell. It knows how to ask for input using it's BufferedReader object
+ * through groovy's binding variable resolution mechanism.
  *
  */
 public class InteractiveBindingFactory implements BindingFactory {

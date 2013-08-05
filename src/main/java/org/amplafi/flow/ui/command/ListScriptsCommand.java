@@ -7,8 +7,8 @@ import java.util.Map.Entry;
 import org.amplafi.flow.utils.AdminTool;
 
 /**
- * TO_BRUNO: add javadoc.
- *
+ * @author bfv
+ * Command to list scripts available to the AdminTool class.
  */
 public class ListScriptsCommand extends AShellCommand {
 

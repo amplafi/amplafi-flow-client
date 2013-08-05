@@ -3,8 +3,10 @@ package org.amplafi.flow.ui.command;
 import org.amplafi.flow.utils.AdminTool;
 
 /**
- * TO_BRUNO: add javadoc.
- *
+ * @author bfv
+ * A command that does nothing. It could be generated if no other 
+ * command can be generated, and will report back to the user that
+ * nothing happened.
  */
 public class EmptyCommand extends AShellCommand {
 

@@ -3,8 +3,8 @@ package org.amplafi.flow.ui.command;
 import org.amplafi.flow.utils.AdminTool;
 
 /**
- * TO_BRUNO: add javadoc.
- *
+ * @author bfv
+ * command for testing purposes of the tokenizer class
  */
 public class TokenizeCommand extends AShellCommand {
 

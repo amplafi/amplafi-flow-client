@@ -6,15 +6,12 @@ import java.util.regex.Pattern;
 import org.amplafi.flow.utils.AdminTool;
 
 /**
- * TO_BRUNO: add javadoc.
- *
+ * @author bfv
+ * Command that interacts with the ScriptRunner and calls a particular script.
  */
 public class RunScriptCommand extends AShellCommand {
 
-	/**
-	 * TO_BRUNO: bad constant name. Make it descriptive.
-	 */
-	static final Pattern p = Pattern.compile("^([^\\s]*)$");
+	static final Pattern NO_SPACE_WORD = Pattern.compile("^([^\\s]*)$");
 	
 	public RunScriptCommand(String setOptions) {
 		super(setOptions);
@@ -24,7 +21,7 @@ public class RunScriptCommand extends AShellCommand {
 	@Override
 	public int execute(AdminTool adminTool) {
 		String st = this.getOptions();
-		Matcher m = p.matcher(st);
+		Matcher m = NO_SPACE_WORD.matcher(st);
 		if(m.matches()){
 			String script = m.group(1);
 			if(!adminTool.runScript(script))

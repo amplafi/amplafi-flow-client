@@ -1,10 +1,10 @@
 package org.amplafi.flow.ui.command;
 
 /**
- * TO_BRUNO: add javadoc.
- *
+ * @author bfv
+ * Builder for the exit command
  */
-public class ExitBuilder implements AShellCommandBuilder {
+public class ExitBuilder implements AbstractShellCommandBuilder {
 
 	@Override
 	public String getCommandName() {

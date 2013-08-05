@@ -1,10 +1,10 @@
 package org.amplafi.flow.ui.command;
 
 /**
- * TO_BRUNO: add javadoc.
- *
+ * @author bfv
+ * Builder for RunScriptCommand.
  */
-public class RunScriptBuilder implements AShellCommandBuilder {
+public class RunScriptBuilder implements AbstractShellCommandBuilder {
 
 	@Override
 	public String getCommandName() {

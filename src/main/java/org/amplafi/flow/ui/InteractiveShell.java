@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.amplafi.flow.ui.command.AShellCommand;
-import org.amplafi.flow.ui.command.AShellCommandBuilder;
+import org.amplafi.flow.ui.command.AbstractShellCommandBuilder;
 import org.amplafi.flow.ui.command.DescribeApiOrFlowBuilder;
 import org.amplafi.flow.ui.command.ExitBuilder;
 import org.amplafi.flow.ui.command.HelpBuilder;
@@ -67,7 +67,7 @@ public class InteractiveShell {
 		System.out.print(PROMPT);
 		String commandLine;
 		try {
-			commandLine = getReader().readLine();
+			commandLine = getReader().readLine().trim();
 			return getShellCommandBuilder().build(commandLine);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -110,7 +110,7 @@ public class InteractiveShell {
 		this.log = log;
 	}
 	
-	public void addCommand(AShellCommandBuilder commandBuilder){
+	public void addCommand(AbstractShellCommandBuilder commandBuilder){
 		getShellCommandBuilder().addCommand(commandBuilder);
 	}
 

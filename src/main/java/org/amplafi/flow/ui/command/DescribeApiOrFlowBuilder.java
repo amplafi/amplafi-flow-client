@@ -1,10 +1,10 @@
 package org.amplafi.flow.ui.command;
 
 /**
- * TO_BRUNO: add javadoc.
- *
+ * @author bfv
+ * Builder for api and flow description commands
  */
-public class DescribeApiOrFlowBuilder implements AShellCommandBuilder {
+public class DescribeApiOrFlowBuilder implements AbstractShellCommandBuilder {
 
 	@Override
 	public String getCommandName() {

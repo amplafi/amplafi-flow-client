@@ -6,12 +6,12 @@ import java.util.regex.Pattern;
 import org.amplafi.flow.utils.AdminTool;
 
 /**
- * TO_BRUNO: add javadoc.
- *
+ * @author bfv
+ * Command to describe flows or APIs. Constructor Options should be API name and optionally flow name.
  */
 public class DescribeFlowCommand extends AShellCommand {
 
-	static final Pattern p = Pattern.compile("^([^\\s]*)\\s*([^\\s]*)$");
+	static final Pattern TWO_WORDS = Pattern.compile("^([^\\s]*)\\s*([^\\s]*)$");
 	
 	protected DescribeFlowCommand(String setOptions) {
 		super(setOptions);
@@ -20,7 +20,7 @@ public class DescribeFlowCommand extends AShellCommand {
 	@Override
 	public int execute(AdminTool adminTool) {
 		String st = this.getOptions();
-		Matcher m = p.matcher(st);
+		Matcher m = TWO_WORDS.matcher(st);
 		if(m.matches()){
 			String api = m.group(1);
 			String flow = m.group(2);
