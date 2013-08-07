@@ -26,22 +26,23 @@ public class AdminTool extends UtilParent {
 	private Properties props;
 	private FarReachesServiceInfo serviceInfo;
 	private BindingFactory bindingFactory;
-	private static final String configFile = "fareaches.fadmin.properties";
-	private static final Pattern scriptPattern = Pattern.compile("^(.*)\\.groovy$");
+	private static final String CONFIG_FILE = "fareaches.fadmin.properties";
+	private static final Pattern SCRIPT_PATTERN = Pattern.compile("^(.*)\\.groovy$");
 
 	public AdminTool(BindingFactory bindingFactory) {
 		this.bindingFactory = bindingFactory;
 		this.props = new Properties();
 		try {
-			this.props.load(new FileInputStream(configFile));
-			try{
-				props.load(new FileInputStream(props.getProperty("keyfile")));
+			this.props.load(new FileInputStream(CONFIG_FILE));
+			String keyfileName = (props.getProperty("production").equals("true"))?props.getProperty("productionKeyfile"):props.getProperty("keyfile");
+			try(FileInputStream fis = new FileInputStream(keyfileName)){
+				 props.load(fis);
 			}catch(IOException e){
 				System.out.println("No keyfile found");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Couldn not load properties file: " + configFile + ".");
+			System.out.println("Couldn not load properties file: " + CONFIG_FILE + ".");
 		}
 		loadScriptsAvailable();
 		initializeServiceInfo();
@@ -52,10 +53,12 @@ public class AdminTool extends UtilParent {
 	}
 
 	private void initializeServiceInfo() {
-		String host = (props.getProperty("production") == "true")? props.getProperty("productionHostUrl"):props.getProperty("testHostUrl");
+		String host = (props.getProperty("production").equals("true"))? props.getProperty("productionHostUrl"):props.getProperty("testHostUrl");
+		String port =  (props.getProperty("production").equals("true"))? props.getProperty("productionPort"):props.getProperty("testPort");
 		this.serviceInfo = new FarReachesServiceInfo(
-				host , props.getProperty("port"),
+				host , port,
 				props.getProperty("path"), props.getProperty("apiv"));
+		System.out.println("Service initialized to " + host + ":" + port);
 	}
 
 	private void loadScriptsAvailable() {
@@ -64,7 +67,7 @@ public class AdminTool extends UtilParent {
 		File dir = new File(scriptsFolder);
 		File[] files = dir.listFiles();
 		for (File file : NotNullIterator.<File> newNotNullIterator(files)) {
-			Matcher m = scriptPattern.matcher(file.getName());
+			Matcher m = SCRIPT_PATTERN.matcher(file.getName());
 			if (m.matches())
 				try {
 					scriptsAvailable.put(m.group(1), file.getCanonicalPath());

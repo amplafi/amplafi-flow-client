@@ -93,6 +93,11 @@ public class GeneralFlowRequest {
 		return generalFlowRequest.get();
 	}
 
+	public FlowResponse describeFlowWithResponse(){
+		GeneralFlowRequest generalFlowRequest = new GeneralFlowRequest(
+				serviceInfo, apiKey, flowName, fsRenderResult, describe);
+		return generalFlowRequest.sendRequest();
+	}
 	/**
 	 * This method actually send the http request represented by this object.
 	 * 

@@ -559,11 +559,21 @@ public class FlowTestDSL extends Assert {
 		FarReachesServiceInfo frsi = this.serviceInfo.clone();
 		frsi.setApiVersion(api);
 		GeneralFlowRequest request = new GeneralFlowRequest(frsi, key, flow);
-		String flows = request.describeFlowRaw();
-		System.out.println(flows);
+		FlowResponse flows = request.describeFlowWithResponse();
+		if(flows.hasError()){
+			handleError(flows);
+		}else{
+			System.out.println(flows.toString());
+		}
 		return true;
-	}	
-	
+	}
+	public void handleError(FlowResponse response){
+		if(response.getErrorMessage().contains("Callback with lookupKey")){
+			System.out.println("Your current key is invalid. This will happen if the farreach.es server restarts. Ask Pat for a new key");
+		}else{
+			System.out.println(response.getErrorMessage());
+		}
+	}
 	// if you want to output feedback with lines, you need to avoid browsing packages (System.Out.printLn ..) 
 	// or you'll trigger the 'can't find out' thing
 	public void pln(Object obj){
