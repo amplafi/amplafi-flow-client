@@ -169,7 +169,7 @@ public class FlowTestDSL extends Assert {
                                                     "temporaryApiKey" , temporaryApiKey,
                                                     "usersList","[{'email':'admin@example.com','roleType':'adm','displayName':'user','externalId':1}]",
                                                     "defaultLanguage", "en",
-                                                    "selfName", "user's Blog!",
+                                                    "selfName", "user's Blog! С русскими буквами.",
                                                     "completeList", "true"
                                                     ));
         return response.get("permanentApiKeys.1");
