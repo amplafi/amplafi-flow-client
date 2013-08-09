@@ -2,6 +2,7 @@ package org.amplafi.flow.utils;
 
 import static org.amplafi.flow.utils.GeneralFlowRequest.APPLICATION_ZIP;
 
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class FlowResponse {
 				// calling classes should check for this.
 				responseText = APPLICATION_ZIP;
 			} else {
-				responseText = EntityUtils.toString(response.getEntity());
+				responseText = EntityUtils.toString(response.getEntity(), Charset.forName("UTF-8"));
 			}
 		} catch (Exception e) {
 			throw new IllegalStateException(e);

@@ -1,6 +1,7 @@
 package org.amplafi.flow.utils;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,12 +9,14 @@ import java.util.Collection;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONObject;
+import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 
 /**
@@ -123,7 +126,7 @@ public class GeneralFlowRequest {
 			if (apiKey != null) {
 				request.setHeader(AUTHORIZATION_HEADER, apiKey);
 			}
-			request.setEntity(new UrlEncodedFormEntity(parameters));
+			request.setEntity(new UrlEncodedFormEntity(parameters, Charset.forName("UTF-8")));
 			response = new FlowResponse(client.execute(request));
 		} catch (IOException e) {
 			response = new FlowResponse();
@@ -152,7 +155,11 @@ public class GeneralFlowRequest {
 
 	private HttpClient getHttpClient() {
 		if (httpClient == null) {
-			httpClient = HttpClientBuilder.create().build();
+			httpClient = HttpClientBuilder.create();
+			ArrayList<Header> arrayList = new ArrayList<>();
+			arrayList.add(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
+			create.setDefaultHeaders(arrayList);
+			httpClient = create.build();
 		}
 		return httpClient;
 	}
