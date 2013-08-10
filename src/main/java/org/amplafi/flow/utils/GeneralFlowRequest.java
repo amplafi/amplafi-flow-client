@@ -155,7 +155,7 @@ public class GeneralFlowRequest {
 
 	private HttpClient getHttpClient() {
 		if (httpClient == null) {
-			httpClient = HttpClientBuilder.create();
+			HttpClientBuilder create = HttpClientBuilder.create();
 			ArrayList<Header> arrayList = new ArrayList<>();
 			arrayList.add(new BasicHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"));
 			create.setDefaultHeaders(arrayList);

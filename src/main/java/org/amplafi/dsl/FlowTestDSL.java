@@ -3,8 +3,13 @@ package org.amplafi.dsl;
 import groovy.lang.Closure;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -571,6 +576,9 @@ public class FlowTestDSL extends Assert {
 		if(response.getErrorMessage().contains("Callback with lookupKey")){
 			System.out.println("Your current key is invalid. This will happen if the farreach.es server restarts. Ask Pat for a new key");
 		}else{
+			System.out.println("response string:");
+			System.out.println(response.toString());
+			System.out.println("response error:");
 			System.out.println(response.getErrorMessage());
 		}
 	}
@@ -995,6 +1003,23 @@ public class FlowTestDSL extends Assert {
             }
         }
         return myHandler.handlerReturn;
+    }
+    
+    public boolean validateDate(String dateString){
+    	return dateString.matches("\\d\\d\\d\\d-\\d\\d-\\d\\d");  
+    }
+    public String getNow(){
+    	return formatDate(new Date());
+    }
+    public String getLastMonth(){
+    	GregorianCalendar gc = new GregorianCalendar();
+    	gc.setTime(new Date());
+    	gc.add(Calendar.MONTH, -1);
+    	return formatDate(gc.getTime());
+    }
+    public String formatDate(Date date){
+    	DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+    	return df.format(date);
     }
     /**
      * Get the logger for this class.
