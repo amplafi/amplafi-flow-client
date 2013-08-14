@@ -650,7 +650,7 @@ public class FlowTestDSL extends Assert {
     }
     
     
-	//TO_BRUNO: why is this one commented out?
+	// to Bruno from Kostya: why is this one commented out?
 	// XXX (Bruno to Kostya) => I commented everything I didn't use because I was getting compilation errors and I had to start from somewhere
     public Future<FlowResponse> callbackRequestAsync(final String flowName, final Map<String, String> parametersMap) {
         FutureTask<FlowResponse> result = new FutureTask<>(new Callable<FlowResponse>(){
@@ -1029,5 +1029,14 @@ public class FlowTestDSL extends Assert {
             this.log = LogFactory.getLog(AdminTool.class);
         }
         return this.log;
+    }
+    
+    public String inputWithDefault(String inputVariable, String defaultt, String errorMessage){
+    	if("".equals(inputVariable)){
+    		pln(errorMessage);
+    		return defaultt;
+    	}else{
+    		return inputVariable;
+    	}
     }
 }
