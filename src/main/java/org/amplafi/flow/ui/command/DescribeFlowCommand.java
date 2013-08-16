@@ -11,7 +11,7 @@ import org.amplafi.flow.utils.AdminTool;
  */
 public class DescribeFlowCommand extends AShellCommand {
 
-	static final Pattern TWO_WORDS = Pattern.compile("^([^\\s]*)\\s*([^\\s]*)$");
+	static final Pattern ONE_AND_MAYBE_TWO_WORDS = Pattern.compile("^([^\\s]+)\\s*([^\\s]*)$");
 	
 	protected DescribeFlowCommand(String setOptions) {
 		super(setOptions);
@@ -20,8 +20,8 @@ public class DescribeFlowCommand extends AShellCommand {
 	@Override
 	public int execute(AdminTool adminTool) {
 		String st = this.getOptions();
-		Matcher m = TWO_WORDS.matcher(st);
-		if(m.matches()){
+		Matcher m = ONE_AND_MAYBE_TWO_WORDS.matcher(st);
+		if(m.matches() && !"".equals(m.group(1))){
 			String api = m.group(1);
 			String flow = m.group(2);
 			boolean success = adminTool.describeFlow(api,flow);
@@ -30,7 +30,7 @@ public class DescribeFlowCommand extends AShellCommand {
 			}
 
 		}else{
-			System.out.println("Invalid Options. Usage: describe <api>");
+			System.out.println("Invalid Options. Usage: describe <api> [<flow>]");
 		}
 		return 0;
 	}

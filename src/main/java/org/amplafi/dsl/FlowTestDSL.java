@@ -1030,11 +1030,20 @@ public class FlowTestDSL extends Assert {
         }
         return this.log;
     }
-    
-    public String inputWithDefault(String inputVariable, String defaultt, String errorMessage){
+    /**
+     * 
+     * allows script makers to ask for a value (using groovy binding mechanism) and in case the empty value "" is returned - for example, pressing
+     * enter without typing anything - set a default value and print an error message.
+     * 
+     * @param inputVariable the name you want to appear on screen when using this function
+     * @param defaultValue the value to which the variable will be defaulted in case the value can't be filled
+     * @param errorMessage the error message in case you want to print one. Put null for no error message
+     * @return
+     */
+    public String inputWithDefault(String inputVariable, String defaultValue, String errorMessage){
     	if("".equals(inputVariable)){
-    		pln(errorMessage);
-    		return defaultt;
+    		if(errorMessage != null) pln(errorMessage);
+    		return defaultValue;
     	}else{
     		return inputVariable;
     	}
