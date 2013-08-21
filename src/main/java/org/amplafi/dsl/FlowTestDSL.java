@@ -740,9 +740,9 @@ public class FlowTestDSL extends Assert {
 
     public void prettyPrint(FlowResponse flowResponse){
     	if(this.prettyPrint){
-    		pln(flowResponse.toJSONObject().toString(1));
+    		pln(flowResponse.toJSONObject().toString(2));
     	}else{
-    		pln(flowResponse.toJSONObject().toString());
+    		pln(flowResponse.toJSONObject().toString(1));
     	}
     }
     // Kostya: these are used by RealisticParams* tests..
