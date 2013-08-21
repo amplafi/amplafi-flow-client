@@ -27,6 +27,7 @@ import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.flow.utils.AdminTool;
 import org.amplafi.flow.utils.FlowResponse;
 import org.amplafi.flow.utils.GeneralFlowRequest;
+import org.amplafi.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
@@ -51,6 +52,7 @@ public class FlowTestDSL extends Assert {
 	private String readOnlyKey;
 	private ScriptRunner runner;
 	private Map<String,String> inValues;
+	private boolean prettyPrint;
 
 	private Log log;
 
@@ -67,6 +69,7 @@ public class FlowTestDSL extends Assert {
 		this.readOnlyKey = null;
 		this.host_url = (props.getProperty("production")=="true")?props.getProperty("productionHostUrl"):props.getProperty("testHostUrl");
 		this.default_url = props.getProperty("testPluginUrl");
+		this.prettyPrint = props.getProperty("prettyprint")=="true";
 	}
 
 	public void setKey(String api, String key){
@@ -735,6 +738,13 @@ public class FlowTestDSL extends Assert {
         return request;
     }
 
+    public void prettyPrint(FlowResponse flowResponse){
+    	if(this.prettyPrint){
+    		pln(flowResponse.toJSONObject().toString(1));
+    	}else{
+    		pln(flowResponse.toJSONObject().toString());
+    	}
+    }
     // Kostya: these are used by RealisticParams* tests..
     //    /**
     //     * Throws a test error if the actual data returned from the server is not the same as.
