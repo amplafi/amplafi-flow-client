@@ -45,6 +45,11 @@ import com.sworddance.util.CUtilities;
  */
 public class FlowTestDSL extends Assert {
 
+	public static final String API_PUBLIC = "public";
+	public static final String API_READONLY = "readOnly";
+	public static final String API_PERMANENT = "permanent";
+	public static final String API_TEMPORARY = "temporary";
+	public static final String API_SU = "su";
 	private String default_url;
 	private String permanentKey;
 	private String temporaryKey;
@@ -75,16 +80,16 @@ public class FlowTestDSL extends Assert {
 	public void setKey(String api, String key){
 		String keystring = null;
 		switch(api){
-		case "su": this.suKey = key;
-			keystring = "su";
+		case API_SU: this.suKey = key;
+			keystring = API_SU;
 			break;
-		case "temporary": this.temporaryKey = key;
-			keystring = "temporary";
+		case API_TEMPORARY: this.temporaryKey = key;
+			keystring = API_TEMPORARY;
 			break;
-		case "permanent": this.permanentKey = key;
-			keystring = "permanent";
+		case API_PERMANENT: this.permanentKey = key;
+			keystring = API_PERMANENT;
 			break;
-		case "readOnly": this.readOnlyKey = key;
+		case API_READONLY: this.readOnlyKey = key;
 			keystring = "read only";
 			break;
 		}
@@ -93,7 +98,7 @@ public class FlowTestDSL extends Assert {
 	
 	private String getKey(String api) {
 		switch(api){
-		case "su":
+		case API_SU:
 			return this.suKey;
 		case "api":
 			if(this.readOnlyKey!=null)
@@ -106,7 +111,7 @@ public class FlowTestDSL extends Assert {
 				return temp;
 			}else
 				return this.suKey;
-		case "public":
+		case API_PUBLIC:
 			return null;
 		}
 		return null;
@@ -130,11 +135,11 @@ public class FlowTestDSL extends Assert {
 	}
 
 	public void obtainPermanentKey(String rootUrl, String email) {
-		FlowResponse response = callbackRequest(rootUrl, "public",
+		FlowResponse response = callbackRequest(rootUrl, API_PUBLIC,
 				"TemporaryApiKey", CUtilities.<String, String> createMap(
 						"apiCall", "PermanentApiKey"));
 		String temporaryApiKey = response.get("temporaryApiKey");
-		setKey("temporary", temporaryApiKey);
+		setKey(API_TEMPORARY, temporaryApiKey);
 		response = callbackRequest("api",
 				"PermanentApiKey",
 				CUtilities
@@ -699,9 +704,9 @@ public class FlowTestDSL extends Assert {
     }
     
     public String obtainPermanentKey(String rootUrl) {
-        FlowResponse response = callbackRequest(rootUrl, "public", "TemporaryApiKey", CUtilities.<String,String> createMap("apiCall", "PermanentApiKey"));
+        FlowResponse response = callbackRequest(rootUrl, API_PUBLIC, "TemporaryApiKey", CUtilities.<String,String> createMap("apiCall", "PermanentApiKey"));
         String temporaryApiKey = response.get("temporaryApiKey");
-        setKey("temporary", temporaryApiKey);
+        setKey(API_TEMPORARY, temporaryApiKey);
         response = callbackRequest("PermanentApiKey", CUtilities.<String, String> createMap(
                                                     "temporaryApiKey" , temporaryApiKey,
                                                     "usersList","[{'email':'admin@example.com','roleType':'adm','displayName':'user','externalId':1}]",

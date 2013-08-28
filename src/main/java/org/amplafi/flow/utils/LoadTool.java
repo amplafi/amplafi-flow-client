@@ -10,6 +10,7 @@ import static org.amplafi.flow.utils.LoadToolCommandLineOptions.REPORT;
 import static org.amplafi.flow.utils.LoadToolCommandLineOptions.SCRIPT;
 import static org.amplafi.flow.utils.LoadToolCommandLineOptions.TEST_PLAN;
 import static org.amplafi.flow.utils.LoadToolCommandLineOptions.VERBOSE;
+import groovy.lang.Binding;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,18 +30,38 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.amplafi.dsl.BindingFactory;
+import org.amplafi.dsl.FlowTestDSL;
+import org.amplafi.dsl.GroovyBindingFactory;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
+import org.amplafi.flow.ui.command.RunScriptCommand;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
  * Tool for load testing the wire server.
+ * Bruno's notes:
+ * 
+ * As of now, the csui branch doesn't work with this entry point. To change this, there are some changes that need to be made:
+ * 
+ * To make this work better I advise removing the command line loaders and using the config file interface exclusively. The
+ * {@link AdminTool} will load it's su keys and server parameters according to the {@link AdminTool#CONFIG_FILE}
+ * 
+ * There is a small distinction now about how api keys work in the the {@link FlowTestDSL}, therefore the current interface is obsolete
+ * and needs to reflect that. In any case I'm assuming that the key expected is an api key, but if you want to execute the tool with
+ * something else, you can do it by expanding on the logic on {@link LoadTool#runLoadTest}.
+ * 
+ * A complete refactor of the LoadTool class should avoid the current default initialization of AdminTool and instead change it to better
+ * match the interface. I also recommend changing it so that it works with configuration files by default.
  * 
  * @author paul
  */
 public class LoadTool extends UtilParent {
 	private static final int DEFAULT_TEST_DURATION_SECS = 45;
+	//TODO IMPORTANT: 	point this to the right script that sets the permanent key to something useful in case you don'tn want to provide it
+	//					directly
+	private static final String GET_PERMANENT_KEY_SCRIPT_FILE = "<appropriate script to get the key in case>";
 
 	/**
 	 * Main method for proxy server. See TestGenerationProxyCommandLineOptions
@@ -125,8 +146,7 @@ public class LoadTool extends UtilParent {
 				remotePort = Integer.parseInt(cmdOptions
 						.getOptionValue(HOST_PORT));
 			} catch (NumberFormatException nfe) {
-				getLog().error("Remote port should be in numeric form e.g. 80");
-				return;
+				getLog().error("Remote port should be in numeric form e.g. 80. defaulting to config file configuration");	
 			}
 
 			String host = cmdOptions.getOptionValue(HOST);
@@ -179,15 +199,8 @@ public class LoadTool extends UtilParent {
 
 			String key = cmdOptions.getOptionValue(KEY);
 
-			final FarReachesServiceInfo service = new FarReachesServiceInfo(
-					host, "" + remotePort, "apiv1");
-
-			if (key == null) {
-				/* Get the api key automatically */
-				// TODO BRUNO CLEAN UP
-				//key = getPermApiKey(service, null, true);
-			}
-
+			final FarReachesServiceInfo service = (remotePort>0)?new FarReachesServiceInfo(
+					host, "" + remotePort, "apiv1"):null;
 			try {
 
 				if (hasPlanTest) {
@@ -499,10 +512,19 @@ public class LoadTool extends UtilParent {
 	 * runs a single-threaded proxy server on the specified local port. It never
 	 * returns.
 	 */
-	// TODO BRUNO make this work with refactored script runner/admin tool
 	public void runLoadTest(final FarReachesServiceInfo service,
 			final String key, final String scriptName, final int numThreads,
 			final int frequency, final boolean verbose) throws IOException {
+
+		final AdminTool adminTool = new AdminTool(new GroovyBindingFactory());
+		if(service != null){
+			adminTool.setServiceInfo(service);
+		}
+		if(key != null){
+			adminTool.getBindingFactory().getDSL().setKey(FlowTestDSL.API_PERMANENT, key);
+		}else{
+			adminTool.runScriptName(GET_PERMANENT_KEY_SCRIPT_FILE);
+		}
 		getLog().info(
 				"Running LoadTest with host= " + service.getHost()
 						+ " host port= " + service.getPort() + " script= "
@@ -523,14 +545,15 @@ public class LoadTool extends UtilParent {
 						// constructing gropvy runtime.
 						// final ScriptRunner scriptRunner = new
 						// ScriptRunner(service,key);
-
-						// scriptRunner.loadAndRunOneScript(scriptName);
+						
+						
+						adminTool.runScriptName(scriptName);
 						report.startTime = System.currentTimeMillis();
 						while (running) {
 							try {
 								report.callCount++;
 								long startTime = System.currentTimeMillis();
-								// scriptRunner.reRunLastScript();
+								adminTool.runScriptName(scriptName);
 								long endTime = System.currentTimeMillis();
 								long duration = (endTime - startTime);
 								if (frequency != -1) {

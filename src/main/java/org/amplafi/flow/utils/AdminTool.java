@@ -17,20 +17,25 @@ import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import com.sworddance.util.NotNullIterator;
 
 /**
- * Command line interface for running scripts to communicate with the
- * Farreach.es wire server. Please read AdminTool.md for more details
+ * Generic interface to track state of farreach.es server communication.
+ * This is where all connection information is loaded (look at the constructor. we use several properties files
+ * that are loaded sequentially overriding one another.)
+ * 
+ * The AdminTool is the new way to control the {@link FlowTestDSL} from outside the scripts. Ideally you don't want to access
+ * the DSL directly unless you're messing with script internals.
+ * 
  */
-public class AdminTool extends UtilParent {
+public class AdminTool {
 	private Map<String, String> scriptsAvailable = null;
 	private ScriptRunner runner;
 	private Properties props;
 	private FarReachesServiceInfo serviceInfo;
 	private BindingFactory bindingFactory;
-	private static final String CONFIG_FILE = "fareaches.fadmin.properties";
+	public static final String CONFIG_FILE = "fareaches.fadmin.properties";
 	private static final Pattern SCRIPT_PATTERN = Pattern.compile("^(.*)\\.groovy$");
 
 	public AdminTool(BindingFactory bindingFactory) {
-		this.bindingFactory = bindingFactory;
+		this.setBindingFactory(bindingFactory);
 		this.props = new Properties();
 		try {
 			this.props.load(new FileInputStream(CONFIG_FILE));
@@ -48,16 +53,17 @@ public class AdminTool extends UtilParent {
 		initializeServiceInfo();
 		
 		//TODO BRUNO clean up this recursive initialization mess
+		// suggestion: for next dev, the functions that are needed on admintool maybe can be kept inside ScriptRunner
 		runner = ScriptRunner.getNewScriptRunner(props,bindingFactory);
-		bindingFactory.setDSL(new FlowTestDSL(serviceInfo, this.props, runner));
+		bindingFactory.setDSL(new FlowTestDSL(getServiceInfo(), this.props, runner));
 	}
 
 	private void initializeServiceInfo() {
 		String host = (props.getProperty("production").equals("true"))? props.getProperty("productionHostUrl"):props.getProperty("testHostUrl");
 		String port =  (props.getProperty("production").equals("true"))? props.getProperty("productionPort"):props.getProperty("testPort");
-		this.serviceInfo = new FarReachesServiceInfo(
+		this.setServiceInfo(new FarReachesServiceInfo(
 				host , port,
-				props.getProperty("path"), props.getProperty("apiv"));
+				props.getProperty("path"), props.getProperty("apiv")));
 		System.out.println("Service initialized to " + host + ":" + port);
 	}
 
@@ -78,7 +84,7 @@ public class AdminTool extends UtilParent {
 	}
 
 	public void runScriptName(String name) {
-		// TODO make this work
+		this.runner.loadAndRunOneScript(name);
 
 	}
 	public boolean runScript(String script) {
@@ -92,12 +98,30 @@ public class AdminTool extends UtilParent {
 			return true;
 		}
 	}
-
+	
 	public Map<String, String> getAvailableScripts() {
 		return scriptsAvailable;
 	}
 	public boolean describeFlow(String api, String flow) {
-		return bindingFactory.getDSL().describeFlow(api,flow);
+		return getBindingFactory().getDSL().describeFlow(api,flow);
+	}
+
+	public FarReachesServiceInfo getServiceInfo() {
+		return serviceInfo;
+	}
+
+	public void setServiceInfo(FarReachesServiceInfo serviceInfo) {
+		System.out.println("Updated Service Info");
+		getBindingFactory().setDSL(new FlowTestDSL(getServiceInfo(), this.props, runner));
+		this.serviceInfo = serviceInfo;
+	}
+
+	public BindingFactory getBindingFactory() {
+		return bindingFactory;
+	}
+
+	public void setBindingFactory(BindingFactory bindingFactory) {
+		this.bindingFactory = bindingFactory;
 	}
 
 }
