@@ -53,14 +53,14 @@ import org.apache.commons.logging.LogFactory;
  * something else, you can do it by expanding on the logic on {@link LoadTool#runLoadTest}.
  * 
  * A complete refactor of the LoadTool class should avoid the current default initialization of AdminTool and instead change it to better
- * match the interface. I also recommend changing it so that it works with configuration files by default.
+ * match the interface by providing a constructor. I also recommend changing it so that it works with configuration files by default.
  * 
  * @author paul
  */
 public class LoadTool extends UtilParent {
 	private static final int DEFAULT_TEST_DURATION_SECS = 45;
 	//TODO IMPORTANT: 	point this to the right script that sets the permanent key to something useful in case you don'tn want to provide it
-	//					directly
+	//					directly or the program will fail if you don't pass a key around.
 	private static final String GET_PERMANENT_KEY_SCRIPT_FILE = "<appropriate script to get the key in case>";
 
 	/**
@@ -516,6 +516,8 @@ public class LoadTool extends UtilParent {
 			final String key, final String scriptName, final int numThreads,
 			final int frequency, final boolean verbose) throws IOException {
 
+		// IMPORTANT one way to inject data into the groovy scripts is through bindings. The binding factory class is a binding generator,
+		// you can check out examples in the farreach.es command scripts of how they are supposed to be used.
 		final AdminTool adminTool = new AdminTool(new GroovyBindingFactory());
 		if(service != null){
 			adminTool.setServiceInfo(service);
@@ -543,9 +545,6 @@ public class LoadTool extends UtilParent {
 					try {
 						// don't include the first run because this includes
 						// constructing gropvy runtime.
-						// final ScriptRunner scriptRunner = new
-						// ScriptRunner(service,key);
-						
 						
 						adminTool.runScriptName(scriptName);
 						report.startTime = System.currentTimeMillis();

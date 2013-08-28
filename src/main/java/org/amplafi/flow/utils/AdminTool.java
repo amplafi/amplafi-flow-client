@@ -22,7 +22,8 @@ import com.sworddance.util.NotNullIterator;
  * that are loaded sequentially overriding one another.)
  * 
  * The AdminTool is the new way to control the {@link FlowTestDSL} from outside the scripts. Ideally you don't want to access
- * the DSL directly unless you're messing with script internals.
+ * the DSL directly unless you're messing with script internals or modifying the {@link FarReachesServiceInfo} embedded there.
+ * 
  * 
  */
 public class AdminTool {
@@ -53,7 +54,7 @@ public class AdminTool {
 		initializeServiceInfo();
 		
 		//TODO BRUNO clean up this recursive initialization mess
-		// suggestion: for next dev, the functions that are needed on admintool maybe can be kept inside ScriptRunner
+		// suggestion: for next dev, the functions that are needed on admintool maybe can be kept inside FlowTestDSL.
 		runner = ScriptRunner.getNewScriptRunner(props,bindingFactory);
 		bindingFactory.setDSL(new FlowTestDSL(getServiceInfo(), this.props, runner));
 	}

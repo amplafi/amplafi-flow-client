@@ -1,9 +1,12 @@
 package org.amplafi.flow.ui;
 
+import groovy.lang.Binding;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.amplafi.dsl.BindingFactory;
 import org.amplafi.flow.ui.command.AShellCommand;
 import org.amplafi.flow.ui.command.AbstractShellCommandBuilder;
 import org.amplafi.flow.ui.command.DescribeApiOrFlowBuilder;
@@ -18,8 +21,14 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- *  An entry point to load a shell and use the flow client
- *  scripts easily.
+ * An entry point to load a shell and use the flow client
+ * scripts easily.
+ * 
+ * The key interaction with FlowTest and the groovy runtime is made through the {@link BindingFactory} interface which allows you to
+ * resolve unresolved variable names in the scripts (this is how you input values through the console for example, but could be any 
+ * 'value provider' that knows how to properly override the {@link Binding} class. See {@link InteractiveBinding} and {@link InteractiveBindingFactory}
+ * @author bfv
+ *
  */
 public class InteractiveShell {
 	private AdminTool adminTool;
