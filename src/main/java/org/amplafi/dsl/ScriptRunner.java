@@ -19,6 +19,8 @@ import org.testng.reporters.Files;
 /**
  * Responsible for groovy script running
  * 
+ * Nowadays the class concerns itself exclusively with the running of scripts, and state is, within reason, excluded from it.
+ * 
  * @author Paul
  */
 public class ScriptRunner {
