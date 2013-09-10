@@ -79,12 +79,14 @@ public class AdminTool {
     private void loadScriptsAvailable() {
         scriptsAvailable = new HashMap<String, String>();
         String scriptsFolder = props.getProperty("scripts_folder");
+        System.out.println("loading scripts from "+scriptsFolder+" ('scripts_folder' directory)...");
         File dir = new File(scriptsFolder);
         File[] files = dir.listFiles();
         for (File file : NotNullIterator.<File> newNotNullIterator(files)) {
             Matcher m = SCRIPT_PATTERN.matcher(file.getName());
             if (m.matches()) {
                 try {
+                    System.out.println(m.group(1) +"\t\t=("+ file.getCanonicalPath()+")");
                     scriptsAvailable.put(m.group(1), file.getCanonicalPath());
                 } catch (Exception e) {
                     e.printStackTrace();
