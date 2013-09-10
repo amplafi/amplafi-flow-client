@@ -2,6 +2,7 @@ package org.amplafi.flow.utils;
 
 import static org.amplafi.flow.utils.GeneralFlowRequest.APPLICATION_ZIP;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class FlowResponse {
 			} else {
 				responseText = EntityUtils.toString(response.getEntity(), Charset.forName("UTF-8"));
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
 	}
@@ -86,7 +87,8 @@ public class FlowResponse {
 		return httpStatusCode != 200;
 	}
 
-	public String toString() {
+	@Override
+    public String toString() {
 		return responseText;
 	}
 

@@ -17,112 +17,121 @@ import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import com.sworddance.util.NotNullIterator;
 
 /**
- * Generic interface to track state of farreach.es server communication.
- * This is where all connection information is loaded (look at the constructor. we use several properties files
- * that are loaded sequentially overriding one another.)
- * 
- * The AdminTool is the new way to control the {@link FlowTestDSL} from outside the scripts. Ideally you don't want to access
- * the DSL directly unless you're messing with script internals or modifying the {@link FarReachesServiceInfo} embedded there.
- * 
- * 
+ * Generic interface to track state of farreach.es server communication. This is where all
+ * connection information is loaded (look at the constructor. we use several properties files that
+ * are loaded sequentially overriding one another.) The AdminTool is the new way to control the
+ * {@link FlowTestDSL} from outside the scripts. Ideally you don't want to access the DSL directly
+ * unless you're messing with script internals or modifying the {@link FarReachesServiceInfo}
+ * embedded there.
  */
 public class AdminTool {
-	private Map<String, String> scriptsAvailable = null;
-	private ScriptRunner runner;
-	private Properties props;
-	private FarReachesServiceInfo serviceInfo;
-	private BindingFactory bindingFactory;
-	public static final String CONFIG_FILE = "farreaches.fadmin.properties";
-	private static final Pattern SCRIPT_PATTERN = Pattern.compile("^(.*)\\.groovy$");
+    private Map<String, String> scriptsAvailable = null;
 
-	public AdminTool(BindingFactory bindingFactory) {
-		this.setBindingFactory(bindingFactory);
-		this.props = new Properties();
-		try {
-			this.props.load(new FileInputStream(CONFIG_FILE));
-			String keyfileName = (props.getProperty("production").equals("true"))?props.getProperty("productionKeyfile"):props.getProperty("keyfile");
-			try(FileInputStream fis = new FileInputStream(keyfileName)){
-				 props.load(fis);
-			}catch(IOException e){
-				System.out.println("No keyfile found");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Couldn not load properties file: " + CONFIG_FILE + ".");
-		}
-		loadScriptsAvailable();
-		initializeServiceInfo();
-		
-		//TODO BRUNO clean up this recursive initialization mess
-		// suggestion: for next dev, the functions that are needed on admintool maybe can be kept inside FlowTestDSL.
-		runner = ScriptRunner.getNewScriptRunner(props,bindingFactory);
-		bindingFactory.setDSL(new FlowTestDSL(getServiceInfo(), this.props, runner));
-	}
+    private ScriptRunner runner;
 
-	private void initializeServiceInfo() {
-		String host = (props.getProperty("production").equals("true"))? props.getProperty("productionHostUrl"):props.getProperty("testHostUrl");
-		String port =  (props.getProperty("production").equals("true"))? props.getProperty("productionPort"):props.getProperty("testPort");
-		this.setServiceInfo(new FarReachesServiceInfo(
-				host , port,
-				props.getProperty("path"), props.getProperty("apiv")));
-		System.out.println("Service initialized to " + host + ":" + port);
-	}
+    private Properties props;
 
-	private void loadScriptsAvailable() {
-		scriptsAvailable = new HashMap<String, String>();
-		String scriptsFolder = props.getProperty("scripts_folder");
-		File dir = new File(scriptsFolder);
-		File[] files = dir.listFiles();
-		for (File file : NotNullIterator.<File> newNotNullIterator(files)) {
-			Matcher m = SCRIPT_PATTERN.matcher(file.getName());
-			if (m.matches())
-				try {
-					scriptsAvailable.put(m.group(1), file.getCanonicalPath());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-		}
-	}
+    private FarReachesServiceInfo serviceInfo;
 
-	public void runScriptName(String name) {
-		this.runner.loadAndRunOneScript(name);
+    private BindingFactory bindingFactory;
 
-	}
-	public boolean runScript(String script) {
-		String filePath = scriptsAvailable.get(script);
-		if(null==filePath){
-			return false;
-		}
-		else{
-			Map<String, String> commandLineParameters = new HashMap<>();
-			runner.loadAndRunOneScript(filePath);
-			return true;
-		}
-	}
-	
-	public Map<String, String> getAvailableScripts() {
-		return scriptsAvailable;
-	}
-	public boolean describeFlow(String api, String flow) {
-		return getBindingFactory().getDSL().describeFlow(api,flow);
-	}
+    public static final String CONFIG_FILE = "farreaches.fadmin.properties";
 
-	public FarReachesServiceInfo getServiceInfo() {
-		return serviceInfo;
-	}
+    private static final Pattern SCRIPT_PATTERN = Pattern.compile("^(.*)\\.groovy$");
 
-	public void setServiceInfo(FarReachesServiceInfo serviceInfo) {
-		System.out.println("Updated Service Info");
-		getBindingFactory().setDSL(new FlowTestDSL(getServiceInfo(), this.props, runner));
-		this.serviceInfo = serviceInfo;
-	}
+    public AdminTool(BindingFactory bindingFactory) {
+        this.setBindingFactory(bindingFactory);
+        this.props = new Properties();
+        try (FileInputStream propertyStream = new FileInputStream(CONFIG_FILE)) {
+            this.props.load(propertyStream);
+            System.out.println(CONFIG_FILE + ": loaded");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Could not load properties file: " + CONFIG_FILE);
+        }
+        boolean productionMode = props.getProperty("production").equals("true");
+        String keyfileNameProperty = productionMode ? "productionKeyfile" : "keyfile";
+        String keyfileName = props.getProperty(keyfileNameProperty);
+        // TODO ask for the key on start up
+        // TODO : allow keys to be changed.
+        System.out.println("Loading keys from :" + keyfileName + "(property=" + keyfileNameProperty + ")");
+        try (FileInputStream fis = new FileInputStream(keyfileName)) {
+            props.load(fis);
+        } catch (IOException e) {
+            System.out.println(keyfileName + ": No keyfile found. Check property " + keyfileNameProperty + " in " + CONFIG_FILE);
+        }
+        String host;
+        String port;
+        if (productionMode) {
+            host = props.getProperty("productionHostUrl");
+            port = props.getProperty("productionPort");
+        } else {
+            host = props.getProperty("testHostUrl");
+            port = props.getProperty("testPort");
+        }
+        // TODO: validate keys
+        loadScriptsAvailable();
+        runner = new ScriptRunner(bindingFactory);
+        this.setServiceInfo(new FarReachesServiceInfo(host, port, props.getProperty("path"), props.getProperty("apiv")));
+        System.out.println("Service initialized to " + host + ":" + port);
+    }
 
-	public BindingFactory getBindingFactory() {
-		return bindingFactory;
-	}
+    private void loadScriptsAvailable() {
+        scriptsAvailable = new HashMap<String, String>();
+        String scriptsFolder = props.getProperty("scripts_folder");
+        File dir = new File(scriptsFolder);
+        File[] files = dir.listFiles();
+        for (File file : NotNullIterator.<File> newNotNullIterator(files)) {
+            Matcher m = SCRIPT_PATTERN.matcher(file.getName());
+            if (m.matches()) {
+                try {
+                    scriptsAvailable.put(m.group(1), file.getCanonicalPath());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
-	public void setBindingFactory(BindingFactory bindingFactory) {
-		this.bindingFactory = bindingFactory;
-	}
+    public void runScriptName(String name) {
+        this.runner.loadAndRunOneScript(name);
+
+    }
+
+    public boolean runScript(String script) {
+        String filePath = scriptsAvailable.get(script);
+        if (null == filePath) {
+            return false;
+        } else {
+            runner.loadAndRunOneScript(filePath);
+            return true;
+        }
+    }
+
+    public Map<String, String> getAvailableScripts() {
+        return scriptsAvailable;
+    }
+
+    public boolean describeFlow(String api, String flow) {
+        return getBindingFactory().getDSL().describeFlow(api, flow);
+    }
+
+    public FarReachesServiceInfo getServiceInfo() {
+        return serviceInfo;
+    }
+
+    public void setServiceInfo(FarReachesServiceInfo serviceInfo) {
+        System.out.println("Updated Service Info");
+        this.serviceInfo = serviceInfo;
+        getBindingFactory().setDSL(new FlowTestDSL(getServiceInfo(), this.props, runner));
+    }
+
+    public BindingFactory getBindingFactory() {
+        return bindingFactory;
+    }
+
+    public void setBindingFactory(BindingFactory bindingFactory) {
+        this.bindingFactory = bindingFactory;
+    }
 
 }

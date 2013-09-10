@@ -42,7 +42,7 @@ import org.apache.http.message.BasicNameValuePair;
 /**
  * Abstract Super class for all testing strategies. This class defines methods
  * that are useful to most strategies.
- * 
+ *
  * @author paul
  */
 public abstract class AbstractTestingStrategy {
@@ -76,7 +76,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Generates parameters for the request.
-	 * 
+	 *
 	 * @param flow
 	 *            - flow name.
 	 * @param parameterNames
@@ -88,7 +88,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Initializes a new test script.
-	 * 
+	 *
 	 * @param flow
 	 *            -the current flow name
 	 * @param activity
@@ -116,7 +116,7 @@ public abstract class AbstractTestingStrategy {
 	 * default implementation will return false if the flow is listed in the
 	 * ignoreFlows system property. Different strategies could decide to
 	 * generate test based on other criteria.
-	 * 
+	 *
 	 * @param flowName
 	 *            - the name of the flow being processed
 	 * @param flowDefinitionJson
@@ -130,7 +130,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * add a "request" directive to the test script.
-	 * 
+	 *
 	 * @param flow
 	 *            - the name of the flow being processed
 	 * @param params
@@ -161,7 +161,7 @@ public abstract class AbstractTestingStrategy {
 	/**
 	 * This method can be ovveridden in sub-strategies to add specific types of
 	 * validation to different tests.
-	 * 
+	 *
 	 * @param typicalResponse
 	 *            - the response when this flow was called during test creation.
 	 */
@@ -172,7 +172,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Adds an expected return to the test.
-	 * 
+	 *
 	 * @param json
 	 *            - the expected json data
 	 */
@@ -197,7 +197,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Adds an expected return to the test.
-	 * 
+	 *
 	 * @param json
 	 *            - the expected json data
 	 * @param flowName
@@ -240,7 +240,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Generate standard ignore list in file.
-	 * 
+	 *
 	 * @param json1
 	 *            is the json data in first request
 	 * @param json2
@@ -312,7 +312,6 @@ public abstract class AbstractTestingStrategy {
 	// // fileWriter.write(ingnore+",");
 	// // }
 	// fileWriter.flush();
-	// fileWriter.close();
 	// } catch (IOException e) {
 	// e.printStackTrace();
 	// }
@@ -338,7 +337,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Compare of two JSONObjects.
-	 * 
+	 *
 	 * @param json1
 	 *            is the json data in first request
 	 * @param json2
@@ -386,7 +385,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Write expected value to test file buffer.
-	 * 
+	 *
 	 * @param content
 	 *            - the expected value
 	 */
@@ -407,7 +406,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Generates a test for an activity.
-	 * 
+	 *
 	 * @param flow
 	 *            - flow name
 	 * @param activityDefinition
@@ -437,7 +436,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Calls the flow to obtain a typical response.
-	 * 
+	 *
 	 * @param requestUriString
 	 *            - request uri
 	 * @param flow
@@ -457,7 +456,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Process the activity definition to get its params.
-	 * 
+	 *
 	 * @param activityDefinition
 	 *            - JSON object
 	 * @return a collection of RequestParameter in this activity.
@@ -514,7 +513,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Get standard ignores.
-	 * 
+	 *
 	 * @return a map of ignore list.
 	 */
 	public Map<String, List<String>> getStandardIgnores() {
@@ -538,24 +537,19 @@ public abstract class AbstractTestingStrategy {
 	public String getContents(File aFile) {
 		// ...checks on aFile are elided
 		StringBuilder contents = new StringBuilder();
-		try {
-			// use buffering, reading one line at a time
-			// FileReader always assumes default encoding is OK!
-			BufferedReader input = new BufferedReader(new FileReader(aFile));
-			try {
-				String line = null; // not declared within while loop
-				/*
-				 * readLine is a bit quirky : it returns the content of a line
-				 * MINUS the newline. it returns null only for the END of the
-				 * stream. it returns an empty String if two newlines appear in
-				 * a row.
-				 */
-				while ((line = input.readLine()) != null) {
-					contents.append(line);
-					contents.append(System.getProperty("line.separator"));
-				}
-			} finally {
-				input.close();
+		// use buffering, reading one line at a time
+		// FileReader always assumes default encoding is OK!
+		try(FileReader fileReader = new FileReader(aFile); BufferedReader input = new BufferedReader(fileReader)) {
+			String line = null; // not declared within while loop
+			/*
+			 * readLine is a bit quirky : it returns the content of a line
+			 * MINUS the newline. it returns null only for the END of the
+			 * stream. it returns an empty String if two newlines appear in
+			 * a row.
+			 */
+			while ((line = input.readLine()) != null) {
+				contents.append(line);
+				contents.append(System.getProperty("line.separator"));
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -565,7 +559,7 @@ public abstract class AbstractTestingStrategy {
 
 	/**
 	 * Get the logger for this class.
-	 * 
+	 *
 	 * @return a log
 	 */
 	public Log getLog() {

@@ -19,115 +19,112 @@ import org.amplafi.flow.utils.AdminTool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 /**
- * An entry point to load a shell and use the flow client
- * scripts easily.
- * 
- * The key interaction with FlowTest and the groovy runtime is made through the {@link BindingFactory} interface which allows you to
- * resolve unresolved variable names in the scripts (this is how you input values through the console for example, but could be any 
- * 'value provider' that knows how to properly override the {@link Binding} class. See {@link InteractiveBinding} and {@link InteractiveBindingFactory}
- * @author bfv
+ * An entry point to load a shell and use the flow client scripts easily. The key interaction with
+ * FlowTest and the groovy runtime is made through the {@link BindingFactory} interface which allows
+ * you to resolve unresolved variable names in the scripts (this is how you input values through the
+ * console for example, but could be any 'value provider' that knows how to properly override the
+ * {@link Binding} class. See {@link InteractiveBinding} and {@link InteractiveBindingFactory}
  *
+ * @author bfv
  */
 public class InteractiveShell {
-	private AdminTool adminTool;
-	private BufferedReader reader;
-	private Log log;
-	private ShellCommandBuilder shellCommandBuilder;
+    private AdminTool adminTool;
 
-	private static final String PROMPT = "cs>";
+    private BufferedReader reader;
 
-	public InteractiveShell() {
-		setReader(new BufferedReader(new InputStreamReader(System.in)));
-		setAdminTool(new AdminTool(new InteractiveBindingFactory(getReader())));
-		setShellCommandBuilder(new ShellCommandBuilder());
-		this.setLog(LogFactory.getLog(this.getClass()));
-		try{
-		}catch(Exception e){
-			System.exit(1);
-		}
-	}
+    private Log log;
 
-	public static void main(String[] args) {
-		InteractiveShell is = new InteractiveShell();
-		is.addCommand(new HelpBuilder(is));
-		is.addCommand(new RunScriptBuilder());
-		is.addCommand(new ListScriptsBuilder());
-		is.addCommand(new DescribeApiOrFlowBuilder());
-		is.addCommand(new ExitBuilder());
-		is.ioLoop();
-	}
+    private ShellCommandBuilder shellCommandBuilder;
 
-	public void ioLoop() {
-		getShellCommandBuilder().build("help").execute(getAdminTool());
-		while (true) {
-			AShellCommand comm = parseCommand();
-			try{
-			comm.execute(getAdminTool());
-			}catch(Exception e){
-				getLog().error("Command failed. Exception attached next:", e);
-				System.out.println("Error in the command, look at the error logs for more info");
-			}
-		}
-	}
+    private static final String PROMPT = "cs>";
 
-	private AShellCommand parseCommand() {
-		System.out.print(PROMPT);
-		String commandLine;
-		try {
-			commandLine = getReader().readLine().trim();
-			return getShellCommandBuilder().build(commandLine);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return null;
-	}
+    public InteractiveShell() {
+        setReader(new BufferedReader(new InputStreamReader(System.in)));
+        setAdminTool(new AdminTool(new InteractiveBindingFactory(getReader())));
+        setShellCommandBuilder(new ShellCommandBuilder());
+        this.setLog(LogFactory.getLog(this.getClass()));
+    }
 
-	public String getUserInput() {
-		try {
-			String value = getReader().readLine();
-			return value;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+    public static void main(String[] args) {
+        InteractiveShell is = new InteractiveShell();
+        is.addCommand(new HelpBuilder(is));
+        is.addCommand(new RunScriptBuilder());
+        is.addCommand(new ListScriptsBuilder());
+        is.addCommand(new DescribeApiOrFlowBuilder());
+        is.addCommand(new ExitBuilder());
+        is.ioLoop();
+    }
 
-	BufferedReader getReader() {
-		return reader;
-	}
+    public void ioLoop() {
+        getShellCommandBuilder().build("help").execute(getAdminTool());
+        while (true) {
+            AShellCommand comm = parseCommand();
+            try {
+                comm.execute(getAdminTool());
+            } catch (Exception e) {
+                getLog().error("Command failed. Exception attached next:", e);
+                System.out.println("Error in the command, look at the error logs for more info");
+            }
+        }
+    }
 
-	void setReader(BufferedReader reader) {
-		this.reader = reader;
-	}
+    private AShellCommand parseCommand() {
+        System.out.print(PROMPT);
+        String commandLine;
+        try {
+            commandLine = getReader().readLine().trim();
+            return getShellCommandBuilder().build(commandLine);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
 
-	AdminTool getAdminTool() {
-		return adminTool;
-	}
+    public String getUserInput() {
+        try {
+            String value = getReader().readLine();
+            return value;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	void setAdminTool(AdminTool adminTool) {
-		this.adminTool = adminTool;
-	}
+    BufferedReader getReader() {
+        return reader;
+    }
 
-	public Log getLog() {
-		return log;
-	}
+    void setReader(BufferedReader reader) {
+        this.reader = reader;
+    }
 
-	public void setLog(Log log) {
-		this.log = log;
-	}
-	
-	public void addCommand(AbstractShellCommandBuilder commandBuilder){
-		getShellCommandBuilder().addCommand(commandBuilder);
-	}
+    AdminTool getAdminTool() {
+        return adminTool;
+    }
 
-	public ShellCommandBuilder getShellCommandBuilder() {
-		return shellCommandBuilder;
-	}
+    void setAdminTool(AdminTool adminTool) {
+        this.adminTool = adminTool;
+    }
 
-	public void setShellCommandBuilder(ShellCommandBuilder commandBuilder) {
-		this.shellCommandBuilder = commandBuilder;
-	}
+    public Log getLog() {
+        return log;
+    }
+
+    public void setLog(Log log) {
+        this.log = log;
+    }
+
+    public void addCommand(AbstractShellCommandBuilder commandBuilder) {
+        getShellCommandBuilder().addCommand(commandBuilder);
+    }
+
+    public ShellCommandBuilder getShellCommandBuilder() {
+        return shellCommandBuilder;
+    }
+
+    public void setShellCommandBuilder(ShellCommandBuilder commandBuilder) {
+        this.shellCommandBuilder = commandBuilder;
+    }
 }

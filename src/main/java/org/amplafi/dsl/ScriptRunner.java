@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
@@ -18,9 +17,9 @@ import org.testng.reporters.Files;
 
 /**
  * Responsible for groovy script running
- * 
+ *
  * Nowadays the class concerns itself exclusively with the running of scripts, and state is, within reason, excluded from it.
- * 
+ *
  * @author Paul
  */
 public class ScriptRunner {
@@ -46,7 +45,7 @@ public class ScriptRunner {
 	/**
 	 * Constructs a Script runner with individual parameters that can be
 	 * overridden in scripts. passes a map of parameters to the script
-	 * 
+	 *
 	 * @param host
 	 *            - host address e.g. http://www.farreach.es
 	 * @param port
@@ -65,13 +64,9 @@ public class ScriptRunner {
 		this.key = null;
 	}
 
-	static public ScriptRunner getNewScriptRunner(Properties props,BindingFactory bindingFactory) {
-		return new ScriptRunner(bindingFactory);
-	}
-
 	/**
 	 * Loads and runs one script specified by the file parameter.
-	 * 
+	 *
 	 * @param filePath
 	 *            is the full path to the script.
 	 * @throws IOException
@@ -98,7 +93,7 @@ public class ScriptRunner {
 
 	/**
 	 * Runs or describes a script from source code.
-	 * 
+	 *
 	 * @param sourceCode
 	 * @param execOrDescibe
 	 *            - If true then execute the source code as a command script if
@@ -126,7 +121,7 @@ public class ScriptRunner {
 	 * Takes the source code string and wraps in into a valid groovy script that
 	 * when run will return a closure. that can be either configured to describe
 	 * itself or to run as a sequence of commands.
-	 * 
+	 *
 	 * @param sourceCode
 	 * @param paramsmap
 	 * @return
@@ -159,7 +154,7 @@ public class ScriptRunner {
 
 	/**
 	 * Creates an un-configured closure (no delegate set).
-	 * 
+	 *
 	 * @param scriptName
 	 * @param callParamsMap
 	 *            - map of parameters name to value
@@ -195,7 +190,7 @@ public class ScriptRunner {
 	 * Obtain the script file path from the short name in the script description
 	 * directive. This should be called after processScriptsInFolder(...) or it
 	 * will return null.
-	 * 
+	 *
 	 * @param scriptName
 	 * @return file path string
 	 */
@@ -210,44 +205,44 @@ public class ScriptRunner {
 
 	/**
 	 * Returns the script source with import lines removed.
-	 * 
+	 *
 	 * @param source
 	 *            - original source code.
 	 * @return - modified code
 	 */
 	private String getValidClosureCode(String source) {
 		StringBuffer sb = new StringBuffer();
-		Scanner s = new Scanner(source);
-		while (s.hasNextLine()) {
-			String line = s.nextLine();
-			if (!line.startsWith("import")) {
-				// Escape " for groovy..
-				line = line.replaceAll("\"", "\\\"");
-				sb.append(line).append(NL);
-			}
+		try(Scanner s = new Scanner(source)) {
+    		while (s.hasNextLine()) {
+    			String line = s.nextLine();
+    			if (!line.startsWith("import")) {
+    				// Escape " for groovy..
+    				line = line.replaceAll("\"", "\\\"");
+    				sb.append(line).append(NL);
+    			}
+    		}
 		}
-		s.close();
 		return sb.toString();
 	}
 
 	/**
 	 * Returns the all of the import lines from the script so they can be put in
 	 * the correct location in the wrapper script.
-	 * 
+	 *
 	 * @param source
 	 *            - source code
 	 * @return - string of import statements.
 	 */
 	private String getImportLines(String source) {
 		StringBuffer sb = new StringBuffer();
-		Scanner s = new Scanner(source);
-		while (s.hasNextLine()) {
-			String line = s.nextLine();
-			if (line.startsWith("import")) {
-				sb.append(line).append(NL);
-			}
+		try(Scanner s = new Scanner(source)) {
+    		while (s.hasNextLine()) {
+    			String line = s.nextLine();
+    			if (line.startsWith("import")) {
+    				sb.append(line).append(NL);
+    			}
+    		}
 		}
-		s.close();
 		return sb.toString();
 	}
 

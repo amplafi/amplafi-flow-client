@@ -117,7 +117,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Constructor for the generator.
-	 * 
+	 *
 	 * @param strategy
 	 *            - the current strategy
 	 * @param apiKey
@@ -161,19 +161,16 @@ public class DSLTestGenerator {
 	}
 
 	private void writeTestFile() throws GenerationException {
-		try {
+	    String outFile = null;
+	    if (this.outPath == null) {
+	        outFile = "../" + DEFAULT_SCRIPT_PATH + "/"
+	                + strategy.getFileName();
+	    } else {
+	        outFile = this.outPath + "/" + strategy.getFileName();
+	    }
 
-			String outFile = null;
-			if (this.outPath == null) {
-				outFile = "../" + DEFAULT_SCRIPT_PATH + "/"
-						+ strategy.getFileName();
-			} else {
-				outFile = this.outPath + "/" + strategy.getFileName();
-			}
-
-			BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
+		try(BufferedWriter out = new BufferedWriter(new FileWriter(outFile))) {
 			out.write(strategy.getTestFileContents());
-			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new GenerationException("Error writing file", e);
@@ -183,7 +180,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Provides all flow names for testing
-	 * 
+	 *
 	 * @return the names of all the flows supported by this server api
 	 */
 	public List<String> getListOfFlows() throws GenerationException {
@@ -206,7 +203,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Generates a test scripts for this strategy and this Flow.
-	 * 
+	 *
 	 * @param flow
 	 */
 	public void generateOne(String flow) throws GenerationException {
@@ -229,7 +226,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Verify that request returns a non-null non-empty string.
-	 * 
+	 *
 	 * @return The string containing the flow definition JSON data for the
 	 *         current flow.
 	 */
@@ -256,7 +253,7 @@ public class DSLTestGenerator {
 	 * Determine whether the returned data is valid JSON data and whether it
 	 * contains a list of activities which contain parameters for the flow. Then
 	 * generate script from that.
-	 * 
+	 *
 	 * @param flow
 	 *            - the flow name
 	 * @param flowDefinitionResult
@@ -366,7 +363,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Validates a generic flow response
-	 * 
+	 *
 	 * @param jsonStr
 	 *            - the flow response raw data.
 	 */
@@ -406,7 +403,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Do debug logging
-	 * 
+	 *
 	 * @param msg
 	 */
 	private void debug(String msg) {
@@ -417,7 +414,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Complain if condition not met (Hangover from when this was a unit test)
-	 * 
+	 *
 	 * @param obj
 	 * @param msg
 	 * @throws GenerationException
@@ -431,7 +428,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Complain if condition not met (Hangover from when this was a unit test)
-	 * 
+	 *
 	 * @param obj
 	 * @throws GenerationException
 	 */
@@ -443,7 +440,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Complain if condition not met (Hangover from when this was a unit test)
-	 * 
+	 *
 	 * @param b
 	 * @param msg
 	 * @throws GenerationException
@@ -456,7 +453,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Complain if condition not met (Hangover from when this was a unit test)
-	 * 
+	 *
 	 * @param b
 	 * @param msg
 	 * @throws GenerationException
@@ -469,7 +466,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Thros Exception
-	 * 
+	 *
 	 * @param msg
 	 * @throws GenerationException
 	 */
@@ -479,7 +476,7 @@ public class DSLTestGenerator {
 
 	/**
 	 * Throw exception
-	 * 
+	 *
 	 * @param msg
 	 * @param t
 	 * @throws GenerationException

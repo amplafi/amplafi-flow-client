@@ -51,7 +51,7 @@ public class TestLoggingProxy {
         assertEquals(map.get("flowName"),"AvailableCategoriesList");
         assertEquals(map.get("fsRenderResult"),"json");
     }
-    
+
     /**
      * This test tests method getRequestParamMap() receive a bad request.
      */
@@ -82,33 +82,33 @@ public class TestLoggingProxy {
         assertFalse(req.contains("fsRenderResult1asd"));
         assertFalse(req.contains("jsonwe"));
         assertFalse(req.contains("checkReturnedValidJson(sf)"));
-        
+
     }
-    
+
     public class LoggingProxyTest extends LoggingProxy{
 
         private String testScriptRequest = "";
-        
+
         /**
          * @return the testScriptRequest
          */
         public String getTestScriptRequest() {
-            
+
             return testScriptRequest;
         }
 
+        @Override
         protected Writer getTestFileWriter(){
             return new StringWriter();
         }
 
+        @Override
         public void addTestScriptRequest(String req) {
             Map<String,String> reqMap = getRequestParamsMap(req);
             String flowName = reqMap.get("flowName");
             Set<String> paramSet = reqMap.keySet();
             paramSet.remove("flowName");
-            try{
-                // Create file 
-                Writer out = getTestFileWriter();
+            try(Writer out = getTestFileWriter()) {
                 out.write("request(\"" + flowName + "\",[");
                 Iterator it = paramSet.iterator();
                 int i = 0;
@@ -116,29 +116,28 @@ public class TestLoggingProxy {
                     if(i != 0){
                         out.write(",");
                     }
-                    String paramName = it.next().toString(); 
-                    out.write("\"" + paramName + "\":\"" + 
-                            reqMap.get(paramName) + "\"" 
+                    String paramName = it.next().toString();
+                    out.write("\"" + paramName + "\":\"" +
+                            reqMap.get(paramName) + "\""
                             );
                     i++;
                 }
                 String newLine = System.getProperty("line.separator");
-                
+
                 //request("AvailableCategoriesList",["java.util.HashMap$KeyIterator@75324a":"null])
                 out.write("])" + newLine);
                 out.write("checkReturnedValidJson()");
                 //Close the output stream
                 testScriptRequest = out.toString();
-                out.close();
             }catch (Exception e){//Catch exception if any
                 System.err.println("Error: " + e.getMessage());
             }
           //  request("EligibleExternalServiceInstancesFlow", ["eligibleExternalServiceInstanceMap":"bogusData","eligibleExternalServiceInstances":"bogusData","fsRenderResult":"json"])
           //  checkReturnedValidJson()
-            
+
         }
-        
-      
+
+
     }
 
 }

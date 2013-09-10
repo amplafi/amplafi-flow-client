@@ -10,8 +10,6 @@ import static org.amplafi.flow.utils.LoadToolCommandLineOptions.REPORT;
 import static org.amplafi.flow.utils.LoadToolCommandLineOptions.SCRIPT;
 import static org.amplafi.flow.utils.LoadToolCommandLineOptions.TEST_PLAN;
 import static org.amplafi.flow.utils.LoadToolCommandLineOptions.VERBOSE;
-import groovy.lang.Binding;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,11 +28,9 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.amplafi.dsl.BindingFactory;
 import org.amplafi.dsl.FlowTestDSL;
 import org.amplafi.dsl.GroovyBindingFactory;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
-import org.amplafi.flow.ui.command.RunScriptCommand;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,19 +38,19 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Tool for load testing the wire server.
  * Bruno's notes:
- * 
+ *
  * As of now, the csui branch doesn't work with this entry point. To change this, there are some changes that need to be made:
- * 
+ *
  * To make this work better I advise removing the command line loaders and using the config file interface exclusively. The
  * {@link AdminTool} will load it's su keys and server parameters according to the {@link AdminTool#CONFIG_FILE}
- * 
+ *
  * There is a small distinction now about how api keys work in the the {@link FlowTestDSL}, therefore the current interface is obsolete
  * and needs to reflect that. In any case I'm assuming that the key expected is an api key, but if you want to execute the tool with
  * something else, you can do it by expanding on the logic on {@link LoadTool#runLoadTest}.
- * 
+ *
  * A complete refactor of the LoadTool class should avoid the current default initialization of AdminTool and instead change it to better
  * match the interface by providing a constructor. I also recommend changing it so that it works with configuration files by default.
- * 
+ *
  * @author paul
  */
 public class LoadTool extends UtilParent {
@@ -104,7 +100,7 @@ public class LoadTool extends UtilParent {
 
 	/**
 	 * Process command line and run the server.
-	 * 
+	 *
 	 * @param args
 	 */
 	public void processCommandLine(String[] args) {
@@ -146,7 +142,7 @@ public class LoadTool extends UtilParent {
 				remotePort = Integer.parseInt(cmdOptions
 						.getOptionValue(HOST_PORT));
 			} catch (NumberFormatException nfe) {
-				getLog().error("Remote port should be in numeric form e.g. 80. defaulting to config file configuration");	
+				getLog().error("Remote port should be in numeric form e.g. 80. defaulting to config file configuration");
 			}
 
 			String host = cmdOptions.getOptionValue(HOST);
@@ -190,7 +186,8 @@ public class LoadTool extends UtilParent {
 
 			// Register shutdown handler.
 			Runtime.getRuntime().addShutdownHook(new Thread() {
-				public void run() {
+				@Override
+                public void run() {
 					shutDown();
 					// TODO output above to file or speadsheet
 					// TODO output time variant call data to speadsheet
@@ -212,9 +209,9 @@ public class LoadTool extends UtilParent {
 							running = true;
 							reported = false;
 
-							numThreads = (Integer) listMap.get(i).get(
+							numThreads = listMap.get(i).get(
 									"numThreads");
-							frequency = (Integer) listMap.get(i).get(
+							frequency = listMap.get(i).get(
 									"frequency");
 							runLoadTest(service, key, scriptName, numThreads,
 									frequency, cmdOptions.hasOption(VERBOSE)); // never
@@ -376,7 +373,7 @@ public class LoadTool extends UtilParent {
 		sb.append(totalCallsPerSecond + ",");
 		sb.append(totalErrors + ",");
 		if (totalCalls > 0) {
-			sb.append((double) ((totalCalls - totalErrors) / totalCalls)
+			sb.append((totalCalls - totalErrors) / totalCalls
 					* 100.0000 + "%,");
 		} else {
 			sb.append("0%,");
@@ -387,34 +384,30 @@ public class LoadTool extends UtilParent {
 		if (!isFileExists(reportFile)) {
 			createFile(reportFile);
 
-			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
-					reportFile), true));
-
 			StringBuffer commandLine = new StringBuffer(
-					"'ant LoadTest -Dargs=\"");
+			    "'ant LoadTest -Dargs=\"");
 
 			for (String arg : args) {
-				commandLine.append(arg);
-				commandLine.append(" ");
+			    commandLine.append(arg);
+			    commandLine.append(" ");
 			}
 			commandLine.append("\"'");
-
-			bw.write("'" + getSystemInfo() + "'");
-			bw.newLine();
-			bw.write(commandLine.toString());
-			bw.newLine();
-			bw.newLine();
-			bw.write("total attempted calls per second,frequency,numThreads,Total calls in all threads,calls per second,total errors,% of Successful Calls,Duration of test,remarks");
-			bw.newLine();
-			bw.close();
+			try(BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
+					reportFile), true))) {
+    			bw.write("'" + getSystemInfo() + "'");
+    			bw.newLine();
+    			bw.write(commandLine.toString());
+    			bw.newLine();
+    			bw.newLine();
+    			bw.write("total attempted calls per second,frequency,numThreads,Total calls in all threads,calls per second,total errors,% of Successful Calls,Duration of test,remarks");
+    			bw.newLine();
+			}
 		}
 
-		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
-					reportFile), true));
+		try(BufferedWriter bw = new BufferedWriter(new FileWriter(new File(
+					reportFile), true))) {
 			bw.write(sb.toString());
 			bw.newLine();
-			bw.close();
 		} catch (Exception ie) {
 			getLog().error("Error", ie);
 		}
@@ -477,7 +470,7 @@ public class LoadTool extends UtilParent {
 
 	/**
 	 * Delete the file after a given time.
-	 * 
+	 *
 	 * @param fileName
 	 *            is the file to delete.
 	 * @param time
@@ -491,7 +484,8 @@ public class LoadTool extends UtilParent {
 			Timer timer = new Timer(true);
 
 			timer.schedule(new TimerTask() {
-				public void run() {
+				@Override
+                public void run() {
 					stopTest();
 				}
 			}, delay);
@@ -541,11 +535,12 @@ public class LoadTool extends UtilParent {
 		for (int i = 0; i < numThreads; i++) {
 			final ThreadReport report = new ThreadReport();
 			Thread thread = new Thread(new Runnable() {
-				public void run() {
+				@Override
+                public void run() {
 					try {
 						// don't include the first run because this includes
 						// constructing gropvy runtime.
-						
+
 						adminTool.runScriptName(scriptName);
 						report.startTime = System.currentTimeMillis();
 						while (running) {
@@ -604,9 +599,8 @@ public class LoadTool extends UtilParent {
 		String paramName2 = "";
 		Integer lineNum = 1;
 		String readoneline = "";
-		try {
-			FileReader fr = new FileReader(planFileName);
-			BufferedReader br = new BufferedReader(fr);
+		try(FileReader fr = new FileReader(planFileName);
+			BufferedReader br = new BufferedReader(fr)) {
 			while ((readoneline = br.readLine()) != null) {
 				String[] param = readoneline.split(",");
 				System.err.println("read on line " + readoneline);
@@ -628,10 +622,6 @@ public class LoadTool extends UtilParent {
 				map.put("planNum", lineNum - 2);
 				listMap.add(map);
 			}
-
-			br.close();
-			fr.close();
-
 		} catch (IOException ie) {
 			getLog().error("Error", ie);
 		}
@@ -642,7 +632,8 @@ public class LoadTool extends UtilParent {
 	/**
 	 * Get the logger for this class.
 	 */
-	public Log getLog() {
+	@Override
+    public Log getLog() {
 		if (this.log == null) {
 			this.log = LogFactory.getLog(this.getClass());
 		}
