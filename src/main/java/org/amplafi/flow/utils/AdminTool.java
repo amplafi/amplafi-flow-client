@@ -32,7 +32,7 @@ public class AdminTool {
 	private Properties props;
 	private FarReachesServiceInfo serviceInfo;
 	private BindingFactory bindingFactory;
-	public static final String CONFIG_FILE = "fareaches.fadmin.properties";
+	public static final String CONFIG_FILE = "farreaches.fadmin.properties";
 	private static final Pattern SCRIPT_PATTERN = Pattern.compile("^(.*)\\.groovy$");
 
 	public AdminTool(BindingFactory bindingFactory) {
