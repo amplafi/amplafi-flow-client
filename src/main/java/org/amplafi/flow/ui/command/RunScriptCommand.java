@@ -25,10 +25,10 @@ public class RunScriptCommand extends AShellCommand {
 		if(m.matches()){
 			String script = m.group(1);
 			if(!adminTool.runScript(script))
-				System.out.println("Invalid script name. Make sure you typed it correctly");
+				System.out.println("Invalid script name. Make sure you typed it correctly.");
 		}else{
 			System.out.println("Invalid options. Specify the name of a script. To see script names "
-					+ "use command \"scripts\"");
+					+ "use command \"lists\"");
 		}
 		return 0;
 	}
