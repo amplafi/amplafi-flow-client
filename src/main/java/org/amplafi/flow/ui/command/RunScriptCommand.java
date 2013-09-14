@@ -20,17 +20,23 @@ public class RunScriptCommand extends AShellCommand {
 	
 	@Override
 	public int execute(AdminTool adminTool) {
+	    String script = getScriptName();
+        if(!adminTool.runScript(script))
+		    System.out.println("Invalid script name. Make sure you typed it correctly.");
+		return 0;
+	}
+
+    protected String getScriptName() {
+        String script = null;
 		String st = this.getOptions();
 		Matcher m = NO_SPACE_WORD.matcher(st);
 		if(m.matches()){
-			String script = m.group(1);
-			if(!adminTool.runScript(script))
-				System.out.println("Invalid script name. Make sure you typed it correctly.");
+			script = m.group(1);
 		}else{
 			System.out.println("Invalid options. Specify the name of a script. To see script names "
 					+ "use command \"lists\"");
 		}
-		return 0;
-	}
+        return script;
+    }
 
 }

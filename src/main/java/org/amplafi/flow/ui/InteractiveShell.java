@@ -12,8 +12,6 @@ import org.amplafi.flow.ui.command.AbstractShellCommandBuilder;
 import org.amplafi.flow.ui.command.DescribeApiOrFlowBuilder;
 import org.amplafi.flow.ui.command.ExitBuilder;
 import org.amplafi.flow.ui.command.HelpBuilder;
-import org.amplafi.flow.ui.command.ListScriptsBuilder;
-import org.amplafi.flow.ui.command.RunScriptBuilder;
 import org.amplafi.flow.ui.command.ShellCommandBuilder;
 import org.amplafi.flow.utils.AdminTool;
 import org.apache.commons.logging.Log;
@@ -49,9 +47,10 @@ public class InteractiveShell {
     public static void main(String[] args) {
         InteractiveShell is = new InteractiveShell();
         is.addCommand(new HelpBuilder(is));
-        is.addCommand(new RunScriptBuilder());
-        is.addCommand(new ListScriptsBuilder());
         is.addCommand(new DescribeApiOrFlowBuilder());
+        for (String script : is.adminTool.getAvailableScripts().keySet()) {
+            is.addCommand(new NamedScriptCommandBuilder(script));            
+        }
         is.addCommand(new ExitBuilder());
         is.ioLoop();
     }
