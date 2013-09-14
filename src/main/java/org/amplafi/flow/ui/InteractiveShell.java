@@ -5,6 +5,10 @@ import groovy.lang.Binding;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import org.amplafi.dsl.BindingFactory;
 import org.amplafi.flow.ui.command.AShellCommand;
@@ -48,7 +52,9 @@ public class InteractiveShell {
         InteractiveShell is = new InteractiveShell();
         is.addCommand(new HelpBuilder(is));
         is.addCommand(new DescribeApiOrFlowBuilder());
-        for (String script : is.adminTool.getAvailableScripts().keySet()) {
+        List<String> scriptNames = new ArrayList<>(is.adminTool.getAvailableScripts().keySet());
+        Collections.sort(scriptNames);
+        for (String script : scriptNames) {
             is.addCommand(new NamedScriptCommandBuilder(script));            
         }
         is.addCommand(new ExitBuilder());
