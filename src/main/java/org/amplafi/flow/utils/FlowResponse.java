@@ -94,7 +94,7 @@ public class FlowResponse {
 	
     private String buildErrorMessage() {
         StringBuilder error = new StringBuilder();
-        if (getErrorMessage().contains("Callback with lookupKey")) {
+        if (getHttpStatusCode() == 401) {
             error.append("Your current key is invalid. This will happen if the farreach.es server restarts. Ask Pat for a new key");
         } else {
             error.append("response string:");
@@ -120,9 +120,6 @@ public class FlowResponse {
 	}
 
 	public String getErrorMessage() {
-		// Construct error message, connsisting of explanation of code (for Pat
-		// at 3am) and
-		// error message returned from server.
 		return "Http Status Code " + this.getHttpStatusCode() + "\n"
 				+ responseExplanations.get(this.getHttpStatusCode()) + "\n";
 	}
