@@ -953,15 +953,14 @@ public class FlowTestDSL extends Assert {
         return dateString.matches("\\d\\d\\d\\d-\\d\\d-\\d\\d");
     }
 
-    public String getNow() {
+    public String today() {
         return formatDate(new Date());
     }
 
-    public String getLastMonth() {
-        GregorianCalendar gc = new GregorianCalendar();
-        gc.setTime(new Date());
-        gc.add(Calendar.MONTH, -1);
-        return formatDate(gc.getTime());
+    public String lastMonth() {
+        Calendar now = Calendar.getInstance();
+        now.add(Calendar.MONTH, -1);
+        return formatDate(now.getTime());
     }
 
     public String formatDate(Date date) {
@@ -991,7 +990,7 @@ public class FlowTestDSL extends Assert {
      *            message
      * @return
      */
-    public String inputWithDefault(String inputVariable, String defaultValue, String errorMessage) {
+    public String input(String inputVariable, String defaultValue, String errorMessage) {
         if ("".equals(inputVariable)) {
             if (errorMessage != null) {
                 System.out.println(errorMessage);
