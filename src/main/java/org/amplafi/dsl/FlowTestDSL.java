@@ -564,14 +564,6 @@ public class FlowTestDSL extends Assert {
         }
     }
 
-    // A function to debug objects, sometimes it's necessary to inspect a result from the server or other calls. Just put a breakpoint
-    // here and call the function from a script passing the object to it
-    public void objectDebug(Object o) {
-        int a = 1;
-        a = a + 3;
-        System.out.println("Inspecting Object value");
-    }
-
     private static final String DEFAULT_ROOT_URL = "example.co.uk";
 
     public FlowResponse request(String flowName) {
