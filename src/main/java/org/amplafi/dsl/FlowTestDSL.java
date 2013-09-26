@@ -564,12 +564,6 @@ public class FlowTestDSL extends Assert {
         }
     }
 
-    // if you want to output feedback with lines, you need to avoid browsing packages (System.Out.printLn ..)
-    // or you'll trigger the 'can't find out' thing
-    public void pln(Object obj) {
-        System.out.println(obj);
-    }
-
     // A function to debug objects, sometimes it's necessary to inspect a result from the server or other calls. Just put a breakpoint
     // here and call the function from a script passing the object to it
     public void objectDebug(Object o) {
@@ -705,14 +699,6 @@ public class FlowTestDSL extends Assert {
         serviceInfo.setApiVersion(api);
         GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo, apiKey, flowName, requestParams);
         return request;
-    }
-
-    public void prettyPrint(FlowResponse flowResponse) {
-        if (this.prettyPrint) {
-            pln(flowResponse.toJSONObject().toString(2));
-        } else {
-            pln(flowResponse.toJSONObject().toString(1));
-        }
     }
 
     // Kostya: these are used by RealisticParams* tests..
@@ -1031,7 +1017,7 @@ public class FlowTestDSL extends Assert {
     public String inputWithDefault(String inputVariable, String defaultValue, String errorMessage) {
         if ("".equals(inputVariable)) {
             if (errorMessage != null) {
-                pln(errorMessage);
+                System.out.println(errorMessage);
             }
             return defaultValue;
         } else {
