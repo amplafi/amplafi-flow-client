@@ -993,12 +993,35 @@ public class FlowTestDSL extends Assert {
      * @return
      */
     public String input(String defaultValue, String request) {
-        System.out.println(request + " [" + defaultValue + "]:");
+        String defaultIndicator = defaultValue != null ? " [" + defaultValue + "]" : "";
+        System.out.println(request + defaultIndicator + ":");
         String inputVariable = INPUT.nextLine();
         if (inputVariable == null || inputVariable.isEmpty()) {
             return defaultValue;
         } else {
             return inputVariable;
         }
+    }
+    
+    public String input(String request) {
+        return input(null, request);
+    }
+    
+    public void obtainReadOnlyKey() {
+        System.out.println("A readonly key is needed to proceed. Specify provider the key for.");
+        String publicUrl = input("example.co.uk", "Enter provider url");
+        FlowResponse response = request("su", "SuApiKey", CUtilities.createMap(
+                            "publicUri" , publicUrl, 
+                            "reasonForAccess", "Customer support tool automatic request."));
+        if (!response.hasError()) {
+            readOnlyKey = response.toString();
+        } else {
+            System.out.println(response);
+            throw new IllegalStateException("Failed to get read only key.");
+        }
+    }
+    
+    public void eraseReadOnlyKey() {
+        readOnlyKey = null;
     }
 }
