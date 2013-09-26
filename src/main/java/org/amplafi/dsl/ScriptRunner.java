@@ -133,24 +133,23 @@ public class ScriptRunner {
      * @return
      */
     private Closure getClosure(String sourceCode, Map<String, String> paramsmap, String scriptName) {
-        StringBuilder scriptSb = new StringBuilder();
+        StringBuilder script = new StringBuilder();
         // Extract the import statements from the input source code and re-add
         // them
         // to the top of the groovy program.
-        scriptSb.append(getImportLines(sourceCode));
+        script.append(getImportLines(sourceCode));
         // All the imports are prepended to the first line of the user script so
         // error messages
         // have the correct line number in them
-        scriptSb.append("import org.amplafi.flow.utils.*;import org.amplafi.dsl.*;import org.amplafi.json.*;").append(NL);
-        scriptSb.append("def init_key = { return callScript(\"GetNewPermanentKey\")}").append(NL);
-        scriptSb.append("def source = {").append(NL);
-        scriptSb.append(getValidClosureCode(sourceCode));
-        scriptSb.append("}; return source;");
-        String script = scriptSb.toString();
+        script.append("import org.amplafi.flow.utils.*;import org.amplafi.dsl.*;import org.amplafi.json.*;").append(NL);
+        script.append("def init_key = { return callScript(\"GetNewPermanentKey\")}").append(NL);
+        script.append("def source = {").append(NL);
+        script.append(getValidClosureCode(sourceCode));
+        script.append("}; return source;");
         Binding binding = bindingFactory.getNewBinding(paramsmap);
         binding.setProperty("out", System.out);
         GroovyShell shell = new GroovyShell(ScriptRunner.class.getClassLoader(), binding);
-        return (Closure) shell.evaluate(script, scriptName);
+        return (Closure) shell.evaluate(script.toString(), scriptName);
     }
 
     /**
