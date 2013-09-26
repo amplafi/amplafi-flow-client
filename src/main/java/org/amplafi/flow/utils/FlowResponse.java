@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.amplafi.json.JSONArray;
 import org.amplafi.json.JSONObject;
+import org.amplafi.json.JsonConstruct;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -89,7 +90,7 @@ public class FlowResponse {
 
 	@Override
     public String toString() {
-		return hasError() ? buildErrorMessage() : toJSONObject().toString(2);
+		return hasError() ? buildErrorMessage() : JsonConstruct.Parser.toJsonConstruct(responseText).toString(2);
 	}
 	
     private String buildErrorMessage() {
