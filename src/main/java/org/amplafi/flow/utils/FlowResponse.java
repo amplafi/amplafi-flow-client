@@ -90,7 +90,8 @@ public class FlowResponse {
 
 	@Override
     public String toString() {
-		return hasError() ? buildErrorMessage() : JsonConstruct.Parser.toJsonConstruct(responseText).toString(2);
+		JsonConstruct jsonConstruct = JsonConstruct.Parser.toJsonConstruct(responseText);
+        return hasError() ? buildErrorMessage() : jsonConstruct != null ? jsonConstruct.toString(2) : responseText;
 	}
 	
     private String buildErrorMessage() {
