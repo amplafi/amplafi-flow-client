@@ -109,7 +109,7 @@ public class FlowResponse {
 		if (hasError()) {
 			return null;
 		}
-		return new JSONObject(toString());
+		return new JSONObject(responseText);
 	}
 
 	public JSONArray toJSONArray() {
