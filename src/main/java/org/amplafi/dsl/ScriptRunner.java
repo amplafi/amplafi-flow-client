@@ -148,6 +148,7 @@ public class ScriptRunner {
         scriptSb.append("}; return source;");
         String script = scriptSb.toString();
         Binding binding = bindingFactory.getNewBinding(paramsmap);
+        binding.setProperty("out", System.out);
         GroovyShell shell = new GroovyShell(ScriptRunner.class.getClassLoader(), binding);
         return (Closure) shell.evaluate(script, scriptName);
     }
