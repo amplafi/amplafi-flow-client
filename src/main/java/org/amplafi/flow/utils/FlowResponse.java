@@ -124,8 +124,7 @@ public class FlowResponse {
 		// at 3am) and
 		// error message returned from server.
 		return "Http Status Code " + this.getHttpStatusCode() + "\n"
-				+ responseExplanations.get(this.getHttpStatusCode()) + "\n"
-				+ this.toString();
+				+ responseExplanations.get(this.getHttpStatusCode()) + "\n";
 	}
 
 	public String get(String key) {
