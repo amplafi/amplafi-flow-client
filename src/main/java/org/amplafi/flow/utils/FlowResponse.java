@@ -89,10 +89,10 @@ public class FlowResponse {
 
 	@Override
     public String toString() {
-		return hasError() ? handleError() : toJSONObject().toString(2);
+		return hasError() ? buildErrorMessage() : toJSONObject().toString(2);
 	}
 	
-    private String handleError() {
+    private String buildErrorMessage() {
         StringBuilder error = new StringBuilder();
         if (getErrorMessage().contains("Callback with lookupKey")) {
             error.append("Your current key is invalid. This will happen if the farreach.es server restarts. Ask Pat for a new key");
