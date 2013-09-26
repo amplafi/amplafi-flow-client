@@ -993,7 +993,7 @@ public class FlowTestDSL extends Assert {
      * @return
      */
     public String input(String defaultValue, String request) {
-        System.out.println(request + " (" + defaultValue + "):");
+        System.out.println(request + " [" + defaultValue + "]:");
         String inputVariable = INPUT.nextLine();
         if (inputVariable == null || inputVariable.isEmpty()) {
             return defaultValue;
