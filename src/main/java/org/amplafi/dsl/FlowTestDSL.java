@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -70,6 +70,8 @@ public class FlowTestDSL extends Assert {
     private Log log;
 
     private FarReachesServiceInfo serviceInfo;
+    
+    private static final Scanner INPUT = new Scanner(System.in); 
 
     public FlowTestDSL(FarReachesServiceInfo serviceInfo, Properties props, ScriptRunner runner) {
         this.serviceInfo = serviceInfo;
@@ -990,11 +992,10 @@ public class FlowTestDSL extends Assert {
      *            message
      * @return
      */
-    public String input(String inputVariable, String defaultValue, String errorMessage) {
-        if ("".equals(inputVariable)) {
-            if (errorMessage != null) {
-                System.out.println(errorMessage);
-            }
+    public String input(String defaultValue, String request) {
+        System.out.println(request + " (" + defaultValue + "):");
+        String inputVariable = INPUT.nextLine();
+        if (inputVariable == null || inputVariable.isEmpty()) {
             return defaultValue;
         } else {
             return inputVariable;
