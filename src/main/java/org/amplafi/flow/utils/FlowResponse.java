@@ -89,8 +89,21 @@ public class FlowResponse {
 
 	@Override
     public String toString() {
-		return responseText;
+		return hasError() ? handleError() : toJSONObject().toString(2);
 	}
+	
+    private String handleError() {
+        StringBuilder error = new StringBuilder();
+        if (getErrorMessage().contains("Callback with lookupKey")) {
+            error.append("Your current key is invalid. This will happen if the farreach.es server restarts. Ask Pat for a new key");
+        } else {
+            error.append("response string:");
+            error.append(responseText + "\n");
+            error.append("response error:");
+            error.append(getErrorMessage() + "\n");
+        }
+        return error.toString();
+    }
 
 	public JSONObject toJSONObject() {
 		if (hasError()) {

@@ -545,23 +545,8 @@ public class FlowTestDSL extends Assert {
         frsi.setApiVersion(api);
         GeneralFlowRequest request = new GeneralFlowRequest(frsi, key, flow);
         FlowResponse flows = request.describeFlowWithResponse();
-        if (flows.hasError()) {
-            handleError(flows);
-        } else {
-            System.out.println(flows.toString());
-        }
+        System.out.println(flows.toString());
         return true;
-    }
-
-    public void handleError(FlowResponse response) {
-        if (response.getErrorMessage().contains("Callback with lookupKey")) {
-            System.out.println("Your current key is invalid. This will happen if the farreach.es server restarts. Ask Pat for a new key");
-        } else {
-            System.out.println("response string:");
-            System.out.println(response.toString());
-            System.out.println("response error:");
-            System.out.println(response.getErrorMessage());
-        }
     }
 
     private static final String DEFAULT_ROOT_URL = "example.co.uk";
