@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -130,6 +131,11 @@ public class FlowTestDSL extends Assert {
 
     public FlowResponse request(String api, String flowName, Map paramsMap) {
         GeneralFlowRequest request = createGeneralFlowRequest(api, flowName, paramsMap);
+        return request.sendRequest();
+    }
+    
+    public FlowResponse request(String api, String flowName) {
+        GeneralFlowRequest request = createGeneralFlowRequest(api, flowName, Collections.<String,String>emptyMap());
         return request.sendRequest();
     }
 
