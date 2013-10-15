@@ -8,7 +8,7 @@ import org.amplafi.flow.utils.AdminTool;
  * command can be generated, and will report back to the user that
  * nothing happened.
  */
-public class EmptyCommand extends AShellCommand {
+public class EmptyCommand extends AbstractShellCommand {
 
 	protected EmptyCommand(String options) {
 		super(options);

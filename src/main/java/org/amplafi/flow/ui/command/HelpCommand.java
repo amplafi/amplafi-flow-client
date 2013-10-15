@@ -5,14 +5,14 @@ import java.util.regex.Pattern;
 
 import org.amplafi.flow.utils.AdminTool;
 
-public class HelpCommand extends AShellCommand {
+public class HelpCommand extends AbstractShellCommand {
 
 	private static final Pattern OPT_PATTERN = Pattern.compile("(^$)|(.+)");
 
-	private ShellCommandBuilder shellCommandBuilder;
-	protected HelpCommand(ShellCommandBuilder scb, String options) {
+	private ShellCommandManager shellCommandManager;
+	protected HelpCommand(ShellCommandManager scb, String options) {
 		super(options);
-		this.shellCommandBuilder = scb;
+		this.shellCommandManager = scb;
 	}
 
 	@Override
@@ -21,7 +21,7 @@ public class HelpCommand extends AShellCommand {
 		Matcher m = OPT_PATTERN.matcher(rawOpts);
 		m.matches();
 		if (m.group(2) != null) {
-			for(AbstractShellCommandBuilder scb : shellCommandBuilder.getCommandBuilders()){
+			for(ShellCommandBuilder scb : shellCommandManager.getCommandBuilders()){
 				if(scb.getCommandName().equals(m.group(2))){
 					return scb.buildHelp("").execute(adminTool);
 				}
@@ -31,7 +31,7 @@ public class HelpCommand extends AShellCommand {
 		} else {
 			System.out.println("Commands available. To run them, type the name or their number:");
 			int i = 0;
-			for(AbstractShellCommandBuilder scb : shellCommandBuilder.getCommandBuilders()){
+			for(ShellCommandBuilder scb : shellCommandManager.getCommandBuilders()){
 				new DisplayCommand(i++ + " - " + scb.getCommandName()).execute(adminTool);
 			}			
 		}

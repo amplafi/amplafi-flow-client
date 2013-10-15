@@ -9,7 +9,7 @@ import org.amplafi.flow.utils.AdminTool;
  * @author bfv
  * Command to describe flows or APIs. Constructor Options should be API name and optionally flow name.
  */
-public class DescribeFlowCommand extends AShellCommand {
+public class DescribeFlowCommand extends AbstractShellCommand {
 
 	static final Pattern ONE_AND_MAYBE_TWO_WORDS = Pattern.compile("^([^\\s]+)\\s*([^\\s]*)$");
 	static final Pattern NOTHING = Pattern.compile("^\\s*$");

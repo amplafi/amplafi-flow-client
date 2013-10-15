@@ -6,7 +6,7 @@ import org.amplafi.flow.utils.AdminTool;
  * @author bfv
  * A command to print something to console output.
  */
-public class DisplayCommand extends AShellCommand {
+public class DisplayCommand extends AbstractShellCommand {
 
 	public DisplayCommand(String setOptions) {
 		super(setOptions);

@@ -4,7 +4,7 @@ package org.amplafi.flow.ui.command;
  * @author bfv
  * Builder for the exit command
  */
-public class ExitBuilder implements AbstractShellCommandBuilder {
+public class ExitBuilder implements ShellCommandBuilder {
 
 	@Override
 	public String getCommandName() {
@@ -12,12 +12,12 @@ public class ExitBuilder implements AbstractShellCommandBuilder {
 	}
 
 	@Override
-	public AShellCommand buildCommand(String options) {
+	public ShellCommand buildCommand(String options) {
 		return new ExitCommand(options);
 	}
 
 	@Override
-	public AShellCommand buildHelp(String options) {
+	public ShellCommand buildHelp(String options) {
 		return new DisplayCommand("Exits the shell");
 	}
 

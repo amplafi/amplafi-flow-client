@@ -6,7 +6,7 @@ import org.amplafi.flow.utils.AdminTool;
  * @author bfv
  * command for testing purposes of the tokenizer class
  */
-public class TokenizeCommand extends AShellCommand {
+public class TokenizeCommand extends AbstractShellCommand {
 
 	protected TokenizeCommand(boolean setHelp, String setOptions) {
 		super(setOptions);

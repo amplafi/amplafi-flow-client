@@ -8,15 +8,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-
 import org.amplafi.dsl.BindingFactory;
-import org.amplafi.flow.ui.command.AShellCommand;
-import org.amplafi.flow.ui.command.AbstractShellCommandBuilder;
+import org.amplafi.flow.ui.command.ShellCommand;
+import org.amplafi.flow.ui.command.ShellCommandBuilder;
 import org.amplafi.flow.ui.command.DescribeApiOrFlowBuilder;
 import org.amplafi.flow.ui.command.ExitBuilder;
 import org.amplafi.flow.ui.command.HelpBuilder;
-import org.amplafi.flow.ui.command.ShellCommandBuilder;
+import org.amplafi.flow.ui.command.ShellCommandManager;
 import org.amplafi.flow.utils.AdminTool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
  * console for example, but could be any 'value provider' that knows how to properly override the
  * {@link Binding} class. See {@link InteractiveBinding} and {@link InteractiveBindingFactory}
  *
- * @author bfv
  */
 public class InteractiveShell {
     private AdminTool adminTool;
@@ -37,34 +34,34 @@ public class InteractiveShell {
 
     private Log log;
 
-    private ShellCommandBuilder shellCommandBuilder;
+    private ShellCommandManager shellCommandManager;
 
     private static final String PROMPT = "cs>";
 
     public InteractiveShell() {
-        setReader(new BufferedReader(new InputStreamReader(System.in)));
         setAdminTool(new AdminTool(new InteractiveBindingFactory(getReader())));
-        setShellCommandBuilder(new ShellCommandBuilder());
+        setShellCommandManager(new ShellCommandManager());
         this.setLog(LogFactory.getLog(this.getClass()));
     }
 
     public static void main(String[] args) {
         InteractiveShell is = new InteractiveShell();
+        is.setReader(new BufferedReader(new InputStreamReader(System.in)));
+        is.addCommand(new ExitBuilder());
         is.addCommand(new HelpBuilder(is));
         is.addCommand(new DescribeApiOrFlowBuilder());
         List<String> scriptNames = new ArrayList<>(is.adminTool.getAvailableScripts().keySet());
         Collections.sort(scriptNames);
         for (String script : scriptNames) {
-            is.addCommand(new NamedScriptCommandBuilder(script));            
+            is.addCommand(new NamedScriptCommandBuilder(script));
         }
-        is.addCommand(new ExitBuilder());
         is.ioLoop();
     }
 
     public void ioLoop() {
-        getShellCommandBuilder().build("help").execute(getAdminTool());
+        getShellCommandManager().build("help").execute(getAdminTool());
         while (true) {
-            AShellCommand comm = parseCommand();
+            ShellCommand comm = parseCommand();
             try {
                 comm.execute(getAdminTool());
             } catch (Exception e) {
@@ -74,25 +71,15 @@ public class InteractiveShell {
         }
     }
 
-    private AShellCommand parseCommand() {
+    private ShellCommand parseCommand() {
         System.out.print(PROMPT);
         String commandLine;
         try {
             commandLine = getReader().readLine().trim();
-            return getShellCommandBuilder().build(commandLine);
+            return getShellCommandManager().build(commandLine);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
-        }
-        return null;
-    }
-
-    public String getUserInput() {
-        try {
-            String value = getReader().readLine();
-            return value;
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -121,15 +108,15 @@ public class InteractiveShell {
         this.log = log;
     }
 
-    public void addCommand(AbstractShellCommandBuilder commandBuilder) {
-        getShellCommandBuilder().addCommand(commandBuilder);
+    public void addCommand(ShellCommandBuilder commandBuilder) {
+        getShellCommandManager().addCommand(commandBuilder);
     }
 
-    public ShellCommandBuilder getShellCommandBuilder() {
-        return shellCommandBuilder;
+    public ShellCommandManager getShellCommandManager() {
+        return shellCommandManager;
     }
 
-    public void setShellCommandBuilder(ShellCommandBuilder commandBuilder) {
-        this.shellCommandBuilder = commandBuilder;
+    public void setShellCommandManager(ShellCommandManager commandManager) {
+        this.shellCommandManager = commandManager;
     }
 }

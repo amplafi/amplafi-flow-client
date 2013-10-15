@@ -6,7 +6,7 @@ import org.amplafi.flow.utils.AdminTool;
  * @author bfv
  * A command to exit the program without errors
  */
-public class ExitCommand extends AShellCommand {
+public class ExitCommand extends AbstractShellCommand {
 
 	public ExitCommand(String options) {
 		super(options);

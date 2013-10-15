@@ -9,17 +9,17 @@ import org.amplafi.flow.utils.AdminTool;
 /**
  * Shell commands are represented by extending this abstract class. Here only crucial, common
  * information is held (command name, options, an abstract executor)
- * 
+ *
  * To BRUNO: what does the A prefix in the class name mean? Use a full word if needed.
  */
-public abstract class AShellCommand {
+public abstract class AbstractShellCommand implements ShellCommand {
 	// the help command works by executing building the command in help=true.
 	// unparsed options that might be used however the command sees fit.
 	private String options;
 	private Collection<String> flags;
 	private Map<String,String> optionsMap;
 
-	protected AShellCommand(String setOptions) {
+	protected AbstractShellCommand(String setOptions) {
 		setOptions(setOptions);
 		flags = new HashSet<String>();
 	}

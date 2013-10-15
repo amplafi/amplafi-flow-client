@@ -6,12 +6,12 @@ import org.amplafi.flow.ui.InteractiveShell;
  * @author bfv
  * Builder for HelpCommand
  */
-public class HelpBuilder implements AbstractShellCommandBuilder {
+public class HelpBuilder implements ShellCommandBuilder {
 	
-	private ShellCommandBuilder shellCommandBuilder;
+	private ShellCommandManager shellCommandManager;
 	
 	public HelpBuilder(InteractiveShell is){
-		this.setShellCommandBuilder(is.getShellCommandBuilder());
+		this.setShellCommandManager(is.getShellCommandManager());
 	}
 
 	@Override
@@ -20,22 +20,22 @@ public class HelpBuilder implements AbstractShellCommandBuilder {
 	}
 
 	@Override
-	public AShellCommand buildCommand(String options) {
-		return new HelpCommand(getShellCommandBuilder(),options);
+	public ShellCommand buildCommand(String options) {
+		return new HelpCommand(getShellCommandManager(),options);
 	}
 
 	@Override
-	public AShellCommand buildHelp(String options) {
+	public ShellCommand buildHelp(String options) {
 		return new DisplayCommand("To see the current available commands write"
 				+ " \"help\", or specify a command through \"help <command>\"");
 	}
 
-	public ShellCommandBuilder getShellCommandBuilder() {
-		return shellCommandBuilder;
+	public ShellCommandManager getShellCommandManager() {
+		return shellCommandManager;
 	}
 
-	public void setShellCommandBuilder(ShellCommandBuilder shellCommandBuilder) {
-		this.shellCommandBuilder = shellCommandBuilder;
+	public void setShellCommandManager(ShellCommandManager shellCommandManager) {
+		this.shellCommandManager = shellCommandManager;
 	}
 
 }

@@ -6,7 +6,7 @@ import org.amplafi.flow.utils.AdminTool;
  * @author bfv
  * Command that interacts with the ScriptRunner and calls a particular script.
  */
-public abstract class RunScriptCommand extends AShellCommand {
+public abstract class RunScriptCommand extends AbstractShellCommand {
 
 	public RunScriptCommand(String setOptions) {
 		super(setOptions);
