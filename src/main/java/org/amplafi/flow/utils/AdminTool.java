@@ -25,13 +25,11 @@ import com.sworddance.util.NotNullIterator;
  * embedded there.
  */
 public class AdminTool {
-    private Map<String, String> scriptsAvailable = null;
+    private Map<String, String> scriptsAvailable;
 
     private ScriptRunner runner;
 
     private Properties props;
-
-    private FarReachesServiceInfo serviceInfo;
 
     private BindingFactory bindingFactory;
 
@@ -97,7 +95,6 @@ public class AdminTool {
 
     public void runScriptName(String name) {
         this.runner.loadAndRunOneScript(name);
-
     }
 
     public boolean runScript(String script) {
@@ -118,14 +115,9 @@ public class AdminTool {
         return getBindingFactory().getDSL().describeFlow(api, flow);
     }
 
-    public FarReachesServiceInfo getServiceInfo() {
-        return serviceInfo;
-    }
-
     public void setServiceInfo(FarReachesServiceInfo serviceInfo) {
         System.out.println("Updated Service Info");
-        this.serviceInfo = serviceInfo;
-        getBindingFactory().setDSL(new FlowTestDSL(getServiceInfo(), this.props, runner));
+        getBindingFactory().setDSL(new FlowTestDSL(serviceInfo, this.props, runner));
     }
 
     public BindingFactory getBindingFactory() {

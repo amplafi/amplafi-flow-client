@@ -26,8 +26,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ScriptRunner {
 
-    private String key;
-
     /**
      * Description of all scripts known to this runner.
      */
@@ -57,7 +55,6 @@ public class ScriptRunner {
      */
     public ScriptRunner(BindingFactory bindingFactory) {
         this.bindingFactory = bindingFactory;
-        this.key = null;
     }
 
     /**
@@ -244,7 +241,7 @@ public class ScriptRunner {
     /**
      * Get the logger for this class.
      */
-    public synchronized Log getLog() {
+    protected Log getLog() {
         if (this.log == null) {
             this.log = LogFactory.getLog(ScriptRunner.class);
         }

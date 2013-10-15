@@ -24,6 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.amplafi.flow.FlowException;
 import org.amplafi.flow.definitions.FarReachesServiceInfo;
 import org.amplafi.flow.utils.AdminTool;
 import org.amplafi.flow.utils.FlowResponse;
@@ -35,14 +36,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
-import org.testng.Assert;
-
 import com.sworddance.util.CUtilities;
 
 /**
  * This class defines the methods that are callable within the flow test DSL
  */
-public class FlowTestDSL extends Assert {
+public class FlowTestDSL {
 
     public static final String API_PUBLIC = "public";
 
@@ -71,8 +70,12 @@ public class FlowTestDSL extends Assert {
     private Log log;
 
     private FarReachesServiceInfo serviceInfo;
-    
-    private static final Scanner INPUT = new Scanner(System.in); 
+
+    private Server server;
+
+    private int currentPort;
+
+    private static final Scanner INPUT = new Scanner(System.in);
 
     public FlowTestDSL(FarReachesServiceInfo serviceInfo, Properties props, ScriptRunner runner) {
         this.serviceInfo = serviceInfo;
@@ -133,7 +136,7 @@ public class FlowTestDSL extends Assert {
         GeneralFlowRequest request = createGeneralFlowRequest(api, flowName, paramsMap);
         return request.sendRequest();
     }
-    
+
     public FlowResponse request(String api, String flowName) {
         GeneralFlowRequest request = createGeneralFlowRequest(api, flowName, Collections.<String,String>emptyMap());
         return request.sendRequest();
@@ -304,9 +307,9 @@ public class FlowTestDSL extends Assert {
         if (exe != null) {
             getLog().debug("callScript() closure not null ");
             exe.setDelegate(this);
-            getLog().debug("callScript() about to run ${scriptName}");
+            getLog().debug("callScript() about to run "+ scriptName);
             ret = exe.call();
-            getLog().debug("callScript() finished running ${scriptName}");
+            getLog().debug("callScript() finished running "+ scriptName);
         }
         return ret;
     }
@@ -424,10 +427,6 @@ public class FlowTestDSL extends Assert {
     // return isEqual;
     // }
 
-    private Server server = null;
-
-    private int currentPort = 0;
-
     /**
      * Gets a jetty server instance for the port.
      *
@@ -459,17 +458,17 @@ public class FlowTestDSL extends Assert {
             server.start();
             FlowResponse response = request(api, flowName, parametersMap);
             if (response.hasError()) {
-                fail("Async request failed.");
+                throw new FlowException("Async request failed.");
             } else {
                 synchronized (monitor) {
                     monitor.wait(timeOutSeconds * 1000);
                 }
                 if (!myHandler.getReceived()) {
                     server.stop();
-                    fail("Server did not send any request");
+                    throw new FlowException("Server did not send any request");
                 }
                 if (myHandler.getHandlingError() != null) {
-                    fail("Error Handling Request.", myHandler.getHandlingError());
+                    throw new FlowException("Error Handling Request.", myHandler.getHandlingError());
                 }
             }
         } catch (Exception e) {
@@ -604,8 +603,6 @@ public class FlowTestDSL extends Assert {
         return callbackRequest(null, flowName, parametersMap);
     }
 
-    // to Bruno from Kostya: why is this one commented out?
-    // XXX (Bruno to Kostya) => I commented everything I didn't use because I was getting compilation errors and I had to start from somewhere
     public Future<FlowResponse> callbackRequestAsync(final String flowName, final Map<String, String> parametersMap) {
         FutureTask<FlowResponse> result = new FutureTask<>(new Callable<FlowResponse>() {
 
@@ -932,17 +929,17 @@ public class FlowTestDSL extends Assert {
             parametersMap.put("callbackUri", "http://" + rootUrl + ":" + port);
             FlowResponse response = request(api, flowName, parametersMap);
             if (response.hasError()) {
-                fail("Async request failed.");
+                throw new FlowException("Async request failed.");
             } else {
                 synchronized (monitor) {
                     monitor.wait(timeOutSeconds * 1000);
                 }
                 if (!myHandler.getReceived()) {
                     server.stop();
-                    fail("Server did not send any request");
+                    throw new FlowException("Server did not send any request");
                 }
                 if (myHandler.getHandlingError() != null) {
-                    fail("Error Handling Request.", myHandler.getHandlingError());
+                    throw new FlowException("Error Handling Request.", myHandler.getHandlingError());
                 }
             }
         } catch (Exception e) {
@@ -1008,16 +1005,16 @@ public class FlowTestDSL extends Assert {
             return inputVariable;
         }
     }
-    
+
     public String input(String request) {
         return input(null, request);
     }
-    
+
     public void obtainReadOnlyKey() {
         System.out.println("A readonly key is needed to proceed. Specify provider the key for.");
         String publicUrl = input("example.co.uk", "Enter provider url");
         FlowResponse response = request("su", "SuApiKey", CUtilities.createMap(
-                            "publicUri" , publicUrl, 
+                            "publicUri" , publicUrl,
                             "reasonForAccess", "Customer support tool automatic request."));
         if (!response.hasError()) {
             readOnlyKey = response.toString();
@@ -1026,7 +1023,7 @@ public class FlowTestDSL extends Assert {
             throw new IllegalStateException("Failed to get read only key.");
         }
     }
-    
+
     public void eraseReadOnlyKey() {
         readOnlyKey = null;
     }

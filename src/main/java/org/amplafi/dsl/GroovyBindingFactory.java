@@ -19,9 +19,6 @@ public class GroovyBindingFactory implements BindingFactory {
 		return b;
 	}
 
-	public GroovyBindingFactory(){
-	}
-
 	@Override
 	public FlowTestDSL getDSL() {
 		return flowDSL;
@@ -30,6 +27,5 @@ public class GroovyBindingFactory implements BindingFactory {
 	@Override
 	public void setDSL(FlowTestDSL ftdsl) {
 		this.flowDSL = ftdsl;
-		
 	}
 }
