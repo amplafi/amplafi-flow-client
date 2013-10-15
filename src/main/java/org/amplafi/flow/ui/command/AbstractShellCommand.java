@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.amplafi.flow.utils.AdminTool;
-
 /**
  * Shell commands are represented by extending this abstract class. Here only crucial, common
  * information is held (command name, options, an abstract executor)
@@ -23,8 +21,6 @@ public abstract class AbstractShellCommand implements ShellCommand {
 		setOptions(setOptions);
 		flags = new HashSet<String>();
 	}
-
-	public abstract int execute(AdminTool adminTool);
 
 	protected String getOptions() {
 		return options;

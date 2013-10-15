@@ -1,5 +1,7 @@
 package org.amplafi.flow.ui.command;
 
-public interface ShellCommand {
+import org.amplafi.flow.utils.AdminTool;
 
+public interface ShellCommand {
+    int execute(AdminTool adminTool);
 }

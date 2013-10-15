@@ -3,9 +3,9 @@ package org.amplafi.flow.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +25,7 @@ import com.sworddance.util.NotNullIterator;
  * embedded there.
  */
 public class AdminTool {
-    private Map<String, String> scriptsAvailable;
+    private Map<String, String> scriptsAvailable = new ConcurrentHashMap<>();
 
     private ScriptRunner runner;
 
@@ -68,15 +68,15 @@ public class AdminTool {
             port = props.getProperty("testPort");
         }
         // TODO: validate keys
-        loadScriptsAvailable();
+        String scriptsFolder = props.getProperty("scripts_folder");
+
+        loadScriptsAvailable(scriptsFolder);
         runner = new ScriptRunner(bindingFactory);
         this.setServiceInfo(new FarReachesServiceInfo(host, port, props.getProperty("path"), props.getProperty("apiv")));
         System.out.println("Service initialized to " + host + ":" + port);
     }
 
-    private void loadScriptsAvailable() {
-        scriptsAvailable = new HashMap<String, String>();
-        String scriptsFolder = props.getProperty("scripts_folder");
+    private void loadScriptsAvailable(String scriptsFolder) {
         System.out.println("loading scripts from "+scriptsFolder+" ('scripts_folder' directory)...");
         File dir = new File(scriptsFolder);
         File[] files = dir.listFiles();

@@ -226,8 +226,7 @@ public class LoadTool extends UtilParent {
                         }
                     }
                 } else {
-                    runLoadTest(service, key, scriptName, numThreads, frequency, cmdOptions.hasOption(VERBOSE)); // never
-                                                                                                                 // returns
+                    runLoadTest(service, key, scriptName, numThreads, frequency, cmdOptions.hasOption(VERBOSE)); // never returns
 
                     while (running) {
                         if (!isFileExists(RUNNING_FILE)) {
