@@ -4,28 +4,15 @@ import groovy.lang.Binding;
 
 import java.util.Map;
 
-
 /**
- * @author bfv
- * A binding factory for plain groovy bindings to be used outside the customer service
- * shell
+ * A binding factory for plain groovy bindings to be used outside the customer service shell
  */
-public class GroovyBindingFactory implements BindingFactory {
+public class GroovyBindingFactory extends AbstractBindingFactory {
 
-	private FlowTestDSL flowDSL;
-	@Override
-	public Binding getNewBinding(Map<String, String> paramsmap) {
-		Binding b = new Binding(paramsmap);
-		return b;
-	}
-
-	@Override
-	public FlowTestDSL getDSL() {
-		return flowDSL;
-	}
-
-	@Override
-	public void setDSL(FlowTestDSL ftdsl) {
-		this.flowDSL = ftdsl;
-	}
+    @Override
+    public Binding getNewBinding(Map<String, String> paramsmap) {
+        Map completeParameters = createCompleteParametersMap(paramsmap);
+        Binding b = new Binding(completeParameters);
+        return b;
+    }
 }

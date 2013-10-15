@@ -1,7 +1,6 @@
 package org.amplafi.flow.ui.command;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.amplafi.flow.utils.AdminTool;
 
@@ -11,18 +10,15 @@ import org.amplafi.flow.utils.AdminTool;
  */
 public class DescribeFlowCommand extends AbstractShellCommand {
 
-	static final Pattern ONE_AND_MAYBE_TWO_WORDS = Pattern.compile("^([^\\s]+)\\s*([^\\s]*)$");
-	static final Pattern NOTHING = Pattern.compile("^\\s*$");
-	
 	protected DescribeFlowCommand(String setOptions) {
 		super(setOptions);
 	}
 
 	@Override
-	public int execute(AdminTool adminTool) {
-		String st = this.getOptions();
-		Matcher m = ONE_AND_MAYBE_TWO_WORDS.matcher(st);
-		Matcher m2 = NOTHING.matcher(st);
+	public void execute(AdminTool adminTool) {
+		String options = this.getOptions();
+		Matcher m = ONE_AND_MAYBE_TWO_WORDS.matcher(options);
+		Matcher m2 = NOTHING.matcher(options);
 		if(m.matches() && !m2.matches()){
 			String api = m.group(1);
 			String flow = m.group(2);
@@ -34,7 +30,6 @@ public class DescribeFlowCommand extends AbstractShellCommand {
 		}else{
 			System.out.println("Invalid Options. Usage: describe <api> [<flow>]");
 		}
-		return 0;
 	}
 
 }

@@ -1,11 +1,6 @@
 package org.amplafi.flow.dsl;
 
-import static org.testng.Assert.fail;
-
-import java.util.List;
-
 import org.amplafi.dsl.ScriptRunner;
-import org.amplafi.flow.TestGenerationProperties;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
@@ -17,7 +12,7 @@ import org.testng.annotations.Test;
  */
 public class TestDSLScriptsBatchRunner {
 
-    private ScriptRunner runner = null;
+    private ScriptRunner runner;
 
     private String currentScriptName = "";
 
@@ -74,11 +69,8 @@ public class TestDSLScriptsBatchRunner {
      * This test will be run once for each of the scripts in the src/test/resources/testscripts folder
      */
     @Test(dataProvider = "scripts-list")
-    public void testLoadAndRunOneScript(String script){
+    public void testLoadAndRunOneScript(String script) throws Exception{
         currentScriptName = script;
         runner.loadAndRunOneScript(script);
     }
-
-
-
 }

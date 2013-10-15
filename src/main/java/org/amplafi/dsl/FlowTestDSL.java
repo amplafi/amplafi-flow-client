@@ -166,7 +166,6 @@ public class FlowTestDSL {
      * Sends a request to the named flow with the specified parameters.
      *
      * @param flowName to call.
-     * @param flowName2
      * @param paramsMap key value map of parameters to send.
      */
     private GeneralFlowRequest createGeneralFlowRequest(String api, String flowName, Map<String, String> paramsMap) {
@@ -179,7 +178,7 @@ public class FlowTestDSL {
         for (Entry<String, String> entry : entrySet) {
             requestParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }
-        FarReachesServiceInfo serviceInfo = this.serviceInfo.clone();
+        FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(this.serviceInfo);
         serviceInfo.setApiVersion(api);
         GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo, selectedKey, flowName, requestParams);
         return request;
@@ -596,7 +595,7 @@ public class FlowTestDSL {
      * callback uri It will then use openPort to call the flow and return the response.
      *
      * @param flowName to call.
-     * @param [params] key value map of parameters to send.
+     * @param parametersMap key value map of parameters to send.
      * @return flow response object
      */
     public FlowResponse callbackRequest(String flowName, Map<String, String> parametersMap) {

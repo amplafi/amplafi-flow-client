@@ -13,8 +13,7 @@ public class ExitCommand extends AbstractShellCommand {
 	}
 
 	@Override
-	public int execute(AdminTool adminTool) {
+	public void execute(AdminTool adminTool) {
 		System.exit(0);
-		return 0;
 	}
 }

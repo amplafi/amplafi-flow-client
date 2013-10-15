@@ -46,12 +46,6 @@ public class ScriptRunner {
      * Constructs a Script runner with individual parameters that can be overridden in scripts.
      * passes a map of parameters to the script
      *
-     * @param host - host address e.g. http://www.farreach.es
-     * @param port - e.g. 80
-     * @param apiVersion - e.g. apiv1
-     * @param key - Api Key string
-     * @param paramsmap - map of paramname to param value
-     * @param verbose - print verbose output.
      */
     public ScriptRunner(BindingFactory bindingFactory) {
         this.bindingFactory = bindingFactory;
@@ -60,25 +54,21 @@ public class ScriptRunner {
     /**
      * Loads and runs one script specified by the file parameter.
      *
-     * @param filePath is the full path to the script.
+     * @param filePathOrName is the full path to the script.
      * @throws IOException
      */
-    public Object loadAndRunOneScript(String filePathOrName) {
+    public Object loadAndRunOneScript(String filePathOrName) throws IOException {
         File file;
         if (scriptLookup.containsKey(filePathOrName)) {
             file = scriptLookup.get(filePathOrName);
         } else {
             file = new File(filePathOrName);
         }
-        try {
-            String script = readFile(file);
-            getLog().debug("loadAndRunOneScript() start to run runScriptSource() method");
-            Object value = runScriptSource(script, file.getName());
-            getLog().debug("loadAndRunOneScript() start to run runScriptSource() method");
-            return value;
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        String script = readFile(file);
+        getLog().debug("loadAndRunOneScript() start to run runScriptSource() method");
+        Object value = runScriptSource(script, file.getName());
+        getLog().debug("loadAndRunOneScript() start to run runScriptSource() method");
+        return value;
     }
 
     private String readFile(File f) throws IOException {
@@ -106,9 +96,6 @@ public class ScriptRunner {
      * @param execOrDescibe - If true then execute the source code as a command script if false run
      *            the code as a description DSL to obtain its description
      * @return The groovy closure (Why?)
-     * @throws NoDescriptionException - Thrown if the description DSL does not find a description
-     *             directive
-     * @throws EarlyExitException - thrown to prevent the description dsl from running any commands.
      */
     public Object runScriptSource(String sourceCode, String scriptName) {
         // The script code must be pre-processed to add the contents of the file

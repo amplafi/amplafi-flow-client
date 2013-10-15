@@ -1,32 +1,24 @@
 package org.amplafi.flow.ui.command;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Shell commands are represented by extending this abstract class. Here only crucial, common
  * information is held (command name, options, an abstract executor)
  *
- * To BRUNO: what does the A prefix in the class name mean? Use a full word if needed.
  */
 public abstract class AbstractShellCommand implements ShellCommand {
-	// the help command works by executing building the command in help=true.
+	protected static final Pattern ONE_AND_MAYBE_TWO_WORDS = Pattern.compile("^([^\\s]+)\\s*([^\\s]*)$");
+    protected static final Pattern NOTHING = Pattern.compile("^\\s*$");
+    // the help command works by executing building the command in help=true.
 	// unparsed options that might be used however the command sees fit.
 	private String options;
-	private Collection<String> flags;
-	private Map<String,String> optionsMap;
 
-	protected AbstractShellCommand(String setOptions) {
-		setOptions(setOptions);
-		flags = new HashSet<String>();
+	protected AbstractShellCommand(String options) {
+	    this.options = options;
 	}
 
 	protected String getOptions() {
 		return options;
 	}
-
-	protected void setOptions(String options) {
-		this.options = options;
-	};
 }

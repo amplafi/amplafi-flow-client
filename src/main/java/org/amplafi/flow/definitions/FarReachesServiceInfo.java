@@ -1,25 +1,36 @@
 package org.amplafi.flow.definitions;
 
+import java.util.Properties;
+
 /**
  * A class which instances provide information about FarReaches service: host address, port used,
  * and API version.
  */
 public class FarReachesServiceInfo {
     /** Host string. */
-    private final String host;
+    private String host;
 
     /** Port string. */
-    private final String port;
+    private String port;
 
     /** Api version. */
     private String apiVersion;
 
     /** Path prefix to service call. */
-    private final String path;
+    private String path;
 
     /** This is a prefix of a host */
     private String PROTOCOL = "http://";
 
+    private boolean productionMode;
+
+    private Properties properties;
+
+    public FarReachesServiceInfo(Properties properties) {
+        this.properties = properties;
+        boolean productionMode = properties.getProperty("production").equals("true");
+        this.setProductionMode(productionMode);
+    }
     /**
      * Constructor.
      *
@@ -27,6 +38,7 @@ public class FarReachesServiceInfo {
      * @param port port
      * @param apiVersion e.g. apiv1
      */
+    @Deprecated
     public FarReachesServiceInfo(String host, String port, String path, String apiVersion) {
         this.host = host;
         this.port = port;
@@ -34,6 +46,10 @@ public class FarReachesServiceInfo {
         this.apiVersion = apiVersion;
     }
 
+    public FarReachesServiceInfo(FarReachesServiceInfo farReachesServiceInfo) {
+        this(farReachesServiceInfo.properties);
+    }
+
     /**
      * Constructor.
      *
@@ -41,17 +57,26 @@ public class FarReachesServiceInfo {
      * @param port port
      * @param apiVersion e.g. apiv1
      */
+    @Deprecated
     public FarReachesServiceInfo(String host, String port, String apiVersion) {
         this(host, port, null, apiVersion);
     }
 
-    public FarReachesServiceInfo(FarReachesServiceInfo other) {
-        this.host = other.host;
-        this.port = other.port;
-        this.path = other.path;
-        this.apiVersion = other.apiVersion;
+    public boolean isProductionMode() {
+        return productionMode;
     }
-
+    public void setProductionMode(boolean productionMode) {
+        this.productionMode = productionMode;
+        if (productionMode) {
+            this.host = properties.getProperty("productionHostUrl");
+            this.port = properties.getProperty("productionPort");
+        } else {
+            this.host = properties.getProperty("testHostUrl");
+            this.port = properties.getProperty("testPort");
+        }
+        this.path = properties.getProperty("path");
+        this.apiVersion = properties.getProperty("apiv");
+    }
     /**
      * Returns the host string.
      *
@@ -110,8 +135,7 @@ public class FarReachesServiceInfo {
         return addHttpPrexBeforeString(this.host) + ":" + this.port + "/" + pathD + this.apiVersion;
     }
 
-    @Override
-    public FarReachesServiceInfo clone() {
-        return new FarReachesServiceInfo(this);
+    public String getPrompt() {
+        return this.isProductionMode()?"PRODUCTION ("+this.getRequestString()+")>":"local ("+this.getRequestString()+")>";
     }
 }

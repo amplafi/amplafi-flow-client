@@ -16,14 +16,15 @@ public class HelpCommand extends AbstractShellCommand {
 	}
 
 	@Override
-	public int execute(AdminTool adminTool) {
+	public void execute(AdminTool adminTool) {
 		String rawOpts = getOptions();
 		Matcher m = OPT_PATTERN.matcher(rawOpts);
 		m.matches();
 		if (m.group(2) != null) {
 			for(ShellCommandBuilder scb : shellCommandManager.getCommandBuilders()){
 				if(scb.getCommandName().equals(m.group(2))){
-					return scb.buildHelp("").execute(adminTool);
+				    scb.buildHelp("").execute(adminTool);
+				    return;
 				}
 			}
 			System.out.println("Unrecognized command \"" + m.group(2)
@@ -33,8 +34,8 @@ public class HelpCommand extends AbstractShellCommand {
 			int i = 0;
 			for(ShellCommandBuilder scb : shellCommandManager.getCommandBuilders()){
 				new DisplayCommand(i++ + " - " + scb.getCommandName()).execute(adminTool);
-			}			
+			}
 		}
-		return 0;
+		return;
 	}
 }

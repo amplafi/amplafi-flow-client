@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,11 +16,11 @@ import org.testng.annotations.Test;
 
 /**
  * A class tests LoggingProxy.
- * @author YYB
  *
  */
 public class TestLoggingProxy {
-    private LoggingProxy loggingProxy = null;
+    private LoggingProxy loggingProxy;
+
     /**
      * testNG test sets up data.
      */
@@ -35,42 +34,43 @@ public class TestLoggingProxy {
      */
     @AfterMethod
     public void tearDown() throws Exception {
-        LoggingProxy loggingProxy = null;
+        loggingProxy = null;
     }
 
     /**
      * This test tests method getRequestParamMap() receive a good request.
      */
     @Test
-    public void testGetRequestParamsMap(){
+    public void testGetRequestParamsMap() {
         String request = "/c/ampcb_e2ea34097f9aba4f69ff7c095d227beabccef732971eb2539065997d297b12c9/apiv1/AvailableCategoriesList?fsRenderResult=json";
-        Map<String,String> map = loggingProxy.getRequestParamsMap(request);
-        assertEquals(map.size(),2);
+        Map<String, String> map = loggingProxy.getRequestParamsMap(request);
+        assertEquals(map.size(), 2);
         assertTrue(map.containsKey("flowName"));
         assertTrue(map.containsKey("fsRenderResult"));
-        assertEquals(map.get("flowName"),"AvailableCategoriesList");
-        assertEquals(map.get("fsRenderResult"),"json");
+        assertEquals(map.get("flowName"), "AvailableCategoriesList");
+        assertEquals(map.get("fsRenderResult"), "json");
     }
 
     /**
      * This test tests method getRequestParamMap() receive a bad request.
      */
     @Test
-    public void testGetRequestParamsMapWithBadRequest(){
+    public void testGetRequestParamsMapWithBadRequest() {
         String request = "/asdf/lli/234/asdf/ladew/";
-        Map<String,String> map = loggingProxy.getRequestParamsMap(request);
-        assertEquals(map.size(),0);
+        Map<String, String> map = loggingProxy.getRequestParamsMap(request);
+        assertEquals(map.size(), 0);
         assertFalse(map.containsKey("flowName"));
         assertFalse(map.containsKey("fsRenderResult"));
-        assertEquals(map.get("flowName"),null);
-        assertEquals(map.get("fsRenderResult"),null);
+        assertEquals(map.get("flowName"), null);
+        assertEquals(map.get("fsRenderResult"), null);
         // what do we do in the test script if there is a bad request?
     }
+
     /**
      * This test tests method getRequestParamMap().
      */
     @Test
-    public void testAddTestScriptRequest() throws Exception{
+    public void testAddTestScriptRequest() throws Exception {
         String request = "/c/ampcb_e2ea34097f9aba4f69ff7c095d227beabccef732971eb2539065997d297b12c9/apiv1/AvailableCategoriesList?fsRenderResult=json";
         loggingProxy.addTestScriptRequest(request);
         String req = ((LoggingProxyTest) loggingProxy).getTestScriptRequest();
@@ -85,7 +85,7 @@ public class TestLoggingProxy {
 
     }
 
-    public class LoggingProxyTest extends LoggingProxy{
+    public class LoggingProxyTest extends LoggingProxy {
 
         private String testScriptRequest = "";
 
@@ -98,28 +98,25 @@ public class TestLoggingProxy {
         }
 
         @Override
-        protected Writer getTestFileWriter(){
+        protected Writer getTestFileWriter() {
             return new StringWriter();
         }
 
         @Override
         public void addTestScriptRequest(String req) {
-            Map<String,String> reqMap = getRequestParamsMap(req);
+            Map<String, String> reqMap = getRequestParamsMap(req);
             String flowName = reqMap.get("flowName");
             Set<String> paramSet = reqMap.keySet();
             paramSet.remove("flowName");
-            try(Writer out = getTestFileWriter()) {
+            try (Writer out = getTestFileWriter()) {
                 out.write("request(\"" + flowName + "\",[");
-                Iterator it = paramSet.iterator();
                 int i = 0;
-                while(it.hasNext()){
-                    if(i != 0){
+                for (Object element : paramSet) {
+                    if (i != 0) {
                         out.write(",");
                     }
-                    String paramName = it.next().toString();
-                    out.write("\"" + paramName + "\":\"" +
-                            reqMap.get(paramName) + "\""
-                            );
+                    String paramName = element.toString();
+                    out.write("\"" + paramName + "\":\"" + reqMap.get(paramName) + "\"");
                     i++;
                 }
                 String newLine = System.getProperty("line.separator");
@@ -129,14 +126,13 @@ public class TestLoggingProxy {
                 out.write("checkReturnedValidJson()");
                 //Close the output stream
                 testScriptRequest = out.toString();
-            }catch (Exception e){//Catch exception if any
+            } catch (Exception e) {//Catch exception if any
                 System.err.println("Error: " + e.getMessage());
             }
-          //  request("EligibleExternalServiceInstancesFlow", ["eligibleExternalServiceInstanceMap":"bogusData","eligibleExternalServiceInstances":"bogusData","fsRenderResult":"json"])
-          //  checkReturnedValidJson()
+            //  request("EligibleExternalServiceInstancesFlow", ["eligibleExternalServiceInstanceMap":"bogusData","eligibleExternalServiceInstances":"bogusData","fsRenderResult":"json"])
+            //  checkReturnedValidJson()
 
         }
-
 
     }
 

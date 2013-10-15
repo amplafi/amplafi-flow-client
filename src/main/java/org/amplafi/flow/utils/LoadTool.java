@@ -199,8 +199,7 @@ public class LoadTool extends UtilParent {
 
                             numThreads = listMap.get(i).get("numThreads");
                             frequency = listMap.get(i).get("frequency");
-                            runLoadTest(service, key, scriptName, numThreads, frequency, cmdOptions.hasOption(VERBOSE)); // never
-                                                                                                                         // returns
+                            runLoadTest(service, key, scriptName, numThreads, frequency, cmdOptions.hasOption(VERBOSE)); // never returns
                             // after a given time should stop the test.one way
                             // is delete the running file,another is control key
                             // press "ctrl+c"?
@@ -491,7 +490,7 @@ public class LoadTool extends UtilParent {
                 public void run() {
                     try {
                         // don't include the first run because this includes
-                        // constructing gropvy runtime.
+                        // constructing groovy runtime.
 
                         adminTool.runScriptName(scriptName);
                         report.startTime = System.currentTimeMillis();

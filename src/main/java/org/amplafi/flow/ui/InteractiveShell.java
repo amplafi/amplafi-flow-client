@@ -36,8 +36,6 @@ public class InteractiveShell {
 
     private ShellCommandManager shellCommandManager;
 
-    private static final String PROMPT = "cs>";
-
     public InteractiveShell() {
         setAdminTool(new AdminTool(new InteractiveBindingFactory(getReader())));
         setShellCommandManager(new ShellCommandManager());
@@ -50,6 +48,7 @@ public class InteractiveShell {
         is.addCommand(new ExitBuilder());
         is.addCommand(new HelpBuilder(is));
         is.addCommand(new DescribeApiOrFlowBuilder());
+        is.addCommand(new SetParameterCommandBuilder());
         List<String> scriptNames = new ArrayList<>(is.adminTool.getAvailableScripts().keySet());
         Collections.sort(scriptNames);
         for (String script : scriptNames) {
@@ -72,7 +71,7 @@ public class InteractiveShell {
     }
 
     private ShellCommand parseCommand() {
-        System.out.print(PROMPT);
+        System.out.print(this.adminTool.getPrompt());
         String commandLine;
         try {
             commandLine = getReader().readLine().trim();

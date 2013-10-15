@@ -13,11 +13,10 @@ public class DisplayCommand extends AbstractShellCommand {
 	}
 
 	@Override
-	public int execute(AdminTool adminTool) {
+	public void execute(AdminTool adminTool) {
 		//TODO (Bruno) refactor this and other direct calls to sysste.out to a
 		//			   stream belonging to AdminTool.
 		System.out.println(getOptions());
-		return 0;
 	}
 
 }

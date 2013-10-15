@@ -5,8 +5,7 @@ import groovy.lang.Binding;
 import java.io.BufferedReader;
 import java.util.Map;
 
-import org.amplafi.dsl.BindingFactory;
-import org.amplafi.dsl.FlowTestDSL;
+import org.amplafi.dsl.AbstractBindingFactory;
 
 
 /**
@@ -15,27 +14,16 @@ import org.amplafi.dsl.FlowTestDSL;
  * through groovy's binding variable resolution mechanism.
  *
  */
-public class InteractiveBindingFactory implements BindingFactory {
-	
+public class InteractiveBindingFactory extends AbstractBindingFactory {
+
 	private BufferedReader bufferedReader;
-	private FlowTestDSL flowDSL;
-	
 	public InteractiveBindingFactory(BufferedReader bufferedReader){
 		this.bufferedReader = bufferedReader;
 	}
 	@Override
 	public Binding getNewBinding(Map<String, String> paramsmap) {
-		return new InteractiveBinding(bufferedReader,paramsmap);
+        Map completeParameters = createCompleteParametersMap(paramsmap);
+		return new InteractiveBinding(bufferedReader,completeParameters);
 	}
 
-	@Override
-	public FlowTestDSL getDSL() {
-		return flowDSL;
-	}
-	@Override
-	public void setDSL(FlowTestDSL ftdsl) {
-		this.flowDSL = ftdsl;
-		
-	}
-	
 }

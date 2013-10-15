@@ -29,9 +29,12 @@ public class AdminTool {
 
     private ScriptRunner runner;
 
+    @Deprecated // put in FarReachesServiceInfo
     private Properties props;
 
     private BindingFactory bindingFactory;
+
+    private FarReachesServiceInfo farReachesServiceInfo;
 
     public static final String CONFIG_FILE = "farreaches.fadmin.properties";
 
@@ -58,22 +61,13 @@ public class AdminTool {
         } catch (IOException e) {
             System.out.println(keyfileName + ": No keyfile found. Check property " + keyfileNameProperty + " in " + CONFIG_FILE);
         }
-        String host;
-        String port;
-        if (productionMode) {
-            host = props.getProperty("productionHostUrl");
-            port = props.getProperty("productionPort");
-        } else {
-            host = props.getProperty("testHostUrl");
-            port = props.getProperty("testPort");
-        }
+
+        this.setServiceInfo( new FarReachesServiceInfo(props));
         // TODO: validate keys
         String scriptsFolder = props.getProperty("scripts_folder");
 
         loadScriptsAvailable(scriptsFolder);
         runner = new ScriptRunner(bindingFactory);
-        this.setServiceInfo(new FarReachesServiceInfo(host, port, props.getProperty("path"), props.getProperty("apiv")));
-        System.out.println("Service initialized to " + host + ":" + port);
     }
 
     private void loadScriptsAvailable(String scriptsFolder) {
@@ -93,11 +87,11 @@ public class AdminTool {
         }
     }
 
-    public void runScriptName(String name) {
+    public void runScriptName(String name) throws IOException {
         this.runner.loadAndRunOneScript(name);
     }
 
-    public boolean runScript(String script) {
+    public boolean runScript(String script) throws IOException {
         String filePath = scriptsAvailable.get(script);
         if (null == filePath) {
             return false;
@@ -117,9 +111,13 @@ public class AdminTool {
 
     public void setServiceInfo(FarReachesServiceInfo serviceInfo) {
         System.out.println("Updated Service Info");
-        getBindingFactory().setDSL(new FlowTestDSL(serviceInfo, this.props, runner));
+        this.farReachesServiceInfo = serviceInfo;
+        getBindingFactory().setDSL(new FlowTestDSL(this.farReachesServiceInfo, this.props, runner));
     }
 
+    public String getPrompt() {
+        return this.farReachesServiceInfo.getPrompt();
+    }
     public BindingFactory getBindingFactory() {
         return bindingFactory;
     }

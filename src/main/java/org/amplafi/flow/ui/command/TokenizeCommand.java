@@ -15,7 +15,7 @@ public class TokenizeCommand extends AbstractShellCommand {
 	}
 
 	@Override
-	public int execute(AdminTool adminTool) {
+	public void execute(AdminTool adminTool) {
 		String chain = getOptions();
 		/*List<String> stList = ParameterTokenizer.tokenize(chain);
 		int l = stList.size();
@@ -24,7 +24,6 @@ public class TokenizeCommand extends AbstractShellCommand {
 		for(int i =0; i< l; i++){
 			System.out.println("Token " + i + ": " + it.next());
 		}*/
-		return 0;
 	}
 
 }
