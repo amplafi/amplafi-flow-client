@@ -7,13 +7,13 @@ import org.amplafi.flow.utils.AdminTool;
  */
 public class DisplayCommand extends AbstractShellCommand {
 
-	public DisplayCommand(String setOptions) {
-		super(setOptions);
-	}
+    public DisplayCommand(String setOptions) {
+        super(setOptions);
+    }
 
-	@Override
-	public void execute(AdminTool adminTool) {
-		System.out.println(getOptions());
-	}
+    @Override
+    public void execute(AdminTool adminTool) {
+        System.out.println(getOptions());
+    }
 
 }

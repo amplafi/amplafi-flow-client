@@ -8,7 +8,7 @@ public class NamedScriptCommand extends RunScriptCommand {
         super(setOptions);
         this.scriptName = scriptName;
     }
-    
+
     @Override
     protected String getScriptName() {
         return scriptName;

@@ -36,6 +36,5 @@ public class HelpCommand extends AbstractShellCommand {
 				new DisplayCommand(i++ + " - " + scb.getCommandName()).execute(adminTool);
 			}
 		}
-		return;
 	}
 }

@@ -7,30 +7,29 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * @author bfv
- * This groovy binding will manually prompt the user for data whenever it is missing. As with all bindings, groovy takes care of using it.
- *
+ * This groovy binding will manually prompt the user for data whenever it is missing. As with all
+ * bindings, groovy takes care of using it.
  */
 public class InteractiveBinding extends Binding {
 
-	private BufferedReader reader;
+    private BufferedReader reader;
 
-	public InteractiveBinding(BufferedReader reader, Map<String, String> paramsmap) {
-		super(paramsmap);
-		this.reader = reader;
-	}
+    public InteractiveBinding(BufferedReader reader, Map<String, String> paramsmap) {
+        super(paramsmap);
+        this.reader = reader;
+    }
 
-	@Override
-	public Object  getVariable(String vName) {
-        if(!super.hasVariable(vName)){
-        	System.out.print("Enter " + vName.replace('_', ' ') + ":");
-        	try {
-				String vValue = reader.readLine();
-				super.setVariable(vName, vValue);
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.out.print("InteractiveBinding: problem reading variable from stream");
-			}
+    @Override
+    public Object getVariable(String vName) {
+        if (!super.hasVariable(vName)) {
+            System.out.print("Enter " + vName.replace('_', ' ') + ":");
+            try {
+                String vValue = reader.readLine();
+                super.setVariable(vName, vValue);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.print("InteractiveBinding: problem reading variable from stream");
+            }
         }
         return super.getVariable(vName);
     }

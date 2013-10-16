@@ -9,21 +9,21 @@ import org.amplafi.flow.utils.AdminTool;
  */
 public abstract class RunScriptCommand extends AbstractShellCommand {
 
-	public RunScriptCommand(String setOptions) {
-		super(setOptions);
-	}
+    public RunScriptCommand(String setOptions) {
+        super(setOptions);
+    }
 
-	@Override
-	public void execute(AdminTool adminTool) {
-	    String script = getScriptName();
-	    try {
-            if(!adminTool.runScript(script)) {
+    @Override
+    public void execute(AdminTool adminTool) {
+        String script = getScriptName();
+        try {
+            if (!adminTool.runScript(script)) {
                 System.out.println("Invalid script name. Make sure you typed it correctly.");
             }
-	    } catch(IOException exception) {
-	        System.out.println("Problem reading script file:" +exception.getMessage());
-	    }
-	}
+        } catch (IOException exception) {
+            System.out.println("Problem reading script file:" + exception.getMessage());
+        }
+    }
 
     abstract String getScriptName();
 
