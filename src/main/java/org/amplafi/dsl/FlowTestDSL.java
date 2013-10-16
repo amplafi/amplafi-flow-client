@@ -547,7 +547,7 @@ public class FlowTestDSL {
 
     public boolean describeFlow(String api, String flow) {
         String key = getKey(api);
-        FarReachesServiceInfo frsi = this.serviceInfo.clone();
+        FarReachesServiceInfo frsi = new FarReachesServiceInfo(this.serviceInfo);
         frsi.setApiVersion(api);
         GeneralFlowRequest request = new GeneralFlowRequest(frsi, key, flow);
         FlowResponse flows = request.describeFlowWithResponse();
@@ -676,7 +676,7 @@ public class FlowTestDSL {
         for (Entry<String, String> entry : entrySet) {
             requestParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }
-        FarReachesServiceInfo serviceInfo = this.serviceInfo.clone();
+        FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(this.serviceInfo);
         serviceInfo.setApiVersion(api);
         GeneralFlowRequest request = new GeneralFlowRequest(serviceInfo, apiKey, flowName, requestParams);
         return request;
