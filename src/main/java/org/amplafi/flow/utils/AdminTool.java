@@ -1,10 +1,8 @@
 package org.amplafi.flow.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,9 +27,6 @@ public class AdminTool {
 
     private ScriptRunner runner;
 
-    @Deprecated // put in FarReachesServiceInfo
-    private Properties props;
-
     private BindingFactory bindingFactory;
 
     private FarReachesServiceInfo farReachesServiceInfo;
@@ -42,29 +37,12 @@ public class AdminTool {
 
     public AdminTool(BindingFactory bindingFactory) {
         this.setBindingFactory(bindingFactory);
-        this.props = new Properties();
-        try (FileInputStream propertyStream = new FileInputStream(CONFIG_FILE)) {
-            this.props.load(propertyStream);
-            System.out.println(CONFIG_FILE + ": loaded");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Could not load properties file: " + CONFIG_FILE);
-        }
-        boolean productionMode = props.getProperty("production").equals("true");
-        String keyfileNameProperty = productionMode ? "productionKeyfile" : "keyfile";
-        String keyfileName = props.getProperty(keyfileNameProperty);
-        // TODO ask for the key on start up
-        // TODO : allow keys to be changed.
-        System.out.println("Loading keys from :" + keyfileName + "(property=" + keyfileNameProperty + ")");
-        try (FileInputStream fis = new FileInputStream(keyfileName)) {
-            props.load(fis);
-        } catch (IOException e) {
-            System.out.println(keyfileName + ": No keyfile found. Check property " + keyfileNameProperty + " in " + CONFIG_FILE);
-        }
 
-        this.setServiceInfo( new FarReachesServiceInfo(props));
+        FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo();
+        serviceInfo.setMode("production");
+        this.setServiceInfo( serviceInfo);
         // TODO: validate keys
-        String scriptsFolder = props.getProperty("scripts_folder");
+        String scriptsFolder = serviceInfo.getProperty("scripts_folder");
 
         loadScriptsAvailable(scriptsFolder);
         runner = new ScriptRunner(bindingFactory);
@@ -112,7 +90,7 @@ public class AdminTool {
     public void setServiceInfo(FarReachesServiceInfo serviceInfo) {
         System.out.println("Updated Service Info");
         this.farReachesServiceInfo = serviceInfo;
-        getBindingFactory().setDSL(new FlowTestDSL(this.farReachesServiceInfo, this.props, runner));
+        getBindingFactory().setDSL(new FlowTestDSL(this.farReachesServiceInfo, runner));
     }
 
     public String getPrompt() {
@@ -126,4 +104,7 @@ public class AdminTool {
         this.bindingFactory = bindingFactory;
     }
 
+    public void setMode(String mode) {
+        this.farReachesServiceInfo.setMode(mode);
+    }
 }

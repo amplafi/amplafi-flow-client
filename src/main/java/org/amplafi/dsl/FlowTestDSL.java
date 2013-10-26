@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -65,8 +64,6 @@ public class FlowTestDSL {
 
     private ScriptRunner runner;
 
-    private boolean prettyPrint;
-
     private Log log;
 
     private FarReachesServiceInfo serviceInfo;
@@ -77,14 +74,13 @@ public class FlowTestDSL {
 
     private static final Scanner INPUT = new Scanner(System.in);
 
-    public FlowTestDSL(FarReachesServiceInfo serviceInfo, Properties props, ScriptRunner runner) {
+    public FlowTestDSL(FarReachesServiceInfo serviceInfo, ScriptRunner runner) {
         this.serviceInfo = serviceInfo;
         this.runner = runner;
-        this.suKey = props.getProperty("supKey", null);
+        this.suKey = serviceInfo.getProperty("supKey");
         this.permanentKey = null;
         this.readOnlyKey = null;
-        this.default_url = props.getProperty("testPluginUrl");
-        this.prettyPrint = props.getProperty("prettyprint") == "true";
+        this.default_url = serviceInfo.getProperty("testPluginUrl");
     }
 
     public void setKey(String api, String key) {

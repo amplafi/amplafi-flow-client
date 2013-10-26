@@ -1,7 +1,9 @@
 package org.amplafi.flow.ui.command;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +15,7 @@ public class ShellCommandManager {
 
     private static final Pattern BASIC_COMMAND = Pattern.compile("^(([^\\s]*)\\s+(.*)|(.*))$");
 
+    private Map<String, ShellCommandBuilder> shellCommandBuilderMap = new HashMap<String, ShellCommandBuilder>();
     private List<ShellCommandBuilder> commandBuilders = new ArrayList<>();
 
     public ShellCommandManager() {
@@ -20,6 +23,7 @@ public class ShellCommandManager {
 
     public void addCommand(ShellCommandBuilder commandBuilder) {
         getCommandBuilders().add(commandBuilder);
+        this.shellCommandBuilderMap.put(commandBuilder.getCommandName(), commandBuilder);
     }
 
     public ShellCommand build(String commandLine) {
@@ -40,28 +44,12 @@ public class ShellCommandManager {
         }
         String commandname = commandName.toLowerCase();
         //build commands by name
-        for (ShellCommandBuilder builder : getCommandBuilders()) {
-            if (commandname.equals(builder.getCommandName())) {
-                if (!help) {
-                    return builder.buildCommand(commandParameters);
-                } else {
-                    return builder.buildHelp(commandParameters);
-                }
-            }
-        }
-        //in case no command is explicitly named, try building by number
-        if (isInteger(commandName)) {
-            int commandNumber = Integer.parseInt(commandName);
-            if (commandNumber < getCommandBuilders().size()) {
-                ShellCommandBuilder ascb = getCommandBuilders().get(commandNumber);
-                if (!help) {
-                    return ascb.buildCommand(commandParameters);
-                } else {
-                    return ascb.buildHelp(commandParameters);
-                }
+        ShellCommandBuilder builder = getShellCommandBuilder(commandname);
+        if ( builder != null) {
+            if (!help) {
+                return builder.buildCommand(commandParameters);
             } else {
-                return new DisplayCommand("Index out of bounds, make sure you typed a number within the allowed range (0-"
-                    + getCommandBuilders().size() + ").");
+                return builder.buildHelp(commandParameters);
             }
         }
         return new EmptyCommand(commandParameters);
@@ -84,13 +72,15 @@ public class ShellCommandManager {
         this.commandBuilders = commandBuilders;
     }
 
-    //helper function for the build by number
-    private boolean isInteger(String input) {
+    public ShellCommandBuilder getShellCommandBuilder(String indexOrName) {
         try {
-            Integer.parseInt(input);
-            return true;
-        } catch (Exception e) {
-            return false;
+            int index = Integer.parseInt(indexOrName);
+            if ( index >=0 && index < this.commandBuilders.size()) {
+                return this.commandBuilders.get(index);
+            }
+        } catch(NumberFormatException e) {
+            // ignore
         }
+        return this.shellCommandBuilderMap.get(indexOrName);
     }
 }

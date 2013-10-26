@@ -1,5 +1,9 @@
 package org.amplafi.flow.definitions;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -22,15 +26,41 @@ public class FarReachesServiceInfo {
     /** This is a prefix of a host */
     private String PROTOCOL = "http://";
 
-    private boolean productionMode;
+    private String activeKey;
 
-    private Properties properties;
+    private Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
 
-    public FarReachesServiceInfo(Properties properties) {
-        this.properties = properties;
-        boolean productionMode = properties.getProperty("production").equals("true");
-        this.setProductionMode(productionMode);
+    public FarReachesServiceInfo() {
     }
+
+    private Properties loadProperties(String key) {
+        Properties properties = loadPropertyFile("global");
+        properties.putAll(loadPropertyFile(key));
+        this.propertiesMap.put(key, properties);
+        String keyFileName = properties.getProperty("keyfile");
+        if ( keyFileName != null) {
+            System.out.println("Loading keys from :" + keyFileName);
+            try (FileInputStream fis = new FileInputStream(keyFileName)) {
+                properties.load(fis);
+            } catch (IOException e) {
+                System.out.println(keyFileName + ": No keyfile found. Check property keyfile in " + "farreaches.cs-"+key+".properties");
+            }
+        }
+        return properties;
+    }
+
+    private Properties loadPropertyFile(String key) {
+        Properties properties = new Properties();
+        String propertyFileName = "farreaches.cs-"+key+".properties";
+        System.out.println("Loading properties from :" + propertyFileName);
+        try(FileInputStream fileInputStream = new FileInputStream(propertyFileName)) {
+            properties.load(fileInputStream);
+        } catch (IOException e) {
+            System.out.println(propertyFileName + ": No properties file found. Check for " + propertyFileName);
+        }
+        return properties;
+    }
+
     /**
      * Constructor.
      *
@@ -46,8 +76,14 @@ public class FarReachesServiceInfo {
         this.apiVersion = apiVersion;
     }
 
+    @Deprecated
     public FarReachesServiceInfo(FarReachesServiceInfo farReachesServiceInfo) {
-        this(farReachesServiceInfo.properties);
+        this.activeKey = farReachesServiceInfo.activeKey;
+        this.apiVersion = farReachesServiceInfo.apiVersion;
+        this.host= farReachesServiceInfo.host;
+        this.path = farReachesServiceInfo.path;
+        this.port = farReachesServiceInfo.port;
+        this.propertiesMap = new HashMap<>(farReachesServiceInfo.propertiesMap);
     }
 
     /**
@@ -62,20 +98,20 @@ public class FarReachesServiceInfo {
         this(host, port, null, apiVersion);
     }
 
-    public boolean isProductionMode() {
-        return productionMode;
-    }
-    public void setProductionMode(boolean productionMode) {
-        this.productionMode = productionMode;
-        if (productionMode) {
-            this.host = properties.getProperty("productionHostUrl");
-            this.port = properties.getProperty("productionPort");
-        } else {
-            this.host = properties.getProperty("testHostUrl");
-            this.port = properties.getProperty("testPort");
+    public void setMode(String mode) {
+        if ( "l".equalsIgnoreCase(mode)) {
+            mode = "local";
+        } else if ( "p".equalsIgnoreCase(mode)) {
+            mode = "production";
+        } else if ( "t".equalsIgnoreCase(mode)) {
+            mode = "test";
         }
+        Properties properties = this.loadProperties(mode);
+        this.host = properties.getProperty("host");
+        this.port = properties.getProperty("port");
         this.path = properties.getProperty("path");
         this.apiVersion = properties.getProperty("apiv");
+        this.activeKey = mode;
     }
     /**
      * Returns the host string.
@@ -132,10 +168,14 @@ public class FarReachesServiceInfo {
             pathD = this.path + "/";
         }
 
-        return addHttpPrexBeforeString(this.host) + ":" + this.port + "/" + pathD + this.apiVersion;
+        return addHttpPrexBeforeString(this.host) + ":" + this.port + "/" + pathD + ( this.apiVersion != null? this.apiVersion: "");
     }
 
     public String getPrompt() {
-        return this.isProductionMode()?"PRODUCTION ("+this.getRequestString()+")>":"local ("+this.getRequestString()+")>";
+        return this.activeKey+ "("+this.getRequestString()+")>";
+    }
+
+    public String getProperty(String key) {
+        return this.propertiesMap.get(this.activeKey).getProperty(key);
     }
 }

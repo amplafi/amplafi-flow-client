@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.amplafi.dsl.AbstractBindingFactory;
 
+import com.sworddance.util.ApplicationIllegalArgumentException;
+
 
 /**
  * @author bfv
@@ -18,6 +20,7 @@ public class InteractiveBindingFactory extends AbstractBindingFactory {
 
 	private BufferedReader bufferedReader;
 	public InteractiveBindingFactory(BufferedReader bufferedReader){
+	    ApplicationIllegalArgumentException.notNull(bufferedReader, "buffered reader must exist");
 		this.bufferedReader = bufferedReader;
 	}
 	@Override

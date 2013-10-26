@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
  * information is held (command name, options, an abstract executor)
  */
 public abstract class AbstractShellCommand implements ShellCommand {
-    protected static final Pattern ONE_AND_MAYBE_TWO_WORDS = Pattern.compile("^([^\\s]+)\\s*([^\\s]*)$");
+    protected static final Pattern ONE_AND_MAYBE_TWO_WORDS = Pattern.compile("^\\s*([^\\s]+)\\s*([^\\s]*)\\s*$");
+    protected static final Pattern ONE_WORD = Pattern.compile("^\\s*([^\\s]+)\\s*$");
 
     protected static final Pattern NOTHING = Pattern.compile("^\\s*$");
 

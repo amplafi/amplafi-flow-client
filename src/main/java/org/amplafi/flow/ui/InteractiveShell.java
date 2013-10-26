@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.amplafi.dsl.BindingFactory;
+import org.amplafi.flow.ui.command.ServerChangeCommandBuilder;
 import org.amplafi.flow.ui.command.ShellCommand;
 import org.amplafi.flow.ui.command.ShellCommandBuilder;
 import org.amplafi.flow.ui.command.DescribeApiOrFlowBuilder;
@@ -36,19 +37,21 @@ public class InteractiveShell {
 
     private ShellCommandManager shellCommandManager;
 
-    public InteractiveShell() {
-        setAdminTool(new AdminTool(new InteractiveBindingFactory(getReader())));
+    public InteractiveShell(BufferedReader reader) {
+        this.reader = reader;
+        setAdminTool(new AdminTool(new InteractiveBindingFactory(reader)));
         setShellCommandManager(new ShellCommandManager());
         this.setLog(LogFactory.getLog(this.getClass()));
+        this.adminTool.setMode("production");
     }
 
     public static void main(String[] args) {
-        InteractiveShell is = new InteractiveShell();
-        is.setReader(new BufferedReader(new InputStreamReader(System.in)));
+        InteractiveShell is = new InteractiveShell(new BufferedReader(new InputStreamReader(System.in)));
         is.addCommand(new ExitBuilder());
         is.addCommand(new HelpBuilder(is));
         is.addCommand(new DescribeApiOrFlowBuilder());
         is.addCommand(new SetParameterCommandBuilder());
+        is.addCommand(new ServerChangeCommandBuilder());
         List<String> scriptNames = new ArrayList<>(is.adminTool.getAvailableScripts().keySet());
         Collections.sort(scriptNames);
         for (String script : scriptNames) {
@@ -85,10 +88,6 @@ public class InteractiveShell {
 
     BufferedReader getReader() {
         return reader;
-    }
-
-    void setReader(BufferedReader reader) {
-        this.reader = reader;
     }
 
     AdminTool getAdminTool() {
