@@ -39,7 +39,7 @@ public class AdminTool {
         this.setBindingFactory(bindingFactory);
 
         FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo();
-        serviceInfo.setMode("production");
+        serviceInfo.setMode("local");
         this.setServiceInfo( serviceInfo);
         // TODO: validate keys
         String scriptsFolder = serviceInfo.getProperty("scripts_folder");
