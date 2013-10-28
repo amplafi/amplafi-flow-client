@@ -42,7 +42,6 @@ public class InteractiveShell {
         setAdminTool(new AdminTool(new InteractiveBindingFactory(reader)));
         setShellCommandManager(new ShellCommandManager());
         this.setLog(LogFactory.getLog(this.getClass()));
-        this.adminTool.setMode("production");
     }
 
     public static void main(String[] args) {
