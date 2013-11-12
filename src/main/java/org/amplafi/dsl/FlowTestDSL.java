@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -35,12 +36,15 @@ import org.apache.http.message.BasicNameValuePair;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
+
 import com.sworddance.util.CUtilities;
 
 /**
  * This class defines the methods that are callable within the flow test DSL
  */
 public class FlowTestDSL {
+
+    private static final String PERMANENT_API_KEY_CALL = "PermanentApiKey";
 
     public static final String API_PUBLIC = "public";
 
@@ -57,8 +61,6 @@ public class FlowTestDSL {
     private String permanentKey;
 
     private String temporaryKey;
-
-    private String suKey;
 
     private String readOnlyKey;
 
@@ -77,9 +79,6 @@ public class FlowTestDSL {
     public FlowTestDSL(FarReachesServiceInfo serviceInfo, ScriptRunner runner) {
         this.serviceInfo = serviceInfo;
         this.runner = runner;
-        this.suKey = serviceInfo.getProperty("supKey");
-        this.permanentKey = null;
-        this.readOnlyKey = null;
         this.default_url = serviceInfo.getProperty("testPluginUrl");
     }
 
@@ -87,7 +86,6 @@ public class FlowTestDSL {
         String keystring = null;
         switch (api) {
         case API_SU:
-            this.suKey = key;
             keystring = API_SU;
             break;
         case API_TEMPORARY:
@@ -109,7 +107,7 @@ public class FlowTestDSL {
     private String getKey(String api) {
         switch (api) {
         case API_SU:
-            return this.suKey;
+            return this.serviceInfo.getProperty("supKey");
         case "api":
             if (this.readOnlyKey != null) {
                 return this.readOnlyKey;
@@ -120,7 +118,7 @@ public class FlowTestDSL {
                 this.temporaryKey = null;
                 return temp;
             } else {
-                return this.suKey;
+                return this.getKey(API_SU);
             }
         case API_PUBLIC:
             return null;
@@ -149,10 +147,10 @@ public class FlowTestDSL {
 
     public void obtainPermanentKey(String rootUrl, String email) {
         FlowResponse response = callbackRequest(rootUrl, API_PUBLIC, "TemporaryApiKey",
-            CUtilities.<String, String> createMap("apiCall", "PermanentApiKey"));
+            CUtilities.<String, String> createMap("apiCall", PERMANENT_API_KEY_CALL));
         String temporaryApiKey = response.get("temporaryApiKey");
         setKey(API_TEMPORARY, temporaryApiKey);
-        response = callbackRequest("api", "PermanentApiKey", CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
+        response = callbackRequest("api", PERMANENT_API_KEY_CALL, CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
             "[{'email':'" + email + "','roleType':'adm','displayName':'user','externalId':1}]", "defaultLanguage", "en", "selfName", "user's Blog!",
             "completeList", "true"));
         this.permanentKey = response.get("permanentApiKeys.1");
@@ -456,14 +454,14 @@ public class FlowTestDSL {
                 throw new FlowException("Async request failed.");
             } else {
                 synchronized (monitor) {
-                    monitor.wait(timeOutSeconds * 1000);
+                    monitor.wait(TimeUnit.SECONDS.toMillis(1000));
                 }
                 if (!myHandler.getReceived()) {
                     server.stop();
                     throw new FlowException("Server did not send any request");
                 }
                 if (myHandler.getHandlingError() != null) {
-                    throw new FlowException("Error Handling Request.", myHandler.getHandlingError());
+                    throw myHandler.getHandlingError();
                 }
             }
         } catch (Exception e) {
@@ -643,10 +641,10 @@ public class FlowTestDSL {
 
     public String obtainPermanentKey(String rootUrl) {
         FlowResponse response = callbackRequest(rootUrl, API_PUBLIC, "TemporaryApiKey",
-            CUtilities.<String, String> createMap("apiCall", "PermanentApiKey"));
+            CUtilities.<String, String> createMap("apiCall", PERMANENT_API_KEY_CALL));
         String temporaryApiKey = response.get("temporaryApiKey");
         setKey(API_TEMPORARY, temporaryApiKey);
-        response = callbackRequest("PermanentApiKey", CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
+        response = callbackRequest(PERMANENT_API_KEY_CALL, CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
             "[{'email':'admin@example.com','roleType':'adm','displayName':'user','externalId':1}]", "defaultLanguage", "en", "selfName",
             "user's Blog! С русскими буквами.", "completeList", "true"));
         return response.get("permanentApiKeys.1");

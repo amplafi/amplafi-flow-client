@@ -97,8 +97,6 @@ public class TestFlowTypesSandBox {
         System.err.println("Will ignore flows" + ignoredFlowsStr);
         String[] ignoredFlowsArr = ignoredFlowsStr.split(",");
         ignoredFlows = new HashSet<String>(Arrays.asList(ignoredFlowsArr));
-
-
     }
 
     /**
