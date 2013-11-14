@@ -93,7 +93,7 @@ public class FlowResponse {
 		JsonConstruct jsonConstruct = JsonConstruct.Parser.toJsonConstruct(responseText);
         return hasError() ? buildErrorMessage() : jsonConstruct != null ? jsonConstruct.toString(2) : responseText;
 	}
-	
+
     private String buildErrorMessage() {
         StringBuilder error = new StringBuilder();
         if (getHttpStatusCode() == 401) {
@@ -129,6 +129,6 @@ public class FlowResponse {
 	public String get(String key) {
 		JSONObject jsonObject = toJSONObject();
 		jsonObject = jsonObject.flatten();
-		return jsonObject.optString(key);
+		return jsonObject!=null?jsonObject.optString(key):null;
 	}
 }
