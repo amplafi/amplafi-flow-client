@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -151,9 +152,27 @@ public class FlowResponse {
             return buildErrorMessage();
         }
         JsonConstruct jsonConstruct = JsonConstruct.Parser.toJsonConstruct(responseText);
+        return getSectionString(flatten, jsonConstruct);
+    }
+
+    protected String getSectionString(boolean flatten, JsonConstruct jsonConstruct) {
         List<JSONObject> rows = new ArrayList<>();
+        StringBuilder result = new StringBuilder();
         if (jsonConstruct instanceof JSONObject) {
             JSONObject jsonObject = (JSONObject) jsonConstruct;
+            Set<String> keys = jsonObject.keys();
+            Set<String> toRemove = new HashSet<>();
+            for (String key : keys) {
+                JSONArray<Object> optJSONArray = jsonObject.optJSONArray(key);
+                if (optJSONArray != null) {
+                    result.append(key).append("\n");
+                    result.append(getSectionString(flatten, optJSONArray));
+                    toRemove.add(key);
+                }
+            }
+            for (String key : toRemove) {
+                jsonObject.remove(key);
+            }
             rows.add(flatten ? jsonObject.flatten() : jsonObject);
         } else {
             JSONArray<JSONObject> jsonArray = (JSONArray<JSONObject>) jsonConstruct;
@@ -162,7 +181,6 @@ public class FlowResponse {
             }
         }
         SortedMap<String, Integer> columns = getColumnsData(rows);
-        StringBuilder result = new StringBuilder();
         for (Entry<String, Integer> entry : columns.entrySet()) {
             result.append(String.format("%" + entry.getValue() + "s | ", entry.getKey()));
         }
