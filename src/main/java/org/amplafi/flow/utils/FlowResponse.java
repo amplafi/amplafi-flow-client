@@ -4,9 +4,15 @@ import static org.amplafi.flow.utils.GeneralFlowRequest.APPLICATION_ZIP;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -131,4 +137,63 @@ public class FlowResponse {
 		jsonObject = jsonObject.flatten();
 		return jsonObject!=null?jsonObject.optString(key):null;
 	}
+	
+	public String toTableString() {
+	    return toTableString(false);
+	}
+	
+	public String toFlattenedTableString() {
+	    return toTableString(true);
+	}
+
+    private String toTableString(boolean flatten) {
+        if (hasError()) {
+            return buildErrorMessage();
+        }
+        JsonConstruct jsonConstruct = JsonConstruct.Parser.toJsonConstruct(responseText);
+        List<JSONObject> rows = new ArrayList<>();
+        if (jsonConstruct instanceof JSONObject) {
+            JSONObject jsonObject = (JSONObject) jsonConstruct;
+            rows.add(flatten ? jsonObject.flatten() : jsonObject);
+        } else {
+            JSONArray<JSONObject> jsonArray = (JSONArray<JSONObject>) jsonConstruct;
+            for (JSONObject jsonObject : jsonArray.asList()) {
+                rows.add(flatten ? jsonObject.flatten() : jsonObject);
+            }
+        }
+        SortedMap<String, Integer> columns = getColumnsData(rows);
+        StringBuilder result = new StringBuilder();
+        for (Entry<String, Integer> entry : columns.entrySet()) {
+            result.append(String.format("%" + entry.getValue() + "s | ", entry.getKey()));
+        }
+        result.append("\n");
+        for (JSONObject row : rows) {
+            for (Entry<String, Integer> entry : columns.entrySet()) {
+                result.append(String.format("%" + entry.getValue() + "s | ", row.optString(entry.getKey())));
+            }
+            result.append("\n");
+        }
+        return result.toString();
+    }
+
+    private SortedMap<String, Integer> getColumnsData(List<JSONObject> rows) {
+        SortedMap<String, Integer> columns = new TreeMap<>();
+        for (JSONObject jsonObject : rows) {
+            Set<String> keys = jsonObject.keys();
+            for (String key : keys) {
+                int maxLength;
+                if (columns.containsKey(key)) {
+                    maxLength = columns.get(key);
+                } else {
+                    maxLength = key.length();
+                    columns.put(key, maxLength);
+                }
+                int currentLength = jsonObject.getString(key).length();
+                if (currentLength > maxLength) {
+                    columns.put(key, currentLength);
+                }
+            }
+        }
+        return columns;
+    }
 }
