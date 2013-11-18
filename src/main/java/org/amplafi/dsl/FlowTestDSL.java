@@ -44,6 +44,8 @@ import com.sworddance.util.CUtilities;
  */
 public class FlowTestDSL {
 
+    private static final String API_DEFAULT = "api";
+
     private static final String PERMANENT_API_KEY_CALL = "PermanentApiKey";
 
     public static final String API_PUBLIC = "public";
@@ -108,7 +110,7 @@ public class FlowTestDSL {
         switch (api) {
         case API_SU:
             return this.serviceInfo.getProperty("supKey");
-        case "api":
+        case API_DEFAULT:
             if (this.readOnlyKey != null) {
                 return this.readOnlyKey;
             } else if (this.permanentKey != null) {
@@ -150,7 +152,7 @@ public class FlowTestDSL {
             CUtilities.<String, String> createMap("apiCall", PERMANENT_API_KEY_CALL));
         String temporaryApiKey = response.get("temporaryApiKey");
         setKey(API_TEMPORARY, temporaryApiKey);
-        response = callbackRequest("api", PERMANENT_API_KEY_CALL, CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
+        response = callbackRequest(API_DEFAULT, PERMANENT_API_KEY_CALL, CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
             "[{'email':'" + email + "','roleType':'adm','displayName':'user','externalId':1}]", "defaultLanguage", "en", "selfName", "user's Blog!",
             "completeList", "true"));
         this.permanentKey = response.get("permanentApiKeys.1");
@@ -552,7 +554,7 @@ public class FlowTestDSL {
     private static final String DEFAULT_ROOT_URL = "example.co.uk";
 
     public FlowResponse request(String flowName) {
-        return request(null, flowName, new HashMap<String, String>());
+        return request(API_DEFAULT, flowName, new HashMap<String, String>());
     }
 
     /**
