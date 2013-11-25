@@ -21,7 +21,7 @@ import org.apache.http.message.BasicNameValuePair;
 
 /**
  * A class providing common methods for querying FarReaches service using HTTP.
- * 
+ *
  */
 public class GeneralFlowRequest {
 	private static final NameValuePair fsRenderResult = new BasicNameValuePair(
@@ -37,6 +37,11 @@ public class GeneralFlowRequest {
 	private HttpClient httpClient;
 	private Collection<NameValuePair> parameters;
 
+	public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey, String flowName) {
+	    this.serviceInfo = serviceInfo;
+	    this.apiKey = apiKey;
+	    this.flowName = flowName;
+	}
 	/**
 	 * @param serviceInfo
 	 *            is expected to have everything accept the queryString
@@ -45,11 +50,23 @@ public class GeneralFlowRequest {
 	 * @param flowName
 	 *            is name of the flow
 	 */
-	public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey,
-			String flowName, NameValuePair... params) {
+	public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey, String flowName, NameValuePair... params) {
 		this(serviceInfo, apiKey, flowName, Arrays.asList(params));
 	}
 
+   public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey, String flowName, String... params) {
+       this.apiKey = apiKey;
+       this.serviceInfo = serviceInfo;
+       this.flowName = flowName;
+       this.parameters = new ArrayList<>();
+
+       for(int i=0; i < params.length;i+=2) {
+           String name = params[i];
+           String value = params[i+1];
+           this.parameters.add(new BasicNameValuePair(name, value));
+       }
+       queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");
+   }
 	/**
 	 * @param serviceInfo
 	 *            is expected to have everything accept the queryString
@@ -58,14 +75,12 @@ public class GeneralFlowRequest {
 	 * @param flowName
 	 *            is name of the flow
 	 */
-	public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey,
-			String flowName, Collection<NameValuePair> parameters) {
+	public GeneralFlowRequest(FarReachesServiceInfo serviceInfo, String apiKey, String flowName, Collection<NameValuePair> parameters) {
 		this.apiKey = apiKey;
 		this.serviceInfo = serviceInfo;
 		this.flowName = flowName;
-		queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(
-				parameters), "UTF-8");
 		this.parameters = parameters;
+		queryString = URLEncodedUtils.format(new ArrayList<NameValuePair>(parameters), "UTF-8");
 	}
 
 	/**
@@ -103,7 +118,7 @@ public class GeneralFlowRequest {
 	}
 	/**
 	 * This method actually send the http request represented by this object.
-	 * 
+	 *
 	 * @return request response string.
 	 */
 	public String get() {

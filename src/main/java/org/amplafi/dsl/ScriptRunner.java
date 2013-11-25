@@ -101,12 +101,18 @@ public class ScriptRunner {
         // The script code must be pre-processed to add the contents of the file
         // into a call to FlowTestBuilder.build then the processed script is run
         // with the GroovyShell.
-        Closure closure = getClosure(sourceCode, new HashMap(), scriptName);
+        Binding binding = this.getNewBinding(new HashMap());
+        Closure closure = getClosure(sourceCode, binding, scriptName);
         closure.setDelegate(bindingFactory.getDSL());
         closure.setResolveStrategy(Closure.DELEGATE_FIRST);
         return closure.call();
     }
 
+    public Binding getNewBinding(Map<String, String> callParamsMap) {
+        Binding binding = bindingFactory.getNewBinding(callParamsMap);
+        binding.setProperty("out", System.out);
+        return binding;
+    }
     /**
      * Takes the source code string and wraps in into a valid groovy script that when run will
      * return a closure. that can be either configured to describe itself or to run as a sequence of
@@ -116,7 +122,7 @@ public class ScriptRunner {
      * @param paramsmap
      * @return
      */
-    private Closure getClosure(String sourceCode, Map<String, String> paramsmap, String scriptName) {
+    private Closure getClosure(String sourceCode, Binding binding, String scriptName) {
         StringBuilder script = new StringBuilder();
         // Extract the import statements from the input source code and re-add
         // them
@@ -130,8 +136,6 @@ public class ScriptRunner {
         script.append("def source = {").append(NL);
         script.append(getValidClosureCode(sourceCode));
         script.append("}; return source;");
-        Binding binding = bindingFactory.getNewBinding(paramsmap);
-        binding.setProperty("out", System.out);
         GroovyShell shell = new GroovyShell(ScriptRunner.class.getClassLoader(), binding);
         return (Closure) shell.evaluate(script.toString(), scriptName);
     }
@@ -145,6 +149,7 @@ public class ScriptRunner {
      * @throws IOException
      */
     public Closure createClosure(String scriptName, Map<String, String> callParamsMap) {
+        Binding binding = this.getNewBinding(callParamsMap);
         String filePath = getScriptPath(scriptName);
         if (filePath == null) {
             URL scriptResource = getClass().getResource("/commandScripts/" + scriptName + ".groovy");
@@ -158,7 +163,7 @@ public class ScriptRunner {
             try {
                 System.out.println("Reading script from "+filePath);
                 sourceCode = readFile(file);
-                return getClosure(sourceCode, callParamsMap, file.getName());
+                return getClosure(sourceCode, binding, file.getName());
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }

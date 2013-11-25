@@ -12,9 +12,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -106,7 +104,7 @@ public class FlowTestDSL {
         System.out.println(keystring + " has been updated to " + key);
     }
 
-    private String getKey(String api) {
+    public String getKey(String api) {
         switch (api) {
         case API_SU:
             return this.serviceInfo.getProperty("supKey");
@@ -128,7 +126,7 @@ public class FlowTestDSL {
         return null;
     }
 
-    public FlowResponse request(String api, String flowName, Map paramsMap) {
+    public FlowResponse request(String api, String flowName, Map<String, String> paramsMap) {
         GeneralFlowRequest request = createGeneralFlowRequest(api, flowName, paramsMap);
         return request.sendRequest();
     }
@@ -170,9 +168,10 @@ public class FlowTestDSL {
         }
         String selectedKey = getKey(api);
         Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
-        Set<Entry<String, String>> entrySet = paramsMap.entrySet();
-        for (Entry<String, String> entry : entrySet) {
-            requestParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+        if ( paramsMap != null ) {
+            for (Map.Entry<String, String> entry : paramsMap.entrySet()) {
+                requestParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+            }
         }
         FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(this.serviceInfo);
         serviceInfo.setApiVersion(api);
@@ -294,7 +293,7 @@ public class FlowTestDSL {
      * @param scriptName script name.
      * @param callParamsMap script parameters.
      */
-    public Object callScript(String scriptName, Map callParamsMap) {
+    public Object callScript(String scriptName, Map<String, String> callParamsMap) {
         getLog().debug("In callScript() scriptName = " + scriptName);
         Closure exe = runner.createClosure(scriptName, callParamsMap);
         getLog().debug("callScript created closure  for scriptName = " + scriptName);
@@ -443,7 +442,7 @@ public class FlowTestDSL {
      * @param doNow is the request in script.
      * @param handleRequest is the handle method when recieved a request.
      */
-    private FlowResponse openPort(int portNo, int timeOutSeconds, String api, String flowName, Map parametersMap) {
+    private FlowResponse openPort(int portNo, int timeOutSeconds, String api, String flowName, Map<String, String> parametersMap) {
         Object monitor = new Object();
         server = getServer(portNo);
         server.setGracefulShutdown(1000);
@@ -553,10 +552,6 @@ public class FlowTestDSL {
 
     private static final String DEFAULT_ROOT_URL = "example.co.uk";
 
-    public FlowResponse request(String flowName) {
-        return request(API_DEFAULT, flowName, new HashMap<String, String>());
-    }
-
     /**
      * Sends a request to the named flow with the specified parameters.
      *
@@ -564,16 +559,16 @@ public class FlowTestDSL {
      * @param paramsMap key value map of parameters to send.
      * @return response string
      */
-    public FlowResponse request(String flowName, Map paramsMap) {
+    public FlowResponse request(String flowName, Map<String, String> paramsMap) {
         return request(null, flowName, paramsMap);
     }
 
-    public FlowResponse request(String apiKey, String api, String flowName, Map paramsMap) {
+    public FlowResponse request(String apiKey, String api, String flowName, Map<String, String> paramsMap) {
         GeneralFlowRequest request = createGeneralFlowRequest(apiKey, api, flowName, paramsMap);
         return request.sendRequest();
     }
 
-    public Future<FlowResponse> requestAsync(final String flowName, final Map paramsMap) {
+    public Future<FlowResponse> requestAsync(final String flowName, final Map<String, String> paramsMap) {
         FutureTask<FlowResponse> result = new FutureTask<FlowResponse>(new Callable<FlowResponse>() {
 
             @Override
@@ -620,11 +615,10 @@ public class FlowTestDSL {
      */
     public FlowResponse securedRequest(String flowName, Map<String, String> parametersMap) {
         FlowResponse response = callbackRequest("TemporaryApiKey", CUtilities.<String, String> createMap("apiCall", flowName));
-        if (response.hasError()) {
-            return response;
+        if (!response.hasError()) {
+            String key = response.get("temporaryApiKey");
+            response = request(key, null, flowName, parametersMap);
         }
-        String key = response.get("temporaryApiKey");
-        response = request(key, null, flowName, parametersMap);
         return response;
     }
 
@@ -668,9 +662,10 @@ public class FlowTestDSL {
             api = serviceInfo.getApiVersion();
         }
         Collection<NameValuePair> requestParams = new ArrayList<NameValuePair>();
-        Set<Entry<String, String>> entrySet = paramsMap.entrySet();
-        for (Entry<String, String> entry : entrySet) {
-            requestParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+        if ( paramsMap != null) {
+            for (Map.Entry<String, String> entry : paramsMap.entrySet()) {
+                requestParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+            }
         }
         FarReachesServiceInfo serviceInfo = new FarReachesServiceInfo(this.serviceInfo);
         serviceInfo.setApiVersion(api);
@@ -1007,15 +1002,19 @@ public class FlowTestDSL {
 
     public void obtainReadOnlyKey() {
         System.out.println("A readonly key is needed to proceed. Specify provider the key for.");
-        String publicUrl = input("example.co.uk", "Enter provider url");
+
+//        Binding binding = this.runner.getNewBinding(new HashMap());
+//        Object publicUri = binding.getVariable("publicUri");
+        String publicUrl = input(/*publicUri+*/"", "Enter provider url");
+        String reasonForAccess = input("Customer support tool automatic request.", "Reason for access");
         FlowResponse response = request("su", "SuApiKey", CUtilities.createMap(
                             "publicUri" , publicUrl,
-                            "reasonForAccess", "Customer support tool automatic request."));
+                            "reasonForAccess", reasonForAccess));
         if (!response.hasError()) {
             readOnlyKey = response.toString();
         } else {
             System.out.println(response);
-            throw new IllegalStateException("Failed to get read only key.");
+            throw new FlowException("Failed to get read only key.");
         }
     }
 

@@ -45,46 +45,51 @@ public class FlowResponse {
 
 	private final String responseText;
 	private final int httpStatusCode;
+	private final JsonConstruct parsedResponse;
 
 	public FlowResponse() {
 		responseText = null;
 		httpStatusCode = 0;
+		this.parsedResponse = null;
 	}
 
 	public FlowResponse(HttpResponse response) {
 		httpStatusCode = response.getStatusLine().getStatusCode();
-		try {
-			Header contentTypeHeader = response.getFirstHeader("Content-Type");
-			if (contentTypeHeader != null
-					&& contentTypeHeader.getValue() != null
-					&& contentTypeHeader.getValue().equals(APPLICATION_ZIP)) {
-				// calling classes should check for this.
-				responseText = APPLICATION_ZIP;
-			} else {
+		Header contentTypeHeader = response.getFirstHeader("Content-Type");
+		if (contentTypeHeader != null
+		        && contentTypeHeader.getValue() != null
+		        && contentTypeHeader.getValue().equals(APPLICATION_ZIP)) {
+		    // calling classes should check for this.
+		    responseText = APPLICATION_ZIP;
+		    this.parsedResponse = null;
+		} else {
+		    try {
 				responseText = EntityUtils.toString(response.getEntity(), Charset.forName("UTF-8"));
+				this.parsedResponse = JsonConstruct.Parser.toJsonConstruct(responseText);
+		    } catch (IOException e) {
+		        throw new IllegalStateException(e);
 			}
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
 		}
 	}
 
-	public FlowResponse(HttpServletRequest serverCallbackRequest) {
+	@SuppressWarnings("unchecked")
+    public FlowResponse(HttpServletRequest serverCallbackRequest) {
 		httpStatusCode = 200;
-		Enumeration<String> parameterNames = serverCallbackRequest
-				.getParameterNames();
-		JSONObject response = new JSONObject();
+		Enumeration<String> parameterNames = serverCallbackRequest.getParameterNames();
+		JSONObject parsedResponse = new JSONObject();
 		while (parameterNames.hasMoreElements()) {
 			String next = parameterNames.nextElement();
 			String parameter = serverCallbackRequest.getParameter(next);
 			if (parameter.startsWith("{")) {
-				response.put(next, JSONObject.toJsonObject(parameter));
+				parsedResponse.put(next, JSONObject.toJsonObject(parameter));
 			} else if (parameter.startsWith("[")) {
-				response.put(next, JSONArray.toJsonArray(parameter));
+				parsedResponse.put(next, JSONArray.toJsonArray(parameter));
 			} else {
-				response.put(next, parameter);
+				parsedResponse.put(next, parameter);
 			}
 		}
-		responseText = response.toString();
+		this.parsedResponse = parsedResponse;
+		responseText = parsedResponse.toString();
 	}
 
 	public int getHttpStatusCode() {
@@ -97,8 +102,7 @@ public class FlowResponse {
 
 	@Override
     public String toString() {
-		JsonConstruct jsonConstruct = JsonConstruct.Parser.toJsonConstruct(responseText);
-        return hasError() ? buildErrorMessage() : jsonConstruct != null ? jsonConstruct.toString(2) : responseText;
+        return hasError() ? buildErrorMessage() : this.parsedResponse != null ? this.parsedResponse.toString(2) : responseText;
 	}
 
     private String buildErrorMessage() {
@@ -121,16 +125,17 @@ public class FlowResponse {
 		return new JSONObject(responseText);
 	}
 
-	public JSONArray toJSONArray() {
-		if (hasError()) {
-			return null;
-		}
-		return new JSONArray(toString());
-	}
-
 	public String getErrorMessage() {
-		return "Http Status Code " + this.getHttpStatusCode() + "\n"
-				+ responseExplanations.get(this.getHttpStatusCode()) + "\n";
+        StringBuilder errorMessage = new StringBuilder("Http Status Code:")
+            .append(this.getHttpStatusCode()).append(";")
+            .append(responseExplanations.get(this.getHttpStatusCode()) ).append(";(");
+        if ( this.parsedResponse !=null && this.parsedResponse instanceof JSONObject) {
+            errorMessage.append(((JSONObject)this.parsedResponse).get("error"));
+        } else {
+            errorMessage.append(this.responseText);
+        }
+        errorMessage.append(")");
+        return errorMessage.toString();
 	}
 
 	public String get(String key) {
@@ -138,11 +143,11 @@ public class FlowResponse {
 		jsonObject = jsonObject.flatten();
 		return jsonObject!=null?jsonObject.optString(key):null;
 	}
-	
+
 	public String toTableString() {
 	    return toTableString(false);
 	}
-	
+
 	public String toFlattenedTableString() {
 	    return toTableString(true);
 	}
@@ -150,9 +155,10 @@ public class FlowResponse {
     private String toTableString(boolean flatten) {
         if (hasError()) {
             return buildErrorMessage();
+        } else {
+            JsonConstruct jsonConstruct = JsonConstruct.Parser.toJsonConstruct(responseText);
+            return getSectionString(flatten, jsonConstruct);
         }
-        JsonConstruct jsonConstruct = JsonConstruct.Parser.toJsonConstruct(responseText);
-        return getSectionString(flatten, jsonConstruct);
     }
 
     protected String getSectionString(boolean flatten, JsonConstruct jsonConstruct) {

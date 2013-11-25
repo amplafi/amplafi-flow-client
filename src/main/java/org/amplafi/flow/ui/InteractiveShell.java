@@ -8,13 +8,15 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.amplafi.dsl.BindingFactory;
-import org.amplafi.flow.ui.command.ServerChangeCommandBuilder;
-import org.amplafi.flow.ui.command.ShellCommand;
-import org.amplafi.flow.ui.command.ShellCommandBuilder;
 import org.amplafi.flow.ui.command.DescribeApiOrFlowBuilder;
 import org.amplafi.flow.ui.command.ExitBuilder;
 import org.amplafi.flow.ui.command.HelpBuilder;
+import org.amplafi.flow.ui.command.ServerChangeCommandBuilder;
+import org.amplafi.flow.ui.command.ServerDefinedFlowCommandBuilder;
+import org.amplafi.flow.ui.command.ShellCommand;
+import org.amplafi.flow.ui.command.ShellCommandBuilder;
 import org.amplafi.flow.ui.command.ShellCommandManager;
 import org.amplafi.flow.utils.AdminTool;
 import org.apache.commons.logging.Log;
@@ -51,12 +53,17 @@ public class InteractiveShell {
         is.addCommand(new DescribeApiOrFlowBuilder());
         is.addCommand(new SetParameterCommandBuilder());
         is.addCommand(new ServerChangeCommandBuilder());
-        List<String> scriptNames = new ArrayList<>(is.adminTool.getAvailableScripts().keySet());
+        is.addCommand(new ServerDefinedFlowCommandBuilder());
+        is.addNamedCommands();
+        is.ioLoop();
+    }
+
+    private void addNamedCommands() {
+        List<String> scriptNames = new ArrayList<>(adminTool.getAvailableScripts().keySet());
         Collections.sort(scriptNames);
         for (String script : scriptNames) {
-            is.addCommand(new NamedScriptCommandBuilder(script));
+            addCommand(new NamedScriptCommandBuilder(script));
         }
-        is.ioLoop();
     }
 
     public void ioLoop() {

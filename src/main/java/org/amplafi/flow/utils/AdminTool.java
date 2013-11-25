@@ -58,8 +58,8 @@ public class AdminTool {
                 try {
                     System.out.println(m.group(1) +"\t\t=("+ file.getCanonicalPath()+")");
                     scriptsAvailable.put(m.group(1), file.getCanonicalPath());
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (IOException e) {
+                    System.err.println(e.getMessage());
                 }
             }
         }
@@ -85,6 +85,10 @@ public class AdminTool {
 
     public boolean describeFlow(String api, String flow) {
         return getBindingFactory().getDSL().describeFlow(api, flow);
+    }
+
+    public FlowResponse request(String api, String flowName, Map paramsMap) {
+        return getBindingFactory().getDSL().request(api, flowName, paramsMap);
     }
 
     public void setServiceInfo(FarReachesServiceInfo serviceInfo) {

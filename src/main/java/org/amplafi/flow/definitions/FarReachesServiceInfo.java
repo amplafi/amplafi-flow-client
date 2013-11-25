@@ -33,9 +33,24 @@ public class FarReachesServiceInfo {
     public FarReachesServiceInfo() {
     }
 
+    public FarReachesServiceInfo(FarReachesServiceInfo farReachesServiceInfo) {
+        this.propertiesMap = new HashMap<>(farReachesServiceInfo.propertiesMap);
+        this.setMode(farReachesServiceInfo.activeKey);
+    }
+
     private Properties loadProperties(String key) {
         Properties properties = loadPropertyFile("global");
         properties.putAll(loadPropertyFile(key));
+        return putProperties(key, properties);
+    }
+
+    /**
+     * For testing ; store properties at the supplied key location.
+     * @param key
+     * @param properties
+     * @return
+     */
+    public Properties putProperties(String key, Properties properties) {
         this.propertiesMap.put(key, properties);
         String keyFileName = properties.getProperty("keyfile");
         if ( keyFileName != null) {
@@ -69,33 +84,11 @@ public class FarReachesServiceInfo {
      * @param apiVersion e.g. apiv1
      */
     @Deprecated
-    public FarReachesServiceInfo(String host, String port, String path, String apiVersion) {
+    public FarReachesServiceInfo(String host, String port, String apiVersion) {
         this.host = host;
         this.port = port;
-        this.path = path;
+        this.path = null;
         this.apiVersion = apiVersion;
-    }
-
-    @Deprecated
-    public FarReachesServiceInfo(FarReachesServiceInfo farReachesServiceInfo) {
-        this.activeKey = farReachesServiceInfo.activeKey;
-        this.apiVersion = farReachesServiceInfo.apiVersion;
-        this.host= farReachesServiceInfo.host;
-        this.path = farReachesServiceInfo.path;
-        this.port = farReachesServiceInfo.port;
-        this.propertiesMap = new HashMap<>(farReachesServiceInfo.propertiesMap);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param host host including protocol
-     * @param port port
-     * @param apiVersion e.g. apiv1
-     */
-    @Deprecated
-    public FarReachesServiceInfo(String host, String port, String apiVersion) {
-        this(host, port, null, apiVersion);
     }
 
     public void setMode(String mode) {
@@ -106,12 +99,12 @@ public class FarReachesServiceInfo {
         } else if ( "t".equalsIgnoreCase(mode)) {
             mode = "test";
         }
-        Properties properties = this.loadProperties(mode);
-        this.host = properties.getProperty("host");
-        this.port = properties.getProperty("port");
-        this.path = properties.getProperty("path");
-        this.apiVersion = properties.getProperty("apiv");
         this.activeKey = mode;
+        this.loadProperties(mode);
+        this.host = this.getProperty("host");
+        this.port = this.getProperty("port");
+        this.path = this.getProperty("path");
+        this.apiVersion = this.getProperty("apiv");
     }
     /**
      * Returns the host string.
@@ -176,6 +169,7 @@ public class FarReachesServiceInfo {
     }
 
     public String getProperty(String key) {
-        return this.propertiesMap.get(this.activeKey).getProperty(key);
+        Properties properties = this.propertiesMap.get(this.activeKey);
+        return properties.getProperty(key);
     }
 }
