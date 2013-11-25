@@ -640,6 +640,7 @@ public class FlowTestDSL {
             CUtilities.<String, String> createMap("apiCall", PERMANENT_API_KEY_CALL));
         String temporaryApiKey = response.get("temporaryApiKey");
         setKey(API_TEMPORARY, temporaryApiKey);
+        // HACK TODO FIX: hard coded values TO_KOSTYA
         response = callbackRequest(PERMANENT_API_KEY_CALL, CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
             "[{'email':'admin@example.com','roleType':'adm','displayName':'user','externalId':1}]", "defaultLanguage", "en", "selfName",
             "user's Blog! С русскими буквами.", "completeList", "true"));
