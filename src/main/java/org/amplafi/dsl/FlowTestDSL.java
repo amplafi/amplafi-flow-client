@@ -126,7 +126,9 @@ public class FlowTestDSL {
         return null;
     }
 
-    public FlowResponse request(String api, String flowName, Map<String, String> paramsMap) {
+    //Intentionally left the parameters map without type definition
+    //for compatibility with groovy scripts.
+    public FlowResponse request(String api, String flowName, @SuppressWarnings("rawtypes") Map paramsMap) {
         GeneralFlowRequest request = createGeneralFlowRequest(api, flowName, paramsMap);
         return request.sendRequest();
     }
