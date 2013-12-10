@@ -1008,7 +1008,7 @@ public class FlowTestDSL {
 //        Object publicUri = binding.getVariable("publicUri");
         String publicUrl = input(/*publicUri+*/"", "Enter provider url");
         String reasonForAccess = input("Customer support tool automatic request.", "Reason for access");
-        FlowResponse response = request("su", "SuApiKey", CUtilities.createMap(
+        FlowResponse response = request("su", "SuApiKey", CUtilities.<String,String>createMap(
                             "publicUri" , publicUrl,
                             "reasonForAccess", reasonForAccess));
         if (!response.hasError()) {
