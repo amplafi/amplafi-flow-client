@@ -1,7 +1,9 @@
 package org.amplafi.flow.definitions;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -67,11 +69,17 @@ public class FarReachesServiceInfo {
     private Properties loadPropertyFile(String key) {
         Properties properties = new Properties();
         String propertyFileName = "farreaches.cs-"+key+".properties";
-        System.out.println("Loading properties from :" + propertyFileName);
-        try(FileInputStream fileInputStream = new FileInputStream(propertyFileName)) {
-            properties.load(fileInputStream);
+            System.out.println("Loading properties from :" + propertyFileName);
+        try(InputStream in = new File(propertyFileName).exists() ? 
+                new FileInputStream(propertyFileName) : 
+                getClass().getResourceAsStream("/" + propertyFileName)) {
+            if (in != null) {
+                properties.load(in);
+            } else {
+                System.err.println(propertyFileName + ": No properties file found. Check for " + propertyFileName);                
+            }
         } catch (IOException e) {
-            System.out.println(propertyFileName + ": No properties file found. Check for " + propertyFileName);
+            System.err.println(propertyFileName + ": No properties file found. Check for " + propertyFileName);
         }
         return properties;
     }
