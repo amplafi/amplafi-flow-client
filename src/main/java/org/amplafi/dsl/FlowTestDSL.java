@@ -152,7 +152,7 @@ public class FlowTestDSL {
             CUtilities.<String, String> createMap("apiCall", "RegisterPlugin"));
         String temporaryApiKey = response.get("temporaryApiKey");
         setKey(API_TEMPORARY, temporaryApiKey);
-        response = callbackRequest(API_DEFAULT, PERMANENT_API_KEY_CALL, CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
+        response = callbackRequest(API_DEFAULT, "RegisterPlugin", CUtilities.<String, String> createMap("apiKey", temporaryApiKey, "usersList",
             "[{'email':'" + email + "','roleType':'adm','displayName':'user','externalId':1}]", "defaultLanguage", "en", "selfName", "user's Blog!",
             "completeList", "true"));
         this.permanentKey = response.get("permanentApiKeys.1");
@@ -643,7 +643,7 @@ public class FlowTestDSL {
         String temporaryApiKey = response.get("temporaryApiKey");
         setKey(API_TEMPORARY, temporaryApiKey);
         // HACK TODO FIX: hard coded values TO_KOSTYA
-        response = callbackRequest(rootUrl, API_DEFAULT, PERMANENT_API_KEY_CALL, CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
+        response = request(API_DEFAULT, "RegisterPlugin", CUtilities.<String, String> createMap("usersList",
             "[{'email':'admin@example.com','roleType':'adm','displayName':'user','externalId':1}]", "defaultLanguage", "en", "selfName",
             "user's Blog! С русскими буквами.", "completeList", "true"));
         return response.get("permanentApiKeys.1");
