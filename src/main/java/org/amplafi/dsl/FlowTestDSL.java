@@ -149,7 +149,7 @@ public class FlowTestDSL {
 
     public void obtainPermanentKey(String rootUrl, String email) {
         FlowResponse response = callbackRequest(rootUrl, API_PUBLIC, "TemporaryApiKey",
-            CUtilities.<String, String> createMap("apiCall", PERMANENT_API_KEY_CALL));
+            CUtilities.<String, String> createMap("apiCall", "RegisterPlugin"));
         String temporaryApiKey = response.get("temporaryApiKey");
         setKey(API_TEMPORARY, temporaryApiKey);
         response = callbackRequest(API_DEFAULT, PERMANENT_API_KEY_CALL, CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
@@ -457,7 +457,7 @@ public class FlowTestDSL {
                 throw new FlowException("Async request failed.");
             } else {
                 synchronized (monitor) {
-                    monitor.wait(TimeUnit.SECONDS.toMillis(1000));
+                    monitor.wait(TimeUnit.SECONDS.toMillis(timeOutSeconds));
                 }
                 if (!myHandler.getReceived()) {
                     server.stop();
@@ -639,11 +639,11 @@ public class FlowTestDSL {
 
     public String obtainPermanentKey(String rootUrl) {
         FlowResponse response = callbackRequest(rootUrl, API_PUBLIC, "TemporaryApiKey",
-            CUtilities.<String, String> createMap("apiCall", PERMANENT_API_KEY_CALL));
+            CUtilities.<String, String> createMap("apiCall", "RegisterPlugin"));
         String temporaryApiKey = response.get("temporaryApiKey");
         setKey(API_TEMPORARY, temporaryApiKey);
         // HACK TODO FIX: hard coded values TO_KOSTYA
-        response = callbackRequest(PERMANENT_API_KEY_CALL, CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
+        response = callbackRequest(rootUrl, API_DEFAULT, PERMANENT_API_KEY_CALL, CUtilities.<String, String> createMap("temporaryApiKey", temporaryApiKey, "usersList",
             "[{'email':'admin@example.com','roleType':'adm','displayName':'user','externalId':1}]", "defaultLanguage", "en", "selfName",
             "user's Blog! С русскими буквами.", "completeList", "true"));
         return response.get("permanentApiKeys.1");
