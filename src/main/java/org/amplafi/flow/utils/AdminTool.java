@@ -49,17 +49,19 @@ public class AdminTool {
     }
 
     private void loadScriptsAvailable(String scriptsFolder) {
-        System.out.println("loading scripts from "+scriptsFolder+" ('scripts_folder' directory)...");
-        File dir = new File(scriptsFolder);
-        File[] files = dir.listFiles();
-        for (File file : NotNullIterator.<File> newNotNullIterator(files)) {
-            Matcher m = SCRIPT_PATTERN.matcher(file.getName());
-            if (m.matches()) {
-                try {
-                    System.out.println(m.group(1) +"\t\t=("+ file.getCanonicalPath()+")");
-                    scriptsAvailable.put(m.group(1), file.getCanonicalPath());
-                } catch (IOException e) {
-                    System.err.println(e.getMessage());
+        if (scriptsFolder != null) {
+            System.out.println("loading scripts from "+scriptsFolder+" ('scripts_folder' directory)...");
+            File dir = new File(scriptsFolder);
+            File[] files = dir.listFiles();
+            for (File file : NotNullIterator.<File> newNotNullIterator(files)) {
+                Matcher m = SCRIPT_PATTERN.matcher(file.getName());
+                if (m.matches()) {
+                    try {
+                        System.out.println(m.group(1) +"\t\t=("+ file.getCanonicalPath()+")");
+                        scriptsAvailable.put(m.group(1), file.getCanonicalPath());
+                    } catch (IOException e) {
+                        System.err.println(e.getMessage());
+                    }
                 }
             }
         }
@@ -72,7 +74,9 @@ public class AdminTool {
     public boolean runScript(String script) throws IOException {
         String filePath = scriptsAvailable.get(script);
         if (null == filePath) {
-            return false;
+            boolean exists = new File(script).exists();
+            runner.loadAndRunOneScript(script);
+            return exists;
         } else {
             runner.loadAndRunOneScript(filePath);
             return true;
