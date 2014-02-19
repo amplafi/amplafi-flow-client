@@ -35,14 +35,15 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.testng.Assert;
 
+import com.sworddance.util.ApplicationIllegalStateException;
 import com.sworddance.util.CUtilities;
 
 /**
  * This class defines the methods that are callable within the flow test DSL
- * 
+ *
  * Purpotedly extends Assert to expose assert* methods to useCaseTests.
- * 
- * 
+ *
+ *
  */
 public class FlowTestDSL extends Assert {
 
@@ -137,7 +138,7 @@ public class FlowTestDSL extends Assert {
         GeneralFlowRequest request = createGeneralFlowRequest(api, flowName, Collections.<String,String>emptyMap());
         return request.sendRequest();
     }
-    
+
     public FlowResponse request(String flowName) {
         GeneralFlowRequest request = createGeneralFlowRequest(API_DEFAULT, flowName, Collections.<String,String>emptyMap());
         return request.sendRequest();
@@ -577,6 +578,9 @@ public class FlowTestDSL extends Assert {
     public String obtainPermanentKey(String rootUrl) {
         FlowResponse response = callbackRequest(rootUrl, API_PUBLIC, "TemporaryApiKey",
             CUtilities.<String, String> createMap("apiCall", "RegisterPlugin"));
+        if ( response == null) {
+            throw new ApplicationIllegalStateException("No response - is server running?");
+        }
         String temporaryApiKey = response.get("temporaryApiKey");
         setKey(API_TEMPORARY, temporaryApiKey);
         // HACK TODO FIX: hard coded values TO_KOSTYA
