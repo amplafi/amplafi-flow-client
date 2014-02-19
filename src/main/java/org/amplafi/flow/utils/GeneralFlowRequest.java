@@ -137,7 +137,9 @@ public class GeneralFlowRequest {
 		FlowResponse response;
 		try {
 			HttpClient client = getHttpClient();
-			HttpPost request = new HttpPost(getFullUri());
+			String fullUri = getFullUri();
+			System.out.println("Sending request to: " + fullUri);
+            HttpPost request = new HttpPost(fullUri);
 			if (apiKey != null) {
 				request.setHeader(AUTHORIZATION_HEADER, apiKey);
 			}

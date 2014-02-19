@@ -130,7 +130,7 @@ public class FlowResponse {
             .append(this.getHttpStatusCode()).append(";")
             .append(responseExplanations.get(this.getHttpStatusCode()) ).append(";(");
         if ( this.parsedResponse !=null && this.parsedResponse instanceof JSONObject) {
-            errorMessage.append(((JSONObject)this.parsedResponse).get("error"));
+            errorMessage.append(((JSONObject)this.parsedResponse).opt("error", this.parsedResponse.toString()));
         } else {
             errorMessage.append(this.responseText);
         }

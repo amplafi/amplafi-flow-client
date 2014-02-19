@@ -64,6 +64,7 @@ public class ScriptRunner {
         } else {
             file = new File(filePathOrName);
         }
+        System.out.println("Running script: " + file.getAbsolutePath());
         String script = readFile(file);
         getLog().debug("loadAndRunOneScript() start to run runScriptSource() method");
         Object value = runScriptSource(script, file.getName());
