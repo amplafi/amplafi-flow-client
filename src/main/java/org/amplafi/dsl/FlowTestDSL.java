@@ -39,6 +39,10 @@ import com.sworddance.util.CUtilities;
 
 /**
  * This class defines the methods that are callable within the flow test DSL
+ * 
+ * Purpotedly extends Assert to expose assert* methods to useCaseTests.
+ * 
+ * 
  */
 public class FlowTestDSL extends Assert {
 
