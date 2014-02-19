@@ -137,6 +137,11 @@ public class FlowTestDSL extends Assert {
         GeneralFlowRequest request = createGeneralFlowRequest(api, flowName, Collections.<String,String>emptyMap());
         return request.sendRequest();
     }
+    
+    public FlowResponse request(String flowName) {
+        GeneralFlowRequest request = createGeneralFlowRequest(API_DEFAULT, flowName, Collections.<String,String>emptyMap());
+        return request.sendRequest();
+    }
 
     public FlowResponse callbackRequest(String api, String flowName, Map<String, String> parametersMap) {
         return callbackRequest(this.getDefaultUrl(), api, flowName, parametersMap);
