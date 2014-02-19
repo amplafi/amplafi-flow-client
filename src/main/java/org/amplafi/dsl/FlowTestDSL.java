@@ -492,7 +492,7 @@ public class FlowTestDSL extends Assert {
      * @return response string
      */
     public FlowResponse request(String flowName, Map<String, String> paramsMap) {
-        return request(null, flowName, paramsMap);
+        return request(API_DEFAULT, flowName, paramsMap);
     }
 
     public FlowResponse request(String apiKey, String api, String flowName, Map<String, String> paramsMap) {
