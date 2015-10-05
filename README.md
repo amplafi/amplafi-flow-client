@@ -484,7 +484,7 @@ testLoadAndRunOneScript (/home/paul/Projects/Amplafai/development/flow-client/am
 
 amplafai -> amplafi (package names)
 convert log messages to log4j
-make stacks more beatiful
+make stacks more beautiful
 
 test scenario (Deadline )
     test client trigger reset apis keys method on server
