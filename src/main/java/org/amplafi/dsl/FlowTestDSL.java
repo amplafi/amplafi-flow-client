@@ -1,7 +1,5 @@
 package org.amplafi.dsl;
 
-import groovy.lang.Closure;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -37,6 +35,8 @@ import org.testng.Assert;
 
 import com.sworddance.util.ApplicationIllegalStateException;
 import com.sworddance.util.CUtilities;
+
+import groovy.lang.Closure;
 
 /**
  * This class defines the methods that are callable within the flow test DSL
@@ -432,7 +432,6 @@ public class FlowTestDSL extends Assert {
         /**
          * The method is constructor of the class.
          *
-         * @param handleRequest is handleRequest closure.
          * @param monitor is a synchronized lock.
          */
         MyHandler(Object monitor) {
@@ -600,7 +599,6 @@ public class FlowTestDSL extends Assert {
      * Sends a request to the named flow with the specified parameters.
      *
      * @param flowName to call.
-     * @param flowName2
      * @param paramsMap key value map of parameters to send.
      */
     private GeneralFlowRequest createGeneralFlowRequest(String apiKey, String api, String flowName, Map<String, String> paramsMap) {
@@ -825,8 +823,6 @@ public class FlowTestDSL extends Assert {
     /**
      * Gets a jetty server instance for a non-used port.
      *
-     * @param portNo
-     * @return
      */
     private int initServer() {
         synchronized (serverMap) {
@@ -848,10 +844,7 @@ public class FlowTestDSL extends Assert {
     /**
      * The method is to open a port and listens request.
      *
-     * @param portNo is port number.
      * @param timeOutSeconds is time out seconds.
-     * @param doNow is the request in script.
-     * @param handleRequest is the handle method when recieved a request.
      */
     private FlowResponse openPort(int timeOutSeconds, String api, String flowName, Map<String, String> parametersMap, String rootUrl) {
         Object monitor = new Object();
@@ -924,11 +917,6 @@ public class FlowTestDSL extends Assert {
      * empty value "" is returned - for example, pressing enter without typing anything - set a
      * default value and print an error message.
      *
-     * @param inputVariable the name you want to appear on screen when using this function
-     * @param defaultValue the value to which the variable will be defaulted in case the value can't
-     *            be filled
-     * @param errorMessage the error message in case you want to print one. Put null for no error
-     *            message
      * @return
      */
     public String input(String defaultValue, String request) {
