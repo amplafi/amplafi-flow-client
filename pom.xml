@@ -19,9 +19,9 @@
     <scm>
         <developerConnection>scm:git:${github-base}${project.artifactId}.git</developerConnection>
     </scm>
-    
+
     <dependencies>
-     	<dependency>
+        <dependency>
             <groupId>org.amplafi</groupId>
             <artifactId>amplafi-flow-core</artifactId>
             <version>${amplafi-flow-build}</version>
@@ -41,8 +41,8 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.codehaus.groovy</groupId>
-          <artifactId>groovy-all</artifactId>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
         </dependency>
         <dependency>
             <groupId>org.easymock</groupId>
@@ -50,8 +50,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>jline</groupId>
-          <artifactId>jline</artifactId>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
@@ -122,32 +122,33 @@
                     </execution>
                 </executions>
             </plugin>
-
+<!-- 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerId>groovy-eclipse-compiler</compilerId>
-                    <!-- set verbose to be true if you want lots of uninteresting messages -->
-                    <!-- <verbose>true</verbose> -->
+                    set verbose to be true if you want lots of uninteresting messages
+                    <verbose>true</verbose>
                     <source>${java-build}</source>
                     <target>${java-build}</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
                 <dependencies>
-                  <dependency>
-                    <groupId>org.codehaus.groovy</groupId>
-                    <artifactId>groovy-eclipse-compiler</artifactId>
-                    <version>2.7.0-01</version>
-                   </dependency>
-				<dependency>
-					<groupId>org.codehaus.groovy</groupId>
-					<artifactId>groovy-eclipse-batch</artifactId>
-					<version>1.8.6-01</version>
-					<!-- <version>1.7.10-06</version> -->
-				</dependency>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-compiler</artifactId>
+                        <version>2.7.0-01</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-batch</artifactId>
+                        <version>1.8.6-01</version>
+                        <version>1.7.10-06</version>
+                    </dependency>
                 </dependencies>
             </plugin>
+             -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -156,23 +157,23 @@
                     <excludes>
                         <!-- TestFlowTypes is for an old version of the API which may be out of use -->
                         <exclude>**/TestFlowTypes.java</exclude>
-                        <!-- TestFlowTypesSandBox should be enabled, it is only disabled while we make sure it works with the continuous integration
-                        make sure it works with the  continuous integration server.
-                        <exclude>**/TestFlowTypesSandBox.java</exclude>  -->
+                        <!-- TestFlowTypesSandBox should be enabled, it is only disabled while we make sure it works with the continuous 
+                            integration make sure it works with the continuous integration server. <exclude>**/TestFlowTypesSandBox.java</exclude> -->
                         <exclude>**/TestScriptRunner.java</exclude>
-                        <exclude>**/TestDSLScriptsBatchRunner.java</exclude>  
+                        <exclude>**/TestDSLScriptsBatchRunner.java</exclude>
 
                         <exclude>**/TestFlowTypesSandBox.java</exclude>
 
                     </excludes>
 
                     <systemPropertyVariables>
-                        <!-- call mvn -Dkey=your_api_key ( looks like: ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e )  -->
+                        <!-- call mvn -Dkey=your_api_key ( looks like: ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e 
+                            ) -->
                         <key>ampcb_e2ea34097f9aba4f69ff7c095d227beabccef732971eb2539065997d297b12c9</key>
                         <host>http://sandbox.farreach.es</host>
                         <port>8080</port>
-                        <!-- List the flows that you want to ignore here   -->
-                         <ignoreFlows>PermanentApiKey,CategoriesList</ignoreFlows>
+                        <!-- List the flows that you want to ignore here -->
+                        <ignoreFlows>PermanentApiKey,CategoriesList</ignoreFlows>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -201,83 +202,84 @@
             </plugin>
 
             <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>exec-maven-plugin</artifactId>
-              <executions>
-                <execution>
-                  <goals>
-                    <goal>exec</goal>
-                  </goals>
-                </execution>
-              </executions>
-              <configuration>
-                <executable>maven</executable>
-                <!-- optional -->
-                <workingDirectory>/tmp</workingDirectory>
-                <arguments>
-                  <argument>-mainClass</argument>
-                  <argument>org.amplafi.flow.utils.AdminTool</argument>
-                </arguments>
-              </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>maven</executable>
+                    <!-- optional -->
+                    <workingDirectory>/tmp</workingDirectory>
+                    <arguments>
+                        <argument>-mainClass</argument>
+                        <argument>org.amplafi.flow.utils.AdminTool</argument>
+                    </arguments>
+                </configuration>
             </plugin>
 
         </plugins>
         <pluginManagement>
-        	<plugins>
-        		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-        		<plugin>
-        			<groupId>org.eclipse.m2e</groupId>
-        			<artifactId>lifecycle-mapping</artifactId>
-        			<version>1.0.0</version>
-        			<configuration>
-        				<lifecycleMappingMetadata>
-        					<pluginExecutions>
-        						<pluginExecution>
-        							<pluginExecutionFilter>
-        								<groupId>
-        									org.apache.maven.plugins
-        								</groupId>
-        								<artifactId>
-        									maven-compiler-plugin
-        								</artifactId>
-        								<versionRange>
-        									[3.1,)
-        								</versionRange>
-        								<goals>
-        									<goal>compile</goal>
-        									<goal>testCompile</goal>
-        								</goals>
-        							</pluginExecutionFilter>
-        							<action>
-        								<ignore></ignore>
-        							</action>
-        						</pluginExecution>
-        						<pluginExecution>
-        							<pluginExecutionFilter>
-        								<groupId>
-        									org.codehaus.mojo
-        								</groupId>
-        								<artifactId>
-        									properties-maven-plugin
-        								</artifactId>
-        								<versionRange>
-        									[1.0-alpha-2,)
-        								</versionRange>
-        								<goals>
-        									<goal>
-        										read-project-properties
-        									</goal>
-        								</goals>
-        							</pluginExecutionFilter>
-        							<action>
-        								<ignore></ignore>
-        							</action>
-        						</pluginExecution>
-        					</pluginExecutions>
-        				</lifecycleMappingMetadata>
-        			</configuration>
-        		</plugin>
-        	</plugins>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build 
+                    itself. -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.apache.maven.plugins
+                                        </groupId>
+                                        <artifactId>
+                                            maven-compiler-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [3.1,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>compile</goal>
+                                            <goal>testCompile</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.codehaus.mojo
+                                        </groupId>
+                                        <artifactId>
+                                            properties-maven-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [1.0-alpha-2,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>
+                                                read-project-properties
+                                            </goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
         </pluginManagement>
     </build>
     <profiles>
@@ -296,7 +298,8 @@
                             </excludes>
 
                             <systemPropertyVariables>
-                        <!-- call mvn -Dkey=your_api_key ( looks like: ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e )  -->
+                                <!-- call mvn -Dkey=your_api_key ( looks like: ampcb_e1446aa0e3e46427b591fa044c5f51c57989e393b66269140af68709e1da228e 
+                                    ) -->
                                 <key></key>
                                 <host>http://sandbox.farreach.es</host>
                                 <port>8080</port>
